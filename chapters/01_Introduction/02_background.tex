@@ -1,0 +1,19 @@
+\section{Background} 
+\label{sec:introduction:background}
+0.  Statistic and Probability in a Nutshell
+Denoting $\boldsymbol{\theta}$ as the target variables and $\mathcal{D}$ as the observed data samples, Bayes' rule is:
+\begin{equation}
+\label{eq:bayes}
+    p(\boldsymbol{\theta}|\mathcal{D})= \frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathcal{D})}=\frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{\int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'}.
+\end{equation}
+$p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood of expected data across all possible parameter settings, which is often regarded as constant. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. For example, the probability of a disease $\theta_1$ given a test result $\mathcal{D}_1$, $p(\theta_1|\mathcal{D}_1)$ can be narrowed down from the prior belief $p(\theta_1)$ and all known likelihoods of test results $p(\mathcal{D}_i|\theta_i)$.
+In the Bayesian context, probabilistic inference is the process of obtaining the posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$.
+1.	Bayesian system identification
+
+2.	Bayesian state estimation
+
+3.	Probabilistic deep learning methods 
+Optimizing the parameters of the inference network across all data points constitutes amortized variational inference, wherein a shared network learns to approximate the posterior distribution efficiently for all data points. 
+4.	Normalizing flows for density estimation
+
+5.	Data-driven control and RL

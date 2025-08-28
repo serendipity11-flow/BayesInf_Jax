@@ -1,0 +1,56 @@
+{
+  "latex-workshop.latex.tools": [
+    { "name": "bibtex",
+      "command": "bibtex",
+      "args": ["%DOCFILE%"]
+    },
+    {
+      "name": "pdflatex",
+      "command": "pdflatex",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "%DOC%"
+      ]
+    },
+    {
+      "name": "xelatex",
+      "command": "xelatex",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "%DOC%"
+      ]
+    },
+    {
+      "name": "lualatex",
+      "command": "lualatex",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "%DOC%"
+      ]
+    }
+  ],
+
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "pdflatex -> bibtex -> pdflatex*2",
+      "tools": ["pdflatex",
+                "bibtex",
+                "pdflatex",
+                "pdflatex"]
+    },
+    {
+      "name": "xelatex",
+      "tools": ["xelatex"]
+    },
+    {
+      "name": "lualatex",
+      "tools": ["lualatex"]
+    }
+  ],
+
+  // 👇 choose default recipe
+  "latex-workshop.latex.recipe.default": "lastUsed"
+}

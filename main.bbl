@@ -1,0 +1,84 @@
+\begin{thebibliography}{12}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Foong et~al.(2020)Foong, Burt, Li, and Turner]{foong2020bnn}
+Andrew Y.~K. Foong, David~R. Burt, Yingzhen Li, and Richard~E. Turner.
+\newblock On the expressiveness of approximate inference in bayesian neural networks, 2020.
+\newblock URL \url{https://arxiv.org/abs/1909.00719}.
+
+\bibitem[Gelman et~al.(2013)Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin]{gelman2013bayesian}
+Andrew Gelman, John~B. Carlin, Hal~S. Stern, David~B. Dunson, Akti Vehtari, and Donald~B. Rubin.
+\newblock \emph{Bayesian Data Analysis}.
+\newblock Chapman \& Hall/CRC Texts in Statistical Science Series. CRC, Boca Raton, Florida, third edition, 2013.
+\newblock ISBN 9781439840955 1439840954.
+\newblock URL \url{https://stat.columbia.edu/~gelman/book/}.
+
+\bibitem[Girin et~al.(2021)Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda]{Girin_2021}
+Laurent Girin, Simon Leglaive, Xiaoyu Bie, Julien Diard, Thomas Hueber, and Xavier Alameda-Pineda.
+\newblock Dynamical variational autoencoders: A comprehensive review.
+\newblock \emph{Foundations and Trends® in Machine Learning}, 15\penalty0 (1–2):\penalty0 1–175, 2021.
+\newblock ISSN 1935-8245.
+\newblock \doi{10.1561/2200000089}.
+\newblock URL \url{http://dx.doi.org/10.1561/2200000089}.
+
+\bibitem[Goan and Fookes(2020)]{Goan_2020}
+Ethan Goan and Clinton Fookes.
+\newblock \emph{Bayesian Neural Networks: An Introduction and Survey}, page 45–87.
+\newblock Springer International Publishing, 2020.
+\newblock ISBN 9783030425531.
+\newblock \doi{10.1007/978-3-030-42553-1_3}.
+\newblock URL \url{http://dx.doi.org/10.1007/978-3-030-42553-1_3}.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020ddpm}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models, 2020.
+\newblock URL \url{https://arxiv.org/abs/2006.11239}.
+
+\bibitem[Kingma and Welling(2019)]{Kingma_2019}
+Diederik~P. Kingma and Max Welling.
+\newblock An introduction to variational autoencoders.
+\newblock \emph{Foundations and Trends® in Machine Learning}, 12\penalty0 (4):\penalty0 307–392, 2019.
+\newblock ISSN 1935-8245.
+\newblock \doi{10.1561/2200000056}.
+\newblock URL \url{http://dx.doi.org/10.1561/2200000056}.
+
+\bibitem[Mattei and Frellsen(2018)]{frellsen2018}
+Pierre-Alexandre Mattei and Jes Frellsen.
+\newblock Leveraging the exact likelihood of deep latent variable models.
+\newblock In \emph{Proceedings of the 32nd International Conference on Neural Information Processing Systems}, NIPS'18, page 3859–3870, Red Hook, NY, USA, 2018. Curran Associates Inc.
+
+\bibitem[Murphy(2022)]{pml1Book}
+Kevin~P. Murphy.
+\newblock \emph{Probabilistic Machine Learning: An introduction}.
+\newblock MIT Press, 2022.
+\newblock URL \url{http://probml.github.io/book1}.
+
+\bibitem[Murphy(2023)]{pml2Book}
+Kevin~P. Murphy.
+\newblock \emph{Probabilistic Machine Learning: Advanced Topics}.
+\newblock MIT Press, 2023.
+\newblock URL \url{http://probml.github.io/book2}.
+
+\bibitem[Paniagua and López(2024)]{PANIAGUA2024200344}
+Jose~L. Paniagua and Jesús~A. López.
+\newblock Nonlinear system identification using modified variational autoencoders.
+\newblock \emph{Intelligent Systems with Applications}, 22:\penalty0 200344, 2024.
+\newblock ISSN 2667-3053.
+\newblock \doi{https://doi.org/10.1016/j.iswa.2024.200344}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S2667305324000206}.
+
+\bibitem[Rezende and Mohamed(2016)]{rezende2016}
+Danilo~Jimenez Rezende and Shakir Mohamed.
+\newblock Variational inference with normalizing flows, 2016.
+\newblock URL \url{https://arxiv.org/abs/1505.05770}.
+
+\bibitem[Särkkä(2019)]{sarkka2019gp}
+Simo Särkkä.
+\newblock The use of gaussian processes in system identification, 2019.
+\newblock URL \url{https://arxiv.org/abs/1907.06066}.
+
+\end{thebibliography}

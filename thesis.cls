@@ -1,7 +1,7 @@
 \LoadClass[twoside,11pt, openright, a4paper]{book}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{thesis}[]
-
+\usepackage[english]{babel}
 \usepackage{wrapfig}
 \usepackage{mathtools}
 \usepackage{makecell}
@@ -11,7 +11,15 @@
 \renewcommand{\dateseparator}{.}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{microtype}
+\usepackage[protrusion=true,expansion=true]{microtype}
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thechapter}{\Roman{chapter}}
+
+\usepackage{titlesec}
+\titleformat{\paragraph}[block]{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+
 \usepackage{palatino,eulervm}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{graphicx}
@@ -24,12 +32,11 @@
 \renewcommand{\textflush}{flushright}
 \renewcommand{\epigraphsize}{\large}
 \setlength\epigraphrule{0pt}
-
+\usepackage{lmodern} % Improved font support
 \usepackage{breakcites}
 \usepackage[final]{listings}
 \usepackage[printonlyused]{acronym} % Acronyms with \ac
 \usepackage{changepage}
-\usepackage{titlesec}
 \usepackage{pdfpages}
 \usepackage{booktabs}
 \usepackage{tabularx}
@@ -108,7 +115,6 @@
 %\usepackage[onehalfspacing]{setspace}
 \usepackage{setspace}
 \setstretch{1,1}
-
 
 \usepackage{gensymb} %degree
 

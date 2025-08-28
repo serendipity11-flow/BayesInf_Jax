@@ -1,6 +1,18 @@
-\section{Background} 
+\section{Background and Preliminaries} 
 \label{sec:introduction:background}
-0.  Statistic and Probability in a Nutshell
+This section introduces the necessary fundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic models, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge probabilistic inference to control methods, covering system identification, state estimation, and model predictive control.
+
+\subsection{Notations}
+In general, scalars are denoted by lowercase letters, e.g., $x$, vectors by bold lowercase letters, e.g., $\boldsymbol{x}$, and matrices by bold uppercase letters, e.g., $\boldsymbol{X}$.
+
+Random variables are denoted by vectors, multiple dimensional sequences are denoted by matrics, and stochastic processes are denoted by uppercase letters, e.g., $X(t)$, where $(t)$ means it is a function of time. A set of mixed or unspecified data types is denoted by calligraphic letters, e.g., $\mathcal{D}$. A time series of length $T$ is denoted by $\boldsymbol{x}_{1:T}$, where the subscript indicates the time step. When a single dimension in the time series is mentioned, the superscript $[i]$ is used to indicate the $i$-th dimension, e.g., $\boldsymbol{x}[i]$. The estimation of a variable is denoted by a hat, e.g., $\hat{\boldsymbol{x}}$. The processed value of a variable is denoted by a tilde, e.g., $\tilde{\boldsymbol{x}}$.
+
+The \acf{PDF} of a random variable is denoted by $p(\cdot)$, joint \ac{PDF} is denoted by $p(\cdot,\cdot)$, conditional \ac{PDF} is denoted by $p(\cdot|\cdot)$. The expectation of a function $f(x)$ with respect to the \ac{PDF} of x, $p(x)$, is denoted by $\mathbb{E}_{p(x)}[f(x)]$. The covariance between two random variables $\boldsymbol{x}$ and $\boldsymbol{y}$ is denoted by $\text{Cov}[\boldsymbol{x},\boldsymbol{y}]$. The variance of a random variable $\boldsymbol{x}$ is denoted by $\text{Var}[\boldsymbol{x}]$. The identity matrix is denoted by $\boldsymbol{I}$. The determinant of a matrix $\boldsymbol{J}$ is denoted by $\text{det}|\boldsymbol{J}|$, where $\boldsymbol{J}$ denotes a Jacobian matrix. The trace of a matrix $\boldsymbol{X}$ is denoted by $\text{tr}(\boldsymbol{X})$. The transpose of a matrix $\boldsymbol{X}$ is denoted by $\boldsymbol{X}^\top$.
+
+\subsection{Bayesian Inference}
+This chapter refers to the book \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}.
+
+\subsubsection{Bayes' rule}
 Denoting $\boldsymbol{\theta}$ as the target variables and $\mathcal{D}$ as the observed data samples, Bayes' rule is:
 \begin{equation}
 \label{eq:bayes}
@@ -8,12 +20,34 @@ Denoting $\boldsymbol{\theta}$ as the target variables and $\mathcal{D}$ as the 
 \end{equation}
 $p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood of expected data across all possible parameter settings, which is often regarded as constant. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. For example, the probability of a disease $\theta_1$ given a test result $\mathcal{D}_1$, $p(\theta_1|\mathcal{D}_1)$ can be narrowed down from the prior belief $p(\theta_1)$ and all known likelihoods of test results $p(\mathcal{D}_i|\theta_i)$.
 In the Bayesian context, probabilistic inference is the process of obtaining the posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$.
-1.	Bayesian system identification
 
-2.	Bayesian state estimation
+\subsubsection{Markov Chain Monte Carlo}
 
-3.	Probabilistic deep learning methods 
-Optimizing the parameters of the inference network across all data points constitutes amortized variational inference, wherein a shared network learns to approximate the posterior distribution efficiently for all data points. 
-4.	Normalizing flows for density estimation
+\subsubsection{Variational Inference}
 
-5.	Data-driven control and RL
+\subsection{Deep Probabilistic Models}
+
+\subsubsection{Deep Gaussian Process}
+
+\subsubsection{Bayesian Neural Networks}
+
+\subsubsection{Variational Autoencoder}
+
+\subsection{Normalizing Flows}
+
+\subsubsection{Basics}
+
+\subsubsection{Discrete Normalizing Flows}
+\paragraph{Coupling layers}
+\paragraph{Autoregressive flows}
+\subsubsection{Continuous Normalizing Flows}
+\paragraph{Neural ODEs}
+\paragraph{FFJORD}
+
+\subsection{From Inference to Control}
+
+\subsubsection{Bayesian System Identification}
+
+\subsubsection{Bayesian State Estimation}
+
+\subsubsection{Model Predictive Control}

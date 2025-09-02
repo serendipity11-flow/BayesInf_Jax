@@ -3,27 +3,124 @@
 This section introduces the necessary fundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic models, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge probabilistic inference to control methods, covering system identification, state estimation, and model predictive control.
 
 \subsection{Notations}
-In general, scalars are denoted by lowercase letters, e.g., $x$, vectors by bold lowercase letters, e.g., $\boldsymbol{x}$, and matrices by bold uppercase letters, e.g., $\boldsymbol{X}$.
 
-Random variables are denoted by vectors, multiple dimensional sequences are denoted by matrics, and stochastic processes are denoted by uppercase letters, e.g., $X(t)$, where $(t)$ means it is a function of time. A set of mixed or unspecified data types is denoted by calligraphic letters, e.g., $\mathcal{D}$. A time series of length $T$ is denoted by $\boldsymbol{x}_{1:T}$, where the subscript indicates the time step. When a single dimension in the time series is mentioned, the superscript $[i]$ is used to indicate the $i$-th dimension, e.g., $\boldsymbol{x}[i]$. The estimation of a variable is denoted by a hat, e.g., $\hat{\boldsymbol{x}}$. The processed value of a variable is denoted by a tilde, e.g., $\tilde{\boldsymbol{x}}$.
+To maintain clarity throughout this document, we adopt the following notation:
 
-The \acf{PDF} of a random variable is denoted by $p(\cdot)$, joint \ac{PDF} is denoted by $p(\cdot,\cdot)$, conditional \ac{PDF} is denoted by $p(\cdot|\cdot)$. The expectation of a function $f(x)$ with respect to the \ac{PDF} of x, $p(x)$, is denoted by $\mathbb{E}_{p(x)}[f(x)]$. The covariance between two random variables $\boldsymbol{x}$ and $\boldsymbol{y}$ is denoted by $\text{Cov}[\boldsymbol{x},\boldsymbol{y}]$. The variance of a random variable $\boldsymbol{x}$ is denoted by $\text{Var}[\boldsymbol{x}]$. The identity matrix is denoted by $\boldsymbol{I}$. The determinant of a matrix $\boldsymbol{J}$ is denoted by $\text{det}|\boldsymbol{J}|$, where $\boldsymbol{J}$ denotes a Jacobian matrix. The trace of a matrix $\boldsymbol{X}$ is denoted by $\text{tr}(\boldsymbol{X})$. The transpose of a matrix $\boldsymbol{X}$ is denoted by $\boldsymbol{X}^\top$.
+\begin{enumerate}[label=\textbf{\arabic*.}, wide=0pt, leftmargin=*, labelsep=1em]
+    \item[Basic symbols]\mbox{}\\[-1em] 
+    \begin{itemize}
+        \item Scalars are denoted by lowercase letters, e.g., $x$.
+        \item Vectors are denoted by bold lowercase letters, e.g., $\boldsymbol{x}$.
+        \item Matrices are denoted by bold uppercase letters, e.g., $\boldsymbol{X}$.
+        \item Sets or collections of mixed or unspecified data types are denoted by calligraphic letters, e.g., $\mathcal{D}$.
+    \end{itemize}
+
+    \item[Random variables]\mbox{}\\[-1em] 
+    \begin{itemize}[itemsep=1em]
+        \item Random variables may be scalars or vectors.
+        \item Stochastic processes are denoted by italic capital letters with a time argument, e.g., $\it{X}(t)$, where $t$ indicates time dependence.
+    \end{itemize}
+
+    \item[Time series]\mbox{}\\[-1em] 
+    \begin{itemize}[itemsep=1em]
+        \item A time series of length $T$ is denoted by $\boldsymbol{x}_{1:T}$, where the subscript indicates the time index.
+        \item The $i$-th dimension of a time series is denoted by a superscript, e.g., $\boldsymbol{x}[i]$.
+    \end{itemize}
+
+    \item[Variable modifications]\mbox{}\\[-1em] 
+    \begin{itemize}[itemsep=1em]
+        \item Estimated variables are denoted with a hat, e.g., $\hat{\boldsymbol{x}}$.
+        \item Processed or transformed variables are denoted with a tilde, e.g., $\tilde{\boldsymbol{x}}$.
+    \end{itemize}
+
+    \item[Probability and statistics]\mbox{}\\[-1em] 
+    \begin{itemize}[itemsep=0.5em]
+        \item \acf{PDF}: $p(\cdot)$.
+        \item Joint PDF: $p(\cdot, \cdot)$.
+        \item Conditional PDF: $p(\cdot \mid \cdot)$.
+        \item Expectation of a function $f(x)$ under PDF $p(x)$: $\mathbb{E}_{p(x)}[f(x)]$.
+        \item Covariance between random vectors $\boldsymbol{x}$ and $\boldsymbol{y}$: $\text{Cov}[\boldsymbol{x}, \boldsymbol{y}]$.
+        \item Variance of a random variable $\boldsymbol{x}$: $\text{Var}[\boldsymbol{x}]$.
+    \end{itemize}
+
+    \item[Matrix operations]\mbox{}\\[-1em] 
+    \begin{itemize}
+        \item Identity matrix: $\boldsymbol{I}$.
+        \item Jacobian matrix: $\boldsymbol{J}$.
+        \item Determinant of $\boldsymbol{J}$: $\det|\boldsymbol{J}|$.
+        \item Trace of a matrix $\boldsymbol{X}$: $\text{tr}(\boldsymbol{X})$.
+        \item Transpose of a matrix $\boldsymbol{X}$: $\boldsymbol{X}^\top$.
+    \end{itemize}
+\end{enumerate}
 
 \subsection{Bayesian Inference}
 This chapter refers to the book \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}.
 
 \subsubsection{Bayes' rule}
-Denoting $\boldsymbol{\theta}$ as the target variables and $\mathcal{D}$ as the observed data samples, Bayes' rule is:
+Bayes' rule is derived from the chain rule of conditional probability. For target variables $\boldsymbol{\theta}$ and the corresponding observed data $\mathcal{D}$, the chain rule states that:
+\begin{equation}
+    p(\boldsymbol{\theta}, \mathcal{D}) = p(\boldsymbol{\theta}|\mathcal{D})p(\mathcal{D}) = p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta}).
+\end{equation}
+Rearranging the terms gives Bayes' rule:
 \begin{equation}
 \label{eq:bayes}
-    p(\boldsymbol{\theta}|\mathcal{D})= \frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathcal{D})}=\frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{\int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'}.
+    p(\boldsymbol{\theta}|\mathcal{D})= \frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathcal{D})}.
 \end{equation}
-$p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood of expected data across all possible parameter settings, which is often regarded as constant. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. For example, the probability of a disease $\theta_1$ given a test result $\mathcal{D}_1$, $p(\theta_1|\mathcal{D}_1)$ can be narrowed down from the prior belief $p(\theta_1)$ and all known likelihoods of test results $p(\mathcal{D}_i|\theta_i)$.
-In the Bayesian context, probabilistic inference is the process of obtaining the posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$.
+In Bayes' theorem, $p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood of expected data across all possible parameter settings, i.e., $\Sigma_{\boldsymbol{\theta}'}p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')\Delta \boldsymbol{\theta}'$ or $\int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'$ for continuous $\boldsymbol{\theta}$. In practice, it is often treated as a normalizing constant and ignored. The unnormalized posterior is then given by:
+\begin{equation}
+    p_u(\boldsymbol{\theta}|\mathcal{D}) \propto p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta}).            
+\end{equation}
 
-\subsubsection{Markov Chain Monte Carlo}
+Normally, the posterior distribution does not have a closed-form expression. Instead, we approximate it using numerical methods. Computational algorithms that rely on repeated random sampling to obtain numerical results refers to "Monte Carlo" methods. Monte Carlo methods provide ways to approximate the posterior distribution by expections:
+\begin{equation}
+    E=\mathbb{E}_{p(\boldsymbol{\theta}|\mathcal{D})}[f(\boldsymbol{\theta})] = \int f(\boldsymbol{\theta}) p(\boldsymbol{\theta}|\mathcal{D}) d\boldsymbol{\theta},
+\end{equation}
+where $f(\boldsymbol{\theta})$ is any function of interest. As the simplest way, we can approximate it using standard numerical techniques such as a Riemann sum over a discrete grid of points:
+\begin{equation}
+    E \approx \Sigma_{\boldsymbol{\theta}'} f(\boldsymbol{\theta}') \Delta \boldsymbol{\theta}'.
+\end{equation}
+However, this approach is only feasible for low-dimensional $\boldsymbol{\theta}$ due to the curse of dimensionality. Besides, for complex distributions, the discretization is highly inefficient. For high-dimensional $\boldsymbol{\theta}$, we often resort to sampling-based or optimization-based methods to approximate the posterior distribution, which will be discussed in the following sections.
+
+\subsubsection{\ac{MCMC}}
+The "Markov Chain" aspect indicates that these algorithms generate a sequence of samples where each sample depends only on the previous one. In contrast to the basic Monte Carllo methods, \acf{MCMC} methods produce autocorrelated samples, so that each new sample adds less new information than an independent draw would. Different sequences updating algorithms lead to different \ac{MCMC} methods. The goal of \ac{MCMC} is to construct a Markov chain that has the desired posterior distribution as its equilibrium distribution. After running the chain for a sufficient number of iterations, the samples generated from the chain can be treated as samples from the target posterior distribution.
+
+\paragraph{\acf{MH} algorithm}
+The \ac{MH} algorithm, which is named after Metropolis \citeyear{Metropolis} and Hastings \citeyear{Hastings}, is a widely used \ac{MCMC} method. The steps of the \ac{MH} algorithm are as follows:
+\begin{enumerate}
+    \item Initialize the chain with a starting point $\boldsymbol{\theta}_{(0)}$. 
+    \item For each iteration $i$:
+    \begin{enumerate}
+        \item Propose a new state $\boldsymbol{\theta}'_{(i)}$ from a proposal distribution $q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$.             
+        \item Calculate the transition probability: 
+        \begin{equation}
+        \label{eq:mh_transition}
+        T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})=\min\{1, \frac{p(\boldsymbol{\theta}'_{(i)}|\mathcal{D})q(\boldsymbol{\theta}_{(i-1)}|\boldsymbol{\theta}'_{(i)})}{p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D})q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})}\}.
+        \end{equation}
+        \item Generate a uniform random number $u \sim U(0,1)$. If $u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$, accept the proposed state and set $\boldsymbol{\theta}_{(i)} \leftarrow \boldsymbol{\theta}'_{(i)}$; otherwise, reject it and set $\boldsymbol{\theta}_{(i)}\leftarrow \boldsymbol{\theta}_{(i-1)}$. 
+    \end{enumerate}
+    \item Repeat step 2 for a large number of iterations to obtain a sequence of samples $\{\boldsymbol{\theta}_{(1)}, \boldsymbol{\theta}_{(2)}, \ldots, \boldsymbol{\theta}_{(N)}\}$.
+\end{enumerate}
+\paragraph{\acf{MALA}}
+The \ac{MALA} \citep{besag2004markov} is an advanced \ac{MCMC} method that combines the \ac{MH} algorithm with gradient information from the target distribution. The steps of the \ac{MALA} algorithm are as follows:
+\begin{enumerate}
+    \item Initialize the chain with a starting point $\boldsymbol{\theta}_{(0)}$. 
+    \item For each iteration $i$:
+    \begin{enumerate}
+        \item Compute the gradient of the log-posterior at the current state: $\nabla \log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D})$.
+        \item Propose a new state $\boldsymbol{\theta}'_{(i)}$ using the Langevin dynamics:
+        \begin{equation}
+            \boldsymbol{\theta}'_{(i)} = \boldsymbol{\theta}_{(i-1)} + \frac{\epsilon^2}{2} \nabla \log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D}) + \epsilon\; \boldsymbol{\eta},
+        \end{equation}
+        where $\epsilon$ is a step size parameter, and $\boldsymbol{\eta} \sim \mathcal{N}(0, \boldsymbol{I})$ is a standard normal random vector.
+        \item Calculate the transition probability according to \ref{eq:mh_transition}. Specifically, $q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$ is the proposal distribution derived from the Langevin dynamics.
+        \item Generate a uniform random number $u \sim U(0,1)$. If $u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$, accept the proposed state and set $\boldsymbol{\theta}_{(i)} \leftarrow \boldsymbol{\theta}'_{(i)}$; otherwise, reject it and set $\boldsymbol{\theta}_{(i)}\leftarrow \boldsymbol{\theta}_{(i-1)}$. 
+    \end{enumerate}
+    \item Repeat step 2 for a large number of iterations to obtain a sequence of samples $\{\boldsymbol{\theta}_{(1)}, \boldsymbol{\theta}_{(2)}, \ldots, \boldsymbol{\theta}_{(N)}\}$.
+\end{enumerate}
+Compared to the \ac{MH}, \ac{MALA} mixes faster and scales better in higher dimensions, at the cost of requiring gradients and tuning. As a more advanced \ac{MCMC} method, \acf{HMC} \citep{duane1987hybrid} further improves sampling efficiency by simulating the whole sampling trajectory as Hamiltonian dynamics. 
 
 \subsubsection{Variational Inference}
+Different from \ac{MCMC}, \acf{VI} is an optimization-based method that approximates the target posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$ with a simpler, parameterized joint distribution $q(\boldsymbol{\theta}, \boldsymbol{\phi})$, where $\boldsymbol{\phi}$ are the variational parameters. The goal of \ac{VI} is to find the optimal variational parameters $\boldsymbol{\phi}^*$ that minimize the Kullback-Leibler (KL) divergence between the approximate distribution and the true posterior:
 
 \subsection{Deep Probabilistic Models}
 
@@ -43,6 +140,7 @@ In the Bayesian context, probabilistic inference is the process of obtaining the
 \subsubsection{Continuous Normalizing Flows}
 \paragraph{Neural ODEs}
 \paragraph{FFJORD}
+\subsection{BayesFlow}
 
 \subsection{From Inference to Control}
 

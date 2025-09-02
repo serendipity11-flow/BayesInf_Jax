@@ -43,6 +43,7 @@
 \usepackage{multirow}
 \usepackage{placeins}
 \usepackage{enumerate}
+\usepackage{enumitem}
 \usepackage{subcaption}
 % For comments
 \usepackage{verbatim}

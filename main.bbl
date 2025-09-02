@@ -1,9 +1,22 @@
-\begin{thebibliography}{12}
+\begin{thebibliography}{16}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Besag(2004)]{besag2004markov}
+Julian Besag.
+\newblock Markov chain monte carlo methods for statistical inference.
+\newblock \emph{Department of Statistics University of Washington, Seattle, USA}, 2004.
+
+\bibitem[Duane et~al.(1987)Duane, Kennedy, Pendleton, and Roweth]{duane1987hybrid}
+Simon Duane, A.D. Kennedy, Brian~J. Pendleton, and Duncan Roweth.
+\newblock Hybrid monte carlo.
+\newblock \emph{Physics Letters B}, 195\penalty0 (2):\penalty0 216--222, 1987.
+\newblock ISSN 0370-2693.
+\newblock \doi{https://doi.org/10.1016/0370-2693(87)91197-X}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/037026938791197X}.
 
 \bibitem[Foong et~al.(2020)Foong, Burt, Li, and Turner]{foong2020bnn}
 Andrew Y.~K. Foong, David~R. Burt, Yingzhen Li, and Richard~E. Turner.
@@ -33,6 +46,14 @@ Ethan Goan and Clinton Fookes.
 \newblock \doi{10.1007/978-3-030-42553-1_3}.
 \newblock URL \url{http://dx.doi.org/10.1007/978-3-030-42553-1_3}.
 
+\bibitem[Hastings(1970)]{Hastings}
+W.~K. Hastings.
+\newblock Monte carlo sampling methods using markov chains and their applications.
+\newblock \emph{Biometrika}, 57\penalty0 (1):\penalty0 97--109, 04 1970.
+\newblock ISSN 0006-3444.
+\newblock \doi{10.1093/biomet/57.1.97}.
+\newblock URL \url{https://doi.org/10.1093/biomet/57.1.97}.
+
 \bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020ddpm}
 Jonathan Ho, Ajay Jain, and Pieter Abbeel.
 \newblock Denoising diffusion probabilistic models, 2020.
@@ -50,6 +71,14 @@ Diederik~P. Kingma and Max Welling.
 Pierre-Alexandre Mattei and Jes Frellsen.
 \newblock Leveraging the exact likelihood of deep latent variable models.
 \newblock In \emph{Proceedings of the 32nd International Conference on Neural Information Processing Systems}, NIPS'18, page 3859–3870, Red Hook, NY, USA, 2018. Curran Associates Inc.
+
+\bibitem[Metropolis et~al.(1953)Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller]{Metropolis}
+Nicholas Metropolis, Arianna~W. Rosenbluth, Marshall~N. Rosenbluth, Augusta~H. Teller, and Edward Teller.
+\newblock Equation of state calculations by fast computing machines.
+\newblock \emph{The Journal of Chemical Physics}, 21\penalty0 (6):\penalty0 1087--1092, 06 1953.
+\newblock ISSN 0021-9606.
+\newblock \doi{10.1063/1.1699114}.
+\newblock URL \url{https://doi.org/10.1063/1.1699114}.
 
 \bibitem[Murphy(2022)]{pml1Book}
 Kevin~P. Murphy.

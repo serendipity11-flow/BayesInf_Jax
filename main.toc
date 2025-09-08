@@ -1,58 +1,63 @@
 \babel@toc {english}{}\relax 
-\contentsline {chapter}{Acronyms}{i}{chapter*.3}%
-\contentsline {chapter}{List of Figures}{iii}{section*.4}%
-\contentsline {chapter}{List of Tables}{v}{chapter*.6}%
+\contentsline {chapter}{Acronyms}{i}{chapter*.2}%
+\contentsline {chapter}{List of Figures}{iii}{section*.3}%
+\contentsline {chapter}{List of Tables}{v}{chapter*.5}%
 \contentsline {chapter}{\numberline {I}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1}Motivation}{1}{section.1.1}%
-\contentsline {section}{\numberline {2}Background and Preliminaries}{5}{section.1.2}%
+\contentsline {section}{\numberline {2}Background and Preliminaries}{6}{section.1.2}%
 \contentsline {subsection}{\numberline {2.1}Notations}{6}{subsection.1.2.1}%
 \contentsline {subsection}{\numberline {2.2}Bayesian Inference}{7}{subsection.1.2.2}%
 \contentsline {subsubsection}{\numberline {2.2.1}Bayes' rule}{7}{subsubsection.1.2.2.1}%
-\contentsline {subsubsection}{\numberline {2.2.2}\ac {MCMC}}{8}{subsubsection.1.2.2.2}%
-\contentsline {paragraph}{\acf {MH} algorithm}{8}{paragraph*.17}%
-\contentsline {paragraph}{\acf {MALA}}{9}{paragraph*.19}%
+\contentsline {subsubsection}{\numberline {2.2.2}Markov Chain Monte Carlo}{8}{subsubsection.1.2.2.2}%
+\contentsline {paragraph}{\acf {MH} algorithm}{9}{paragraph*.16}%
+\contentsline {paragraph}{\acf {MALA}}{9}{paragraph*.18}%
 \contentsline {subsubsection}{\numberline {2.2.3}Variational Inference}{10}{subsubsection.1.2.2.3}%
-\contentsline {subsection}{\numberline {2.3}Deep Probabilistic Models}{10}{subsection.1.2.3}%
-\contentsline {subsubsection}{\numberline {2.3.1}Deep Gaussian Process}{10}{subsubsection.1.2.3.1}%
-\contentsline {subsubsection}{\numberline {2.3.2}Bayesian Neural Networks}{10}{subsubsection.1.2.3.2}%
-\contentsline {subsubsection}{\numberline {2.3.3}Variational Autoencoder}{10}{subsubsection.1.2.3.3}%
-\contentsline {subsection}{\numberline {2.4}Normalizing Flows}{10}{subsection.1.2.4}%
-\contentsline {subsubsection}{\numberline {2.4.1}Basics}{10}{subsubsection.1.2.4.1}%
-\contentsline {subsubsection}{\numberline {2.4.2}Discrete Normalizing Flows}{10}{subsubsection.1.2.4.2}%
-\contentsline {paragraph}{Coupling layers}{10}{paragraph*.23}%
-\contentsline {paragraph}{Autoregressive flows}{10}{paragraph*.24}%
-\contentsline {subsubsection}{\numberline {2.4.3}Continuous Normalizing Flows}{10}{subsubsection.1.2.4.3}%
-\contentsline {paragraph}{Neural ODEs}{10}{paragraph*.25}%
-\contentsline {paragraph}{FFJORD}{10}{paragraph*.26}%
-\contentsline {subsection}{\numberline {2.5}BayesFlow}{10}{subsection.1.2.5}%
-\contentsline {subsection}{\numberline {2.6}From Inference to Control}{10}{subsection.1.2.6}%
-\contentsline {subsubsection}{\numberline {2.6.1}Bayesian System Identification}{10}{subsubsection.1.2.6.1}%
-\contentsline {subsubsection}{\numberline {2.6.2}Bayesian State Estimation}{10}{subsubsection.1.2.6.2}%
-\contentsline {subsubsection}{\numberline {2.6.3}Model Predictive Control}{10}{subsubsection.1.2.6.3}%
-\contentsline {section}{\numberline {3}Literature Review}{10}{section.1.3}%
-\contentsline {section}{\numberline {4}Objectives and Contributions}{11}{section.1.4}%
-\contentsline {section}{\numberline {5}Outline}{12}{section.1.5}%
-\contentsline {chapter}{\numberline {II}Methodologies}{13}{chapter.2}%
-\contentsline {section}{\numberline {1}Parameter Identification}{13}{section.2.1}%
-\contentsline {section}{\numberline {2}Dynamics Identification}{13}{section.2.2}%
-\contentsline {section}{\numberline {3}State Estimation}{13}{section.2.3}%
-\contentsline {section}{\numberline {4}Data-driven Control}{13}{section.2.4}%
-\contentsline {chapter}{\numberline {III}Experiments and Results}{15}{chapter.3}%
-\contentsline {section}{\numberline {1}Parameter Identification}{15}{section.3.1}%
-\contentsline {section}{\numberline {2}Dynamics Identification}{15}{section.3.2}%
-\contentsline {section}{\numberline {3}State Estimation}{15}{section.3.3}%
-\contentsline {section}{\numberline {4}Data-driven Control}{15}{section.3.4}%
-\contentsline {chapter}{\numberline {IV}Discussion and Conclusion}{17}{chapter.4}%
-\contentsline {chapter}{\numberline {V}Abstract}{19}{chapter.5}%
-\contentsline {chapter}{\numberline {VI}Zusammenfassung}{21}{chapter.6}%
-\contentsline {chapter}{Bibliography}{22}{section*.27}%
-\contentsline {chapter}{Own Contributions and Publications}{23}{chapter*.28}%
-\contentsline {section}{Own share in data acquisition and data analysis}{23}{section*.29}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{23}{paragraph*.30}%
-\contentsline {paragraph}{Own share in Data Analysis.}{23}{paragraph*.31}%
-\contentsline {section}{Own Publications}{23}{paragraph*.31}%
-\contentsline {chapter}{Curriculum Vitae}{26}{section*.33}%
-\contentsline {chapter}{Appendix}{29}{chapter*.34}%
-\contentsline {chapter}{Acknowledgement}{31}{chapter*.35}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{33}{chapter*.36}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{35}{chapter*.37}%
+\contentsline {subsection}{\numberline {2.3}Deep Probabilistic Models}{12}{subsection.1.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Deep Gaussian Process}{13}{subsubsection.1.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Bayesian Neural Networks}{14}{subsubsection.1.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Variational Autoencoder}{15}{subsubsection.1.2.3.3}%
+\contentsline {subsection}{\numberline {2.4}Normalizing Flows}{16}{subsection.1.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Basics}{16}{subsubsection.1.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Discrete Normalizing Flows}{16}{subsubsection.1.2.4.2}%
+\contentsline {paragraph}{Coupling layers}{16}{paragraph*.31}%
+\contentsline {paragraph}{Autoregressive flows}{16}{paragraph*.32}%
+\contentsline {subsubsection}{\numberline {2.4.3}Continuous Normalizing Flows}{16}{subsubsection.1.2.4.3}%
+\contentsline {paragraph}{Neural ODEs}{16}{paragraph*.33}%
+\contentsline {paragraph}{FFJORD}{16}{paragraph*.34}%
+\contentsline {subsection}{\numberline {2.5}BayesFlow}{16}{subsection.1.2.5}%
+\contentsline {subsection}{\numberline {2.6}From Inference to Control}{16}{subsection.1.2.6}%
+\contentsline {subsubsection}{\numberline {2.6.1}Bayesian System Identification}{16}{subsubsection.1.2.6.1}%
+\contentsline {subsubsection}{\numberline {2.6.2}Bayesian State Estimation}{16}{subsubsection.1.2.6.2}%
+\contentsline {subsubsection}{\numberline {2.6.3}Model-free Control}{16}{subsubsection.1.2.6.3}%
+\contentsline {subsubsection}{\numberline {2.6.4}Model Predictive Control}{16}{subsubsection.1.2.6.4}%
+\contentsline {section}{\numberline {3}Literature Review}{17}{section.1.3}%
+\contentsline {subsection}{\numberline {3.1}Deep Probabilistic Models for Bayesian Inference}{17}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {3.2}Deep Probabilistic Models for System Identification and State Estimation}{17}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {3.3}Data-driven Control based on Deep Probabilistic Models}{17}{subsection.1.3.3}%
+\contentsline {section}{\numberline {4}Objectives and Contributions}{18}{section.1.4}%
+\contentsline {section}{\numberline {5}Outline}{19}{section.1.5}%
+\contentsline {chapter}{\numberline {II}Methodologies}{21}{chapter.2}%
+\contentsline {section}{\numberline {1}Parameter Identification}{21}{section.2.1}%
+\contentsline {section}{\numberline {2}Dynamics Identification}{22}{section.2.2}%
+\contentsline {section}{\numberline {3}State Estimation}{23}{section.2.3}%
+\contentsline {section}{\numberline {4}Data-driven Control}{24}{section.2.4}%
+\contentsline {chapter}{\numberline {III}Experiments and Results}{25}{chapter.3}%
+\contentsline {section}{\numberline {1}Overview}{25}{section.3.1}%
+\contentsline {section}{\numberline {2}Parameter Identification}{25}{section.3.2}%
+\contentsline {section}{\numberline {3}Dynamics Identification}{25}{section.3.3}%
+\contentsline {section}{\numberline {4}State Estimation}{25}{section.3.4}%
+\contentsline {section}{\numberline {5}Data-driven Control}{25}{section.3.5}%
+\contentsline {chapter}{\numberline {IV}Discussion and Conclusion}{27}{chapter.4}%
+\contentsline {chapter}{\numberline {V}Abstract}{29}{chapter.5}%
+\contentsline {chapter}{\numberline {VI}Zusammenfassung}{31}{chapter.6}%
+\contentsline {chapter}{Bibliography}{32}{section*.35}%
+\contentsline {chapter}{Own Contributions and Publications}{33}{chapter*.36}%
+\contentsline {section}{Own share in data acquisition and data analysis}{33}{section*.37}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{33}{paragraph*.38}%
+\contentsline {paragraph}{Own share in Data Analysis.}{33}{paragraph*.39}%
+\contentsline {section}{Own Publications}{33}{paragraph*.39}%
+\contentsline {chapter}{Curriculum Vitae}{38}{section*.41}%
+\contentsline {chapter}{Appendix}{41}{chapter*.42}%
+\contentsline {chapter}{Acknowledgement}{43}{chapter*.43}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{45}{chapter*.44}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{47}{chapter*.45}%

@@ -1,6 +1,6 @@
 \section{Background and Preliminaries} 
 \label{sec:introduction:background}
-This section introduces the necessary fundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic models, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge probabilistic inference to control methods, covering system identification, state estimation, and model predictive control.
+This section introduces the necessary foundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic models, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge probabilistic inference to control methods, covering system identification, state estimation, and model predictive control.
 
 \subsection{Notations}
 
@@ -54,7 +54,7 @@ To maintain clarity throughout this document, we adopt the following notation:
 \end{enumerate}
 
 \subsection{Bayesian Inference}
-This chapter refers to the book \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}.
+This chapter refers to the book \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}, \textit{Handbook of MCMC} \citep{Allen_2007}.
 
 \subsubsection{Bayes' rule}
 Bayes' rule is derived from the chain rule of conditional probability. For target variables $\boldsymbol{\theta}$ and the corresponding observed data $\mathcal{D}$, the chain rule states that:
@@ -66,32 +66,32 @@ Rearranging the terms gives Bayes' rule:
 \label{eq:bayes}
     p(\boldsymbol{\theta}|\mathcal{D})= \frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathcal{D})}.
 \end{equation}
-In Bayes' theorem, $p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood of expected data across all possible parameter settings, i.e., $\Sigma_{\boldsymbol{\theta}'}p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')\Delta \boldsymbol{\theta}'$ or $\int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'$ for continuous $\boldsymbol{\theta}$. In practice, it is often treated as a normalizing constant and ignored. The unnormalized posterior is then given by:
+In Bayes' theorem, $p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood or evidence of expected data across all possible parameter settings, i.e., $\Sigma_{\boldsymbol{\theta}'}p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')\Delta \boldsymbol{\theta}'$ or $\int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'$ for continuous $\boldsymbol{\theta}$. In practice, it is often treated as a normalizing constant and ignored. The unnormalized posterior is then given by:
 \begin{equation}
     p_u(\boldsymbol{\theta}|\mathcal{D}) \propto p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta}).            
 \end{equation}
 
-Normally, the posterior distribution does not have a closed-form expression. Instead, we approximate it using numerical methods. Computational algorithms that rely on repeated random sampling to obtain numerical results refers to "Monte Carlo" methods. Monte Carlo methods provide ways to approximate the posterior distribution by expections:
+Normally, the posterior distribution does not have a closed-form expression. Instead, we approximate it using numerical methods. Computational algorithms that rely on repeated random sampling to obtain numerical results refers to "Monte Carlo" methods. Monte Carlo methods provide ways to approximate the posterior distribution by expectations:
 \begin{equation}
     E=\mathbb{E}_{p(\boldsymbol{\theta}|\mathcal{D})}[f(\boldsymbol{\theta})] = \int f(\boldsymbol{\theta}) p(\boldsymbol{\theta}|\mathcal{D}) d\boldsymbol{\theta},
 \end{equation}
-where $f(\boldsymbol{\theta})$ is any function of interest. As the simplest way, we can approximate it using standard numerical techniques such as a Riemann sum over a discrete grid of points:
+where $f(\boldsymbol{\theta})$ is any function of interest, for example, $f(\boldsymbol{\theta})=\boldsymbol{\theta}$. As the simplest way, we can approximate it using standard numerical techniques such as a Riemann sum over a discrete grid of points:
 \begin{equation}
     E \approx \Sigma_{\boldsymbol{\theta}'} f(\boldsymbol{\theta}') \Delta \boldsymbol{\theta}'.
 \end{equation}
-However, this approach is only feasible for low-dimensional $\boldsymbol{\theta}$ due to the curse of dimensionality. Besides, for complex distributions, the discretization is highly inefficient. For high-dimensional $\boldsymbol{\theta}$, we often resort to sampling-based or optimization-based methods to approximate the posterior distribution, which will be discussed in the following sections.
+However, this approach is only feasible for low-dimensional $\boldsymbol{\theta}$ due to the curse of dimensionality. Besides, for complex distributions, the discretization is highly inefficient. Therefore, for high-dimensional parameters and complex distributions, we often resort to sampling-based or optimization-based methods to approximate the posterior distribution, which will be discussed in the following sections.
 
-\subsubsection{\ac{MCMC}}
-The "Markov Chain" aspect indicates that these algorithms generate a sequence of samples where each sample depends only on the previous one. In contrast to the basic Monte Carllo methods, \acf{MCMC} methods produce autocorrelated samples, so that each new sample adds less new information than an independent draw would. Different sequences updating algorithms lead to different \ac{MCMC} methods. The goal of \ac{MCMC} is to construct a Markov chain that has the desired posterior distribution as its equilibrium distribution. After running the chain for a sufficient number of iterations, the samples generated from the chain can be treated as samples from the target posterior distribution.
+\subsubsection{Markov Chain Monte Carlo}
+The "Markov Chain" aspect indicates that these algorithms generate a sequence of samples where each sample depends only on the previous one. In contrast to the basic Monte Carlo methods, \acf{MCMC} methods produce auto-correlated samples, so that each new sample adds less new information than an independent draw would. Different sequences updating algorithms lead to different \ac{MCMC} methods. The goal of \ac{MCMC} is to construct a Markov chain that has the desired posterior distribution as its equilibrium distribution. After running the chain for a sufficient number of iterations, the samples generated from the chain can be treated as samples from the target posterior distribution.
 
 \paragraph{\acf{MH} algorithm}
-The \ac{MH} algorithm, which is named after Metropolis \citeyear{Metropolis} and Hastings \citeyear{Hastings}, is a widely used \ac{MCMC} method. The steps of the \ac{MH} algorithm are as follows:
+The \ac{MH} algorithm, which is named after Metropolis \citeyearpar{Metropolis} and Hastings \citeyearpar{Hastings}, is a widely used \ac{MCMC} method. The steps of the \ac{MH} algorithm are as follows:
 \begin{enumerate}
-    \item Initialize the chain with a starting point $\boldsymbol{\theta}_{(0)}$. 
+    \item Initialize the chain with a starting point $\boldsymbol{\theta}_{(0)}$, choose a proposal distribution $q(\boldsymbol{\theta}'|\boldsymbol{\theta})$. 
     \item For each iteration $i$:
     \begin{enumerate}
-        \item Propose a new state $\boldsymbol{\theta}'_{(i)}$ from a proposal distribution $q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$.             
-        \item Calculate the transition probability: 
+        \item Propose a new state $\boldsymbol{\theta}'_{(i)}$ from the proposal distribution $q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$.             
+        \item Calculate the transition probability, also known as the acceptance ratio: 
         \begin{equation}
         \label{eq:mh_transition}
         T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})=\min\{1, \frac{p(\boldsymbol{\theta}'_{(i)}|\mathcal{D})q(\boldsymbol{\theta}_{(i-1)}|\boldsymbol{\theta}'_{(i)})}{p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D})q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})}\}.
@@ -100,35 +100,168 @@ The \ac{MH} algorithm, which is named after Metropolis \citeyear{Metropolis} and
     \end{enumerate}
     \item Repeat step 2 for a large number of iterations to obtain a sequence of samples $\{\boldsymbol{\theta}_{(1)}, \boldsymbol{\theta}_{(2)}, \ldots, \boldsymbol{\theta}_{(N)}\}$.
 \end{enumerate}
+From the sequence of samples, we can contruct a Monte Carlo estimator:
+\begin{equation}
+    p(\boldsymbol{\theta}| \mathcal{D}) \approx \frac{1}{N} \Sigma_{i=1}^{N} \delta_{\boldsymbol{\theta}_{(n)}}(\boldsymbol{\theta}).
+\end{equation}
+Although this procedure allows flexible approximation of complex posterior distribution, it suffers from slow convergence rate due to its random exploration nature. Thus, gradient-based \ac{MCMC} methods are proposed to incorporate the structure of the target density, leading to faster sampling.
+
 \paragraph{\acf{MALA}}
-The \ac{MALA} \citep{besag2004markov} is an advanced \ac{MCMC} method that combines the \ac{MH} algorithm with gradient information from the target distribution. The steps of the \ac{MALA} algorithm are as follows:
+The \ac{MALA} \citep{besag2004markov} combines the \ac{MH} algorithm with Langevin diffusion, whose stationary distribution is the target density. In general, for a stochastic process $\Theta(t)$, the Langevin diffusion is described by the following \ac{SDE}:
+\begin{equation}
+d\Theta(t)=\frac{1}{2}\nabla log\;p(\Theta(t))dt + dW(t),
+\end{equation}
+where $W(t)$ denotes a standard Wiener process \citep{gabbiani2010mathematics}. The Wiener process is a continuous-time stochastic process with independent, normally distributed increments, which can be interpreted as Brownian motion. It has the following properties:
 \begin{enumerate}
-    \item Initialize the chain with a starting point $\boldsymbol{\theta}_{(0)}$. 
-    \item For each iteration $i$:
-    \begin{enumerate}
-        \item Compute the gradient of the log-posterior at the current state: $\nabla \log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D})$.
-        \item Propose a new state $\boldsymbol{\theta}'_{(i)}$ using the Langevin dynamics:
-        \begin{equation}
-            \boldsymbol{\theta}'_{(i)} = \boldsymbol{\theta}_{(i-1)} + \frac{\epsilon^2}{2} \nabla \log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D}) + \epsilon\; \boldsymbol{\eta},
-        \end{equation}
-        where $\epsilon$ is a step size parameter, and $\boldsymbol{\eta} \sim \mathcal{N}(0, \boldsymbol{I})$ is a standard normal random vector.
-        \item Calculate the transition probability according to \ref{eq:mh_transition}. Specifically, $q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$ is the proposal distribution derived from the Langevin dynamics.
-        \item Generate a uniform random number $u \sim U(0,1)$. If $u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$, accept the proposed state and set $\boldsymbol{\theta}_{(i)} \leftarrow \boldsymbol{\theta}'_{(i)}$; otherwise, reject it and set $\boldsymbol{\theta}_{(i)}\leftarrow \boldsymbol{\theta}_{(i-1)}$. 
-    \end{enumerate}
-    \item Repeat step 2 for a large number of iterations to obtain a sequence of samples $\{\boldsymbol{\theta}_{(1)}, \boldsymbol{\theta}_{(2)}, \ldots, \boldsymbol{\theta}_{(N)}\}$.
+    \item [(1)] $W(0)=\boldsymbol{0}$;
+    \item [(2)] for $t > s \geq 0 $, $W(t)-W(s)\sim\sqrt{t-s}\;\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$;
+    \item [(3)] for $t_1>s_1\geq 0$, and $t_2>s_2\geq 0$, $W(t_1)-W(s_1)$ and $W(t_2)-W(s_2)$ are independent. 
+\end{enumerate}                 
+The \ac{MALA} algorithm uses the first order Euler discretization of the \ac{SDE}, resulting in the following proposal distribution:
+\begin{equation}
+    \label{eq:langevin}
+    \Theta(t) = \Theta(i-1) + \frac{\epsilon^2}{2} \nabla \log p(\Theta(i-1)) + \epsilon\; \mathcal{N}(0, \boldsymbol{I}),
+\end{equation}
+where $\epsilon$ is a step size parameter.
+Because of the discretization, convergence to the target density is no longer guaranteed. Therefore, the \ac{MH} algorithm is applied to correct the bias introduced by the discretization. 
+For each iteration $i$, the \ac{MALA} algorithm updates the state as follows:
+\begin{enumerate}
+    \item[(a)] Compute the gradient of the log-posterior at the current state: $\nabla \log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D})$.
+    \item[(b)] Propose a new state $\boldsymbol{\theta}'_{(i)}$ using the Langevin dynamics \ref{eq:langevin}:
+    \begin{equation}
+        \boldsymbol{\theta}'_{(i)} = \boldsymbol{\theta}_{(i-1)} + \frac{\varepsilon^2}{2} \nabla \log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D}) + \varepsilon\; \mathcal{N}(0, \boldsymbol{I}).
+    \end{equation}
+    \item[(c)] Calculate the transition probability according to \ref{eq:mh_transition}. Specifically, the proposal distribution $q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})=\mathcal{N}(\boldsymbol{\theta}'|\mu(\boldsymbol{\theta}_{(i-1)},\varepsilon), \varepsilon^2\boldsymbol{I})$, which is derived from the Langevin dynamics.
+    \item[(d)] (same as MCMC) Generate a uniform random number $u \sim U(0,1)$. If $u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$, accept the proposed state and set $\boldsymbol{\theta}_{(i)} \leftarrow \boldsymbol{\theta}'_{(i)}$; otherwise, reject it and set $\boldsymbol{\theta}_{(i)}\leftarrow \boldsymbol{\theta}_{(i-1)}$. 
 \end{enumerate}
-Compared to the \ac{MH}, \ac{MALA} mixes faster and scales better in higher dimensions, at the cost of requiring gradients and tuning. As a more advanced \ac{MCMC} method, \acf{HMC} \citep{duane1987hybrid} further improves sampling efficiency by simulating the whole sampling trajectory as Hamiltonian dynamics. 
+
+Compared to the \ac{MH}, \ac{MALA} converges faster and scales better in higher dimensions, at the cost of requiring gradients and tuning. As a more advanced \ac{MCMC} method, \acf{HMC} \citep{duane1987hybrid} further improves sampling efficiency by simulating the whole sampling trajectory as Hamiltonian dynamics. 
 
 \subsubsection{Variational Inference}
-Different from \ac{MCMC}, \acf{VI} is an optimization-based method that approximates the target posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$ with a simpler, parameterized joint distribution $q(\boldsymbol{\theta}, \boldsymbol{\phi})$, where $\boldsymbol{\phi}$ are the variational parameters. The goal of \ac{VI} is to find the optimal variational parameters $\boldsymbol{\phi}^*$ that minimize the Kullback-Leibler (KL) divergence between the approximate distribution and the true posterior:
+Different from \ac{MCMC}, \acf{VI} \citep{Jordan1998, Wainwright2008} is an optimization-based method that approximates the target posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$ with a simpler, parameterized distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$, where $\boldsymbol{\phi}$ are the variational parameters. The goal of \ac{VI} is to find the optimal variational parameters $\boldsymbol{\phi}^*$ that minimize the distance between the approximate distribution and the true posterior. The distance is normally measured by the \ac{KL}-divergence \citep{kl1951}, which is defined as:
+\begin{equation}
+    D_{\text{KL}}(q(z)||p(z)) = \mathbb{E}_{q(z)}[\log \frac{q(z)}{p(z)}] = \int q(z)\log \frac{q(z)}{p(z)}dz.
+\end{equation}
+Thus, the optimization problem of \ac{VI} can be formulated as:
+\begin{equation}
+    \boldsymbol{\phi}^* = \arg\min_{\boldsymbol{\phi}} D_{\text{KL}} (q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D})).
+\end{equation}
+Substituting Bayes' rule \ref{eq:bayes} into \ac{KL}-divergence, we have:
+\begin{equation}
+    D_{\text{KL}} (q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D})) = D_{\text{KL}} (q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || \frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathcal{D})}).
+\end{equation}
+Same as the aforementioned "intractable posterior" problem, this divergence is directly intractable due to the presence of the evidence $p(\mathcal{D})$.
+
+Expanding the above equation and extending it with the definition of \ac{KL}-divergence, we have:
+\begin{multline}
+    D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D})) = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}[\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) - \log p(\mathcal{D}|\boldsymbol{\theta}) - \log p(\boldsymbol{\theta}) + \log p(\mathcal{D})]\\
+    = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}|\boldsymbol{\theta})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}) + \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}).
+\end{multline}
+Since $p(\mathcal{D})$ is independent of the variational parameters $\boldsymbol{\phi}$, the last term is reduced to $\log p(\mathcal{D})$.
+Combining the terms $p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})=p(\boldsymbol{\theta}, \mathcal{D})$ gives
+\begin{equation}
+    \label{eq:vi_kl1}
+    D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D})) = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}, \mathcal{D}) + \log p(\mathcal{D})
+\end{equation}
+Or combining the terms $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$ and $p(\boldsymbol{\theta})$ via \ac{KL}-divergence  gives:
+\begin{equation}
+    \label{eq:vi_kl2}
+    D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D}))=D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta})||p(\boldsymbol{\theta})) - \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}|\boldsymbol{\theta}) + \log p(\mathcal{D})
+\end{equation}
+Rearranging the terms in Equation \ref{eq:vi_kl1} gives:
+\begin{equation}
+    \log p(\mathcal{D}) = D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D}))+\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}, \mathcal{D})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta}).
+\end{equation} 
+Since the \ac{KL}-divergence is always non-negative, we have:
+\begin{equation}
+    \log p(\mathcal{D}) \geq \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}, \mathcal{D})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta}).
+\end{equation}
+Because of this inequality, the right hind side is called the \acf{ELBO}, also known as the variational lower bound. Formulating the \ac{ELBO} using Equation \ref{eq:vi_kl2} gives:
+\begin{equation}
+    \label{eq:elbo}
+    \text{ELBO} = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}|\boldsymbol{\theta}) - D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta})||p(\boldsymbol{\theta})). 
+\end{equation}
+Then, minimizing the \ac{KL}-divergence is equivalent to maximizing the \ac{ELBO}, leading to the equivalent optimization problem:
+\begin{equation}
+    \label{eq:vi_opt}
+    \boldsymbol{\phi}^* = \arg\max_{\boldsymbol{\phi}} \text{ELBO} = \arg\min_{\boldsymbol{\phi}}[D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta})||p(\boldsymbol{\theta}))-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}|\boldsymbol{\theta})].
+\end{equation}
+
+To complete the optimization, we need to choose a suitable family of variational distributions $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$. A common choice is the mean-field family \citep{bishop2006}, which assumes that the variables $\boldsymbol{\theta}$ can be factorized into groups that are independent under $q$:
+\begin{equation}
+    q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) = \Pi_{i} q_{\boldsymbol{\phi}_i}(\boldsymbol{\theta}_i),
+\end{equation}
+where each parameter $\boldsymbol{\phi}_i$ governs a subset of the variables $\boldsymbol{\theta}_i$. Then, the \ac{ELBO} is iteratively optimized by updating each parameter while holding the others fixed. The solution of the optimal distribution for each group is given by:
+\begin{equation}
+    \log q_{\boldsymbol{\phi}_i}^*(\boldsymbol{\theta}_i) = \mathbb{E}_{\Pi_{j\neq i}q_{\boldsymbol{\phi}_i}(\boldsymbol{\theta}_i)}[\log p(\boldsymbol{\theta}, \mathcal{D})],
+\end{equation}
+where the expectation is taken with respect to the distributions of all other groups $j \neq i$. This algorithm is called coordinate ascent variational inference (CAVI) \citep{bishop2006}.
+
+This assumption simplifies the optimization problem, and thus makes it scalable for large dimensional variables and also enables parallelizable computation. However, it may also limit the expressiveness of the variational distribution, especially when the posterior correlations are crucial, leading to suboptimal approximations of the true posterior. Summarizing, \ac{VI} is generally faster than \ac{MCMC} and scales better to large datasets, but it may provide less accurate approximations of the posterior distribution \citep{Blei_2017}. 
 
 \subsection{Deep Probabilistic Models}
+Deep probabilistic models combine the representational power of deep learning with the principled uncertainty modeling of probabilistic inference methods. This integration aims to provide both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic models: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder.
 
 \subsubsection{Deep Gaussian Process}
+A Gaussian process is a stochastic process, where at each time point the random variables follow normal distributions. It can be interpreted as an infinite-dimensional Gaussian distribution. For an $N$-dimensional random variable $\boldsymbol{x}=[x_1,\dots,x_N]^T$, a Gaussian process $GP(\boldsymbol{x})$ is fully specified by its mean function $\mu(\cdot)$ and covariance function $k(\cdot, \cdot)$:
+\begin{equation}
+     \begin{bmatrix} GP(x_1) \\ \cdots \\GP(x_N) \end{bmatrix}\sim\mathcal{N}( \begin{bmatrix} \mu(x_1) \\ \cdots \\\mu(x_N) \end{bmatrix},  \begin{bmatrix} k(x_1,x_1),\dots,k(x_1, x_N) \\ \cdots \\k(x_N,x_1), \dots,k(x_N, x_N) \end{bmatrix})
+\end{equation}
+Using a Gaussian process to infer variables from observed data based on prior distributions leads to \ac{GPR} \citep{Rasmussen_Williams_2008}. For a regression task with training data $\boldsymbol{x}$ and the ground truth $\boldsymbol{y}$, the \ac{GPR} model is employed by a latent function $f(\cdot)$:
+\begin{equation}
+    \label{eq:simgp}
+    y_i = f(x_i) + \epsilon_i,\quad i=1,\dots,N,
+\end{equation}
+where $\epsilon_i \sim \mathcal{N}(0, \sigma_\epsilon^2)$ are i.i.d. noises for all dimensions. So, the likelihood of $\boldsymbol{y}$ is given by:
+\begin{equation}
+    p(\boldsymbol{y}|\boldsymbol{f}) = \prod_{i=1}^{N}p(y_i|f_i) = \prod_{i=1}^{N}\mathcal{N}(y_i|f_i, \sigma_\epsilon^2).    
+\end{equation}                                                                                                                          
+The prior distribution over functions $f(\cdot)$ is assumed to a zero-mean Gaussian process:
+\begin{equation}
+    f(\cdot) \sim GP(0, k(\cdot, \cdot)).
+\end{equation}
+The kernel function $k(\cdot, \cdot)$ is usually chosen to be the \ac{SE} kernel function, or as known as the \ac{RBF}, defined as:
+\begin{equation}
+    k(x_i, x_j) = \sigma_{SE}^2\exp(-\frac{1}{2\ell^2}\left\|x_i - x_j\right\|^2),
+\end{equation}
+where $\sigma_{SE}$ and $\ell>$ are vertical and horizontal scale parameters, which control the vertical span and smoothness of the function, respectively. We denote the collection of latent functions as $\boldsymbol{f}=[f(x_1), \dots, f(x_N)]^T$. Then, the posterior distribution of $\boldsymbol{y}$ can be computed analytically using the marginal likelihood over $\boldsymbol{y}$:
+\begin{equation}
+    p(\boldsymbol{y}|\boldsymbol{x}) = \int \prod_{i=1}^{N}p(y_i|f_i)p(f_i|x_i)d\boldsymbol{f}=\mathcal{N}(\boldsymbol{y}|\boldsymbol{0},\boldsymbol{K}+\sigma_\epsilon^2\mathbb{I}), \quad \boldsymbol{K}=k(\boldsymbol{x}, \boldsymbol{x}).
+\end{equation}
+The hyperparameters $\boldsymbol{\phi}=\{\sigma_{SE}, \ell, \sigma_\epsilon\}$ can be optimized by maximizing the log marginal likelihood $log\;p(\boldsymbol{y}|\boldsymbol{x}, \boldsymbol{\phi})$.
+
+The \ac{GPR} is widely used for regression tasks owing to its non-parametric nature and its capacity to quantify uncertainty. However, its computational complexity scales cubically with the number of training points, i.e., $\mathcal{O}(N^3)$ for an $N$-dimensional input. Additionally, calculating the Gaussian processes requires the entire storage of training datasets, incurring a memory cost of $\mathcal{O}(M^2)$, which grows quadratically with the dataset size $M$. These limitations hinder its scalability to high-dimensional inputs and large datasets. In addition, the expressiveness of \ac{GPR} is constrained by the choice of kernel function and its inability to perform hierarchical feature extraction.
+
+To improve expressiveness, \ac{DGP} \citep{damianou2013dgp} is proposed as multilayer hierarchical generalizations of Gaussian processes. The input $\boldsymbol{x}$ is passed through multiple layers of Gaussian processes to obtain the output $\boldsymbol{y}$. For an $L$-layer \ac{DGP}, the model extends the Gaussian process \ref{eq:simgp} by:
+\begin{equation}
+    y_i = f_{L}(f_{L-1}(\dots f_{1}(x_i)+\epsilon_{i,1}\dots)) + \epsilon_{L}, \; f_{l}(\cdot) \sim GP(0, k_l(\cdot, \cdot)), \; l=1,\dots,L,\; i=1,\dots,n.
+\end{equation}  
+The deep architecture enables Gaussian processes to learn more complex data patterns and hierarchical representations. It can be seen as a deep neural network with infinitely wide layers \citep{Neal1996}, where each layer applies a Gaussian process, instead of nonlinear matrix transformation. However, due to the computational cost and storage consumption the \ac{DGP} is still cumbersome to apply in practice. 
 
 \subsubsection{Bayesian Neural Networks}
+Another approach to constructing deep probabilistic models involves integrating Bayesian inference with deep neural networks. A \acf{BNN} \citep{Neal1996, MacKay1992} places prior distributions over the network’s weights and biases, allowing uncertainty to be modeled directly within the architecture. 
+
+The goal of training a \ac{BNN} is to infer the posterior distribution over the parameters $\boldsymbol{\theta}=[\boldsymbol{w}, \boldsymbol{b}]$ given the training data $\mathcal{D}$, i.e., $p(\boldsymbol{\theta}|\mathcal{D})$. \ac{VI} is commonly employed to approximate the posterior by optimizing the \ac{ELBO} \ref{eq:elbo}. 
+To facilitate gradient-based optimization via backpropagation--similar to standard neural networks--the reparameterization trick \citep{kingma2013auto} is used. This technique expresses random variables as deterministic variables of noise, enabling efficient and differentiable sampling during training. For example, for a Gaussian variational distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})=\mathcal{N}(\boldsymbol{\theta}|\boldsymbol{\mu}, \text{diag}(\boldsymbol{\sigma}^2))$, we can reparameterize $\boldsymbol{\theta}$ as:  
+\begin{equation}
+    \boldsymbol{\theta} = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon}\sim\mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
+\end{equation}  
+where $\odot$ represents the Hadamard product, i.e., the element-wise product, and the variational parameters here are $\boldsymbol{\phi}=[\boldsymbol{\mu}, \boldsymbol{\sigma}]$. 
+To train a \ac{BNN} on large datasets, \ac{SGD} \citep{bottou1999sgd} is typically employed to optimize the \ac{ELBO} over mini-batches. Unlike standard gradient descent, \ac{SGD} estimates the gradient at each iteration using a randomly selected subset of the data. Similar to Equation \ref{eq:vi_opt}, the variaitonal objective of a \ac{BNN} becomes:
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi}) = \frac{1}{M}\sum_{i=1}^{M} [D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta})||p(\boldsymbol{\theta}))-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}_i|\boldsymbol{\theta})],
+\end{equation}
+where each mini-batch $\mathcal{D}_i\subset\mathcal{D}$ is drawn from the equally sized subsets of the training data $\mathcal{D}=\{\mathcal{D}_1,\dots,\mathcal{D}_M\}$. During each optimization step, the auxiliary noise $\boldsymbol{\epsilon}$ is sampled multiple times from $\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ to perform Monte Carlo estimation of the expectation terms in the loss function $\mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi})$. The gradient $\nabla_{\boldsymbol{\phi}}\mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi})$ is then computed via backpropagation and averaged across all samples. Finally, the variational parameter $\boldsymbol{\phi}$ is updated by 
+\begin{equation}
+    \boldsymbol{\phi}\leftarrow\boldsymbol{\phi}-\alpha\nabla_{\boldsymbol{\phi}}\mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi}),
+\end{equation}
+where $\alpha$ is the learning rate. This procedure is called \ac{BbB} \citep{blundell2015bbb}.
+
+In comparison to \ac{DGP}, the \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \ac{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}. Nevertheless, several works raise concerns with BNNs including wrong uncertainty estimation in between separated regions of obsertations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and sensitive modeling ability to the choice of prior distributions \citep{silvestro2020prior}. These limitations motivate the applications of more powerful generative models, such as variational autoencoders and normalizing flows, which are discussed in the following sections.
 
 \subsubsection{Variational Autoencoder}
+In classical \ac{VI} methods, the mapping from the parameters of interest $\boldsymbol{\theta}$ to the observations $\mathcal{D}$ is assumed to be known in advance. This is called a fully-observable model. and the approximate probabilistic models are parameterized by $\boldsymbol{\phi}$. In contrast, a \acf{VAE} is constructed with deterministic neural networks and introduces variability with latent variables. 
+Instead of directly approximating the posterior distribution over the parameters using \ac{VI}, \acf{VAE} \citep{kingma2013auto, rezende2014stochastic} introduces a set of latent variables $\boldsymbol{z}$ to model the data generation process. The generative model is defined as:
 
 \subsection{Normalizing Flows}
 
@@ -147,5 +280,7 @@ Different from \ac{MCMC}, \acf{VI} is an optimization-based method that approxim
 \subsubsection{Bayesian System Identification}
 
 \subsubsection{Bayesian State Estimation}
+
+\subsubsection{Model-free Control}
 
 \subsubsection{Model Predictive Control}

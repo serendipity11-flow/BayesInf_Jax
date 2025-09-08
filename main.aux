@@ -7,10 +7,7 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \babel@aux{english}{}
-\AC@undonewlabel{acro:MCMC}
-\newlabel{acro:MCMC}{{}{}{\contentsname \@mkboth {\MakeUppercase \contentsname }{\MakeUppercase \contentsname }}{section*.2}{}}
-\acronymused{MCMC}
-\@writefile{toc}{\contentsline {chapter}{Acronyms}{i}{chapter*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Acronyms}{i}{chapter*.2}\protected@file@percent }
 \newacro{DGM}[\AC@hyperlink{DGM}{DGM}]{Deep Generative Model}
 \newacroplural{DGM}{Deep Generative Models}
 \newacro{VAE}[\AC@hyperlink{VAE}{VAE}]{Variational Autoencoder}
@@ -32,11 +29,21 @@
 \newacro{ELBO}[\AC@hyperlink{ELBO}{ELBO}]{Evidence Lower Bound}
 \newacro{KL}[\AC@hyperlink{KL}{KL}]{Kullback-Leibler}
 \newacro{VI}[\AC@hyperlink{VI}{VI}]{Variational Inference}
-\newacro{ODE}[\AC@hyperlink{ODE}{ODE}]{Ordinary Differential Equation}
-\newacro{SDE}[\AC@hyperlink{SDE}{SDE}]{Stochastic Differential Equation}
+\newacro{GPR}[\AC@hyperlink{GPR}{GPR}]{Gaussian process regression}
+\newacro{SE}[\AC@hyperlink{SE}{SE}]{squared exponential}
+\newacro{RBF}[\AC@hyperlink{RBF}{RBF}]{Radial Basis Function}
+\newacro{DGP}[\AC@hyperlink{DGP}{DGP}]{Deep Gaussian Process}
+\newacro{DNN}[\AC@hyperlink{DNN}{DNN}]{Deep Neural Network}
+\newacroplural{DNNs}{Deep Neural Networks}
+\newacro{SGD}[\AC@hyperlink{SGD}{SGD}]{Stochastic Gradient Descent}
+\newacro{BbB}[\AC@hyperlink{BbB}{BbB}]{Bayes by Backprop}
+\newacro{CNN}[\AC@hyperlink{CNN}{CNN}]{Convolutional Neural Network}
+\newacro{RNN}[\AC@hyperlink{RNN}{RNN}]{Recurrent Neural Network}
+\newacro{ODE}[\AC@hyperlink{ODE}{ODE}]{ordinary differential equation}
+\newacro{SDE}[\AC@hyperlink{SDE}{SDE}]{stochastic differential equation}
 \newacro{FFJORD}[\AC@hyperlink{FFJORD}{FFJORD}]{Free-form Jacobian of Reversible Dynamics}
-\@writefile{toc}{\contentsline {chapter}{List of Figures}{iii}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{List of Tables}{v}{chapter*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{List of Figures}{iii}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{List of Tables}{v}{chapter*.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {chapter}{\numberline {I}Introduction}{1}{chapter.1}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
@@ -50,14 +57,15 @@
 \citation{rezende2016}
 \citation{ho2020ddpm}
 \AC@undonewlabel{acro:DGM}
-\newlabel{acro:DGM}{{1}{2}{Motivation}{section*.7}{}}
+\newlabel{acro:DGM}{{1}{2}{Motivation}{section*.6}{}}
+\acronymused{DGM}
 \acronymused{DGM}
 \acronymused{DGM}
 \AC@undonewlabel{acro:VAE}
-\newlabel{acro:VAE}{{1}{2}{Motivation}{section*.8}{}}
+\newlabel{acro:VAE}{{1}{2}{Motivation}{section*.7}{}}
 \acronymused{VAE}
 \AC@undonewlabel{acro:NF}
-\newlabel{acro:NF}{{1}{2}{Motivation}{section*.9}{}}
+\newlabel{acro:NF}{{1}{2}{Motivation}{section*.8}{}}
 \acronymused{NF}
 \acronymused{DGM}
 \acronymused{DGM}
@@ -68,7 +76,7 @@
 \citation{PANIAGUA2024200344}
 \citation{frellsen2018}
 \AC@undonewlabel{acro:BNN}
-\newlabel{acro:BNN}{{1}{3}{Motivation}{section*.10}{}}
+\newlabel{acro:BNN}{{1}{3}{Motivation}{section*.9}{}}
 \acronymused{BNN}
 \acronymused{BNN}
 \acronymused{BNN}
@@ -76,10 +84,10 @@
 \acronymused{DGM}
 \acronymused{VAE}
 \AC@undonewlabel{acro:RNN}
-\newlabel{acro:RNN}{{1}{3}{Motivation}{section*.11}{}}
+\newlabel{acro:RNN}{{1}{3}{Motivation}{section*.10}{}}
 \acronymused{RNN}
 \AC@undonewlabel{acro:NARX}
-\newlabel{acro:NARX}{{1}{3}{Motivation}{section*.12}{}}
+\newlabel{acro:NARX}{{1}{3}{Motivation}{section*.11}{}}
 \acronymused{NARX}
 \acronymused{VAE}
 \acronymused{VAE}
@@ -89,59 +97,69 @@
 \acronymused{NF}
 \acronymused{NF}
 \AC@undonewlabel{acro:MPC}
-\newlabel{acro:MPC}{{1}{5}{Motivation}{section*.13}{}}
+\newlabel{acro:MPC}{{1}{5}{Motivation}{section*.12}{}}
 \acronymused{MPC}
 \acronymused{DGM}
 \acronymused{NF}
 \acronymused{MPC}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Preliminaries}{5}{section.1.2}\protected@file@percent }
-\newlabel{sec:introduction:background}{{2}{5}{Background and Preliminaries}{section.1.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Preliminaries}{6}{section.1.2}\protected@file@percent }
+\newlabel{sec:introduction:background}{{2}{6}{Background and Preliminaries}{section.1.2}{}}
 \AC@undonewlabel{acro:DGP}
-\newlabel{acro:DGP}{{2}{6}{Background and Preliminaries}{section*.14}{}}
+\newlabel{acro:DGP}{{2}{6}{Background and Preliminaries}{section*.13}{}}
 \acronymused{DGP}
 \acronymused{BNN}
 \acronymused{VAE}
 \acronymused{NF}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Notations}{6}{subsection.1.2.1}\protected@file@percent }
-\AC@undonewlabel{acro:PDF}
-\newlabel{acro:PDF}{{2.1}{6}{Notations}{section*.15}{}}
-\acronymused{PDF}
 \citation{gelman2013bayesian}
+\citation{Allen_2007}
+\AC@undonewlabel{acro:PDF}
+\newlabel{acro:PDF}{{2.1}{7}{Notations}{section*.14}{}}
+\acronymused{PDF}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Bayesian Inference}{7}{subsection.1.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Bayes' rule}{7}{subsubsection.1.2.2.1}\protected@file@percent }
 \newlabel{eq:bayes}{{I.3}{7}{Bayes' rule}{equation.1.3}{}}
 \citation{Metropolis}
 \citation{Hastings}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Markov Chain Monte Carlo}{8}{subsubsection.1.2.2.2}\protected@file@percent }
 \AC@undonewlabel{acro:MCMC}
-\newlabel{acro:MCMC}{{2.2.2}{8}{\ac {MCMC}}{section*.16}{}}
-\acronymused{MCMC}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}\ac {MCMC}}{8}{subsubsection.1.2.2.2}\protected@file@percent }
+\newlabel{acro:MCMC}{{2.2.2}{8}{Markov Chain Monte Carlo}{section*.15}{}}
 \acronymused{MCMC}
 \acronymused{MCMC}
 \acronymused{MCMC}
-\AC@undonewlabel{acro:MH}
-\newlabel{acro:MH}{{2.2.2}{8}{\acf {MH} algorithm}{section*.18}{}}
-\acronymused{MH}
-\@writefile{toc}{\contentsline {paragraph}{\acf {MH} algorithm}{8}{paragraph*.17}\protected@file@percent }
-\acronymused{MH}
-\acronymused{MCMC}
-\acronymused{MH}
 \citation{besag2004markov}
-\citation{duane1987hybrid}
-\newlabel{eq:mh_transition}{{I.7}{9}{\acf {MH} algorithm}{equation.1.7}{}}
-\AC@undonewlabel{acro:MALA}
-\newlabel{acro:MALA}{{2.2.2}{9}{\acf {MALA}}{section*.20}{}}
-\acronymused{MALA}
-\@writefile{toc}{\contentsline {paragraph}{\acf {MALA}}{9}{paragraph*.19}\protected@file@percent }
-\acronymused{MALA}
+\citation{gabbiani2010mathematics}
+\AC@undonewlabel{acro:MH}
+\newlabel{acro:MH}{{2.2.2}{9}{\acf {MH} algorithm}{section*.17}{}}
+\acronymused{MH}
+\@writefile{toc}{\contentsline {paragraph}{\acf {MH} algorithm}{9}{paragraph*.16}\protected@file@percent }
+\acronymused{MH}
 \acronymused{MCMC}
+\acronymused{MH}
+\newlabel{eq:mh_transition}{{I.7}{9}{\acf {MH} algorithm}{equation.1.7}{}}
+\acronymused{MCMC}
+\AC@undonewlabel{acro:MALA}
+\newlabel{acro:MALA}{{2.2.2}{9}{\acf {MALA}}{section*.19}{}}
+\acronymused{MALA}
+\@writefile{toc}{\contentsline {paragraph}{\acf {MALA}}{9}{paragraph*.18}\protected@file@percent }
+\acronymused{MALA}
+\acronymused{MH}
+\AC@undonewlabel{acro:SDE}
+\newlabel{acro:SDE}{{2.2.2}{9}{\acf {MALA}}{section*.20}{}}
+\acronymused{SDE}
+\citation{duane1987hybrid}
+\citation{Jordan1998,Wainwright2008}
+\citation{kl1951}
+\acronymused{MALA}
+\acronymused{SDE}
+\newlabel{eq:langevin}{{I.10}{10}{\acf {MALA}}{equation.1.10}{}}
 \acronymused{MH}
 \acronymused{MALA}
 \acronymused{MH}
 \acronymused{MALA}
 \acronymused{MCMC}
 \AC@undonewlabel{acro:HMC}
-\newlabel{acro:HMC}{{2.2.2}{9}{\acf {MALA}}{section*.21}{}}
+\newlabel{acro:HMC}{{2.2.2}{10}{\acf {MALA}}{section*.21}{}}
 \acronymused{HMC}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Variational Inference}{10}{subsubsection.1.2.2.3}\protected@file@percent }
 \acronymused{MCMC}
@@ -149,95 +167,201 @@
 \newlabel{acro:VI}{{2.2.3}{10}{Variational Inference}{section*.22}{}}
 \acronymused{VI}
 \acronymused{VI}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Deep Probabilistic Models}{10}{subsection.1.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Deep Gaussian Process}{10}{subsubsection.1.2.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Bayesian Neural Networks}{10}{subsubsection.1.2.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Variational Autoencoder}{10}{subsubsection.1.2.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Normalizing Flows}{10}{subsection.1.2.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.1}Basics}{10}{subsubsection.1.2.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}Discrete Normalizing Flows}{10}{subsubsection.1.2.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Coupling layers}{10}{paragraph*.23}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Autoregressive flows}{10}{paragraph*.24}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.3}Continuous Normalizing Flows}{10}{subsubsection.1.2.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Neural ODEs}{10}{paragraph*.25}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{FFJORD}{10}{paragraph*.26}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}BayesFlow}{10}{subsection.1.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}From Inference to Control}{10}{subsection.1.2.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.1}Bayesian System Identification}{10}{subsubsection.1.2.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.2}Bayesian State Estimation}{10}{subsubsection.1.2.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.3}Model Predictive Control}{10}{subsubsection.1.2.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Literature Review}{10}{section.1.3}\protected@file@percent }
-\newlabel{sec:introduction:literature_review}{{3}{10}{Literature Review}{section.1.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Objectives and Contributions}{11}{section.1.4}\protected@file@percent }
-\newlabel{sec:introduction:objectives}{{4}{11}{Objectives and Contributions}{section.1.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Outline}{12}{section.1.5}\protected@file@percent }
-\newlabel{sec:introduction:outline}{{5}{12}{Outline}{section.1.5}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {II}Methodologies}{13}{chapter.2}\protected@file@percent }
+\AC@undonewlabel{acro:KL}
+\newlabel{acro:KL}{{2.2.3}{11}{Variational Inference}{section*.23}{}}
+\acronymused{KL}
+\acronymused{VI}
+\acronymused{KL}
+\acronymused{KL}
+\newlabel{eq:vi_kl1}{{I.16}{11}{Variational Inference}{equation.1.16}{}}
+\acronymused{KL}
+\newlabel{eq:vi_kl2}{{I.17}{11}{Variational Inference}{equation.1.17}{}}
+\acronymused{KL}
+\citation{bishop2006}
+\citation{bishop2006}
+\citation{Blei_2017}
+\AC@undonewlabel{acro:ELBO}
+\newlabel{acro:ELBO}{{2.2.3}{12}{Variational Inference}{section*.24}{}}
+\acronymused{ELBO}
+\acronymused{ELBO}
+\newlabel{eq:elbo}{{I.20}{12}{Variational Inference}{equation.1.20}{}}
+\acronymused{KL}
+\acronymused{ELBO}
+\newlabel{eq:vi_opt}{{I.21}{12}{Variational Inference}{equation.1.21}{}}
+\acronymused{ELBO}
+\acronymused{VI}
+\acronymused{MCMC}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Deep Probabilistic Models}{12}{subsection.1.2.3}\protected@file@percent }
+\citation{Rasmussen_Williams_2008}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Deep Gaussian Process}{13}{subsubsection.1.2.3.1}\protected@file@percent }
+\AC@undonewlabel{acro:GPR}
+\newlabel{acro:GPR}{{2.3.1}{13}{Deep Gaussian Process}{section*.25}{}}
+\acronymused{GPR}
+\acronymused{GPR}
+\newlabel{eq:simgp}{{I.25}{13}{Deep Gaussian Process}{equation.1.25}{}}
+\AC@undonewlabel{acro:SE}
+\newlabel{acro:SE}{{2.3.1}{13}{Deep Gaussian Process}{section*.26}{}}
+\acronymused{SE}
+\AC@undonewlabel{acro:RBF}
+\newlabel{acro:RBF}{{2.3.1}{13}{Deep Gaussian Process}{section*.27}{}}
+\acronymused{RBF}
+\citation{damianou2013dgp}
+\citation{Neal1996}
+\citation{Neal1996,MacKay1992}
+\citation{kingma2013auto}
+\citation{bottou1999sgd}
+\acronymused{GPR}
+\acronymused{GPR}
+\acronymused{DGP}
+\acronymused{DGP}
+\acronymused{DGP}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Bayesian Neural Networks}{14}{subsubsection.1.2.3.2}\protected@file@percent }
+\acronymused{BNN}
+\acronymused{BNN}
+\acronymused{VI}
+\acronymused{ELBO}
+\acronymused{BNN}
+\AC@undonewlabel{acro:SGD}
+\newlabel{acro:SGD}{{2.3.2}{14}{Bayesian Neural Networks}{section*.28}{}}
+\citation{blundell2015bbb}
+\citation{shridhar2019bcnn}
+\citation{fortunato2019brnn}
+\citation{müller2024transbi}
+\citation{foong2019inbetween,foong2020bnn}
+\citation{izmailov2021bnnp}
+\citation{silvestro2020prior}
+\citation{kingma2013auto,rezende2014stochastic}
+\acronymused{SGD}
+\acronymused{ELBO}
+\acronymused{SGD}
+\acronymused{BNN}
+\AC@undonewlabel{acro:BbB}
+\newlabel{acro:BbB}{{2.3.2}{15}{Bayesian Neural Networks}{section*.29}{}}
+\acronymused{BbB}
+\acronymused{DGP}
+\acronymused{BNN}
+\acronymused{BbB}
+\acronymused{BNN}
+\AC@undonewlabel{acro:CNN}
+\newlabel{acro:CNN}{{2.3.2}{15}{Bayesian Neural Networks}{section*.30}{}}
+\acronymused{CNN}
+\acronymused{RNN}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Variational Autoencoder}{15}{subsubsection.1.2.3.3}\protected@file@percent }
+\acronymused{VI}
+\acronymused{VAE}
+\acronymused{VI}
+\acronymused{VAE}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Normalizing Flows}{16}{subsection.1.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.1}Basics}{16}{subsubsection.1.2.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}Discrete Normalizing Flows}{16}{subsubsection.1.2.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Coupling layers}{16}{paragraph*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Autoregressive flows}{16}{paragraph*.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.3}Continuous Normalizing Flows}{16}{subsubsection.1.2.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Neural ODEs}{16}{paragraph*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{FFJORD}{16}{paragraph*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}BayesFlow}{16}{subsection.1.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}From Inference to Control}{16}{subsection.1.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.1}Bayesian System Identification}{16}{subsubsection.1.2.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.2}Bayesian State Estimation}{16}{subsubsection.1.2.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.3}Model-free Control}{16}{subsubsection.1.2.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.4}Model Predictive Control}{16}{subsubsection.1.2.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Literature Review}{17}{section.1.3}\protected@file@percent }
+\newlabel{sec:introduction:literature_review}{{3}{17}{Literature Review}{section.1.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Deep Probabilistic Models for Bayesian Inference}{17}{subsection.1.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Deep Probabilistic Models for System Identification and State Estimation}{17}{subsection.1.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Data-driven Control based on Deep Probabilistic Models}{17}{subsection.1.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Objectives and Contributions}{18}{section.1.4}\protected@file@percent }
+\newlabel{sec:introduction:objectives}{{4}{18}{Objectives and Contributions}{section.1.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Outline}{19}{section.1.5}\protected@file@percent }
+\newlabel{sec:introduction:outline}{{5}{19}{Outline}{section.1.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {II}Methodologies}{21}{chapter.2}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:methods}{{II}{13}{Methodologies}{chapter.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{13}{section.2.1}\protected@file@percent }
-\newlabel{sec:methods:parameter_identification}{{1}{13}{Parameter Identification}{section.2.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Dynamics Identification}{13}{section.2.2}\protected@file@percent }
-\newlabel{sec:methods:dynamics_identification}{{2}{13}{Dynamics Identification}{section.2.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{13}{section.2.3}\protected@file@percent }
-\newlabel{sec:methods:state_estimation}{{3}{13}{State Estimation}{section.2.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Data-driven Control}{13}{section.2.4}\protected@file@percent }
-\newlabel{sec:methods:mpc}{{4}{13}{Data-driven Control}{section.2.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {III}Experiments and Results}{15}{chapter.3}\protected@file@percent }
+\newlabel{chap:methods}{{II}{21}{Methodologies}{chapter.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{21}{section.2.1}\protected@file@percent }
+\newlabel{sec:methods:parameter_identification}{{1}{21}{Parameter Identification}{section.2.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Dynamics Identification}{22}{section.2.2}\protected@file@percent }
+\newlabel{sec:methods:dynamics_identification}{{2}{22}{Dynamics Identification}{section.2.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{23}{section.2.3}\protected@file@percent }
+\newlabel{sec:methods:state_estimation}{{3}{23}{State Estimation}{section.2.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Data-driven Control}{24}{section.2.4}\protected@file@percent }
+\newlabel{sec:methods:mpc}{{4}{24}{Data-driven Control}{section.2.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {III}Experiments and Results}{25}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:experiments}{{III}{15}{Experiments and Results}{chapter.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{15}{section.3.1}\protected@file@percent }
-\newlabel{sec:experiments:parameter_identification}{{1}{15}{Parameter Identification}{section.3.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Dynamics Identification}{15}{section.3.2}\protected@file@percent }
-\newlabel{sec:experiments:dynamics_identification}{{2}{15}{Dynamics Identification}{section.3.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{15}{section.3.3}\protected@file@percent }
-\newlabel{sec:experiments:state_estimation}{{3}{15}{State Estimation}{section.3.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Data-driven Control}{15}{section.3.4}\protected@file@percent }
-\newlabel{sec:experiments:mpc}{{4}{15}{Data-driven Control}{section.3.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {IV}Discussion and Conclusion}{17}{chapter.4}\protected@file@percent }
+\newlabel{chap:experiments}{{III}{25}{Experiments and Results}{chapter.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{25}{section.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{25}{section.3.2}\protected@file@percent }
+\newlabel{sec:experiments:parameter_identification}{{2}{25}{Parameter Identification}{section.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Dynamics Identification}{25}{section.3.3}\protected@file@percent }
+\newlabel{sec:experiments:dynamics_identification}{{3}{25}{Dynamics Identification}{section.3.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}State Estimation}{25}{section.3.4}\protected@file@percent }
+\newlabel{sec:experiments:state_estimation}{{4}{25}{State Estimation}{section.3.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Data-driven Control}{25}{section.3.5}\protected@file@percent }
+\newlabel{sec:experiments:mpc}{{5}{25}{Data-driven Control}{section.3.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {IV}Discussion and Conclusion}{27}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{IV}{17}{Discussion and Conclusion}{chapter.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {V}Abstract}{19}{chapter.5}\protected@file@percent }
+\newlabel{chap:conclusion}{{IV}{27}{Discussion and Conclusion}{chapter.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {V}Abstract}{29}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {VI}Zusammenfassung}{21}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {VI}Zusammenfassung}{31}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{Bibliography}{22}{section*.27}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{23}{chapter*.28}\protected@file@percent }
-\newlabel{chap:contributions}{{VI}{23}{Own Contributions}{chapter*.28}{}}
-\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{23}{section*.29}\protected@file@percent }
-\newlabel{sec:own-data-acquisition}{{VI}{23}{}{section*.29}{}}
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{23}{paragraph*.30}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{23}{paragraph*.31}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Own Publications}{23}{paragraph*.31}\protected@file@percent }
-\newlabel{sec:own-publications}{{VI}{23}{}{paragraph*.31}{}}
-\newlabel{sec:publications:peer_reviewed_journal_first}{{VI}{23}{}{paragraph*.31}{}}
-\newlabel{sec:publications:peer_reviewed_conf_first}{{VI}{23}{}{paragraph*.31}{}}
+\@writefile{toc}{\contentsline {chapter}{Bibliography}{32}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{33}{chapter*.36}\protected@file@percent }
+\newlabel{chap:contributions}{{VI}{33}{Own Contributions}{chapter*.36}{}}
+\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{33}{section*.37}\protected@file@percent }
+\newlabel{sec:own-data-acquisition}{{VI}{33}{}{section*.37}{}}
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{33}{paragraph*.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{33}{paragraph*.39}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Own Publications}{33}{paragraph*.39}\protected@file@percent }
+\newlabel{sec:own-publications}{{VI}{33}{}{paragraph*.39}{}}
+\newlabel{sec:publications:peer_reviewed_journal_first}{{VI}{33}{}{paragraph*.39}{}}
+\newlabel{sec:publications:peer_reviewed_conf_first}{{VI}{33}{}{paragraph*.39}{}}
 \bibdata{refs}
-\newlabel{sec:publications:other_co}{{VI}{24}{}{paragraph*.31}{}}
-\bibcite{besag2004markov}{{1}{2004}{{Besag}}{{}}}
-\bibcite{duane1987hybrid}{{2}{1987}{{Duane et~al.}}{{Duane, Kennedy, Pendleton, and Roweth}}}
-\bibcite{foong2020bnn}{{3}{2020}{{Foong et~al.}}{{Foong, Burt, Li, and Turner}}}
-\bibcite{gelman2013bayesian}{{4}{2013}{{Gelman et~al.}}{{Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin}}}
-\bibcite{Girin_2021}{{5}{2021}{{Girin et~al.}}{{Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda}}}
-\bibcite{Goan_2020}{{6}{2020}{{Goan and Fookes}}{{}}}
-\bibcite{Hastings}{{7}{1970}{{Hastings}}{{}}}
-\bibcite{ho2020ddpm}{{8}{2020}{{Ho et~al.}}{{Ho, Jain, and Abbeel}}}
-\bibcite{Kingma_2019}{{9}{2019}{{Kingma and Welling}}{{}}}
-\bibcite{frellsen2018}{{10}{2018}{{Mattei and Frellsen}}{{}}}
-\bibcite{Metropolis}{{11}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
-\bibcite{pml1Book}{{12}{2022}{{Murphy}}{{}}}
-\bibcite{pml2Book}{{13}{2023}{{Murphy}}{{}}}
-\bibcite{PANIAGUA2024200344}{{14}{2024}{{Paniagua and López}}{{}}}
-\bibcite{rezende2016}{{15}{2016}{{Rezende and Mohamed}}{{}}}
-\bibcite{sarkka2019gp}{{16}{2019}{{Särkkä}}{{}}}
-\@writefile{toc}{\contentsline {chapter}{Curriculum Vitae}{26}{section*.33}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Appendix}{29}{chapter*.34}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{31}{chapter*.35}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{33}{chapter*.36}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{35}{chapter*.37}\protected@file@percent }
-\gdef \@abspage@last{50}
+\newlabel{sec:publications:other_co}{{VI}{34}{}{paragraph*.39}{}}
+\bibcite{Allen_2007}{{1}{2007}{{Allen}}{{}}}
+\bibcite{besag2004markov}{{2}{2004}{{Besag}}{{}}}
+\bibcite{bishop2006}{{3}{2006}{{Bishop}}{{}}}
+\bibcite{Blei_2017}{{4}{2017}{{Blei et~al.}}{{Blei, Kucukelbir, and McAuliffe}}}
+\bibcite{blundell2015bbb}{{5}{2015}{{Blundell et~al.}}{{Blundell, Cornebise, Kavukcuoglu, and Wierstra}}}
+\bibcite{bottou1999sgd}{{6}{1999}{{Bottou}}{{}}}
+\bibcite{damianou2013dgp}{{7}{2013}{{Damianou and Lawrence}}{{}}}
+\bibcite{duane1987hybrid}{{8}{1987}{{Duane et~al.}}{{Duane, Kennedy, Pendleton, and Roweth}}}
+\bibcite{foong2019inbetween}{{9}{2019}{{Foong et~al.}}{{Foong, Li, Hernández-Lobato, and Turner}}}
+\bibcite{foong2020bnn}{{10}{2020}{{Foong et~al.}}{{Foong, Burt, Li, and Turner}}}
+\bibcite{fortunato2019brnn}{{11}{2019}{{Fortunato et~al.}}{{Fortunato, Blundell, and Vinyals}}}
+\bibcite{gabbiani2010mathematics}{{12}{2010}{{Gabbiani and Cox}}{{}}}
+\bibcite{gelman2013bayesian}{{13}{2013}{{Gelman et~al.}}{{Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin}}}
+\bibcite{Girin_2021}{{14}{2021}{{Girin et~al.}}{{Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda}}}
+\bibcite{Goan_2020}{{15}{2020}{{Goan and Fookes}}{{}}}
+\bibcite{Hastings}{{16}{1970}{{Hastings}}{{}}}
+\bibcite{ho2020ddpm}{{17}{2020}{{Ho et~al.}}{{Ho, Jain, and Abbeel}}}
+\bibcite{izmailov2021bnnp}{{18}{2021}{{Izmailov et~al.}}{{Izmailov, Vikram, Hoffman, and Wilson}}}
+\bibcite{Jordan1998}{{19}{1998}{{Jordan et~al.}}{{Jordan, Ghahramani, Jaakkola, and Saul}}}
+\bibcite{Kingma_2019}{{20}{2019}{{Kingma and Welling}}{{}}}
+\bibcite{kingma2013auto}{{21}{2022}{{Kingma and Welling}}{{}}}
+\bibcite{kl1951}{{22}{1951}{{Kullback and Leibler}}{{}}}
+\bibcite{MacKay1992}{{23}{1995}{{MacKay}}{{}}}
+\bibcite{frellsen2018}{{24}{2018}{{Mattei and Frellsen}}{{}}}
+\bibcite{Metropolis}{{25}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
+\bibcite{pml1Book}{{26}{2022}{{Murphy}}{{}}}
+\bibcite{pml2Book}{{27}{2023}{{Murphy}}{{}}}
+\bibcite{müller2024transbi}{{28}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
+\bibcite{Neal1996}{{29}{1996}{{Neal}}{{}}}
+\bibcite{PANIAGUA2024200344}{{30}{2024}{{Paniagua and López}}{{}}}
+\bibcite{Rasmussen_Williams_2008}{{31}{2008}{{Rasmussen and Williams}}{{}}}
+\bibcite{rezende2016}{{32}{2016}{{Rezende and Mohamed}}{{}}}
+\bibcite{rezende2014stochastic}{{33}{2014}{{Rezende et~al.}}{{Rezende, Mohamed, and Wierstra}}}
+\bibcite{shridhar2019bcnn}{{34}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
+\bibcite{silvestro2020prior}{{35}{2020}{{Silvestro and Andermann}}{{}}}
+\bibcite{sarkka2019gp}{{36}{2019}{{Särkkä}}{{}}}
+\bibcite{Wainwright2008}{{37}{2008}{{Wainwright and Jordan}}{{}}}
+\@writefile{toc}{\contentsline {chapter}{Curriculum Vitae}{38}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Appendix}{41}{chapter*.42}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{43}{chapter*.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{45}{chapter*.44}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{47}{chapter*.45}\protected@file@percent }
+\gdef \@abspage@last{64}

@@ -1,14 +1,49 @@
-\begin{thebibliography}{16}
+\begin{thebibliography}{37}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
+\bibitem[Allen(2007)]{Allen_2007}
+Edward Allen.
+\newblock \emph{Modeling with ito stochastic differential equations}, volume~22.
+\newblock Springer, 2007.
+
 \bibitem[Besag(2004)]{besag2004markov}
 Julian Besag.
 \newblock Markov chain monte carlo methods for statistical inference.
 \newblock \emph{Department of Statistics University of Washington, Seattle, USA}, 2004.
+
+\bibitem[Bishop(2006)]{bishop2006}
+Christopher~M. Bishop.
+\newblock \emph{Pattern Recognition and Machine Learning (Information Science and Statistics)}.
+\newblock Springer-Verlag, Berlin, Heidelberg, 2006.
+\newblock ISBN 0387310738.
+
+\bibitem[Blei et~al.(2017)Blei, Kucukelbir, and McAuliffe]{Blei_2017}
+David~M. Blei, Alp Kucukelbir, and Jon~D. McAuliffe.
+\newblock Variational inference: A review for statisticians.
+\newblock \emph{Journal of the American Statistical Association}, 112\penalty0 (518):\penalty0 859–877, April 2017.
+\newblock ISSN 1537-274X.
+\newblock \doi{10.1080/01621459.2017.1285773}.
+\newblock URL \url{http://dx.doi.org/10.1080/01621459.2017.1285773}.
+
+\bibitem[Blundell et~al.(2015)Blundell, Cornebise, Kavukcuoglu, and Wierstra]{blundell2015bbb}
+Charles Blundell, Julien Cornebise, Koray Kavukcuoglu, and Daan Wierstra.
+\newblock Weight uncertainty in neural networks, 2015.
+\newblock URL \url{https://arxiv.org/abs/1505.05424}.
+
+\bibitem[Bottou(1999)]{bottou1999sgd}
+L\'{e}on Bottou.
+\newblock \emph{On-line learning and stochastic approximations}, page 9–42.
+\newblock Cambridge University Press, USA, 1999.
+\newblock ISBN 0521652634.
+
+\bibitem[Damianou and Lawrence(2013)]{damianou2013dgp}
+Andreas~C. Damianou and Neil~D. Lawrence.
+\newblock Deep gaussian processes, 2013.
+\newblock URL \url{https://arxiv.org/abs/1211.0358}.
 
 \bibitem[Duane et~al.(1987)Duane, Kennedy, Pendleton, and Roweth]{duane1987hybrid}
 Simon Duane, A.D. Kennedy, Brian~J. Pendleton, and Duncan Roweth.
@@ -18,10 +53,25 @@ Simon Duane, A.D. Kennedy, Brian~J. Pendleton, and Duncan Roweth.
 \newblock \doi{https://doi.org/10.1016/0370-2693(87)91197-X}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/037026938791197X}.
 
+\bibitem[Foong et~al.(2019)Foong, Li, Hernández-Lobato, and Turner]{foong2019inbetween}
+Andrew Y.~K. Foong, Yingzhen Li, José~Miguel Hernández-Lobato, and Richard~E. Turner.
+\newblock 'in-between' uncertainty in bayesian neural networks, 2019.
+\newblock URL \url{https://arxiv.org/abs/1906.11537}.
+
 \bibitem[Foong et~al.(2020)Foong, Burt, Li, and Turner]{foong2020bnn}
 Andrew Y.~K. Foong, David~R. Burt, Yingzhen Li, and Richard~E. Turner.
 \newblock On the expressiveness of approximate inference in bayesian neural networks, 2020.
 \newblock URL \url{https://arxiv.org/abs/1909.00719}.
+
+\bibitem[Fortunato et~al.(2019)Fortunato, Blundell, and Vinyals]{fortunato2019brnn}
+Meire Fortunato, Charles Blundell, and Oriol Vinyals.
+\newblock Bayesian recurrent neural networks, 2019.
+\newblock URL \url{https://arxiv.org/abs/1704.02798}.
+
+\bibitem[Gabbiani and Cox(2010)]{gabbiani2010mathematics}
+F.~Gabbiani and S.J. Cox.
+\newblock \emph{Mathematics for Neuroscientists}.
+\newblock Elsevier science \& technology books. Elsevier Science, 2010.
 
 \bibitem[Gelman et~al.(2013)Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin]{gelman2013bayesian}
 Andrew Gelman, John~B. Carlin, Hal~S. Stern, David~B. Dunson, Akti Vehtari, and Donald~B. Rubin.
@@ -59,6 +109,19 @@ Jonathan Ho, Ajay Jain, and Pieter Abbeel.
 \newblock Denoising diffusion probabilistic models, 2020.
 \newblock URL \url{https://arxiv.org/abs/2006.11239}.
 
+\bibitem[Izmailov et~al.(2021)Izmailov, Vikram, Hoffman, and Wilson]{izmailov2021bnnp}
+Pavel Izmailov, Sharad Vikram, Matthew~D. Hoffman, and Andrew~Gordon Wilson.
+\newblock What are bayesian neural network posteriors really like?, 2021.
+\newblock URL \url{https://arxiv.org/abs/2104.14421}.
+
+\bibitem[Jordan et~al.(1998)Jordan, Ghahramani, Jaakkola, and Saul]{Jordan1998}
+Michael~I. Jordan, Zoubin Ghahramani, Tommi~S. Jaakkola, and Lawrence~K. Saul.
+\newblock \emph{An Introduction to Variational Methods for Graphical Models}.
+\newblock Springer Netherlands, Dordrecht, 1998.
+\newblock ISBN 978-94-011-5014-9.
+\newblock \doi{10.1007/978-94-011-5014-9_5}.
+\newblock URL \url{https://doi.org/10.1007/978-94-011-5014-9_5}.
+
 \bibitem[Kingma and Welling(2019)]{Kingma_2019}
 Diederik~P. Kingma and Max Welling.
 \newblock An introduction to variational autoencoders.
@@ -66,6 +129,27 @@ Diederik~P. Kingma and Max Welling.
 \newblock ISSN 1935-8245.
 \newblock \doi{10.1561/2200000056}.
 \newblock URL \url{http://dx.doi.org/10.1561/2200000056}.
+
+\bibitem[Kingma and Welling(2022)]{kingma2013auto}
+Diederik~P Kingma and Max Welling.
+\newblock Auto-encoding variational bayes, 2022.
+\newblock URL \url{https://arxiv.org/abs/1312.6114}.
+
+\bibitem[Kullback and Leibler(1951)]{kl1951}
+S.~Kullback and R.~A. Leibler.
+\newblock On information and sufficiency.
+\newblock \emph{The Annals of Mathematical Statistics}, 22\penalty0 (1):\penalty0 79--86, 1951.
+\newblock ISSN 00034851.
+\newblock URL \url{http://www.jstor.org/stable/2236703}.
+
+\bibitem[MacKay(1995)]{MacKay1992}
+David~J.C MacKay.
+\newblock Bayesian neural networks and density networks.
+\newblock \emph{Nuclear Instruments and Methods in Physics Research Section A: Accelerators, Spectrometers, Detectors and Associated Equipment}, 354\penalty0 (1):\penalty0 73--80, 1995.
+\newblock ISSN 0168-9002.
+\newblock \doi{https://doi.org/10.1016/0168-9002(94)00931-7}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/0168900294009317}.
+\newblock Proceedings of the Third Workshop on Neutron Scattering Data Analysis.
 
 \bibitem[Mattei and Frellsen(2018)]{frellsen2018}
 Pierre-Alexandre Mattei and Jes Frellsen.
@@ -92,6 +176,19 @@ Kevin~P. Murphy.
 \newblock MIT Press, 2023.
 \newblock URL \url{http://probml.github.io/book2}.
 
+\bibitem[Müller et~al.(2024)Müller, Hollmann, Arango, Grabocka, and Hutter]{müller2024transbi}
+Samuel Müller, Noah Hollmann, Sebastian~Pineda Arango, Josif Grabocka, and Frank Hutter.
+\newblock Transformers can do bayesian inference, 2024.
+\newblock URL \url{https://arxiv.org/abs/2112.10510}.
+
+\bibitem[Neal(1996)]{Neal1996}
+Radford~M. Neal.
+\newblock \emph{Priors for Infinite Networks}, pages 29--53.
+\newblock Springer New York, New York, NY, 1996.
+\newblock ISBN 978-1-4612-0745-0.
+\newblock \doi{10.1007/978-1-4612-0745-0_2}.
+\newblock URL \url{https://doi.org/10.1007/978-1-4612-0745-0_2}.
+
 \bibitem[Paniagua and López(2024)]{PANIAGUA2024200344}
 Jose~L. Paniagua and Jesús~A. López.
 \newblock Nonlinear system identification using modified variational autoencoders.
@@ -100,14 +197,40 @@ Jose~L. Paniagua and Jesús~A. López.
 \newblock \doi{https://doi.org/10.1016/j.iswa.2024.200344}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S2667305324000206}.
 
+\bibitem[Rasmussen and Williams(2008)]{Rasmussen_Williams_2008}
+Carl~Edward Rasmussen and Christopher K.~I. Williams.
+\newblock \emph{Gaussian processes for machine learning Carl Edward Rasmussen; Christopher K.I. Williams}.
+\newblock MIT Press, 2008.
+
 \bibitem[Rezende and Mohamed(2016)]{rezende2016}
 Danilo~Jimenez Rezende and Shakir Mohamed.
 \newblock Variational inference with normalizing flows, 2016.
 \newblock URL \url{https://arxiv.org/abs/1505.05770}.
 
+\bibitem[Rezende et~al.(2014)Rezende, Mohamed, and Wierstra]{rezende2014stochastic}
+Danilo~Jimenez Rezende, Shakir Mohamed, and Daan Wierstra.
+\newblock Stochastic backpropagation and approximate inference in deep generative models, 2014.
+\newblock URL \url{https://arxiv.org/abs/1401.4082}.
+
+\bibitem[Shridhar et~al.(2019)Shridhar, Laumann, and Liwicki]{shridhar2019bcnn}
+Kumar Shridhar, Felix Laumann, and Marcus Liwicki.
+\newblock A comprehensive guide to bayesian convolutional neural network with variational inference, 2019.
+\newblock URL \url{https://arxiv.org/abs/1901.02731}.
+
+\bibitem[Silvestro and Andermann(2020)]{silvestro2020prior}
+Daniele Silvestro and Tobias Andermann.
+\newblock Prior choice affects ability of bayesian neural networks to identify unknowns, 2020.
+\newblock URL \url{https://arxiv.org/abs/2005.04987}.
+
 \bibitem[Särkkä(2019)]{sarkka2019gp}
 Simo Särkkä.
 \newblock The use of gaussian processes in system identification, 2019.
 \newblock URL \url{https://arxiv.org/abs/1907.06066}.
+
+\bibitem[Wainwright and Jordan(2008)]{Wainwright2008}
+Martin~J Wainwright and Michael~I Jordan.
+\newblock \emph{Graphical Models, Exponential Families, and Variational Inference}.
+\newblock Now Publishers Inc., Hanover, MA, USA, 2008.
+\newblock ISBN 1601981848.
 
 \end{thebibliography}

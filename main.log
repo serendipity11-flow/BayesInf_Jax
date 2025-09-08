@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  2 SEP 2025 10:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  5 SEP 2025 19:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1177,18 +1177,22 @@ LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 6.
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
 )
-Package acronym Info: Label `acro:MCMC' newly defined as it shall be overridden
-although it is yet undefined on input line 11.
-
 
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.32 ...ine {3}Literature Review}{10}{section.1.3}
+l.32 ...ictive Control}{16}{subsubsection.1.2.6.4}
                                                   % [7
 
-])
+]
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.62 ...ng (Affidavit) in German}{45}{chapter*.44}
+                                                  % [8])
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
@@ -1199,13 +1203,31 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.}) has be
 <to be read again> 
                    \relax 
 l.28     \cleardoublepage
-                          [8] (./chapters/Acronyms.tex
+                          [9]
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.28     \cleardoublepage
+                          [10
+
+] (./chapters/Acronyms.tex
 
 [1
 
 
-
-])
+]
+pdfTeX warning (ext4): destination with the same identifier (name{DGP}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.34      \acro{DGP}{Deep Gaussian Process}
+                                           
+pdfTeX warning (ext4): destination with the same identifier (name{RNN}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.40      \acro{RNN}{Recurrent Neural Network}
+                                              )
 
 [2] (./main.lof)
 \tf@lof=\write6
@@ -1257,7 +1279,7 @@ although it is yet undefined on input line 25.
 Package acronym Info: Label `acro:NF' newly defined as it shall be overridden
 although it is yet undefined on input line 25.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 5217) has occurred while \output is active []
 
 
 
@@ -1269,18 +1291,21 @@ although it is yet undefined on input line 33.
 Package acronym Info: Label `acro:NARX' newly defined as it shall be overridden
 although it is yet undefined on input line 33.
 
+Underfull \vbox (badness 2096) has occurred while \output is active []
+
+
 
 [3]
 Package acronym Info: Label `acro:MPC' newly defined as it shall be overridden
 although it is yet undefined on input line 39.
 
 
-[4]) (./chapters/01_Introduction/02_background.tex
+[4])
+
+[5] (./chapters/01_Introduction/02_background.tex
 Package acronym Info: Label `acro:DGP' newly defined as it shall be overridden
 although it is yet undefined on input line 3.
 
-
-[5]
 Underfull \hbox (badness 10000) in paragraph at lines 10--12
 
  []
@@ -1305,11 +1330,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 36--37
 
  []
 
-Package acronym Info: Label `acro:PDF' newly defined as it shall be overridden
-although it is yet undefined on input line 38.
 
 
 [6]
+Package acronym Info: Label `acro:PDF' newly defined as it shall be overridden
+although it is yet undefined on input line 38.
 LaTeX Font Info:    Trying to load font information for U+fplmbb on input line 41.
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/psnfss/ufplmbb.fd
 File: ufplmbb.fd 2003/10/30 Fontinst v1.914 font definitions for U/fplmbb.
@@ -1321,67 +1346,120 @@ Underfull \hbox (badness 10000) in paragraph at lines 46--48
 
 
 [7]
-Package acronym Info: Label `acro:MCMC' overridden on input line 84.
+Package acronym Info: Label `acro:MCMC' newly defined as it shall be overridden
+although it is yet undefined on input line 85.
 Package acronym Info: Label `acro:MH' newly defined as it shall be overridden
 although it is yet undefined on input line 87.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 
 
 [8]
 Package acronym Info: Label `acro:MALA' newly defined as it shall be overridden
-although it is yet undefined on input line 103.
+although it is yet undefined on input line 109.
+Package acronym Info: Label `acro:SDE' newly defined as it shall be overridden
+although it is yet undefined on input line 110.
+
+
+[9]
 Package acronym Info: Label `acro:HMC' newly defined as it shall be overridden
-although it is yet undefined on input line 120.
+although it is yet undefined on input line 138.
 Package acronym Info: Label `acro:VI' newly defined as it shall be overridden
-although it is yet undefined on input line 123.
+although it is yet undefined on input line 141.
+Package acronym Info: Label `acro:KL' newly defined as it shall be overridden
+although it is yet undefined on input line 141.
 
 
-[9]) (./chapters/01_Introduction/03_literature_review.tex
+[10]
+Package acronym Info: Label `acro:ELBO' newly defined as it shall be overridden
+although it is yet undefined on input line 179.
 
-[10]) (./chapters/01_Introduction/04_objectives.tex) (./chapters/01_Introduction/05_outline.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[11])) (./chapters/02_Methodologies/00.tex
+
+
+[11]
+Underfull \vbox (badness 4084) has occurred while \output is active []
+
+
 
 [12]
-Chapter II.
-(./chapters/02_Methodologies/01_parameter_identification.tex) (./chapters/02_Methodologies/02_dynamics_identification.tex) (./chapters/02_Methodologies/03_state_estimation.tex) (./chapters/02_Methodologies/04_data_driven_control.tex)) (./chapters/03_Experiments_Results/00.tex
+Package acronym Info: Label `acro:GPR' newly defined as it shall be overridden
+although it is yet undefined on input line 210.
+Package acronym Info: Label `acro:SE' newly defined as it shall be overridden
+although it is yet undefined on input line 223.
+Package acronym Info: Label `acro:RBF' newly defined as it shall be overridden
+although it is yet undefined on input line 223.
 
-[13
 
-]
+[13]
+Package acronym Info: Label `acro:SGD' newly defined as it shall be overridden
+although it is yet undefined on input line 250.
 
-[14
 
-]
-Chapter III.
-(./chapters/03_Experiments_Results/01_parameter_identification.tex) (./chapters/03_Experiments_Results/02_dynamics_identification.tex) (./chapters/03_Experiments_Results/03_state_estimation.tex) (./chapters/03_Experiments_Results/04_data_driven_control.tex)) (./chapters/04_Discussion_Conclusion.tex
+[14]
+Package acronym Info: Label `acro:BbB' newly defined as it shall be overridden
+although it is yet undefined on input line 258.
+Package acronym Info: Label `acro:CNN' newly defined as it shall be overridden
+although it is yet undefined on input line 260.
 
-[15]
 
-[16
+[15])
 
-]
-Chapter IV.
-) (./chapters/05_Abstract.tex
+[16] (./chapters/01_Introduction/03_literature_review.tex)
 
-[17]
+[17] (./chapters/01_Introduction/04_objectives.tex) (./chapters/01_Introduction/05_outline.tex
 
-[18
-
-]
-Chapter V.
-) (./chapters/06_Zusammenfassung.tex
+[18])) (./chapters/02_Methodologies/00.tex
 
 [19]
 
 [20
 
 ]
+Chapter II.
+(./chapters/02_Methodologies/01_parameter_identification.tex)
+
+[21] (./chapters/02_Methodologies/02_dynamics_identification.tex)
+
+[22] (./chapters/02_Methodologies/03_state_estimation.tex)
+
+[23] (./chapters/02_Methodologies/04_data_driven_control.tex)) (./chapters/03_Experiments_Results/00.tex
+
+[24]
+Chapter III.
+(./chapters/03_Experiments_Results/01_parameter_identification.tex) (./chapters/03_Experiments_Results/02_dynamics_identification.tex) (./chapters/03_Experiments_Results/03_state_estimation.tex) (./chapters/03_Experiments_Results/04_data_driven_control.tex)) (./chapters/04_Discussion_Conclusion.tex
+
+[25
+
+]
+
+[26
+
+]
+Chapter IV.
+) (./chapters/05_Abstract.tex
+
+[27]
+
+[28
+
+]
+Chapter V.
+) (./chapters/06_Zusammenfassung.tex
+
+[29]
+
+[30
+
+]
 Chapter VI.
 )
 
-[21] (./chapters/07_Own_Publications.tex
+[31] (./chapters/07_Own_Publications.tex
 
-[22
+[32
 
 
 ]
@@ -1399,19 +1477,23 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             See the microtype manual for details.
 
 
-[23{c:/Users/zhangyi/texlive/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}]) (./main.bbl
+[33{c:/Users/zhangyi/texlive/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}]) (./main.bbl
 
-[24]
+[34]
 
-[25
+[35
 
-])
-<figures/CV_YiZhang_diss.pdf, id=604, 614.295pt x 794.97pt>
+]
+
+[36]
+
+[37])
+<figures/CV_YiZhang_diss.pdf, id=890, 614.295pt x 794.97pt>
 File: figures/CV_YiZhang_diss.pdf Graphic file (type pdf)
 <use figures/CV_YiZhang_diss.pdf>
 Package pdftex.def Info: figures/CV_YiZhang_diss.pdf  used on input line 69.
 (pdftex.def)             Requested size: 614.29349pt x 794.96806pt.
-<figures/CV_YiZhang_diss.pdf, id=606, page=1, 614.295pt x 794.97pt>
+<figures/CV_YiZhang_diss.pdf, id=892, page=1, 614.295pt x 794.97pt>
 File: figures/CV_YiZhang_diss.pdf Graphic file (type pdf)
 <use figures/CV_YiZhang_diss.pdf, page 1>
 Package pdftex.def Info: figures/CV_YiZhang_diss.pdf , page1 used on input line 69.
@@ -1422,7 +1504,7 @@ Package pdftex.def Info: figures/CV_YiZhang_diss.pdf , page1 used on input line 
 (pdftex.def)             Requested size: 473.0086pt x 612.1288pt.
 
 
-[26]
+[38]
 File: figures/CV_YiZhang_diss.pdf Graphic file (type pdf)
 <use figures/CV_YiZhang_diss.pdf, page 1>
 Package pdftex.def Info: figures/CV_YiZhang_diss.pdf , page1 used on input line 69.
@@ -1437,55 +1519,55 @@ File: figures/CV_YiZhang_diss.pdf Graphic file (type pdf)
 <use figures/CV_YiZhang_diss.pdf, page 1>
 Package pdftex.def Info: figures/CV_YiZhang_diss.pdf , page1 used on input line 69.
 (pdftex.def)             Requested size: 473.0086pt x 612.1288pt.
-[27
+[39
 
  <./figures/CV_YiZhang_diss.pdf>] (./chapters/08_Appendix.tex
 
-[28
+[40
 
 ]) (./chapters/09_Acknowledgement.tex
 
-[29]
+[41]
 
-[30
+[42
 
 ]) (./chapters/10_Eidestattliche_Erklärung.tex
 
-[31]
+[43]
 
-[32
+[44
 
 ]) (./chapters/11_Angabe_KI.tex
 
-[33]
+[45]
 
-[34
+[46
 
 ]
 
-[35])
+[47])
 
-[36] (./main.aux)
+[48] (./main.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 14C9136F4BA1AC5E3DEAFA6B3C2579C0;5813.
+(rerunfilecheck)             Checksum: 657483A849E1650A032DF6BB63AEDEC0;7021.
  ) 
 Here is how much of TeX's memory you used:
- 37946 strings out of 469679
- 719673 string characters out of 5477725
- 1288081 words of memory out of 5000000
- 64999 multiletter control sequences out of 15000+600000
- 695741 words of font info for 376 fonts, out of 8000000 for 9000
+ 38179 strings out of 469679
+ 723172 string characters out of 5477725
+ 1293081 words of memory out of 5000000
+ 65127 multiletter control sequences out of 15000+600000
+ 700475 words of font info for 401 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 99i,20n,145p,1678b,869s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,20n,145p,1681b,855s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/mathpazo/fplmbb.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/mathpazo/fplmbi.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/mathpazo/fplmr.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/bookman/ubkl8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on main.pdf (50 pages, 362242 bytes).
+Output written on main.pdf (64 pages, 406976 bytes).
 PDF statistics:
- 808 PDF objects out of 1000 (max. 8388607)
- 704 compressed objects within 8 object streams
- 177 named destinations out of 1000 (max. 500000)
- 99652 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 1110 PDF objects out of 1200 (max. 8388607)
+ 990 compressed objects within 10 object streams
+ 250 named destinations out of 1000 (max. 500000)
+ 99684 words of extra memory for PDF output out of 106986 (max. 10000000)
 

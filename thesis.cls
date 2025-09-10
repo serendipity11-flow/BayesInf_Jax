@@ -14,13 +14,10 @@
 \usepackage[protrusion=true,expansion=true]{microtype}
 \renewcommand{\thesection}{\arabic{section}}
 \renewcommand{\thechapter}{\Roman{chapter}}
-
 \usepackage{titlesec}
 \titleformat{\paragraph}[block]{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
 \setcounter{tocdepth}{3}
 \setcounter{secnumdepth}{3}
-
-\usepackage{palatino,eulervm}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{graphicx}
 \usepackage{amsfonts}
@@ -47,13 +44,11 @@
 \usepackage{subcaption}
 % For comments
 \usepackage{verbatim}
-
 \usepackage[labelfont=bf]{caption}
 %\parindent0em
 \emergencystretch=1em
 \usepackage[authoryear]{natbib}
 \bibliographystyle{plainnat}  
-
 \usepackage{etoolbox}
 \preto\chapter\acresetall
 \usepackage[symbol]{footmisc}
@@ -92,9 +87,6 @@
 \colorlet{dkfzgray}{gray!10}
 \definecolor{dkfzgray2}{rgb}{0.6,0.6,0.6}
 \definecolor{light-gray}{gray}{0.95}
-\usepackage{mathpazo}  % font: palatino vs computer modern
-\usepackage{lipsum} % used to fill random text in sections
-\usepackage{tikz} % used for sample figure
 %\definecolor{dkfzgray}{gray!30}
 \newcolumntype{a}{>{\columncolor{dkfzgray}}m{0.27\textwidth}}
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}} %table centering

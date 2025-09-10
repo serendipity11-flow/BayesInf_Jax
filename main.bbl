@@ -1,4 +1,4 @@
-\begin{thebibliography}{37}
+\begin{thebibliography}{46}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -7,8 +7,13 @@
 
 \bibitem[Allen(2007)]{Allen_2007}
 Edward Allen.
-\newblock \emph{Modeling with ito stochastic differential equations}, volume~22.
+\newblock \emph{Modeling with it\^o stochastic differential equations}, volume~22.
 \newblock Springer, 2007.
+
+\bibitem[Asperti(2020)]{asperti2020vae}
+Andrea Asperti.
+\newblock Variance loss in variational autoencoders, 2020.
+\newblock URL \url{https://arxiv.org/abs/2002.09860}.
 
 \bibitem[Besag(2004)]{besag2004markov}
 Julian Besag.
@@ -40,6 +45,13 @@ L\'{e}on Bottou.
 \newblock Cambridge University Press, USA, 1999.
 \newblock ISBN 0521652634.
 
+\bibitem[Bowman et~al.(2016)Bowman, Vilnis, Vinyals, Dai, Jozefowicz, and Bengio]{bowman2016cvae}
+Samuel~R. Bowman, Luke Vilnis, Oriol Vinyals, Andrew Dai, Rafal Jozefowicz, and Samy Bengio.
+\newblock Generating sentences from a continuous space.
+\newblock In Stefan Riezler and Yoav Goldberg, editors, \emph{Proceedings of the 20th {SIGNLL} Conference on Computational Natural Language Learning}, pages 10--21, Berlin, Germany, August 2016. Association for Computational Linguistics.
+\newblock \doi{10.18653/v1/K16-1002}.
+\newblock URL \url{https://aclanthology.org/K16-1002/}.
+
 \bibitem[Damianou and Lawrence(2013)]{damianou2013dgp}
 Andreas~C. Damianou and Neil~D. Lawrence.
 \newblock Deep gaussian processes, 2013.
@@ -52,6 +64,12 @@ Simon Duane, A.D. Kennedy, Brian~J. Pendleton, and Duncan Roweth.
 \newblock ISSN 0370-2693.
 \newblock \doi{https://doi.org/10.1016/0370-2693(87)91197-X}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/037026938791197X}.
+
+\bibitem[Durrett(1996)]{DU04}
+Richard Durrett.
+\newblock \emph{Probability: theory and examples}.
+\newblock Duxbury Press, Belmont, CA, second edition, 1996.
+\newblock ISBN 0-534-24318-5.
 
 \bibitem[Foong et~al.(2019)Foong, Li, Hernández-Lobato, and Turner]{foong2019inbetween}
 Andrew Y.~K. Foong, Yingzhen Li, José~Miguel Hernández-Lobato, and Richard~E. Turner.
@@ -79,6 +97,11 @@ Andrew Gelman, John~B. Carlin, Hal~S. Stern, David~B. Dunson, Akti Vehtari, and 
 \newblock Chapman \& Hall/CRC Texts in Statistical Science Series. CRC, Boca Raton, Florida, third edition, 2013.
 \newblock ISBN 9781439840955 1439840954.
 \newblock URL \url{https://stat.columbia.edu/~gelman/book/}.
+
+\bibitem[Gershman and Goodman(2014)]{gershman2014amortized}
+Samuel Gershman and Noah Goodman.
+\newblock Amortized inference in probabilistic reasoning.
+\newblock In \emph{Proceedings of the annual meeting of the cognitive science society}, volume~36, 2014.
 
 \bibitem[Girin et~al.(2021)Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda]{Girin_2021}
 Laurent Girin, Simon Leglaive, Xiaoyu Bie, Julien Diard, Thomas Hueber, and Xavier Alameda-Pineda.
@@ -151,10 +174,17 @@ David~J.C MacKay.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/0168900294009317}.
 \newblock Proceedings of the Third Workshop on Neutron Scattering Data Analysis.
 
-\bibitem[Mattei and Frellsen(2018)]{frellsen2018}
-Pierre-Alexandre Mattei and Jes Frellsen.
-\newblock Leveraging the exact likelihood of deep latent variable models.
-\newblock In \emph{Proceedings of the 32nd International Conference on Neural Information Processing Systems}, NIPS'18, page 3859–3870, Red Hook, NY, USA, 2018. Curran Associates Inc.
+\bibitem[Martínez-Palomera et~al.(2020)Martínez-Palomera, Bloom, and Abrahams]{martínezpalomera2020pelsvae}
+Jorge Martínez-Palomera, Joshua~S. Bloom, and Ellianna~S. Abrahams.
+\newblock Deep generative modeling of periodic variable stars using physical parameters, 2020.
+\newblock URL \url{https://arxiv.org/abs/2005.07773}.
+
+\bibitem[McCarthy et~al.(2020)McCarthy, Li, Gu, and Dong]{mccarthy2020cvae}
+Arya~D. McCarthy, Xian Li, Jiatao Gu, and Ning Dong.
+\newblock Addressing posterior collapse with mutual information for improved variational neural machine translation.
+\newblock In Dan Jurafsky, Joyce Chai, Natalie Schluter, and Joel Tetreault, editors, \emph{Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics}, pages 8512--8525, Online, July 2020. Association for Computational Linguistics.
+\newblock \doi{10.18653/v1/2020.acl-main.753}.
+\newblock URL \url{https://aclanthology.org/2020.acl-main.753/}.
 
 \bibitem[Metropolis et~al.(1953)Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller]{Metropolis}
 Nicholas Metropolis, Arianna~W. Rosenbluth, Marshall~N. Rosenbluth, Augusta~H. Teller, and Edward Teller.
@@ -163,6 +193,14 @@ Nicholas Metropolis, Arianna~W. Rosenbluth, Marshall~N. Rosenbluth, Augusta~H. T
 \newblock ISSN 0021-9606.
 \newblock \doi{10.1063/1.1699114}.
 \newblock URL \url{https://doi.org/10.1063/1.1699114}.
+
+\bibitem[Mienye and Swart(2025)]{Mienye2025}
+Ibomoiye~Domor Mienye and Theo~G. Swart.
+\newblock Deep autoencoder neural networks: A comprehensive review and new perspectives.
+\newblock \emph{Archives of Computational Methods in Engineering}, Mar 2025.
+\newblock ISSN 1886-1784.
+\newblock \doi{10.1007/s11831-025-10260-5}.
+\newblock URL \url{https://doi.org/10.1007/s11831-025-10260-5}.
 
 \bibitem[Murphy(2022)]{pml1Book}
 Kevin~P. Murphy.
@@ -197,9 +235,14 @@ Jose~L. Paniagua and Jesús~A. López.
 \newblock \doi{https://doi.org/10.1016/j.iswa.2024.200344}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S2667305324000206}.
 
+\bibitem[Papamakarios et~al.(2021)Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan]{papamakarios2021nf}
+George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed, and Balaji Lakshminarayanan.
+\newblock Normalizing flows for probabilistic modeling and inference, 2021.
+\newblock URL \url{https://arxiv.org/abs/1912.02762}.
+
 \bibitem[Rasmussen and Williams(2008)]{Rasmussen_Williams_2008}
 Carl~Edward Rasmussen and Christopher K.~I. Williams.
-\newblock \emph{Gaussian processes for machine learning Carl Edward Rasmussen; Christopher K.I. Williams}.
+\newblock \emph{Gaussian processes for machine learning}.
 \newblock MIT Press, 2008.
 
 \bibitem[Rezende and Mohamed(2016)]{rezende2016}
@@ -207,10 +250,12 @@ Danilo~Jimenez Rezende and Shakir Mohamed.
 \newblock Variational inference with normalizing flows, 2016.
 \newblock URL \url{https://arxiv.org/abs/1505.05770}.
 
-\bibitem[Rezende et~al.(2014)Rezende, Mohamed, and Wierstra]{rezende2014stochastic}
-Danilo~Jimenez Rezende, Shakir Mohamed, and Daan Wierstra.
-\newblock Stochastic backpropagation and approximate inference in deep generative models, 2014.
-\newblock URL \url{https://arxiv.org/abs/1401.4082}.
+\bibitem[Schwartz(1954)]{changeofvariables}
+J.~Schwartz.
+\newblock The formula for change in variables in a multiple integral.
+\newblock \emph{The American Mathematical Monthly}, 61\penalty0 (2):\penalty0 81--85, 1954.
+\newblock ISSN 00029890, 19300972.
+\newblock URL \url{http://www.jstor.org/stable/2307790}.
 
 \bibitem[Shridhar et~al.(2019)Shridhar, Laumann, and Liwicki]{shridhar2019bcnn}
 Kumar Shridhar, Felix Laumann, and Marcus Liwicki.
@@ -222,6 +267,12 @@ Daniele Silvestro and Tobias Andermann.
 \newblock Prior choice affects ability of bayesian neural networks to identify unknowns, 2020.
 \newblock URL \url{https://arxiv.org/abs/2005.04987}.
 
+\bibitem[Sohn et~al.(2015)Sohn, Lee, and Yan]{sohn2015cvae}
+Kihyuk Sohn, Honglak Lee, and Xinchen Yan.
+\newblock Learning structured output representation using deep conditional generative models.
+\newblock In C.~Cortes, N.~Lawrence, D.~Lee, M.~Sugiyama, and R.~Garnett, editors, \emph{Advances in Neural Information Processing Systems}, volume~28. Curran Associates, Inc., 2015.
+\newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/2015/file/8d55a249e6baa5c06772297520da2051-Paper.pdf}.
+
 \bibitem[Särkkä(2019)]{sarkka2019gp}
 Simo Särkkä.
 \newblock The use of gaussian processes in system identification, 2019.
@@ -232,5 +283,10 @@ Martin~J Wainwright and Michael~I Jordan.
 \newblock \emph{Graphical Models, Exponential Families, and Variational Inference}.
 \newblock Now Publishers Inc., Hanover, MA, USA, 2008.
 \newblock ISBN 1601981848.
+
+\bibitem[Wang et~al.(2023)Wang, Blei, and Cunningham]{wang2023vae}
+Yixin Wang, David~M. Blei, and John~P. Cunningham.
+\newblock Posterior collapse and latent variable non-identifiability, 2023.
+\newblock URL \url{https://arxiv.org/abs/2301.00537}.
 
 \end{thebibliography}

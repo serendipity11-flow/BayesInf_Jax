@@ -89,18 +89,6 @@ author = {V. Peterka}
  year = 2023,
  url = "http://probml.github.io/book2"
 }
-@article{Kingma_2019,
-   title={An Introduction to Variational Autoencoders},
-   volume={12},
-   ISSN={1935-8245},
-   url={http://dx.doi.org/10.1561/2200000056},
-   DOI={10.1561/2200000056},
-   number={4},
-   journal={Foundations and Trends® in Machine Learning},
-   publisher={Now Publishers},
-   author={Kingma, Diederik P. and Welling, Max},
-   year={2019},
-   pages={307–392} }
 @misc{pillonetto2023,
       title={Deep networks for system identification: a Survey}, 
       author={Gianluigi Pillonetto and Aleksandr Aravkin and Daniel Gedon and Lennart Ljung and Antônio H. Ribeiro and Thomas B. Schön},
@@ -170,17 +158,23 @@ issn = {2667-3053},
 doi = {https://doi.org/10.1016/j.iswa.2024.200344},
 url = {https://www.sciencedirect.com/science/article/pii/S2667305324000206},
 author = {Jose L. Paniagua and Jesús A. López}}
-@inproceedings{frellsen2018,
-author = {Mattei, Pierre-Alexandre and Frellsen, Jes},
-title = {Leveraging the exact likelihood of deep latent variable models},
-year = {2018},
-publisher = {Curran Associates Inc.},
-address = {Red Hook, NY, USA},
-booktitle = {Proceedings of the 32nd International Conference on Neural Information Processing Systems},
-pages = {3859–3870},
-numpages = {12},
-location = {Montr\'{e}al, Canada},
-series = {NIPS'18}
+@misc{asperti2020vae,
+      title={Variance Loss in Variational Autoencoders}, 
+      author={Andrea Asperti},
+      year={2020},
+      eprint={2002.09860},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2002.09860}, 
+}
+@misc{wang2023vae,
+      title={Posterior Collapse and Latent Variable Non-identifiability}, 
+      author={Yixin Wang and David M. Blei and John P. Cunningham},
+      year={2023},
+      eprint={2301.00537},
+      archivePrefix={arXiv},
+      primaryClass={stat.ML},
+      url={https://arxiv.org/abs/2301.00537}, 
 }
 @misc{sarkka2019gp,
       title={The Use of Gaussian Processes in System Identification}, 
@@ -249,7 +243,7 @@ abstract = {We present a new method for the numerical simulation of lattice fiel
 }
 @book{Allen_2007, 
 place={Texas Tech University, USA}, 
-title={Modeling with ito stochastic differential equations}, 
+title={Modeling with it\^o stochastic differential equations}, 
 volume={22}, 
 publisher={Springer}, 
 author={Allen, Edward}, 
@@ -322,7 +316,7 @@ address = {Berlin, Heidelberg}
    month=apr, pages={859–877} }
 @book{Rasmussen_Williams_2008, 
 place={Cambridge, Mass}, 
-title={Gaussian processes for machine learning Carl Edward Rasmussen; Christopher K.I. Williams}, 
+title={Gaussian processes for machine learning}, 
 publisher={MIT Press}, 
 author={Rasmussen, Carl Edward and Williams, Christopher K. I.}, 
 year={2008}} 
@@ -370,6 +364,25 @@ abstract = {This paper reviews the Bayesian approach to learning in neural netwo
       archivePrefix={arXiv},
       primaryClass={stat.ML},
       url={https://arxiv.org/abs/1312.6114}, 
+}
+@article{Kingma_2019,
+   title={An Introduction to Variational Autoencoders},
+   volume={12},
+   ISSN={1935-8245},
+   url={http://dx.doi.org/10.1561/2200000056},
+   DOI={10.1561/2200000056},
+   number={4},
+   journal={Foundations and Trends® in Machine Learning},
+   publisher={Emerald},
+   author={Kingma, Diederik P. and Welling, Max},
+   year={2019},
+   pages={307–392} }
+@inproceedings{gershman2014amortized,
+  title={Amortized inference in probabilistic reasoning},
+  author={Gershman, Samuel and Goodman, Noah},
+  booktitle={Proceedings of the annual meeting of the cognitive science society},
+  volume={36},
+  year={2014}
 }
 @inbook{bottou1999sgd,
 author = {Bottou, L\'{e}on},
@@ -462,4 +475,117 @@ numpages = {34}
       archivePrefix={arXiv},
       primaryClass={stat.ML},
       url={https://arxiv.org/abs/1401.4082}, 
+}
+@inproceedings{sohn2015cvae,
+ author = {Sohn, Kihyuk and Lee, Honglak and Yan, Xinchen},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {C. Cortes and N. Lawrence and D. Lee and M. Sugiyama and R. Garnett},
+ pages = {},
+ publisher = {Curran Associates, Inc.},
+ title = {Learning Structured Output Representation using Deep Conditional Generative Models},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2015/file/8d55a249e6baa5c06772297520da2051-Paper.pdf},
+ volume = {28},
+ year = {2015}
+}
+@misc{martínezpalomera2020pelsvae,
+      title={Deep Generative Modeling of Periodic Variable Stars Using Physical Parameters}, 
+      author={Jorge Martínez-Palomera and Joshua S. Bloom and Ellianna S. Abrahams},
+      year={2020},
+      eprint={2005.07773},
+      archivePrefix={arXiv},
+      primaryClass={astro-ph.IM},
+      url={https://arxiv.org/abs/2005.07773}, 
+}
+@Article{Mienye2025,
+author={Mienye, Ibomoiye Domor
+and Swart, Theo G.},
+title={Deep Autoencoder Neural Networks: A Comprehensive Review and New Perspectives},
+journal={Archives of Computational Methods in Engineering},
+year={2025},
+month={Mar},
+day={15},
+abstract={Autoencoders have become a fundamental technique in deep learning (DL), significantly enhancing representation learning across various domains, including image processing, anomaly detection, and generative modelling. This paper provides a comprehensive review of autoencoder architectures, from their inception and fundamental concepts to advanced implementations such as adversarial autoencoders, convolutional autoencoders, and variational autoencoders, examining their operational mechanisms, mathematical foundations, typical applications, and their role in generative modelling. The study contributes to the field by synthesizing existing knowledge, discussing recent advancements, new perspectives, and the practical implications of autoencoders in tackling modern machine learning (ML) challenges.},
+issn={1886-1784},
+doi={10.1007/s11831-025-10260-5},
+url={https://doi.org/10.1007/s11831-025-10260-5}
+}
+@inproceedings{mccarthy2020cvae,
+    title = "Addressing Posterior Collapse with Mutual Information for Improved Variational Neural Machine Translation",
+    author = "McCarthy, Arya D.  and
+      Li, Xian  and
+      Gu, Jiatao  and
+      Dong, Ning",
+    editor = "Jurafsky, Dan  and
+      Chai, Joyce  and
+      Schluter, Natalie  and
+      Tetreault, Joel",
+    booktitle = "Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics",
+    month = jul,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.acl-main.753/",
+    doi = "10.18653/v1/2020.acl-main.753",
+    pages = "8512--8525",
+    abstract = "This paper proposes a simple and effective approach to address the problem of posterior collapse in conditional variational autoencoders (CVAEs). It thus improves performance of machine translation models that use noisy or monolingual data, as well as in conventional settings. Extending Transformer and conditional VAEs, our proposed latent variable model measurably prevents posterior collapse by (1) using a modified evidence lower bound (ELBO) objective which promotes mutual information between the latent variable and the target, and (2) guiding the latent variable with an auxiliary bag-of-words prediction task. As a result, the proposed model yields improved translation quality compared to existing variational NMT models on WMT Ro{\ensuremath{\leftrightarrow}}En and De{\ensuremath{\leftrightarrow}}En. With latent variables being effectively utilized, our model demonstrates improved robustness over non-latent Transformer in handling uncertainty: exploiting noisy source-side monolingual data (up to +3.2 BLEU), and training with weakly aligned web-mined parallel data (up to +4.7 BLEU)."
+}
+@inproceedings{bowman2016cvae,
+    title = "Generating Sentences from a Continuous Space",
+    author = "Bowman, Samuel R.  and
+      Vilnis, Luke  and
+      Vinyals, Oriol  and
+      Dai, Andrew  and
+      Jozefowicz, Rafal  and
+      Bengio, Samy",
+    editor = "Riezler, Stefan  and
+      Goldberg, Yoav",
+    booktitle = "Proceedings of the 20th {SIGNLL} Conference on Computational Natural Language Learning",
+    month = aug,
+    year = "2016",
+    address = "Berlin, Germany",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/K16-1002/",
+    doi = "10.18653/v1/K16-1002",
+    pages = "10--21"
+}
+@article{changeofvariables,
+ ISSN = {00029890, 19300972},
+ URL = {http://www.jstor.org/stable/2307790},
+ author = {J. Schwartz},
+ journal = {The American Mathematical Monthly},
+ number = {2},
+ pages = {81--85},
+ publisher = {[Taylor & Francis, Ltd., Mathematical Association of America]},
+ title = {The Formula for Change in Variables in a Multiple Integral},
+ urldate = {2025-09-10},
+ volume = {61},
+ year = {1954}
+}
+@book{DU04,
+  added-at = {2009-04-24T23:33:01.000+0200},
+  address = {Belmont, CA},
+  author = {Durrett, Richard},
+  biburl = {https://www.bibsonomy.org/bibtex/2ef848e83a27a6a88051aa9e77a375028/peter.ralph},
+  description = {q-paper},
+  edition = {Second},
+  interhash = {7cd1cc941b60d755e6a1c4b030513cd1},
+  intrahash = {ef848e83a27a6a88051aa9e77a375028},
+  isbn = {0-534-24318-5},
+  keywords = {probability_theory reference},
+  mrclass = {60-01},
+  mrnumber = {MR1609153 (98m:60001)},
+  pages = {xiii+503},
+  publisher = {Duxbury Press},
+  timestamp = {2009-04-24T23:44:02.000+0200},
+  title = {Probability: theory and examples},
+  year = 1996
+}
+@misc{papamakarios2021nf,
+      title={Normalizing Flows for Probabilistic Modeling and Inference}, 
+      author={George Papamakarios and Eric Nalisnick and Danilo Jimenez Rezende and Shakir Mohamed and Balaji Lakshminarayanan},
+      year={2021},
+      eprint={1912.02762},
+      archivePrefix={arXiv},
+      primaryClass={stat.ML},
+      url={https://arxiv.org/abs/1912.02762}, 
 }

@@ -9,6 +9,8 @@ To maintain clarity throughout this document, we adopt the following notation:
 \begin{enumerate}[label=\textbf{\arabic*.}, wide=0pt, leftmargin=*, labelsep=1em]
     \item[Basic symbols]\mbox{}\\[-1em] 
     \begin{itemize}
+        \setlength\itemsep{1em}     % space between items
+        \setlength\parsep{0em}      % space between paragraphs within items
         \item Scalars are denoted by lowercase letters, e.g., $x$.
         \item Vectors are denoted by bold lowercase letters, e.g., $\boldsymbol{x}$.
         \item Matrices are denoted by bold uppercase letters, e.g., $\boldsymbol{X}$.
@@ -17,24 +19,34 @@ To maintain clarity throughout this document, we adopt the following notation:
 
     \item[Random variables]\mbox{}\\[-1em] 
     \begin{itemize}[itemsep=1em]
-        \item Random variables may be scalars or vectors.
+        \setlength\itemsep{1em}     % space between items
+        \setlength\parsep{0em}      % space between paragraphs within items
+        \item Multiple dimensional random variables are vectors, e.g., $\boldsymbol{x}$, which consist of single dimensional random variables, e.g., $[x_1,\dots,x_N]^T$.
+        \item The $i$-th sample in a dataset is denoted by a superscript, e.g., $\boldsymbol{x}^{(i)}$.
         \item Stochastic processes are denoted by italic capital letters with a time argument, e.g., $\it{X}(t)$, where $t$ indicates time dependence.
     \end{itemize}
 
     \item[Time series]\mbox{}\\[-1em] 
     \begin{itemize}[itemsep=1em]
-        \item A time series of length $T$ is denoted by $\boldsymbol{x}_{1:T}$, where the subscript indicates the time index.
-        \item The $i$-th dimension of a time series is denoted by a superscript, e.g., $\boldsymbol{x}[i]$.
+        \setlength\itemsep{1em}     % space between items
+        \setlength\parsep{0em}      % space between paragraphs within items
+        \item A time series of length $T$ is denoted by $\boldsymbol{x}_{(1:T)}$, where the subscript within parentness indicates the time index.
+        \item The $i$-th dimension of a time series is denoted by a subscript, e.g., $\boldsymbol{x}_i$.
     \end{itemize}
 
     \item[Variable modifications]\mbox{}\\[-1em] 
     \begin{itemize}[itemsep=1em]
+        \setlength\itemsep{1em}     % space between items
+        \setlength\parsep{0em}      % space between paragraphs within items
         \item Estimated variables are denoted with a hat, e.g., $\hat{\boldsymbol{x}}$.
         \item Processed or transformed variables are denoted with a tilde, e.g., $\tilde{\boldsymbol{x}}$.
+        \item Derivatives are denoted with a dot for time derivatives, e.g., $\dot{\boldsymbol{x}}$.
     \end{itemize}
 
     \item[Probability and statistics]\mbox{}\\[-1em] 
     \begin{itemize}[itemsep=0.5em]
+        \setlength\itemsep{1em}     % space between items
+        \setlength\parsep{0em}      % space between paragraphs within items
         \item \acf{PDF}: $p(\cdot)$.
         \item Joint PDF: $p(\cdot, \cdot)$.
         \item Conditional PDF: $p(\cdot \mid \cdot)$.
@@ -45,6 +57,8 @@ To maintain clarity throughout this document, we adopt the following notation:
 
     \item[Matrix operations]\mbox{}\\[-1em] 
     \begin{itemize}
+        \setlength\itemsep{1em}     % space between items
+        \setlength\parsep{0em}      % space between paragraphs within items
         \item Identity matrix: $\boldsymbol{I}$.
         \item Jacobian matrix: $\boldsymbol{J}$.
         \item Determinant of $\boldsymbol{J}$: $\det|\boldsymbol{J}|$.
@@ -54,19 +68,28 @@ To maintain clarity throughout this document, we adopt the following notation:
 \end{enumerate}
 
 \subsection{Bayesian Inference}
-This chapter refers to the book \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}, \textit{Handbook of MCMC} \citep{Allen_2007}.
+This chapter refers to \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}, \textit{Handbook of MCMC} \citep{Allen_2007}, and \textit{Variational Inference} \citep{Blei_2017}.
 
 \subsubsection{Bayes' rule}
 Bayes' rule is derived from the chain rule of conditional probability. For target variables $\boldsymbol{\theta}$ and the corresponding observed data $\mathcal{D}$, the chain rule states that:
 \begin{equation}
     p(\boldsymbol{\theta}, \mathcal{D}) = p(\boldsymbol{\theta}|\mathcal{D})p(\mathcal{D}) = p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta}).
 \end{equation}
-Rearranging the terms gives Bayes' rule:
+Rearranging the terms gives Bayes' rule or Bayes' theorem:
 \begin{equation}
 \label{eq:bayes}
     p(\boldsymbol{\theta}|\mathcal{D})= \frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathcal{D})}.
 \end{equation}
-In Bayes' theorem, $p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood or evidence of expected data across all possible parameter settings, i.e., $\Sigma_{\boldsymbol{\theta}'}p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')\Delta \boldsymbol{\theta}'$ or $\int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'$ for continuous $\boldsymbol{\theta}$. In practice, it is often treated as a normalizing constant and ignored. The unnormalized posterior is then given by:
+In Bayes' theorem, $p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood or evidence of expected data across all possible parameter settings:
+\begin{subequations}
+    \begin{equation}
+    p(\mathcal{D}) = \Sigma_{\boldsymbol{\theta}'}p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')\Delta \boldsymbol{\theta}',
+    \end{equation}
+    \begin{equation}
+    p(\mathcal{D}) = \int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'.
+    \end{equation}
+\end{subequations}
+In practice, it is often treated as a normalizing constant and ignored. The unnormalized posterior is then given by:
 \begin{equation}
     p_u(\boldsymbol{\theta}|\mathcal{D}) \propto p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta}).            
 \end{equation}
@@ -96,11 +119,15 @@ The \ac{MH} algorithm, which is named after Metropolis \citeyearpar{Metropolis} 
         \label{eq:mh_transition}
         T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})=\min\{1, \frac{p(\boldsymbol{\theta}'_{(i)}|\mathcal{D})q(\boldsymbol{\theta}_{(i-1)}|\boldsymbol{\theta}'_{(i)})}{p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D})q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})}\}.
         \end{equation}
-        \item Generate a uniform random number $u \sim U(0,1)$. If $u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$, accept the proposed state and set $\boldsymbol{\theta}_{(i)} \leftarrow \boldsymbol{\theta}'_{(i)}$; otherwise, reject it and set $\boldsymbol{\theta}_{(i)}\leftarrow \boldsymbol{\theta}_{(i-1)}$. 
+        \item Generate a uniform random number $u \sim U(0,1)$. Update $\boldsymbol{\theta}_{(i)}$ by "accept or reject":
+        \begin{equation}
+            \label{eq:mh_update}
+        \boldsymbol{\theta}_{(i)} = \begin{cases} \boldsymbol{\theta}'_{(i)}, & \text{if } u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)}) \\ \boldsymbol{\theta}_{(i-1)}, & \text{otherwise} \end{cases}.
+        \end{equation} 
     \end{enumerate}
-    \item Repeat step 2 for a large number of iterations to obtain a sequence of samples $\{\boldsymbol{\theta}_{(1)}, \boldsymbol{\theta}_{(2)}, \ldots, \boldsymbol{\theta}_{(N)}\}$.
+    \item Repeat step 2 for numerous iterations to obtain a sequence of samples $\{\boldsymbol{\theta}_{(1)}, \ldots, \boldsymbol{\theta}_{(N)}\}$.
 \end{enumerate}
-From the sequence of samples, we can contruct a Monte Carlo estimator:
+From the sequence of samples, we can construct a Monte Carlo estimator:
 \begin{equation}
     p(\boldsymbol{\theta}| \mathcal{D}) \approx \frac{1}{N} \Sigma_{i=1}^{N} \delta_{\boldsymbol{\theta}_{(n)}}(\boldsymbol{\theta}).
 \end{equation}
@@ -109,7 +136,7 @@ Although this procedure allows flexible approximation of complex posterior distr
 \paragraph{\acf{MALA}}
 The \ac{MALA} \citep{besag2004markov} combines the \ac{MH} algorithm with Langevin diffusion, whose stationary distribution is the target density. In general, for a stochastic process $\Theta(t)$, the Langevin diffusion is described by the following \ac{SDE}:
 \begin{equation}
-d\Theta(t)=\frac{1}{2}\nabla log\;p(\Theta(t))dt + dW(t),
+d\Theta(t)=\nabla \log p(\Theta(t))dt + \sqrt{2} dW(t),
 \end{equation}
 where $W(t)$ denotes a standard Wiener process \citep{gabbiani2010mathematics}. The Wiener process is a continuous-time stochastic process with independent, normally distributed increments, which can be interpreted as Brownian motion. It has the following properties:
 \begin{enumerate}
@@ -117,28 +144,28 @@ where $W(t)$ denotes a standard Wiener process \citep{gabbiani2010mathematics}. 
     \item [(2)] for $t > s \geq 0 $, $W(t)-W(s)\sim\sqrt{t-s}\;\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$;
     \item [(3)] for $t_1>s_1\geq 0$, and $t_2>s_2\geq 0$, $W(t_1)-W(s_1)$ and $W(t_2)-W(s_2)$ are independent. 
 \end{enumerate}                 
-The \ac{MALA} algorithm uses the first order Euler discretization of the \ac{SDE}, resulting in the following proposal distribution:
+The \ac{MALA} algorithm uses the first order Euler-Maruyama discretization of the \ac{SDE}, resulting in the following proposal distribution:
 \begin{equation}
     \label{eq:langevin}
-    \Theta(t) = \Theta(i-1) + \frac{\epsilon^2}{2} \nabla \log p(\Theta(i-1)) + \epsilon\; \mathcal{N}(0, \boldsymbol{I}),
+    \Theta(t) = \Theta(i-1) + \tau \nabla \log p(\Theta(i-1)) + \sqrt{2\tau}\; \mathcal{N}(0, \boldsymbol{I}),
 \end{equation}
-where $\epsilon$ is a step size parameter.
+where $\tau$ is a step size parameter.
 Because of the discretization, convergence to the target density is no longer guaranteed. Therefore, the \ac{MH} algorithm is applied to correct the bias introduced by the discretization. 
 For each iteration $i$, the \ac{MALA} algorithm updates the state as follows:
 \begin{enumerate}
     \item[(a)] Compute the gradient of the log-posterior at the current state: $\nabla \log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D})$.
-    \item[(b)] Propose a new state $\boldsymbol{\theta}'_{(i)}$ using the Langevin dynamics \ref{eq:langevin}:
+    \item[(b)] Propose a new state $\boldsymbol{\theta}'_{(i)}$ using the Langevin dynamics (\ref{eq:langevin}).
+    \item[(c)] Calculate the transition probability according to Equation \ref{eq:mh_transition}. Specifically, the proposal distribution is derived from the Langevin dynamics:
     \begin{equation}
-        \boldsymbol{\theta}'_{(i)} = \boldsymbol{\theta}_{(i-1)} + \frac{\varepsilon^2}{2} \nabla \log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D}) + \varepsilon\; \mathcal{N}(0, \boldsymbol{I}).
+        q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})\propto \exp(-\frac{1}{4\tau}\left\|\boldsymbol{\theta}'_{(i)}-\boldsymbol{\theta}_{(i-1)}-\tau\nabla\log p(\boldsymbol{\theta}_{(i-1)}|\mathcal{D})\right\|^2_2).
     \end{equation}
-    \item[(c)] Calculate the transition probability according to \ref{eq:mh_transition}. Specifically, the proposal distribution $q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})=\mathcal{N}(\boldsymbol{\theta}'|\mu(\boldsymbol{\theta}_{(i-1)},\varepsilon), \varepsilon^2\boldsymbol{I})$, which is derived from the Langevin dynamics.
-    \item[(d)] (same as MCMC) Generate a uniform random number $u \sim U(0,1)$. If $u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$, accept the proposed state and set $\boldsymbol{\theta}_{(i)} \leftarrow \boldsymbol{\theta}'_{(i)}$; otherwise, reject it and set $\boldsymbol{\theta}_{(i)}\leftarrow \boldsymbol{\theta}_{(i-1)}$. 
+    \item[(d)] (same as MCMC) Generate a uniform random number $u \sim U(0,1)$. Update $\boldsymbol{\theta}_{(i)}$ by "accept or reject" according to Equation \ref{eq:mh_update}. 
 \end{enumerate}
 
 Compared to the \ac{MH}, \ac{MALA} converges faster and scales better in higher dimensions, at the cost of requiring gradients and tuning. As a more advanced \ac{MCMC} method, \acf{HMC} \citep{duane1987hybrid} further improves sampling efficiency by simulating the whole sampling trajectory as Hamiltonian dynamics. 
 
 \subsubsection{Variational Inference}
-Different from \ac{MCMC}, \acf{VI} \citep{Jordan1998, Wainwright2008} is an optimization-based method that approximates the target posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$ with a simpler, parameterized distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$, where $\boldsymbol{\phi}$ are the variational parameters. The goal of \ac{VI} is to find the optimal variational parameters $\boldsymbol{\phi}^*$ that minimize the distance between the approximate distribution and the true posterior. The distance is normally measured by the \ac{KL}-divergence \citep{kl1951}, which is defined as:
+Different from \ac{MCMC}, \acf{VI} \citep{Jordan1998, Wainwright2008} is an optimization-based method that approximates the target posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$ with a simpler, parameterized distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$, where $\boldsymbol{\phi}$ are the variational factors. The goal of \ac{VI} is to find the optimal variational factors $\boldsymbol{\phi}^*$ that minimize the distance between the approximate distribution and the true posterior. The distance is normally measured by the \ac{KL}-divergence \citep{kl1951}, which is defined as:
 \begin{equation}
     D_{\text{KL}}(q(z)||p(z)) = \mathbb{E}_{q(z)}[\log \frac{q(z)}{p(z)}] = \int q(z)\log \frac{q(z)}{p(z)}dz.
 \end{equation}
@@ -146,18 +173,18 @@ Thus, the optimization problem of \ac{VI} can be formulated as:
 \begin{equation}
     \boldsymbol{\phi}^* = \arg\min_{\boldsymbol{\phi}} D_{\text{KL}} (q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D})).
 \end{equation}
-Substituting Bayes' rule \ref{eq:bayes} into \ac{KL}-divergence, we have:
+Substituting Bayes' rule (\ref{eq:bayes}) into \ac{KL}-divergence, we have:
 \begin{equation}
     D_{\text{KL}} (q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D})) = D_{\text{KL}} (q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || \frac{p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})}{p(\mathcal{D})}).
 \end{equation}
-Same as the aforementioned "intractable posterior" problem, this divergence is directly intractable due to the presence of the evidence $p(\mathcal{D})$.
+The marginal likelihood $p(\mathcal{D})$ is usually intractable, as it involves integrating over all possible parameter settings. Therefore, the divergence cannot be computed directly.
 
 Expanding the above equation and extending it with the definition of \ac{KL}-divergence, we have:
 \begin{multline}
     D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D})) = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}[\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) - \log p(\mathcal{D}|\boldsymbol{\theta}) - \log p(\boldsymbol{\theta}) + \log p(\mathcal{D})]\\
     = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}|\boldsymbol{\theta})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}) + \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}).
 \end{multline}
-Since $p(\mathcal{D})$ is independent of the variational parameters $\boldsymbol{\phi}$, the last term is reduced to $\log p(\mathcal{D})$.
+Since $p(\mathcal{D})$ is independent of the variational factors $\boldsymbol{\phi}$, the last term is reduced to $\log p(\mathcal{D})$.
 Combining the terms $p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta})=p(\boldsymbol{\theta}, \mathcal{D})$ gives
 \begin{equation}
     \label{eq:vi_kl1}
@@ -174,80 +201,81 @@ Rearranging the terms in Equation \ref{eq:vi_kl1} gives:
 \end{equation} 
 Since the \ac{KL}-divergence is always non-negative, we have:
 \begin{equation}
+    \label{eq:elbo1}
     \log p(\mathcal{D}) \geq \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}, \mathcal{D})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta}).
 \end{equation}
-Because of this inequality, the right hind side is called the \acf{ELBO}, also known as the variational lower bound. Formulating the \ac{ELBO} using Equation \ref{eq:vi_kl2} gives:
+Because of this inequality, the right hind side is called the \acf{ELBO}, also known as the variational lower bound. Another way to formulate the \ac{ELBO} using Equation \ref{eq:vi_kl2} is:
 \begin{equation}
-    \label{eq:elbo}
+    \label{eq:elbo2}
     \text{ELBO} = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}|\boldsymbol{\theta}) - D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta})||p(\boldsymbol{\theta})). 
 \end{equation}
-Then, minimizing the \ac{KL}-divergence is equivalent to maximizing the \ac{ELBO}, leading to the equivalent optimization problem:
+Then, minimizing the \ac{KL}-divergence is equivalent to maximizing the \ac{ELBO} (\ref{eq:elbo1}), leading to the equivalent optimization problem:
 \begin{equation}
     \label{eq:vi_opt}
-    \boldsymbol{\phi}^* = \arg\max_{\boldsymbol{\phi}} \text{ELBO} = \arg\min_{\boldsymbol{\phi}}[D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta})||p(\boldsymbol{\theta}))-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}|\boldsymbol{\theta})].
+    \boldsymbol{\phi}^* = \arg\max_{\boldsymbol{\phi}} \text{ELBO} = \arg\min_{\boldsymbol{\phi}}[\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}, \mathcal{D})].
 \end{equation}
 
-To complete the optimization, we need to choose a suitable family of variational distributions $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$. A common choice is the mean-field family \citep{bishop2006}, which assumes that the variables $\boldsymbol{\theta}$ can be factorized into groups that are independent under $q$:
+To complete the optimization, we need to choose a suitable family of variational distributions $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$. A common choice is the mean-field family \citep{bishop2006}, which assumes that the variables $\boldsymbol{\theta}$ are mutually independent and each governed by a distinct factor under $q$:
 \begin{equation}
-    q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) = \Pi_{i} q_{\boldsymbol{\phi}_i}(\boldsymbol{\theta}_i),
+    q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) = \Pi_{i} q_{\phi_i}(\theta_i),
 \end{equation}
-where each parameter $\boldsymbol{\phi}_i$ governs a subset of the variables $\boldsymbol{\theta}_i$. Then, the \ac{ELBO} is iteratively optimized by updating each parameter while holding the others fixed. The solution of the optimal distribution for each group is given by:
+where each factor $\phi_i$ governs a variable $\theta_i$. Then, the \ac{ELBO} (\ref{eq:elbo1}) is iteratively optimized by updating each factor while holding the others fixed. The solution of the optimal distribution $q_{\phi_i}(\theta_i)$ is proportional to the exponential expected log of the complete condition:
 \begin{equation}
-    \log q_{\boldsymbol{\phi}_i}^*(\boldsymbol{\theta}_i) = \mathbb{E}_{\Pi_{j\neq i}q_{\boldsymbol{\phi}_i}(\boldsymbol{\theta}_i)}[\log p(\boldsymbol{\theta}, \mathcal{D})],
+    \log q_{\phi_i}^*(\theta_i) \propto \mathbb{E}_{\Pi_{j\neq i}q_{\phi_i}(\theta_i)}[\log p(\theta_i|\boldsymbol{\theta}_{j\neq i}, \mathcal{D})],
 \end{equation}
-where the expectation is taken with respect to the distributions of all other groups $j \neq i$. This algorithm is called coordinate ascent variational inference (CAVI) \citep{bishop2006}.
+where the expectation is taken with respect to the distributions of all other groups $j \neq i$. This algorithm is called \ac{CAVI} \citep{bishop2006}. 
 
-This assumption simplifies the optimization problem, and thus makes it scalable for large dimensional variables and also enables parallelizable computation. However, it may also limit the expressiveness of the variational distribution, especially when the posterior correlations are crucial, leading to suboptimal approximations of the true posterior. Summarizing, \ac{VI} is generally faster than \ac{MCMC} and scales better to large datasets, but it may provide less accurate approximations of the posterior distribution \citep{Blei_2017}. 
+The assumption of the mean-field \ac{VI} simplifies the optimization problem, and thus makes it scalable for large dimensional variables and also enables parallelizable computation. However, it may also limit the expressiveness of the variational distribution, especially when the posterior correlations are crucial, leading to suboptimal approximations of the true posterior. Summarizing, \ac{VI} is generally faster than \ac{MCMC} and scales better to large datasets, but it may provide less accurate approximations of the posterior distribution \citep{Blei_2017}. 
 
 \subsection{Deep Probabilistic Models}
 Deep probabilistic models combine the representational power of deep learning with the principled uncertainty modeling of probabilistic inference methods. This integration aims to provide both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic models: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder.
 
 \subsubsection{Deep Gaussian Process}
-A Gaussian process is a stochastic process, where at each time point the random variables follow normal distributions. It can be interpreted as an infinite-dimensional Gaussian distribution. For an $N$-dimensional random variable $\boldsymbol{x}=[x_1,\dots,x_N]^T$, a Gaussian process $GP(\boldsymbol{x})$ is fully specified by its mean function $\mu(\cdot)$ and covariance function $k(\cdot, \cdot)$:
+A Gaussian process is a stochastic process, where at each time point the random variables follow normal distributions. It can be interpreted as an infinite-dimensional Gaussian distribution. For an $N$-dimensional random variable $\boldsymbol{x}=[x_1,\dots,x_N]^T$, a Gaussian process $\it{X}(t)$ is fully specified by its mean function $\mu(\cdot)$ and covariance function $k(\cdot, \cdot)$:
 \begin{equation}
-     \begin{bmatrix} GP(x_1) \\ \cdots \\GP(x_N) \end{bmatrix}\sim\mathcal{N}( \begin{bmatrix} \mu(x_1) \\ \cdots \\\mu(x_N) \end{bmatrix},  \begin{bmatrix} k(x_1,x_1),\dots,k(x_1, x_N) \\ \cdots \\k(x_N,x_1), \dots,k(x_N, x_N) \end{bmatrix})
+     \begin{bmatrix} \it{X}_1(t) \\ \cdots \\\it{X}_N(t) \end{bmatrix}\sim\mathcal{N}( \begin{bmatrix} \mu(x_1) \\ \cdots \\\mu(x_N) \end{bmatrix},  \begin{bmatrix} k(x_1,x_1),\dots,k(x_1, x_N) \\ \cdots \\k(x_N,x_1), \dots,k(x_N, x_N) \end{bmatrix})
 \end{equation}
 Using a Gaussian process to infer variables from observed data based on prior distributions leads to \ac{GPR} \citep{Rasmussen_Williams_2008}. For a regression task with training data $\boldsymbol{x}$ and the ground truth $\boldsymbol{y}$, the \ac{GPR} model is employed by a latent function $f(\cdot)$:
 \begin{equation}
     \label{eq:simgp}
     y_i = f(x_i) + \epsilon_i,\quad i=1,\dots,N,
 \end{equation}
-where $\epsilon_i \sim \mathcal{N}(0, \sigma_\epsilon^2)$ are i.i.d. noises for all dimensions. So, the likelihood of $\boldsymbol{y}$ is given by:
+where $\epsilon_i \sim \mathcal{N}(0, \sigma_\epsilon^2)$ are \ac{i.i.d.} noises for all dimensions. We denote the collection of latent functions as $\boldsymbol{f}=[f_1, \dots, f_N]^T$, where $f_i=f(x_i)$. So, the likelihood of $\boldsymbol{y}$ is given by:
 \begin{equation}
     p(\boldsymbol{y}|\boldsymbol{f}) = \prod_{i=1}^{N}p(y_i|f_i) = \prod_{i=1}^{N}\mathcal{N}(y_i|f_i, \sigma_\epsilon^2).    
 \end{equation}                                                                                                                          
-The prior distribution over functions $f(\cdot)$ is assumed to a zero-mean Gaussian process:
+The prior distribution over functions $f(\cdot)$ is assumed to a zero-mean Gaussian process. We denote it as:
 \begin{equation}
-    f(\cdot) \sim GP(0, k(\cdot, \cdot)).
+    f(\cdot) \sim \mathcal{GP}(0, k(\cdot, \cdot)).
 \end{equation}
 The kernel function $k(\cdot, \cdot)$ is usually chosen to be the \ac{SE} kernel function, or as known as the \ac{RBF}, defined as:
 \begin{equation}
     k(x_i, x_j) = \sigma_{SE}^2\exp(-\frac{1}{2\ell^2}\left\|x_i - x_j\right\|^2),
 \end{equation}
-where $\sigma_{SE}$ and $\ell>$ are vertical and horizontal scale parameters, which control the vertical span and smoothness of the function, respectively. We denote the collection of latent functions as $\boldsymbol{f}=[f(x_1), \dots, f(x_N)]^T$. Then, the posterior distribution of $\boldsymbol{y}$ can be computed analytically using the marginal likelihood over $\boldsymbol{y}$:
+where $\sigma_{SE}$ and $\ell$ are vertical and horizontal scale parameters, which control the vertical span and smoothness of the function, respectively. Then, the posterior distribution of $\boldsymbol{y}$ can be computed analytically using the marginal likelihood over $\boldsymbol{y}$:
 \begin{equation}
     p(\boldsymbol{y}|\boldsymbol{x}) = \int \prod_{i=1}^{N}p(y_i|f_i)p(f_i|x_i)d\boldsymbol{f}=\mathcal{N}(\boldsymbol{y}|\boldsymbol{0},\boldsymbol{K}+\sigma_\epsilon^2\mathbb{I}), \quad \boldsymbol{K}=k(\boldsymbol{x}, \boldsymbol{x}).
 \end{equation}
-The hyperparameters $\boldsymbol{\phi}=\{\sigma_{SE}, \ell, \sigma_\epsilon\}$ can be optimized by maximizing the log marginal likelihood $log\;p(\boldsymbol{y}|\boldsymbol{x}, \boldsymbol{\phi})$.
+The hyperparameters $\boldsymbol{\phi}=\{\sigma_{SE}, \ell, \sigma_\epsilon\}$ can be optimized by maximizing the log marginal likelihood $\log p(\boldsymbol{y}|\boldsymbol{x}, \boldsymbol{\phi})$.
 
-The \ac{GPR} is widely used for regression tasks owing to its non-parametric nature and its capacity to quantify uncertainty. However, its computational complexity scales cubically with the number of training points, i.e., $\mathcal{O}(N^3)$ for an $N$-dimensional input. Additionally, calculating the Gaussian processes requires the entire storage of training datasets, incurring a memory cost of $\mathcal{O}(M^2)$, which grows quadratically with the dataset size $M$. These limitations hinder its scalability to high-dimensional inputs and large datasets. In addition, the expressiveness of \ac{GPR} is constrained by the choice of kernel function and its inability to perform hierarchical feature extraction.
+The \ac{GPR} is widely used for regression tasks owing to its non-parametric nature and its capacity to quantify uncertainty. However, its computational complexity scales cubically with the number of training points, i.e., $\mathcal{O}(N^3)$ for an $N$-dimensional input. Additionally, calculating the Gaussian processes requires the entire storage of training datasets, incurring a memory cost of $\mathcal{O}(M^2)$, which grows quadratically with the dataset size $M$. These limitations hinder its scalability to high-dimensional inputs and large datasets. In addition, the expressiveness of \ac{GPR} is constrained by the choice of kernel function and its incapacity to perform hierarchical feature extraction.
 
-To improve expressiveness, \ac{DGP} \citep{damianou2013dgp} is proposed as multilayer hierarchical generalizations of Gaussian processes. The input $\boldsymbol{x}$ is passed through multiple layers of Gaussian processes to obtain the output $\boldsymbol{y}$. For an $L$-layer \ac{DGP}, the model extends the Gaussian process \ref{eq:simgp} by:
-\begin{equation}
-    y_i = f_{L}(f_{L-1}(\dots f_{1}(x_i)+\epsilon_{i,1}\dots)) + \epsilon_{L}, \; f_{l}(\cdot) \sim GP(0, k_l(\cdot, \cdot)), \; l=1,\dots,L,\; i=1,\dots,n.
-\end{equation}  
+To improve expressiveness, \ac{DGP} \citep{damianou2013dgp} is proposed as multilayer hierarchical generalizations of Gaussian processes. The input $\boldsymbol{x}$ is passed through multiple layers of Gaussian processes to obtain the output $\boldsymbol{y}$. For an $L$-layer \ac{DGP}, the model extends the Gaussian process (\ref{eq:simgp}) by:
+\begin{multline}
+    y_i = f^{L}(f^{L-1}(\dots f^{1}(x_i)+\epsilon_{i,1}\dots)) + \epsilon_{L}, \quad f^{l}(\cdot) \sim \mathcal{GP}(0, k_l(\cdot, \cdot)), \\ l=1,\dots,L,\; i=1,\dots,n.
+\end{multline}  
 The deep architecture enables Gaussian processes to learn more complex data patterns and hierarchical representations. It can be seen as a deep neural network with infinitely wide layers \citep{Neal1996}, where each layer applies a Gaussian process, instead of nonlinear matrix transformation. However, due to the computational cost and storage consumption the \ac{DGP} is still cumbersome to apply in practice. 
 
 \subsubsection{Bayesian Neural Networks}
 Another approach to constructing deep probabilistic models involves integrating Bayesian inference with deep neural networks. A \acf{BNN} \citep{Neal1996, MacKay1992} places prior distributions over the network’s weights and biases, allowing uncertainty to be modeled directly within the architecture. 
 
-The goal of training a \ac{BNN} is to infer the posterior distribution over the parameters $\boldsymbol{\theta}=[\boldsymbol{w}, \boldsymbol{b}]$ given the training data $\mathcal{D}$, i.e., $p(\boldsymbol{\theta}|\mathcal{D})$. \ac{VI} is commonly employed to approximate the posterior by optimizing the \ac{ELBO} \ref{eq:elbo}. 
-To facilitate gradient-based optimization via backpropagation--similar to standard neural networks--the reparameterization trick \citep{kingma2013auto} is used. This technique expresses random variables as deterministic variables of noise, enabling efficient and differentiable sampling during training. For example, for a Gaussian variational distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})=\mathcal{N}(\boldsymbol{\theta}|\boldsymbol{\mu}, \text{diag}(\boldsymbol{\sigma}^2))$, we can reparameterize $\boldsymbol{\theta}$ as:  
+The goal of training a \ac{BNN} is to infer the posterior distribution over the parameters $\boldsymbol{\theta}=[\boldsymbol{w}, \boldsymbol{b}]$ given the training data $\mathcal{D}$, i.e., $p(\boldsymbol{\theta}|\mathcal{D})$. \ac{VI} is commonly employed to approximate the posterior by optimizing the \ac{ELBO} (\ref{eq:elbo2}). 
+To facilitate gradient-based optimization via backpropagation---similar to standard neural networks---the reparameterization trick \citep{kingma2013auto} is used. This technique expresses random variables as deterministic variables of noise, enabling efficient and differentiable sampling during training. For example, for a Gaussian variational distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})=\mathcal{N}(\boldsymbol{\theta}|\boldsymbol{\mu}, \text{diag}(\boldsymbol{\sigma}^2))$, we can reparameterize $\boldsymbol{\theta}$ as:  
 \begin{equation}
     \boldsymbol{\theta} = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon}\sim\mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
 \end{equation}  
 where $\odot$ represents the Hadamard product, i.e., the element-wise product, and the variational parameters here are $\boldsymbol{\phi}=[\boldsymbol{\mu}, \boldsymbol{\sigma}]$. 
-To train a \ac{BNN} on large datasets, \ac{SGD} \citep{bottou1999sgd} is typically employed to optimize the \ac{ELBO} over mini-batches. Unlike standard gradient descent, \ac{SGD} estimates the gradient at each iteration using a randomly selected subset of the data. Similar to Equation \ref{eq:vi_opt}, the variaitonal objective of a \ac{BNN} becomes:
+To train a \ac{BNN} on large datasets, \ac{SGD} \citep{bottou1999sgd} is typically employed to optimize the \ac{ELBO}. Unlike standard gradient descent, \ac{SGD} estimates the gradient at each iteration using a randomly selected subset of the data. Then, the variational objective of a \ac{BNN} using the \ac{ELBO} (\ref{eq:elbo2}) becomes:
 \begin{equation}
     \mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi}) = \frac{1}{M}\sum_{i=1}^{M} [D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta})||p(\boldsymbol{\theta}))-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}_i|\boldsymbol{\theta})],
 \end{equation}
@@ -257,23 +285,149 @@ where each mini-batch $\mathcal{D}_i\subset\mathcal{D}$ is drawn from the equall
 \end{equation}
 where $\alpha$ is the learning rate. This procedure is called \ac{BbB} \citep{blundell2015bbb}.
 
-In comparison to \ac{DGP}, the \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \ac{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}. Nevertheless, several works raise concerns with BNNs including wrong uncertainty estimation in between separated regions of obsertations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and sensitive modeling ability to the choice of prior distributions \citep{silvestro2020prior}. These limitations motivate the applications of more powerful generative models, such as variational autoencoders and normalizing flows, which are discussed in the following sections.
+In comparison to \ac{DGP}, the \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \ac{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}. Nevertheless, several works raise concerns with BNNs including wrong uncertainty estimation in between separated regions of observations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and sensitive modeling ability to the choice of prior distributions \citep{silvestro2020prior}. These limitations motivate the applications of more powerful generative models, such as variational autoencoders and normalizing flows, which are discussed in the following sections.
 
 \subsubsection{Variational Autoencoder}
-In classical \ac{VI} methods, the mapping from the parameters of interest $\boldsymbol{\theta}$ to the observations $\mathcal{D}$ is assumed to be known in advance. This is called a fully-observable model. and the approximate probabilistic models are parameterized by $\boldsymbol{\phi}$. In contrast, a \acf{VAE} is constructed with deterministic neural networks and introduces variability with latent variables. 
-Instead of directly approximating the posterior distribution over the parameters using \ac{VI}, \acf{VAE} \citep{kingma2013auto, rezende2014stochastic} introduces a set of latent variables $\boldsymbol{z}$ to model the data generation process. The generative model is defined as:
+In classical \ac{VI} methods, the parameters of interest $\boldsymbol{\theta}$ are random variables, and the approximate posterior distribution over the parameters is parameterized by variational parameters $\boldsymbol{\phi}$. In contrast, a \acf{VAE} is constructed with deterministic neural networks and introduces variability by latent variables. For a dataset $\mathcal{D}=\{\boldsymbol{x}^{(i)}\}_{i=1}^{N}$, the samples are assumed to be \ac{i.i.d.} and drawn from an unchanging underlying distribution $p_{\boldsymbol{\theta}}(\boldsymbol{x})$. A \ac{VAE} extracts information from input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$ by a parameterized inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$, which is also called an encoder or recognition model. Then, the \ac{VAE} generates data $\boldsymbol{x}$ from the latent variables $\boldsymbol{z}$ by another parameterized model $p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$, which is also called a decoder. The decoder is often mentioned as a "generative" model. However, according to the formal definition \citep{Kingma_2019}, a generative model learns a joint distribution $p_{\boldsymbol{\theta}}(\boldsymbol{z}, \boldsymbol{x})=p_{\boldsymbol{\theta}}(\boldsymbol{z})p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$, including sampling $\boldsymbol{z}\sim p_{\boldsymbol{\theta}}(\boldsymbol{z})$ and sampling $\boldsymbol{x}\sim p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$. 
+
+The latent variables connect the inference model and the generative model. From the encoder side, the inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$ approximates the true posterior distribution $p_{\boldsymbol{\theta}}(\boldsymbol{z}|\boldsymbol{x})$ of the generative model, which is intractable. From the decoder side, the distribution of latent variables is a prior distribution, which is usually chosen to be a standard normal distribution, i.e., $p(\boldsymbol{z})=\mathcal{N}(\boldsymbol{z}|\boldsymbol{0}, \boldsymbol{I})$. The whole architecture is illustrated in Figure \ref{fig:vae}.
+\begin{figure}[htp!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/vae.pdf} 
+    \caption[The architecture of a Variational Autoencoder.]{The architecture of a Variational Autoencoder. The encoder (with neural network parameters $\boldsymbol{\phi}$) maps the input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$, and the decoder (with neural network parameters $\boldsymbol{\theta}$) reconstructs the input data from the latent variables.}
+    \label{fig:vae}
+\end{figure}
+
+Same reparameterization trick as in the \ac{BNN} is used to enable gradient-based optimization. The latent variables $\boldsymbol{z}$ becomes:
+\begin{equation}
+    \boldsymbol{z} = \boldsymbol{\mu}_{\boldsymbol{\phi}}(\boldsymbol{x}) + \boldsymbol{\sigma}_{\boldsymbol{\phi}}(\boldsymbol{x}) \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon}\sim\mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
+\end{equation}
+where $\boldsymbol{\mu}_{\boldsymbol{\phi}}(\boldsymbol{x})$ and $\boldsymbol{\sigma}_{\boldsymbol{\phi}}(\boldsymbol{x})$ are also neural networks. 
+Different from the mini-batch optimization in the \ac{BNN}, we use one single encoder neural network to perform posterior inference over all samples in the dataset. This strategy of sharing variational parameters across datapoints is called amortized variational inference \citep{gershman2014amortized}, which improves the optimization efficiency. 
+
+The objective of the inference model is to minimize the \ac{KL}-divergence between the inferred and true posterior $D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p_{\boldsymbol{\theta}}(\boldsymbol{z}|\boldsymbol{x}))$. Recall the \ac{ELBO} in \ac{VI} (\ref{eq:elbo1}, \ref{eq:elbo2}), the \ac{ELBO} of a \ac{VAE} is given by:
+\begin{equation}
+    \log p_{\boldsymbol{\theta}}(\boldsymbol{x}) \geq \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})}\log p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z}) - D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p_{\boldsymbol{\theta}}(\boldsymbol{z})).
+\end{equation}
+Maximizing the \ac{ELBO} optimizes concurrently both the inference model and the generative model. The marginal likelihood $p_{\boldsymbol{\theta}}(\boldsymbol{\theta})$ is maximized, meaning the generated data maximally resembles the input data. Meanwhile, the distance between the approximated and the true posterior is minimized. 
+Changing the prior distribution in the \ac{ELBO}, $p_{\boldsymbol{\theta}}(\boldsymbol{z}):=p(\boldsymbol{z})$, the overall loss function of a \ac{VAE} is given by:
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi}) = -\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})}\log p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z}) + D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p(\boldsymbol{z})).
+\end{equation}
+The first term is a reconstruction loss, which encourages the decoder to reconstruct the input data from the latent variables. The second term is a regularization term, which forces the approximate posterior to be close to the prior distribution.
+
+\acp{VAE} have proven to be versatile and powerful in
+diverse applications, such as representation learning, anomaly detection, and generative modeling \citep{Mienye2025}. To enable \acp{VAE} to perform probabilistic inference of variables $\boldsymbol{x}$ given observations $\boldsymbol{y}$, the observations should be inserted into both the encoder and decoder as conditions. This method is named as conditional \ac{VAE} \citep{sohn2015cvae}. The inference model becomes $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{y})$, the prior distribution becomes $p(\boldsymbol{z}|\boldsymbol{y})$, and the generative model becomes $p_{\boldsymbol{\theta}}(\boldsymbol{z}, \boldsymbol{x}|\boldsymbol{y})$. The conditions are often constrained to be low-dimensional variables, such as class labels \citep{sohn2015cvae} or physical parameters \citep{martínezpalomera2020pelsvae}. For high-dimensional and complex conditions, a powerful decoder is required to capture the relationship between the variables and observations. In this case, the latent variables may be ignored and thus the variability losses. This issue is known as posterior collapse \citep{bowman2016cvae, mccarthy2020cvae}, which limits the application of \acp{VAE} in conditional inference tasks.
 
 \subsection{Normalizing Flows}
+\citeauthor{rezende2016} \citeyearpar{rezende2016} proposed \acf{NF} as a method for approximating posterior distributions by transforming a simple base distribution through a sequence of invertible mappings into complex target distributions. 
 
 \subsubsection{Basics}
+We simplify a \ac{NF} as an invertible and differentiable function $f:\mathbb{R}^D\rightarrow\mathbb{R}^D$ (as known as a diffeomorphism) that maps a random variable $\boldsymbol{z}$ in latent space to another random variable $\boldsymbol{x}$ in data space:
+\begin{subequations}
+    \begin{equation}
+        \label{eq:xfz}
+        \boldsymbol{x} = f(\boldsymbol{z}),
+    \end{equation}
+    \begin{equation}
+        \label{eq:zfx}
+        \boldsymbol{z} = f^{-1}(\boldsymbol{x}).
+    \end{equation}
+\end{subequations}
+The variable $\boldsymbol{x}$ follows an underlying distribution of data $p_X(\boldsymbol{x})$. The variable $\boldsymbol{z}$ is drawn from a simple base distribution $p_Z(\boldsymbol{z})$, such as a standard normal distribution. Understanding the transformation between the two density functions is essential for comprehending \acp{NF}. 
+\paragraph{Change of Variables}
+According to the change of variables formula \citep{changeofvariables}, when both the latent and data space are smooth and the function $f$ is differentiable, we have:
+\begin{equation}
+    \label{eq:changeofvariables}
+    \int \varPsi(\boldsymbol{x}) d\boldsymbol{x} = \int \varPsi(\boldsymbol{x}=f(\boldsymbol{z}))\boldsymbol{J}_f(\boldsymbol{z}) d\boldsymbol{z},
+\end{equation}
+where $\varPsi$ is a continuous function, $\boldsymbol{J}_f(z)$ is the Jacobian determinant of the mapping $f$:
+\begin{equation}
+    \boldsymbol{J}_f(\boldsymbol{z})=\text{det}\left|\frac{df(\boldsymbol{z})}{d\boldsymbol{z}}\right|.
+\end{equation}
+This equation (\ref{eq:changeofvariables}) implies probability conservation under transformation. In probability theory, the Radon–Nikodym derivative \citep{DU04} is a way to express how one probability measure changes with respect to another, which can be seen as a generalization of the relationship between \ac{CDF} and \ac{PDF}.
+For a measurement set $A$ for the variable $\boldsymbol{x}$, the distribution is:
+\begin{equation}
+    P(X\in A)=\int_A p_X(\boldsymbol{x})d\boldsymbol{x}.
+\end{equation}
+Applying the Equation \ref{eq:zfx}, we have:
+\begin{subequations}
+    \begin{equation}
+        P(X\in A)=P(Z\in f^{-1}(A)),
+    \end{equation}
+    \begin{equation}
+        \label{eq:intx}
+        \int_A p_X(\boldsymbol{x})d\boldsymbol{x}=\int_{f^{-1}(A)}p_Z(\boldsymbol{z})d\boldsymbol{z}.
+    \end{equation}
+\end{subequations}
+Using change of variables, the last integral becomes:
+\begin{equation}
+    \label{eq:intz}
+    \int_{f^{-1}(A)}p_Z(\boldsymbol{z})d\boldsymbol{z}=\int_A p_Z(f^{-1}(\boldsymbol{x}))\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})d\boldsymbol{x},
+\end{equation}
+where the Jacobian determinant of the inverse mapping $f^{-1}$ is:
+\begin{equation}
+    \boldsymbol{J}_{f^{-1}}(\boldsymbol{x})=\text{det}\left|\frac{df^{-1}(\boldsymbol{x})}{d\boldsymbol{x}}\right|=\frac{1}{\boldsymbol{J}_f(\boldsymbol{z})}.
+\end{equation}
+Fusing the equations \ref{eq:intx} and \ref{eq:intz} together, we get the integral equality on the measurement set $A$:
+\begin{equation}
+    \int_A p_X(\boldsymbol{x})d\boldsymbol{x}=\int_A p_Z(f^{-1}(\boldsymbol{x}))\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})d\boldsymbol{x}.
+\end{equation}
+Since the integrands are continuous almost everywhere, the derivatives also hold the equality:
+\begin{equation}
+    \label{eq:xnfz}
+    p_X(\boldsymbol{x}) = p_Z(f^{-1}(\boldsymbol{x}))\boldsymbol{J}_{f^{-1}}(\boldsymbol{x}).
+\end{equation}
+Substituting $\boldsymbol{x}$ and $\boldsymbol{z}$ with equations \ref{eq:xfz} and \ref{eq:zfx} respectively, it can also be formulated using the forward mapping $f$:
+\begin{equation}
+    \label{eq:znfx}
+    p_Z(\boldsymbol{z}) = p_X(f(\boldsymbol{z}))\boldsymbol{J}_f(\boldsymbol{z}).
+\end{equation}
 
-\subsubsection{Discrete Normalizing Flows}
-\paragraph{Coupling layers}
-\paragraph{Autoregressive flows}
+From the change of variables formula, we can infer three important properties of \acp{NF}:
+\begin{enumerate}
+    \item[(1)]The transformation function $f$ is differentiable.
+    \item[(2)]The transformation function $f$ is invertible. Or from the definition in set theory, $f$ is bijective. 
+    \item[(3)]The Jacobian determinant should be efficient to compute. 
+\end{enumerate}
+On top of them, another important property the transformation $f$ should be fulfilled is composablity \citep{papamakarios2021nf}. Given a series of transformations $f^{1}\circ\cdots\circ f^{L}$, the following equations hold:
+\begin{subequations}
+    \begin{equation}
+        \boldsymbol{x}=f^L(\cdots f^{1}(\boldsymbol{z})),
+    \end{equation}
+    \begin{equation}
+        (f^{1}\circ\cdots\circ f^{L})^{-1}=(f^L)^{-1}\circ\cdots\circ (f^{1})^{-1},
+    \end{equation}
+    \begin{equation}
+        \boldsymbol{J}_{f^{1}\circ\cdots\circ f^{L}}(\boldsymbol{z})=\boldsymbol{J}_{f^N}(f^{N-1}(\boldsymbol{z}))\cdots\boldsymbol{J}_{f^1}(\boldsymbol{z}),
+    \end{equation}
+\end{subequations}
+where the total Jacobian determinant is the product of each intermediate ones.
+\paragraph{Using \acp{NF} for modeling and inference}
+The invertibility also provides us easy way to fit \ac{NF} models, i.e., minimizing the divergence between the true data distribution and the estimated one. For a \ac{NF} with parameters $\boldsymbol{\theta}$, the KL-divergence is given by:
+\begin{equation}
+    D_{\text{KL}}(p_X(\boldsymbol{x})||p_{X}(\boldsymbol{x};\boldsymbol{\theta}))=\mathbb{E}_{p_X(\boldsymbol{x})}\log p_X(\boldsymbol{x}) - \mathbb{E}_{p_X(\boldsymbol{x})}\log p_{X}(\boldsymbol{x};\boldsymbol{\theta}).
+\end{equation}
+The first term can be considered constant while optimizing the parameters $\boldsymbol{\theta}$. The second term can be estimated by Monte Carlo methods:
+\begin{equation}
+    \mathbb{E}_{p_X(\boldsymbol{x})}\log p_{X}(\boldsymbol{x};\boldsymbol{\theta})\approx \frac{1}{M}\sum_{m=1}^{M}\log p_{X}(\boldsymbol{x}^{(m)};\boldsymbol{\theta}),
+\end{equation}
+using a dataset $[\boldsymbol{x}^{(m)}]$, $m=1,\dots,M$.
+This is equivalent to the maximum likelihood estimation.
+Expanding $p_{X}(\boldsymbol{x};\boldsymbol{\theta})$ with Equation \ref{eq:xnfz}, the KL-divergence becomes:
+\begin{equation}
+D_{\text{KL}}(p_X(\boldsymbol{x})||p_{X}(\boldsymbol{x};\boldsymbol{\theta}))\approx const. - \frac{1}{M}\sum_{m=1}^{M}[\log p_{Z}(f^{-1}(\boldsymbol{x}^{(m)};\boldsymbol{\theta}))+\log \boldsymbol{J}_{f^{-1}}(\boldsymbol{x}^{(m)};\boldsymbol{\theta})],
+\end{equation}
+where $p_Z(\boldsymbol{z})$ is a standard normal distribution. Then, the parameters are optimized by stochastic gradient-based methods.
+
+The loss function of \acp{NF} suggests that during training, the learned latent representation is compared with the true latent distribution, while the term of Jacobian determinant ensures this comparison to be transformed back to the data space. Recalling the \ac{VAE}, the first term can be seen as inference, while the second term can be implicitly regarded as "preparation for generation". After the \ac{NF} model is well-trained, new data can be generated by sampling the latent variables and transforming them via the forward mapping.
+
+Different architectures realize invertibility, 
+\subsubsection{Coupling Flows}
 \subsubsection{Continuous Normalizing Flows}
 \paragraph{Neural ODEs}
 \paragraph{FFJORD}
-\subsection{BayesFlow}
+\subsubsection{BayesFlow}
 
 \subsection{From Inference to Control}
 

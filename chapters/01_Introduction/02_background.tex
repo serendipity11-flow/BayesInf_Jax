@@ -30,7 +30,7 @@ To maintain clarity throughout this document, we adopt the following notation:
     \begin{itemize}[itemsep=1em]
         \setlength\itemsep{1em}     % space between items
         \setlength\parsep{0em}      % space between paragraphs within items
-        \item A time series of length $T$ is denoted by $\boldsymbol{x}_{(1:T)}$, where the subscript within parentness indicates the time index.
+        \item A time series of length $T$ is denoted by $\boldsymbol{x}_{(1:T)}$, where the subscript within parentheses indicates the time index.
         \item The $i$-th dimension of a time series is denoted by a subscript, e.g., $\boldsymbol{x}_i$.
     \end{itemize}
 
@@ -293,8 +293,8 @@ In classical \ac{VI} methods, the parameters of interest $\boldsymbol{\theta}$ a
 The latent variables connect the inference model and the generative model. From the encoder side, the inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$ approximates the true posterior distribution $p_{\boldsymbol{\theta}}(\boldsymbol{z}|\boldsymbol{x})$ of the generative model, which is intractable. From the decoder side, the distribution of latent variables is a prior distribution, which is usually chosen to be a standard normal distribution, i.e., $p(\boldsymbol{z})=\mathcal{N}(\boldsymbol{z}|\boldsymbol{0}, \boldsymbol{I})$. The whole architecture is illustrated in Figure \ref{fig:vae}.
 \begin{figure}[htp!]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/vae.pdf} 
-    \caption[The architecture of a Variational Autoencoder.]{The architecture of a Variational Autoencoder. The encoder (with neural network parameters $\boldsymbol{\phi}$) maps the input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$, and the decoder (with neural network parameters $\boldsymbol{\theta}$) reconstructs the input data from the latent variables.}
+    \includegraphics[width=0.8\textwidth]{figures/VAE.pdf} 
+    \caption[Variational Autoencoder Architecture]{The architecture of a Variational Autoencoder. The encoder (with neural network parameters $\boldsymbol{\phi}$) maps the input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$, and the decoder (with neural network parameters $\boldsymbol{\theta}$) reconstructs the input data from the latent variables.}
     \label{fig:vae}
 \end{figure}
 
@@ -360,7 +360,7 @@ Applying the Equation \ref{eq:zfx}, we have:
         \int_A p_X(\boldsymbol{x})d\boldsymbol{x}=\int_{f^{-1}(A)}p_Z(\boldsymbol{z})d\boldsymbol{z}.
     \end{equation}
 \end{subequations}
-Using change of variables, the last integral becomes:
+Using change of variables formula (\ref{eq:changeofvariables}), the last integral becomes:
 \begin{equation}
     \label{eq:intz}
     \int_{f^{-1}(A)}p_Z(\boldsymbol{z})d\boldsymbol{z}=\int_A p_Z(f^{-1}(\boldsymbol{x}))\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})d\boldsymbol{x},
@@ -384,22 +384,22 @@ Substituting $\boldsymbol{x}$ and $\boldsymbol{z}$ with equations \ref{eq:xfz} a
     p_Z(\boldsymbol{z}) = p_X(f(\boldsymbol{z}))\boldsymbol{J}_f(\boldsymbol{z}).
 \end{equation}
 
-From the change of variables formula, we can infer three important properties of \acp{NF}:
+These two equations (\ref{eq:xnfz} and \ref{eq:znfx}) are declared as the change of variables applied for \acp{NF}. From the above derivation of the formulas, we can infer three important properties of \acp{NF}:
 \begin{enumerate}
     \item[(1)]The transformation function $f$ is differentiable.
-    \item[(2)]The transformation function $f$ is invertible. Or from the definition in set theory, $f$ is bijective. 
+    \item[(2)]The transformation function $f$ is invertible. Or from the definition in set theory, $f$ is bijective, which can be interpreted as globally invertibility. 
     \item[(3)]The Jacobian determinant should be efficient to compute. 
 \end{enumerate}
-On top of them, another important property the transformation $f$ should be fulfilled is composablity \citep{papamakarios2021nf}. Given a series of transformations $f^{1}\circ\cdots\circ f^{L}$, the following equations hold:
+On top of them, another important property the transformation $f$ should be fulfilled is composability \citep{papamakarios2021nf}. Given a series of transformations $f^{L}\circ\cdots\circ f^{1}$, the following equations hold:
 \begin{subequations}
     \begin{equation}
         \boldsymbol{x}=f^L(\cdots f^{1}(\boldsymbol{z})),
     \end{equation}
     \begin{equation}
-        (f^{1}\circ\cdots\circ f^{L})^{-1}=(f^L)^{-1}\circ\cdots\circ (f^{1})^{-1},
+        (f^{L}\circ\cdots\circ f^{1})^{-1}=(f^1)^{-1}\circ\cdots\circ (f^{L})^{-1},
     \end{equation}
     \begin{equation}
-        \boldsymbol{J}_{f^{1}\circ\cdots\circ f^{L}}(\boldsymbol{z})=\boldsymbol{J}_{f^N}(f^{N-1}(\boldsymbol{z}))\cdots\boldsymbol{J}_{f^1}(\boldsymbol{z}),
+        \boldsymbol{J}_{f^{L}\circ\cdots\circ f^{1}}(\boldsymbol{z})=\boldsymbol{J}_{f^L}(f^{L-1}(\boldsymbol{z}))\cdots\boldsymbol{J}_{f^1}(\boldsymbol{z}),
     \end{equation}
 \end{subequations}
 where the total Jacobian determinant is the product of each intermediate ones.
@@ -422,8 +422,60 @@ where $p_Z(\boldsymbol{z})$ is a standard normal distribution. Then, the paramet
 
 The loss function of \acp{NF} suggests that during training, the learned latent representation is compared with the true latent distribution, while the term of Jacobian determinant ensures this comparison to be transformed back to the data space. Recalling the \ac{VAE}, the first term can be seen as inference, while the second term can be implicitly regarded as "preparation for generation". After the \ac{NF} model is well-trained, new data can be generated by sampling the latent variables and transforming them via the forward mapping.
 
-Different architectures realize invertibility, 
+Different architectures realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the existing publications and implementations. According to the review paper \citep{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal flows. Throughout this work, we employ coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, revealing a theoretical link to other probabilistic modeling frameworks, such as diffusion models.
+
 \subsubsection{Coupling Flows}
+The basic idea of the coupling flow is splitting the input variables into two parts, one part of which is processed by neural networks and also concurrently directly passed through to the output variables, while the other part is combined with the processed part through affine functions.
+\begin{figure}[htp!]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics{figures/NICE.pdf}
+        \caption[NICE Architecture]{ The architecture of a \ac{NICE} layer. The input of the layer is $\boldsymbol{u}$ and the output is $\boldsymbol{v}$. $s$ is a neural network, and $g$ is an affine function.}
+        \label{fig:nice}
+    \end{subfigure}
+    \hspace{0.02\textwidth}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics{figures/RealNVP.pdf}
+        \caption[RealNVP Architecture]{ The architecture of a \ac{RealNVP} layer. The input of the layer is $\boldsymbol{u}$ and the output is $\boldsymbol{v}$. $s$ and $t$ are neural networks. The symbol $\times$ stands for element-wise product by the exponential function over input.}
+        \label{fig:realnvp}
+    \end{subfigure}
+\end{figure}
+The first proposed coupling flow is \ac{NICE} \citep{dinh2015nice}. The input variables $\boldsymbol{u}$ are split into two parts $[\boldsymbol{u}_1, \boldsymbol{u}_2]$, and the corresponding output variables are $\boldsymbol{v} = [\boldsymbol{v}_1, \boldsymbol{v}_2]$. The architecture in the forward direction is formulated by the following functions:
+\begin{align}
+    \boldsymbol{v}_1 &= \boldsymbol{u}_1, \\
+    \boldsymbol{v}_2 &= g(\boldsymbol{u}_2;s(\boldsymbol{u}_1)),
+\end{align}
+where $s$ is a neural network and $g$ is an affine function $g(a;b)=a+b$ or $a\odot b$. The forward architecture is illustrated in Figure \ref{fig:nice}.
+Then, the inverse functions are easily calculated:
+\begin{align}
+    \boldsymbol{u}_1 &= \boldsymbol{v}_1,\\
+    \boldsymbol{u}_2 &= g^{-1}(\boldsymbol{v}_2;s(\boldsymbol{u}_1)).
+\end{align}
+From the above functions, the Jacobian matrix is:
+\begin{equation}
+\frac {\partial \boldsymbol{v}}{\partial \boldsymbol{u}}=\begin{bmatrix}
+\partial \boldsymbol{v}_1/\partial \boldsymbol{u}_1 & \partial \boldsymbol{v}_1/\partial \boldsymbol{u}_2 \\
+\partial \boldsymbol{v}_2/\partial \boldsymbol{u}_1 & \partial \boldsymbol{v}_2/\partial \boldsymbol{u}_2\\
+\end{bmatrix}=\begin{bmatrix}
+\mathbb{I} & \boldsymbol{0} \\
+\partial \boldsymbol{v}_2/\partial \boldsymbol{u}_1 & \partial g(\boldsymbol{u}_2;s(\boldsymbol{u}_1))/\partial \boldsymbol{u}_2\\
+\end{bmatrix}
+\end{equation}
+Because of the triangle matrix, the determinant is $ \partial g(\boldsymbol{u}_2;s(\boldsymbol{u}_1))/\partial \boldsymbol{u}_2$.
+By composing multiple coupling layers, we can construct increasingly complex hierarchical transformations. Since each coupling layer preserves a subset of its input unchanged, it is essential to alternate the roles of the partitioned subsets across successive layers. This ensures that all input dimensions are eventually transformed. Analyzing the Jacobian reveals that a minimum of three coupling layers is required for full inter-dimensional interaction. In practice, we typically employ four layers to achieve sufficient expressiveness.
+
+An improved architecture is \ac{RealNVP}, where one part of the variables is processed by two neural networks. The forward transformation is:
+\begin{align}
+    \boldsymbol{v}_1 &= \boldsymbol{u}_1, \\
+    \boldsymbol{v}_2 &= \boldsymbol{u}_2\odot\exp(s(\boldsymbol{u}_1))+t(\boldsymbol{u}_1).
+\end{align}
+And the inverse transformation is:
+\begin{align}
+    \boldsymbol{u}_1 &= \boldsymbol{v}_1, \\
+    \boldsymbol{u}_2 &= (\boldsymbol{v}_2-t(\boldsymbol{u}_1))\odot\exp(-s(\boldsymbol{u}_1)).
+\end{align}
+The Jacobian determinant is then $exp(\Sigma_i s(\boldsymbol{u}_{1,i}))$.
+
 \subsubsection{Continuous Normalizing Flows}
 \paragraph{Neural ODEs}
 \paragraph{FFJORD}

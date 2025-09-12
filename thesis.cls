@@ -90,7 +90,7 @@
 %\definecolor{dkfzgray}{gray!30}
 \newcolumntype{a}{>{\columncolor{dkfzgray}}m{0.27\textwidth}}
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}} %table centering
-
+\newtheorem{definition}{Definition}
 
 % #################################
 %   CHAPTER

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  11 SEP 2025 16:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  12 SEP 2025 17:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -576,7 +576,9 @@ Package: graphbox 2025/03/25 v1.1.1 extension for graphicx to adjust containing 
 \Gin@box@hspace=\skip89
 \Gin@box@bwidth=\skip90
 \Gin@box@bheight=\skip91
-) (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/fncychap/fncychap.sty
+)
+\c@definition=\count371
+ (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/fncychap/fncychap.sty
 Package: fncychap 2007/07/30 v1.34 LaTeX package (Revised chapters)
 \RW=\skip92
 \mylen=\skip93
@@ -621,13 +623,13 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count371
+\c@section@level=\count372
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/stringenc/stringenc.sty
 Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
 )
 \@linkdim=\dimen286
-\Hy@linkcounter=\count372
-\Hy@pagecounter=\count373
+\Hy@linkcounter=\count373
+\Hy@pagecounter=\count374
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def
 File: pd1enc.def 2025-07-12 v7.01o Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
@@ -635,7 +637,7 @@ Now handling font encoding PD1 ...
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count374
+\Hy@SavedSpaceFactor=\count375
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/hyperref/puenc.def
 File: puenc.def 2025-07-12 v7.01o Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
@@ -648,7 +650,7 @@ Package hyperref Info: Plain pages OFF on input line 4210.
 Package hyperref Info: Backreferencing OFF on input line 4215.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4462.
-\c@Hy@tempcnt=\count375
+\c@Hy@tempcnt=\count376
 LaTeX Info: Redefining \url on input line 4801.
 \XeTeXLinkMargin=\dimen287
  (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/bitset/bitset.sty
@@ -656,7 +658,7 @@ Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
  (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
 ))
-\Fld@menulength=\count376
+\Fld@menulength=\count377
 \Field@Width=\dimen288
 \Fld@charsize=\dimen289
 Package hyperref Info: Hyper figures OFF on input line 6078.
@@ -666,15 +668,15 @@ Package hyperref Info: backreferencing OFF on input line 6093.
 Package hyperref Info: Link coloring OFF on input line 6098.
 Package hyperref Info: Link coloring with OCG OFF on input line 6103.
 Package hyperref Info: PDF/A mode OFF on input line 6108.
-\Hy@abspage=\count377
-\c@Item=\count378
-\c@Hfootnote=\count379
+\Hy@abspage=\count378
+\c@Item=\count379
+\c@Hfootnote=\count380
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
 File: hpdftex.def 2025-07-12 v7.01o Hyperref driver for pdfTeX
-\Fld@listcount=\count380
-\c@bookmark@seq@number=\count381
+\Fld@listcount=\count381
+\c@bookmark@seq@number=\count382
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
 Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
  (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
@@ -691,7 +693,7 @@ Package: gensymb 2022/10/17 v1.0.2 (KJH)
 Package: colortbl 2024/10/29 v1.0k Color table columns (DPC)
 \everycr=\toks51
 \minrowclearance=\skip100
-\rownum=\count382
+\rownum=\count383
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty
 Package: tcolorbox 2025/07/08 version 6.7.1 text color boxes
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
@@ -724,14 +726,14 @@ Package: pgfsys 2025-08-14 v3.1.11 (3.1.11)
 \pgf@yd=\dimen301
 \w@pgf@writea=\write3
 \r@pgf@reada=\read4
-\c@pgf@counta=\count383
-\c@pgf@countb=\count384
-\c@pgf@countc=\count385
-\c@pgf@countd=\count386
+\c@pgf@counta=\count384
+\c@pgf@countb=\count385
+\c@pgf@countc=\count386
+\c@pgf@countd=\count387
 \t@pgf@toka=\toks56
 \t@pgf@tokb=\toks57
 \t@pgf@tokc=\toks58
-\pgf@sys@id@count=\count387
+\pgf@sys@id@count=\count388
  (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
 File: pgf.cfg 2025-08-14 v3.1.11 (3.1.11)
 )
@@ -742,21 +744,21 @@ File: pgfsys-pdftex.def 2025-08-14 v3.1.11 (3.1.11)
 File: pgfsys-common-pdf.def 2025-08-14 v3.1.11 (3.1.11)
 ))) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
 File: pgfsyssoftpath.code.tex 2025-08-14 v3.1.11 (3.1.11)
-\pgfsyssoftpath@smallbuffer@items=\count388
-\pgfsyssoftpath@bigbuffer@items=\count389
+\pgfsyssoftpath@smallbuffer@items=\count389
+\pgfsyssoftpath@bigbuffer@items=\count390
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
 File: pgfsysprotocol.code.tex 2025-08-14 v3.1.11 (3.1.11)
 )) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
 Package: pgfcore 2025-08-14 v3.1.11 (3.1.11)
  (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
 \pgfmath@dimen=\dimen302
-\pgfmath@count=\count390
+\pgfmath@count=\count391
 \pgfmath@box=\box70
 \pgfmath@toks=\toks59
 \pgfmath@stack@operand=\toks60
 \pgfmath@stack@operation=\toks61
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
-\c@pgfmathroundto@lastzeros=\count391
+\c@pgfmathroundto@lastzeros=\count392
 )) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
 File: pgfcorepoints.code.tex 2025-08-14 v3.1.11 (3.1.11)
 \pgf@picminx=\dimen303
@@ -787,7 +789,7 @@ File: pgfcorescopes.code.tex 2025-08-14 v3.1.11 (3.1.11)
 \pgfpic=\box71
 \pgf@hbox=\box72
 \pgf@layerbox@main=\box73
-\pgf@picture@serial@count=\count392
+\pgf@picture@serial@count=\count393
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
 File: pgfcoregraphicstate.code.tex 2025-08-14 v3.1.11 (3.1.11)
 \pgflinewidth=\dimen321
@@ -808,8 +810,8 @@ File: pgfcorearrows.code.tex 2025-08-14 v3.1.11 (3.1.11)
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
 File: pgfcoreshade.code.tex 2025-08-14 v3.1.11 (3.1.11)
 \pgf@max=\dimen326
-\pgf@sys@shading@range@num=\count393
-\pgf@shadingcount=\count394
+\pgf@sys@shading@range@num=\count394
+\pgf@shadingcount=\count395
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
 File: pgfcoreimage.code.tex 2025-08-14 v3.1.11 (3.1.11)
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
@@ -844,7 +846,7 @@ Package: pgffor 2025-08-14 v3.1.11 (3.1.11)
 Package: tikz 2025-08-14 v3.1.11 (3.1.11)
  (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
 File: pgflibraryplothandlers.code.tex 2025-08-14 v3.1.11 (3.1.11)
-\pgf@plot@mark@count=\count395
+\pgf@plot@mark@count=\count396
 \pgfplotmarksize=\dimen331
 )
 \tikz@lastx=\dimen332
@@ -859,17 +861,17 @@ File: pgflibraryplothandlers.code.tex 2025-08-14 v3.1.11 (3.1.11)
 \tikz@figbox@bg=\box77
 \tikz@tempbox=\box78
 \tikz@tempbox@bg=\box79
-\tikztreelevel=\count396
-\tikznumberofchildren=\count397
-\tikznumberofcurrentchild=\count398
-\tikz@fig@count=\count399
+\tikztreelevel=\count397
+\tikznumberofchildren=\count398
+\tikznumberofcurrentchild=\count399
+\tikz@fig@count=\count400
  (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
 File: pgfmodulematrix.code.tex 2025-08-14 v3.1.11 (3.1.11)
-\pgfmatrixcurrentrow=\count400
-\pgfmatrixcurrentcolumn=\count401
-\pgf@matrix@numberofcolumns=\count402
+\pgfmatrixcurrentrow=\count401
+\pgfmatrixcurrentcolumn=\count402
+\pgf@matrix@numberofcolumns=\count403
 )
-\tikz@expandcount=\count403
+\tikz@expandcount=\count404
  (c:/Users/zhangyi/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
 File: tikzlibrarytopaths.code.tex 2025-08-14 v3.1.11 (3.1.11)
 ))) (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/environ/environ.sty
@@ -881,9 +883,9 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 \tcb@upperbox=\box81
 \tcb@lowerbox=\box82
 \tcb@phantombox=\box83
-\c@tcbbreakpart=\count404
-\c@tcblayer=\count405
-\c@tcolorbox@number=\count406
+\c@tcbbreakpart=\count405
+\c@tcblayer=\count406
+\c@tcolorbox@number=\count407
 \l__tcobox_tmpa_box=\box84
 \l__tcobox_tmpa_dim=\dimen340
 \tcb@temp=\box85
@@ -920,7 +922,7 @@ LaTeX Font Info:    Trying to load font information for T1+lmr on input line 17.
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-06-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count407
+\l__color_backend_stack_int=\count408
 ) (./main.aux)
 \openout1 = `main.aux'.
 
@@ -1000,16 +1002,16 @@ Package microtype Info: No adjustment of character kerning.
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman (RS)
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count408
+\scratchcounter=\count409
 \scratchdimen=\dimen341
 \scratchbox=\box93
-\nofMPsegments=\count409
-\nofMParguments=\count410
+\nofMPsegments=\count410
+\nofMParguments=\count411
 \everyMPshowfont=\toks64
-\MPscratchCnt=\count411
+\MPscratchCnt=\count412
 \MPscratchDim=\dimen342
-\MPnumerator=\count412
-\makeMPintoPDFobject=\count413
+\MPnumerator=\count413
+\makeMPintoPDFobject=\count414
 \everyMPtoPDFconversion=\toks65
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -1017,7 +1019,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-\c@lstlisting=\count414
+\c@lstlisting=\count415
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/pdflscape/pdflscape.sty
 Package: pdflscape 2025-06-23 v0.14 Display of landscape pages in PDF
  (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty
@@ -1146,7 +1148,7 @@ File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.32 ...ictive Control}{23}{subsubsection.1.2.5.4}
+l.33 ...ictive Control}{24}{subsubsection.1.2.5.4}
                                                   % [7
 
 ]
@@ -1155,7 +1157,7 @@ l.32 ...ictive Control}{23}{subsubsection.1.2.5.4}
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.62 ...ng (Affidavit) in German}{51}{chapter*.51}
+l.63 ...ng (Affidavit) in German}{55}{chapter*.55}
                                                   % [8])
 \tf@toc=\write5
 \openout5 = `main.toc'.
@@ -1292,21 +1294,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 29--30
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 37--38
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 38--39
 
  []
 
 
-
-[6]
-Underfull \hbox (badness 10000) in paragraph at lines 46--47
+Underfull \hbox (badness 10000) in paragraph at lines 47--48
 
  []
 
 Package acronym Info: Label `acro:PDF' newly defined as it shall be overridden
-although it is yet undefined on input line 50.
+although it is yet undefined on input line 51.
 
-Underfull \hbox (badness 10000) in paragraph at lines 58--60
+Underfull \hbox (badness 10000) in paragraph at lines 59--61
 
  []
 
@@ -1319,25 +1321,25 @@ Underfull \vbox (badness 7256) has occurred while \output is active []
 
 [8{c:/Users/zhangyi/texlive/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
 Package acronym Info: Label `acro:MCMC' newly defined as it shall be overridden
-although it is yet undefined on input line 108.
+although it is yet undefined on input line 109.
 Package acronym Info: Label `acro:MH' newly defined as it shall be overridden
-although it is yet undefined on input line 110.
+although it is yet undefined on input line 111.
 
 
 [9]
 Package acronym Info: Label `acro:MALA' newly defined as it shall be overridden
-although it is yet undefined on input line 136.
-Package acronym Info: Label `acro:SDE' newly defined as it shall be overridden
 although it is yet undefined on input line 137.
+Package acronym Info: Label `acro:SDE' newly defined as it shall be overridden
+although it is yet undefined on input line 138.
 
 
 [10]
 Package acronym Info: Label `acro:HMC' newly defined as it shall be overridden
-although it is yet undefined on input line 165.
+although it is yet undefined on input line 166.
 Package acronym Info: Label `acro:VI' newly defined as it shall be overridden
-although it is yet undefined on input line 168.
+although it is yet undefined on input line 169.
 Package acronym Info: Label `acro:KL' newly defined as it shall be overridden
-although it is yet undefined on input line 168.
+although it is yet undefined on input line 169.
 
 Underfull \vbox (badness 1484) has occurred while \output is active []
 
@@ -1345,9 +1347,9 @@ Underfull \vbox (badness 1484) has occurred while \output is active []
 
 [11]
 Package acronym Info: Label `acro:ELBO' newly defined as it shall be overridden
-although it is yet undefined on input line 207.
+although it is yet undefined on input line 208.
 Package acronym Info: Label `acro:CAVI' newly defined as it shall be overridden
-although it is yet undefined on input line 226.
+although it is yet undefined on input line 227.
 
 Underfull \vbox (badness 4699) has occurred while \output is active []
 
@@ -1355,16 +1357,16 @@ Underfull \vbox (badness 4699) has occurred while \output is active []
 
 [12]
 Package acronym Info: Label `acro:GPR' newly defined as it shall be overridden
-although it is yet undefined on input line 238.
+although it is yet undefined on input line 239.
 Package acronym Info: Label `acro:i.i.d.' newly defined as it shall be overridden
-although it is yet undefined on input line 243.
+although it is yet undefined on input line 244.
 
 
 [13]
 Package acronym Info: Label `acro:SE' newly defined as it shall be overridden
-although it is yet undefined on input line 251.
+although it is yet undefined on input line 252.
 Package acronym Info: Label `acro:RBF' newly defined as it shall be overridden
-although it is yet undefined on input line 251.
+although it is yet undefined on input line 252.
 
 Underfull \vbox (badness 1975) has occurred while \output is active []
 
@@ -1372,18 +1374,18 @@ Underfull \vbox (badness 1975) has occurred while \output is active []
 
 [14]
 Package acronym Info: Label `acro:SGD' newly defined as it shall be overridden
-although it is yet undefined on input line 278.
+although it is yet undefined on input line 279.
 Package acronym Info: Label `acro:BbB' newly defined as it shall be overridden
-although it is yet undefined on input line 286.
+although it is yet undefined on input line 287.
 Package acronym Info: Label `acro:CNN' newly defined as it shall be overridden
-although it is yet undefined on input line 288.
+although it is yet undefined on input line 289.
 
 
 [15]
-<figures/VAE.pdf, id=793, 536.96606pt x 317.26529pt>
+<figures/VAE.pdf, id=805, 536.96606pt x 317.26529pt>
 File: figures/VAE.pdf Graphic file (type pdf)
 <use figures/VAE.pdf>
-Package pdftex.def Info: figures/VAE.pdf  used on input line 296.
+Package pdftex.def Info: figures/VAE.pdf  used on input line 297.
 (pdftex.def)             Requested size: 341.43436pt x 201.74199pt.
 
 
@@ -1394,7 +1396,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [17 <./figures/VAE.pdf>]
 Package acronym Info: Label `acro:CDF' newly defined as it shall be overridden
-although it is yet undefined on input line 348.
+although it is yet undefined on input line 349.
 
 
 [18]
@@ -1402,89 +1404,98 @@ although it is yet undefined on input line 348.
 [19]
 
 [20]
-<figures/NICE.pdf, id=945, 166.7028pt x 106.4778pt>
+<figures/NICE.pdf, id=958, 166.7028pt x 106.4778pt>
 File: figures/NICE.pdf Graphic file (type pdf)
 <use figures/NICE.pdf>
-Package pdftex.def Info: figures/NICE.pdf  used on input line 432.
+Package pdftex.def Info: figures/NICE.pdf  used on input line 433.
 (pdftex.def)             Requested size: 166.70238pt x 106.47752pt.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 433.
+(Font)              <10> on input line 434.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 433.
+(Font)              <7> on input line 434.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 433.
+(Font)              <5> on input line 434.
 Package acronym Info: Label `acro:NICE' newly defined as it shall be overridden
-although it is yet undefined on input line 433.
-<figures/RealNVP.pdf, id=948, 197.7789pt x 106.4778pt>
+although it is yet undefined on input line 434.
+<figures/RealNVP.pdf, id=961, 197.7789pt x 106.4778pt>
 File: figures/RealNVP.pdf Graphic file (type pdf)
 <use figures/RealNVP.pdf>
-Package pdftex.def Info: figures/RealNVP.pdf  used on input line 438.
+Package pdftex.def Info: figures/RealNVP.pdf  used on input line 439.
 (pdftex.def)             Requested size: 197.77841pt x 106.47752pt.
 Package acronym Info: Label `acro:RealNVP' newly defined as it shall be overridden
-although it is yet undefined on input line 439.
-
-Underfull \vbox (badness 6658) has occurred while \output is active []
+although it is yet undefined on input line 440.
 
 
+[21 <./figures/NICE.pdf> <./figures/RealNVP.pdf>]
+Package acronym Info: Label `acro:MAF' newly defined as it shall be overridden
+although it is yet undefined on input line 478.
+Package acronym Info: Label `acro:ODE' newly defined as it shall be overridden
+although it is yet undefined on input line 480.
 
-[21 <./figures/NICE.pdf> <./figures/RealNVP.pdf>])
+
+[22]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
-[22]
+[23]
+Package acronym Info: Label `acro:FFJORD' newly defined as it shall be overridden
+although it is yet undefined on input line 521.
+)
 
-[23] (./chapters/01_Introduction/03_literature_review.tex)
+[24] (./chapters/01_Introduction/03_literature_review.tex)
 
-[24] (./chapters/01_Introduction/04_objectives.tex) (./chapters/01_Introduction/05_outline.tex
+[25] (./chapters/01_Introduction/04_objectives.tex) (./chapters/01_Introduction/05_outline.tex
 
-[25])) (./chapters/02_Methodologies/00.tex
+[26])) (./chapters/02_Methodologies/00.tex
 
-[26]
+[27]
+
+[28
+
+]
 Chapter II.
 (./chapters/02_Methodologies/01_parameter_identification.tex)
 
-[27
+[29] (./chapters/02_Methodologies/02_dynamics_identification.tex)
 
-] (./chapters/02_Methodologies/02_dynamics_identification.tex)
+[30] (./chapters/02_Methodologies/03_state_estimation.tex)
 
-[28] (./chapters/02_Methodologies/03_state_estimation.tex)
+[31] (./chapters/02_Methodologies/04_data_driven_control.tex)) (./chapters/03_Experiments_Results/00.tex
 
-[29] (./chapters/02_Methodologies/04_data_driven_control.tex)) (./chapters/03_Experiments_Results/00.tex
-
-[30]
+[32]
 Chapter III.
 (./chapters/03_Experiments_Results/01_parameter_identification.tex) (./chapters/03_Experiments_Results/02_dynamics_identification.tex) (./chapters/03_Experiments_Results/03_state_estimation.tex) (./chapters/03_Experiments_Results/04_data_driven_control.tex)) (./chapters/04_Discussion_Conclusion.tex
 
-[31
+[33
 
 ]
-
-[32
-
-]
-Chapter IV.
-) (./chapters/05_Abstract.tex
-
-[33]
 
 [34
 
 ]
-Chapter V.
-) (./chapters/06_Zusammenfassung.tex
+Chapter IV.
+) (./chapters/05_Abstract.tex
 
 [35]
 
 [36
 
 ]
+Chapter V.
+) (./chapters/06_Zusammenfassung.tex
+
+[37]
+
+[38
+
+]
 Chapter VI.
 )
 
-[37] (./chapters/07_Own_Publications.tex
+[39] (./chapters/07_Own_Publications.tex
 
-[38
+[40
 
 
 ]
@@ -1502,25 +1513,27 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             See the microtype manual for details.
 
 
-[39]) (./main.bbl
-
-[40]
-
-[41
-
-]
+[41]) (./main.bbl
 
 [42]
 
-[43]
+[43
 
-[44])
-<figures/CV_YiZhang_diss.pdf, id=1145, 614.295pt x 794.97pt>
+]
+
+[44]
+
+[45]
+
+[46]
+
+[47])
+<figures/CV_YiZhang_diss.pdf, id=1247, 614.295pt x 794.97pt>
 File: figures/CV_YiZhang_diss.pdf Graphic file (type pdf)
 <use figures/CV_YiZhang_diss.pdf>
 Package pdftex.def Info: figures/CV_YiZhang_diss.pdf  used on input line 69.
 (pdftex.def)             Requested size: 614.29349pt x 794.96806pt.
-<figures/CV_YiZhang_diss.pdf, id=1147, page=1, 614.295pt x 794.97pt>
+<figures/CV_YiZhang_diss.pdf, id=1249, page=1, 614.295pt x 794.97pt>
 File: figures/CV_YiZhang_diss.pdf Graphic file (type pdf)
 <use figures/CV_YiZhang_diss.pdf, page 1>
 Package pdftex.def Info: figures/CV_YiZhang_diss.pdf , page1 used on input line 69.
@@ -1531,7 +1544,7 @@ Package pdftex.def Info: figures/CV_YiZhang_diss.pdf , page1 used on input line 
 (pdftex.def)             Requested size: 473.0086pt x 612.1288pt.
 
 
-[45]
+[48]
 File: figures/CV_YiZhang_diss.pdf Graphic file (type pdf)
 <use figures/CV_YiZhang_diss.pdf, page 1>
 Package pdftex.def Info: figures/CV_YiZhang_diss.pdf , page1 used on input line 69.
@@ -1546,53 +1559,55 @@ File: figures/CV_YiZhang_diss.pdf Graphic file (type pdf)
 <use figures/CV_YiZhang_diss.pdf, page 1>
 Package pdftex.def Info: figures/CV_YiZhang_diss.pdf , page1 used on input line 69.
 (pdftex.def)             Requested size: 473.0086pt x 612.1288pt.
-[46
+[49
 
- <./figures/CV_YiZhang_diss.pdf>] (./chapters/08_Appendix.tex) (./chapters/09_Acknowledgement.tex
-
-[47
-
-]
-
-[48
-
-]) (./chapters/10_Eidestattliche_Erklärung.tex
-
-[49]
+ <./figures/CV_YiZhang_diss.pdf>] (./chapters/08_Appendix.tex
 
 [50
 
-]) (./chapters/11_Angabe_KI.tex
+]) (./chapters/09_Acknowledgement.tex
 
 [51]
 
 [52
 
+]) (./chapters/10_Eidestattliche_Erklärung.tex
+
+[53]
+
+[54
+
+]) (./chapters/11_Angabe_KI.tex
+
+[55]
+
+[56
+
 ]
 
-[53])
+[57])
 
-[54] (./main.aux)
+[58] (./main.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: C3BA38D060D8AF98998C64F1448B89E5;6914.
+(rerunfilecheck)             Checksum: DD53F10D6C0B671396C982DF336EC2AF;6914.
  ) 
 Here is how much of TeX's memory you used:
- 37841 strings out of 469679
- 716954 string characters out of 5477725
- 1203786 words of memory out of 5000000
- 64784 multiletter control sequences out of 15000+600000
- 785990 words of font info for 322 fonts, out of 8000000 for 9000
+ 37930 strings out of 469679
+ 718485 string characters out of 5477725
+ 1207752 words of memory out of 5000000
+ 64842 multiletter control sequences out of 15000+600000
+ 786369 words of font info for 326 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 113i,20n,145p,1688b,855s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 113i,20n,145p,1688b,860s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbxi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmex10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmib10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmib7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/bookman/ubkl8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on main.pdf (72 pages, 698622 bytes).
+Output written on main.pdf (76 pages, 714446 bytes).
 PDF statistics:
- 1425 PDF objects out of 1440 (max. 8388607)
- 1261 compressed objects within 13 object streams
- 319 named destinations out of 1000 (max. 500000)
+ 1537 PDF objects out of 1728 (max. 8388607)
+ 1368 compressed objects within 14 object streams
+ 342 named destinations out of 1000 (max. 500000)
  102763 words of extra memory for PDF output out of 106986 (max. 10000000)
 

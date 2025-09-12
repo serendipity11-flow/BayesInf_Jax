@@ -31,6 +31,7 @@ To maintain clarity throughout this document, we adopt the following notation:
         \setlength\itemsep{1em}     % space between items
         \setlength\parsep{0em}      % space between paragraphs within items
         \item A time series of length $T$ is denoted by $\boldsymbol{x}_{(1:T)}$, where the subscript within parentheses indicates the time index.
+        \item When a variable is empathized as a function of time, it is denoted by $\boldsymbol{x}(t)$ for a multidimensional variable or $x(t)$ as a single one.
         \item The $i$-th dimension of a time series is denoted by a subscript, e.g., $\boldsymbol{x}_i$.
     \end{itemize}
 
@@ -147,7 +148,7 @@ where $W(t)$ denotes a standard Wiener process \citep{gabbiani2010mathematics}. 
 The \ac{MALA} algorithm uses the first order Euler-Maruyama discretization of the \ac{SDE}, resulting in the following proposal distribution:
 \begin{equation}
     \label{eq:langevin}
-    \Theta(t) = \Theta(i-1) + \tau \nabla \log p(\Theta(i-1)) + \sqrt{2\tau}\; \mathcal{N}(0, \boldsymbol{I}),
+    \Theta(t) = \Theta(i-1) + \tau \nabla \log p(\Theta(i-1)) + \sqrt{2\tau}\; \mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
 \end{equation}
 where $\tau$ is a step size parameter.
 Because of the discretization, convergence to the target density is no longer guaranteed. Therefore, the \ac{MH} algorithm is applied to correct the bias introduced by the discretization. 
@@ -240,9 +241,9 @@ Using a Gaussian process to infer variables from observed data based on prior di
     \label{eq:simgp}
     y_i = f(x_i) + \epsilon_i,\quad i=1,\dots,N,
 \end{equation}
-where $\epsilon_i \sim \mathcal{N}(0, \sigma_\epsilon^2)$ are \ac{i.i.d.} noises for all dimensions. We denote the collection of latent functions as $\boldsymbol{f}=[f_1, \dots, f_N]^T$, where $f_i=f(x_i)$. So, the likelihood of $\boldsymbol{y}$ is given by:
+where $\epsilon_i \sim \mathcal{N}(0, \sigma_\epsilon^2)$ are \ac{i.i.d.} noises for all dimensions. We denote the collection of latent functions as $\boldsymbol{f}=[f(x_1), \dots, f(x_N)]^T$. So, the likelihood of $\boldsymbol{y}$ is given by:
 \begin{equation}
-    p(\boldsymbol{y}|\boldsymbol{f}) = \prod_{i=1}^{N}p(y_i|f_i) = \prod_{i=1}^{N}\mathcal{N}(y_i|f_i, \sigma_\epsilon^2).    
+    p(\boldsymbol{y}|\boldsymbol{f}) = \prod_{i=1}^{N}p(y_i|f(x_i)) = \prod_{i=1}^{N}\mathcal{N}(y_i|f(x_i)), \sigma_\epsilon^2).    
 \end{equation}                                                                                                                          
 The prior distribution over functions $f(\cdot)$ is assumed to a zero-mean Gaussian process. We denote it as:
 \begin{equation}
@@ -254,7 +255,7 @@ The kernel function $k(\cdot, \cdot)$ is usually chosen to be the \ac{SE} kernel
 \end{equation}
 where $\sigma_{SE}$ and $\ell$ are vertical and horizontal scale parameters, which control the vertical span and smoothness of the function, respectively. Then, the posterior distribution of $\boldsymbol{y}$ can be computed analytically using the marginal likelihood over $\boldsymbol{y}$:
 \begin{equation}
-    p(\boldsymbol{y}|\boldsymbol{x}) = \int \prod_{i=1}^{N}p(y_i|f_i)p(f_i|x_i)d\boldsymbol{f}=\mathcal{N}(\boldsymbol{y}|\boldsymbol{0},\boldsymbol{K}+\sigma_\epsilon^2\mathbb{I}), \quad \boldsymbol{K}=k(\boldsymbol{x}, \boldsymbol{x}).
+    p(\boldsymbol{y}|\boldsymbol{x}) = \int \prod_{i=1}^{N}p(y_i|f(x_i))p(f(x_i)|x_i)d\boldsymbol{f}=\mathcal{N}(\boldsymbol{y}|\boldsymbol{0},\boldsymbol{K}+\sigma_\epsilon^2\mathbb{I}), \quad \boldsymbol{K}=k(\boldsymbol{x}, \boldsymbol{x}).
 \end{equation}
 The hyperparameters $\boldsymbol{\phi}=\{\sigma_{SE}, \ell, \sigma_\epsilon\}$ can be optimized by maximizing the log marginal likelihood $\log p(\boldsymbol{y}|\boldsymbol{x}, \boldsymbol{\phi})$.
 
@@ -262,7 +263,7 @@ The \ac{GPR} is widely used for regression tasks owing to its non-parametric nat
 
 To improve expressiveness, \ac{DGP} \citep{damianou2013dgp} is proposed as multilayer hierarchical generalizations of Gaussian processes. The input $\boldsymbol{x}$ is passed through multiple layers of Gaussian processes to obtain the output $\boldsymbol{y}$. For an $L$-layer \ac{DGP}, the model extends the Gaussian process (\ref{eq:simgp}) by:
 \begin{multline}
-    y_i = f^{L}(f^{L-1}(\dots f^{1}(x_i)+\epsilon_{i,1}\dots)) + \epsilon_{L}, \quad f^{l}(\cdot) \sim \mathcal{GP}(0, k_l(\cdot, \cdot)), \\ l=1,\dots,L,\; i=1,\dots,n.
+    y_i = f_{L}(f_{L-1}(\dots f_{1}(x_i)+\epsilon_{i,1}\dots)) + \epsilon_{L}, \quad f_{l}(\cdot) \sim \mathcal{GP}(0, k_l(\cdot, \cdot)), \\ l=1,\dots,L,\; i=1,\dots,n.
 \end{multline}  
 The deep architecture enables Gaussian processes to learn more complex data patterns and hierarchical representations. It can be seen as a deep neural network with infinitely wide layers \citep{Neal1996}, where each layer applies a Gaussian process, instead of nonlinear matrix transformation. However, due to the computational cost and storage consumption the \ac{DGP} is still cumbersome to apply in practice. 
 
@@ -390,16 +391,16 @@ These two equations (\ref{eq:xnfz} and \ref{eq:znfx}) are declared as the change
     \item[(2)]The transformation function $f$ is invertible. Or from the definition in set theory, $f$ is bijective, which can be interpreted as globally invertibility. 
     \item[(3)]The Jacobian determinant should be efficient to compute. 
 \end{enumerate}
-On top of them, another important property the transformation $f$ should be fulfilled is composability \citep{papamakarios2021nf}. Given a series of transformations $f^{L}\circ\cdots\circ f^{1}$, the following equations hold:
+On top of them, another important property the transformation $f$ should be fulfilled is composability \citep{papamakarios2021nf}. Given a series of transformations $f_{L}\circ\cdots\circ f_{1}$, the following equations hold:
 \begin{subequations}
     \begin{equation}
-        \boldsymbol{x}=f^L(\cdots f^{1}(\boldsymbol{z})),
+        \boldsymbol{x}=f_L(\cdots f_{1}(\boldsymbol{z})),
     \end{equation}
     \begin{equation}
-        (f^{L}\circ\cdots\circ f^{1})^{-1}=(f^1)^{-1}\circ\cdots\circ (f^{L})^{-1},
+        (f_{L}\circ\cdots\circ f_{1})^{-1}=(f_1)^{-1}\circ\cdots\circ (f_{L})^{-1},
     \end{equation}
     \begin{equation}
-        \boldsymbol{J}_{f^{L}\circ\cdots\circ f^{1}}(\boldsymbol{z})=\boldsymbol{J}_{f^L}(f^{L-1}(\boldsymbol{z}))\cdots\boldsymbol{J}_{f^1}(\boldsymbol{z}),
+        \boldsymbol{J}_{f_{L}\circ\cdots\circ f_{1}}(\boldsymbol{z})=\boldsymbol{J}_{f_L}(f_{L-1}(\boldsymbol{z}))\cdots\boldsymbol{J}_{f_1}(\boldsymbol{z}),
     \end{equation}
 \end{subequations}
 where the total Jacobian determinant is the product of each intermediate ones.
@@ -422,10 +423,10 @@ where $p_Z(\boldsymbol{z})$ is a standard normal distribution. Then, the paramet
 
 The loss function of \acp{NF} suggests that during training, the learned latent representation is compared with the true latent distribution, while the term of Jacobian determinant ensures this comparison to be transformed back to the data space. Recalling the \ac{VAE}, the first term can be seen as inference, while the second term can be implicitly regarded as "preparation for generation". After the \ac{NF} model is well-trained, new data can be generated by sampling the latent variables and transforming them via the forward mapping.
 
-Different architectures realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the existing publications and implementations. According to the review paper \citep{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal flows. Throughout this work, we employ coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, revealing a theoretical link to other probabilistic modeling frameworks, such as diffusion models.
+A variety of architectures have been developed to realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the key publications and implementations in this domain. As outlined in the comprehensive review by \citet{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal (continuous) flows. Throughout this work, we focus primarily on coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, establishing deep theoretical connections with other probabilistic frameworks such as \ac{MCMC} and diffusion models. Thus, we also introduce continuous normalizing flows following the description of coupling flows.
 
 \subsubsection{Coupling Flows}
-The basic idea of the coupling flow is splitting the input variables into two parts, one part of which is processed by neural networks and also concurrently directly passed through to the output variables, while the other part is combined with the processed part through affine functions.
+The basic idea of the coupling flow is partitioning the input variables into two subsets, one subset of which is processed by neural networks and also concurrently directly passed through to the output variables, while the other subset is combined with the processed subset through affine functions.
 \begin{figure}[htp!]
     \centering
     \begin{subfigure}{0.45\textwidth}
@@ -440,45 +441,85 @@ The basic idea of the coupling flow is splitting the input variables into two pa
         \label{fig:realnvp}
     \end{subfigure}
 \end{figure}
+
 The first proposed coupling flow is \ac{NICE} \citep{dinh2015nice}. The input variables $\boldsymbol{u}$ are split into two parts $[\boldsymbol{u}_1, \boldsymbol{u}_2]$, and the corresponding output variables are $\boldsymbol{v} = [\boldsymbol{v}_1, \boldsymbol{v}_2]$. The architecture in the forward direction is formulated by the following functions:
-\begin{align}
-    \boldsymbol{v}_1 &= \boldsymbol{u}_1, \\
-    \boldsymbol{v}_2 &= g(\boldsymbol{u}_2;s(\boldsymbol{u}_1)),
-\end{align}
+\begin{equation}
+    \boldsymbol{v}_1 = \boldsymbol{u}_1, \quad \boldsymbol{v}_2 = g(\boldsymbol{u}_2;s(\boldsymbol{u}_1)),
+\end{equation}
 where $s$ is a neural network and $g$ is an affine function $g(a;b)=a+b$ or $a\odot b$. The forward architecture is illustrated in Figure \ref{fig:nice}.
 Then, the inverse functions are easily calculated:
-\begin{align}
-    \boldsymbol{u}_1 &= \boldsymbol{v}_1,\\
-    \boldsymbol{u}_2 &= g^{-1}(\boldsymbol{v}_2;s(\boldsymbol{u}_1)).
-\end{align}
+\begin{equation}
+    \boldsymbol{u}_1 = \boldsymbol{v}_1,\quad \boldsymbol{u}_2 = g^{-1}(\boldsymbol{v}_2;s(\boldsymbol{u}_1)).
+\end{equation}
 From the above functions, the Jacobian matrix is:
 \begin{equation}
 \frac {\partial \boldsymbol{v}}{\partial \boldsymbol{u}}=\begin{bmatrix}
 \partial \boldsymbol{v}_1/\partial \boldsymbol{u}_1 & \partial \boldsymbol{v}_1/\partial \boldsymbol{u}_2 \\
 \partial \boldsymbol{v}_2/\partial \boldsymbol{u}_1 & \partial \boldsymbol{v}_2/\partial \boldsymbol{u}_2\\
 \end{bmatrix}=\begin{bmatrix}
-\mathbb{I} & \boldsymbol{0} \\
+\boldsymbol{I} & \boldsymbol{0} \\
 \partial \boldsymbol{v}_2/\partial \boldsymbol{u}_1 & \partial g(\boldsymbol{u}_2;s(\boldsymbol{u}_1))/\partial \boldsymbol{u}_2\\
 \end{bmatrix}
 \end{equation}
 Because of the triangle matrix, the determinant is $ \partial g(\boldsymbol{u}_2;s(\boldsymbol{u}_1))/\partial \boldsymbol{u}_2$.
-By composing multiple coupling layers, we can construct increasingly complex hierarchical transformations. Since each coupling layer preserves a subset of its input unchanged, it is essential to alternate the roles of the partitioned subsets across successive layers. This ensures that all input dimensions are eventually transformed. Analyzing the Jacobian reveals that a minimum of three coupling layers is required for full inter-dimensional interaction. In practice, we typically employ four layers to achieve sufficient expressiveness.
+By composing multiple coupling layers, we can construct increasingly complex hierarchical transformations. Since each coupling layer preserves a subset of its input unchanged, it is essential to alternate the roles of the partitioned subsets across successive layers. This ensures that all input dimensions are eventually processed. Analyzing the Jacobian reveals that a minimum of three coupling layers is required for full inter-dimensional interaction. In practice, we typically employ four layers to achieve sufficient expressiveness.
 
 An improved architecture is \ac{RealNVP}, where one part of the variables is processed by two neural networks. The forward transformation is:
-\begin{align}
-    \boldsymbol{v}_1 &= \boldsymbol{u}_1, \\
-    \boldsymbol{v}_2 &= \boldsymbol{u}_2\odot\exp(s(\boldsymbol{u}_1))+t(\boldsymbol{u}_1).
-\end{align}
+\begin{equation}
+    \boldsymbol{v}_1 = \boldsymbol{u}_1, \quad \boldsymbol{v}_2 = \boldsymbol{u}_2\odot\exp(s(\boldsymbol{u}_1))+t(\boldsymbol{u}_1).
+\end{equation}
 And the inverse transformation is:
-\begin{align}
-    \boldsymbol{u}_1 &= \boldsymbol{v}_1, \\
-    \boldsymbol{u}_2 &= (\boldsymbol{v}_2-t(\boldsymbol{u}_1))\odot\exp(-s(\boldsymbol{u}_1)).
-\end{align}
-The Jacobian determinant is then $exp(\Sigma_i s(\boldsymbol{u}_{1,i}))$.
+\begin{equation}
+    \boldsymbol{u}_1 = \boldsymbol{v}_1, \quad \boldsymbol{u}_2 = (\boldsymbol{v}_2-t(\boldsymbol{u}_1))\odot\exp(-s(\boldsymbol{u}_1)).
+\end{equation}
+The Jacobian determinant $\text{det}|\partial\boldsymbol{v}/\boldsymbol{u}|$ is then $exp(\Sigma_i s(\boldsymbol{u}_{1,i}))$.
+The architecture is shown in Figure \ref{fig:realnvp}.
+
+A further enhancement of \ac{RealNVP} is Glow \citep{kingma2018glow}, which inserts an invertible normalization layer and an invertible permutation layer before affine transformation. \ac{MAF} \citep{papamakarios2018maf} is a generalized \ac{RealNVP} and enables more interaction between high-dimensional variables.
+
+Such coupling flows and autoregressive flows build step-wise invertible transformations between distributions, enabling tractable Jacobian calculation and density estimation. A notable drawback lies in the strict architectural constraint on coupling blocks. To release this limitation, residual flows \citep{behrmann2019ires, chen2020resflow} introduce invertible mapping through specified residual blocks. A residual block \citep{he2015residual} takes the form $f(x)=x+F(x)$, where $F$ is a neural network. When $F$ is constrained to be Lipschitz continuous and the Lipschitz constant is smaller than 1 (explained in \ref{sec:cnf}), the function $f(x)$ is invertible. The residual block can be seen as an Euler discretization of an \ac{ODE} \citep{lu2020finitelayer, ruthotto2018deep, haber2017stable}, which is the foundation of continuous normalizing flows. 
 
 \subsubsection{Continuous Normalizing Flows}
-\paragraph{Neural ODEs}
-\paragraph{FFJORD}
+\label{sec:cnf}
+\paragraph{Neural \acp{ODE}}
+For a dynamical system with states $\boldsymbol{h}$, an \ac{ODE} is:
+\begin{equation}
+    \frac{d\boldsymbol{h}(t)}{dt} = f(\boldsymbol{h}(t), t, \boldsymbol{\theta}),
+\end{equation}
+where $\boldsymbol{\theta}$ denotes system parameters. When the \ac{ODE} is modeled by neural networks, it becomes a Neural \ac{ODE} \citep{chen2019node}. Given the initial state $\boldsymbol{h}(0)$, the final state $\boldsymbol{h}(T)$ is the solution of the initial value problem at the time step $T$ using a numerical solver. The loss function of training a Neural \ac{ODE} is:
+\begin{equation}
+    L(\boldsymbol{h}(T))=L(\text{solveODE}(\boldsymbol{h}(0), f,0, T,\boldsymbol{\theta})),
+\end{equation}
+where $f$ is a neural network parameterized by $\boldsymbol{\theta}$.
+A straightforward application of Neural \acp{ODE} is learning continuous time-series models. Moreover, when the time step is interpreted as architectural depth, the distributional transformation in \acp{NF} can also be constructed with a Neural \ac{ODE}. The Neural \ac{ODE} replaces an infinite number of transformations by change of variables with a single neural network, which represents the derivative of transformation at each depth. This enables more efficient and expressive probabilistic modeling and inference.
+
+A central technical challenge in training continuous-depth networks lies in executing reverse-mode differentiation (commonly known as backpropagation) through the ODE solver. This process requires computing gradients with respect to network parameters at various time points backwards from $t=T$ to $t=0$, resulting in large memory cost to store the intermediate states. The solution is using the adjoint method \citep{Bittner1963, adjoint1963}. The principle of the adjoint method is to solve a backward \ac{ODE} in parallel to the forward \ac{ODE}, where the intermediate states are required. In comparison to the backward \ac{ODE} alone, the adjoint method reduces the memory cost while increases the computational cost, making it more suitable for long sequences and high-dimensional variables but not for computationally complex network architectures.
+
+% Denoting an adjoint state as $\boldsymbol{a}(t)=\partial L/\partial\boldsymbol{h}(t)$, the new \ac{ODE} problem to solve is:
+% \begin{equation}
+%     \begin{cases}
+% \frac{\partial \boldsymbol{a}(t)}{\partial t}=-\boldsymbol{a}^T(t)\partial f(\boldsymbol{h}(t),t,\boldsymbol{\theta})/\partial \boldsymbol{h}(t), \\
+% \frac{d\boldsymbol{h}(t)}{dt} = f(\boldsymbol{h}(t), t, \boldsymbol{\theta}).
+% \end{cases}
+% \end{equation}
+
+\paragraph{Lipschitz continuity}
+We define a continuous normalizing flow as a Neural \ac{ODE}:
+\begin{equation}
+    \frac{d\boldsymbol{z}(t)}{dt}=f(\boldsymbol{z},t,\boldsymbol{\theta}),
+\end{equation}
+where $\boldsymbol{z}(t)$ follows the density $p(\boldsymbol{z}(t))$ at an instantaneous step $t$. The normalizing flow $f$ is parameterized by $\boldsymbol{\theta}$.
+To apply the Neural \ac{ODE} as continuous normalizing flows, the function $f$ should be uniformly Lipschitz continuous in the states $\boldsymbol{z}(t)$ and continuous in depth $t$. 
+
+The definition of a Lipschitz continuous function is referred to the work by \citeauthor{khromov2024Lipschitz} \citeyearpar{khromov2024Lipschitz}.
+\begin{definition}
+(\textbf{Lipschitz continuous function}) A function $f:\mathbb{R}^d\rightarrow\mathbb{R}^K$, defined on some domain $dom(f)\subseteq \mathbb{R}^d$, is called $C$-Lipschitz continuous w.r.t. some $\alpha$-norm, if $\forall \boldsymbol{x}, \boldsymbol{y} \in dom(f):\left\| f(\boldsymbol{x})-f(\boldsymbol{y})\right\|_{\alpha}\leq C\left\| \boldsymbol{x}-\boldsymbol{y}\right\|_{\alpha}$. $C$ is called Lipschitz constant of $f$ and $0<C<\inf$.
+\end{definition}
+
+The Lipschitz condition guarantees that there exists a unique solution curve $\boldsymbol{t}$ for every initial condition $\boldsymbol{z}(0)$. This is known as the Picard–Lindel\"of theorem. Assuming the dynamics function $f$ is smooth, then it is a diffeomorphism, which means we also get the same $\boldsymbol{z}(0)$ by running the \ac{ODE} backwards. Recalling the residual flows, where the Lipschitz constant must be smaller than 1, invertibility is ensured naturally by a smooth and Lipschitz continuous \ac{ODE}.
+
+\paragraph{\ac{FFJORD}}
+
 \subsubsection{BayesFlow}
 
 \subsection{From Inference to Control}

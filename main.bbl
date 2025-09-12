@@ -1,4 +1,4 @@
-\begin{thebibliography}{49}
+\begin{thebibliography}{61}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -15,6 +15,11 @@ Andrea Asperti.
 \newblock Variance loss in variational autoencoders, 2020.
 \newblock URL \url{https://arxiv.org/abs/2002.09860}.
 
+\bibitem[Behrmann et~al.(2019)Behrmann, Grathwohl, Chen, Duvenaud, and Jacobsen]{behrmann2019ires}
+Jens Behrmann, Will Grathwohl, Ricky T.~Q. Chen, David Duvenaud, and Jörn-Henrik Jacobsen.
+\newblock Invertible residual networks, 2019.
+\newblock URL \url{https://arxiv.org/abs/1811.00995}.
+
 \bibitem[Besag(2004)]{besag2004markov}
 Julian Besag.
 \newblock Markov chain monte carlo methods for statistical inference.
@@ -25,6 +30,14 @@ Christopher~M. Bishop.
 \newblock \emph{Pattern Recognition and Machine Learning (Information Science and Statistics)}.
 \newblock Springer-Verlag, Berlin, Heidelberg, 2006.
 \newblock ISBN 0387310738.
+
+\bibitem[Bittner(1963)]{Bittner1963}
+L.~Bittner.
+\newblock L. s. pontryagin, v. g. boltyanskii, r. v. gamkrelidze, e. f. mishechenko, the mathematical theory of optimal processes. viii + 360 s. new york/london 1962. john wiley \& sons. preis 90/–.
+\newblock \emph{ZAMM - Journal of Applied Mathematics and Mechanics / Zeitschrift f\"{u}r Angewandte Mathematik und Mechanik}, 43\penalty0 (10–11):\penalty0 514–515, January 1963.
+\newblock ISSN 1521-4001.
+\newblock \doi{10.1002/zamm.19630431023}.
+\newblock URL \url{http://dx.doi.org/10.1002/zamm.19630431023}.
 
 \bibitem[Blei et~al.(2017)Blei, Kucukelbir, and McAuliffe]{Blei_2017}
 David~M. Blei, Alp Kucukelbir, and Jon~D. McAuliffe.
@@ -51,6 +64,16 @@ Samuel~R. Bowman, Luke Vilnis, Oriol Vinyals, Andrew Dai, Rafal Jozefowicz, and 
 \newblock In Stefan Riezler and Yoav Goldberg, editors, \emph{Proceedings of the 20th {SIGNLL} Conference on Computational Natural Language Learning}, pages 10--21, Berlin, Germany, August 2016. Association for Computational Linguistics.
 \newblock \doi{10.18653/v1/K16-1002}.
 \newblock URL \url{https://aclanthology.org/K16-1002/}.
+
+\bibitem[Chen et~al.(2019)Chen, Rubanova, Bettencourt, and Duvenaud]{chen2019node}
+Ricky T.~Q. Chen, Yulia Rubanova, Jesse Bettencourt, and David Duvenaud.
+\newblock Neural ordinary differential equations, 2019.
+\newblock URL \url{https://arxiv.org/abs/1806.07366}.
+
+\bibitem[Chen et~al.(2020)Chen, Behrmann, Duvenaud, and Jacobsen]{chen2020resflow}
+Ricky T.~Q. Chen, Jens Behrmann, David Duvenaud, and Jörn-Henrik Jacobsen.
+\newblock Residual flows for invertible generative modeling, 2020.
+\newblock URL \url{https://arxiv.org/abs/1906.02735}.
 
 \bibitem[Damianou and Lawrence(2013)]{damianou2013dgp}
 Andreas~C. Damianou and Neil~D. Lawrence.
@@ -96,6 +119,14 @@ F.~Gabbiani and S.J. Cox.
 \newblock \emph{Mathematics for Neuroscientists}.
 \newblock Elsevier science \& technology books. Elsevier Science, 2010.
 
+\bibitem[Gavrilović et~al.(1963)Gavrilović, Petrović, and Šiljak]{adjoint1963}
+M.~Gavrilović, R.~Petrović, and D.~Šiljak.
+\newblock Adjoint method in the sensitivity analysis of optimal systems.
+\newblock \emph{Journal of the Franklin Institute}, 276\penalty0 (1):\penalty0 26--38, 1963.
+\newblock ISSN 0016-0032.
+\newblock \doi{https://doi.org/10.1016/0016-0032(63)90307-7}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/0016003263903077}.
+
 \bibitem[Gelman et~al.(2013)Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin]{gelman2013bayesian}
 Andrew Gelman, John~B. Carlin, Hal~S. Stern, David~B. Dunson, Akti Vehtari, and Donald~B. Rubin.
 \newblock \emph{Bayesian Data Analysis}.
@@ -124,6 +155,14 @@ Ethan Goan and Clinton Fookes.
 \newblock \doi{10.1007/978-3-030-42553-1_3}.
 \newblock URL \url{http://dx.doi.org/10.1007/978-3-030-42553-1_3}.
 
+\bibitem[Haber and Ruthotto(2017)]{haber2017stable}
+Eldad Haber and Lars Ruthotto.
+\newblock Stable architectures for deep neural networks.
+\newblock \emph{Inverse Problems}, 34\penalty0 (1):\penalty0 014004, December 2017.
+\newblock ISSN 1361-6420.
+\newblock \doi{10.1088/1361-6420/aa9a90}.
+\newblock URL \url{http://dx.doi.org/10.1088/1361-6420/aa9a90}.
+
 \bibitem[Hastings(1970)]{Hastings}
 W.~K. Hastings.
 \newblock Monte carlo sampling methods using markov chains and their applications.
@@ -131,6 +170,11 @@ W.~K. Hastings.
 \newblock ISSN 0006-3444.
 \newblock \doi{10.1093/biomet/57.1.97}.
 \newblock URL \url{https://doi.org/10.1093/biomet/57.1.97}.
+
+\bibitem[He et~al.(2015)He, Zhang, Ren, and Sun]{he2015residual}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+\newblock Deep residual learning for image recognition, 2015.
+\newblock URL \url{https://arxiv.org/abs/1512.03385}.
 
 \bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020ddpm}
 Jonathan Ho, Ajay Jain, and Pieter Abbeel.
@@ -149,6 +193,16 @@ Michael~I. Jordan, Zoubin Ghahramani, Tommi~S. Jaakkola, and Lawrence~K. Saul.
 \newblock ISBN 978-94-011-5014-9.
 \newblock \doi{10.1007/978-94-011-5014-9_5}.
 \newblock URL \url{https://doi.org/10.1007/978-94-011-5014-9_5}.
+
+\bibitem[Khromov and Singh(2024)]{khromov2024Lipschitz}
+Grigory Khromov and Sidak~Pal Singh.
+\newblock Some fundamental aspects about lipschitz continuity of neural networks, 2024.
+\newblock URL \url{https://arxiv.org/abs/2302.10886}.
+
+\bibitem[Kingma and Dhariwal(2018)]{kingma2018glow}
+Diederik~P. Kingma and Prafulla Dhariwal.
+\newblock Glow: Generative flow with invertible 1x1 convolutions, 2018.
+\newblock URL \url{https://arxiv.org/abs/1807.03039}.
 
 \bibitem[Kingma and Welling(2019)]{Kingma_2019}
 Diederik~P. Kingma and Max Welling.
@@ -177,6 +231,11 @@ S.~Kullback and R.~A. Leibler.
 \newblock \emph{The Annals of Mathematical Statistics}, 22\penalty0 (1):\penalty0 79--86, 1951.
 \newblock ISSN 00034851.
 \newblock URL \url{http://www.jstor.org/stable/2236703}.
+
+\bibitem[Lu et~al.(2020)Lu, Zhong, Li, and Dong]{lu2020finitelayer}
+Yiping Lu, Aoxiao Zhong, Quanzheng Li, and Bin Dong.
+\newblock Beyond finite layer neural networks: Bridging deep architectures and numerical differential equations, 2020.
+\newblock URL \url{https://arxiv.org/abs/1710.10121}.
 
 \bibitem[MacKay(1995)]{MacKay1992}
 David~J.C MacKay.
@@ -248,6 +307,11 @@ Jose~L. Paniagua and Jesús~A. López.
 \newblock \doi{https://doi.org/10.1016/j.iswa.2024.200344}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S2667305324000206}.
 
+\bibitem[Papamakarios et~al.(2018)Papamakarios, Pavlakou, and Murray]{papamakarios2018maf}
+George Papamakarios, Theo Pavlakou, and Iain Murray.
+\newblock Masked autoregressive flow for density estimation, 2018.
+\newblock URL \url{https://arxiv.org/abs/1705.07057}.
+
 \bibitem[Papamakarios et~al.(2021)Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan]{papamakarios2021nf}
 George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed, and Balaji Lakshminarayanan.
 \newblock Normalizing flows for probabilistic modeling and inference, 2021.
@@ -266,6 +330,11 @@ Danilo~Jimenez Rezende and Shakir Mohamed.
 \bibitem[Riebesell et~al.(2023)Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}]{awesomenfs}
 Janosh Riebesell, Kapil Sachdeva, Juan~Emmanuel Johnson, Fran{\c c}ois Rozet, {AifuHan}, Byeongkeun Ahn, He~Wang, Hossein Pourbozorg, Hyounguk Shon, John~Franklin Crenshaw, Kristian Hartikainen, Kyle Cranmer, Matthew Skiffington, Maxime Vandegar, Rafael Orozco, Sandeep Nagar, Thorsten Gl{\"u}senkamp, Vincent Stimper, and {kleinicke}.
 \newblock janosh/awesome-normalizing-flows: v1.0.0, 2023.
+
+\bibitem[Ruthotto and Haber(2018)]{ruthotto2018deep}
+Lars Ruthotto and Eldad Haber.
+\newblock Deep neural networks motivated by partial differential equations, 2018.
+\newblock URL \url{https://arxiv.org/abs/1804.04272}.
 
 \bibitem[Schwartz(1954)]{changeofvariables}
 J.~Schwartz.

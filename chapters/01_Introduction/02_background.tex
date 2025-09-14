@@ -63,7 +63,7 @@ To maintain clarity throughout this document, we adopt the following notation:
         \item Identity matrix: $\boldsymbol{I}$.
         \item Jacobian matrix: $\boldsymbol{J}$.
         \item Determinant of $\boldsymbol{J}$: $\det|\boldsymbol{J}|$.
-        \item Trace of a matrix $\boldsymbol{X}$: $\text{tr}(\boldsymbol{X})$.
+        \item Trace of a matrix $\boldsymbol{X}$: $\text{Tr}(\boldsymbol{X})$.
         \item Transpose of a matrix $\boldsymbol{X}$: $\boldsymbol{X}^\top$.
     \end{itemize}
 \end{enumerate}
@@ -340,11 +340,11 @@ The variable $\boldsymbol{x}$ follows an underlying distribution of data $p_X(\b
 According to the change of variables formula \citep{changeofvariables}, when both the latent and data space are smooth and the function $f$ is differentiable, we have:
 \begin{equation}
     \label{eq:changeofvariables}
-    \int \varPsi(\boldsymbol{x}) d\boldsymbol{x} = \int \varPsi(\boldsymbol{x}=f(\boldsymbol{z}))\boldsymbol{J}_f(\boldsymbol{z}) d\boldsymbol{z},
+    \int \varPsi(\boldsymbol{x}) d\boldsymbol{x} = \int \varPsi(\boldsymbol{x}=f(\boldsymbol{z}))\det\left|\boldsymbol{J}_f(\boldsymbol{z})\right| d\boldsymbol{z},
 \end{equation}
-where $\varPsi$ is a continuous function, $\boldsymbol{J}_f(z)$ is the Jacobian determinant of the mapping $f$:
+where $\varPsi$ is a continuous function, $\boldsymbol{J}_f(\boldsymbol{z})$ is the Jacobian of the mapping $f$ and $\det|\cdot|$ stands for determinant:
 \begin{equation}
-    \boldsymbol{J}_f(\boldsymbol{z})=\text{det}\left|\frac{df(\boldsymbol{z})}{d\boldsymbol{z}}\right|.
+    \det\left|\boldsymbol{J}_f(\boldsymbol{z})\right|=\det\left|\frac{df(\boldsymbol{z})}{d\boldsymbol{z}}\right|.
 \end{equation}
 This equation (\ref{eq:changeofvariables}) implies probability conservation under transformation. In probability theory, the Radon–Nikodym derivative \citep{DU04} is a way to express how one probability measure changes with respect to another, which can be seen as a generalization of the relationship between \ac{CDF} and \ac{PDF}.
 For a measurement set $A$ for the variable $\boldsymbol{x}$, the distribution is:
@@ -364,25 +364,29 @@ Applying the Equation \ref{eq:zfx}, we have:
 Using change of variables formula (\ref{eq:changeofvariables}), the last integral becomes:
 \begin{equation}
     \label{eq:intz}
-    \int_{f^{-1}(A)}p_Z(\boldsymbol{z})d\boldsymbol{z}=\int_A p_Z(f^{-1}(\boldsymbol{x}))\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})d\boldsymbol{x},
+    \int_{f^{-1}(A)}p_Z(\boldsymbol{z})d\boldsymbol{z}=\int_A p_Z(f^{-1}(\boldsymbol{x}))\det\left|\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|d\boldsymbol{x},
 \end{equation}
 where the Jacobian determinant of the inverse mapping $f^{-1}$ is:
 \begin{equation}
-    \boldsymbol{J}_{f^{-1}}(\boldsymbol{x})=\text{det}\left|\frac{df^{-1}(\boldsymbol{x})}{d\boldsymbol{x}}\right|=\frac{1}{\boldsymbol{J}_f(\boldsymbol{z})}.
+    \det\left|\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|=\det\left|\frac{df^{-1}(\boldsymbol{x})}{d\boldsymbol{x}}\right|=\det\left|\frac{d\boldsymbol{z}}{df(\boldsymbol{z})}\right|=\frac{1}{\det\left|\boldsymbol{J}_f(\boldsymbol{z})\right|}.
 \end{equation}
 Fusing the equations \ref{eq:intx} and \ref{eq:intz} together, we get the integral equality on the measurement set $A$:
 \begin{equation}
-    \int_A p_X(\boldsymbol{x})d\boldsymbol{x}=\int_A p_Z(f^{-1}(\boldsymbol{x}))\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})d\boldsymbol{x}.
+    \int_A p_X(\boldsymbol{x})d\boldsymbol{x}=\int_A p_Z(f^{-1}(\boldsymbol{x}))\det\left|\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|d\boldsymbol{x}.
 \end{equation}
 Since the integrands are continuous almost everywhere, the derivatives also hold the equality:
 \begin{equation}
+    p_X(\boldsymbol{x}) = p_Z(f^{-1}(\boldsymbol{x}))\det\left|\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|.
+\end{equation}
+The above equation is often formulated in logarithm function:
+\begin{equation}
     \label{eq:xnfz}
-    p_X(\boldsymbol{x}) = p_Z(f^{-1}(\boldsymbol{x}))\boldsymbol{J}_{f^{-1}}(\boldsymbol{x}).
+    \log p_X(\boldsymbol{x}) = \log p_Z(f^{-1}(\boldsymbol{x}))+\log\det\left|\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|.
 \end{equation}
 Substituting $\boldsymbol{x}$ and $\boldsymbol{z}$ with equations \ref{eq:xfz} and \ref{eq:zfx} respectively, it can also be formulated using the forward mapping $f$:
 \begin{equation}
     \label{eq:znfx}
-    p_Z(\boldsymbol{z}) = p_X(f(\boldsymbol{z}))\boldsymbol{J}_f(\boldsymbol{z}).
+    \log p_Z(\boldsymbol{z}) = \log p_X(f(\boldsymbol{z}))+\log\det\left|\boldsymbol{J}_f(\boldsymbol{z})\right|.
 \end{equation}
 
 These two equations (\ref{eq:xnfz} and \ref{eq:znfx}) are declared as the change of variables applied for \acp{NF}. From the above derivation of the formulas, we can infer three important properties of \acp{NF}:
@@ -417,13 +421,13 @@ using a dataset $[\boldsymbol{x}^{(m)}]$, $m=1,\dots,M$.
 This is equivalent to the maximum likelihood estimation.
 Expanding $p_{X}(\boldsymbol{x};\boldsymbol{\theta})$ with Equation \ref{eq:xnfz}, the KL-divergence becomes:
 \begin{equation}
-D_{\text{KL}}(p_X(\boldsymbol{x})||p_{X}(\boldsymbol{x};\boldsymbol{\theta}))\approx const. - \frac{1}{M}\sum_{m=1}^{M}[\log p_{Z}(f^{-1}(\boldsymbol{x}^{(m)};\boldsymbol{\theta}))+\log \boldsymbol{J}_{f^{-1}}(\boldsymbol{x}^{(m)};\boldsymbol{\theta})],
+D_{\text{KL}}(p_X(\boldsymbol{x})||p_{X}(\boldsymbol{x};\boldsymbol{\theta}))\approx const. - \frac{1}{M}\sum_{m=1}^{M}[\log p_{Z}(f^{-1}(\boldsymbol{x}^{(m)};\boldsymbol{\theta}))+\log\det\left|\boldsymbol{J}_{f^{-1}}(\boldsymbol{x}^{(m)};\boldsymbol{\theta})\right|],
 \end{equation}
 where $p_Z(\boldsymbol{z})$ is a standard normal distribution. Then, the parameters are optimized by stochastic gradient-based methods.
 
 The loss function of \acp{NF} suggests that during training, the learned latent representation is compared with the true latent distribution, while the term of Jacobian determinant ensures this comparison to be transformed back to the data space. Recalling the \ac{VAE}, the first term can be seen as inference, while the second term can be implicitly regarded as "preparation for generation". After the \ac{NF} model is well-trained, new data can be generated by sampling the latent variables and transforming them via the forward mapping.
 
-A variety of architectures have been developed to realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the key publications and implementations in this domain. As outlined in the comprehensive review by \citet{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal (continuous) flows. Throughout this work, we focus primarily on coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, establishing deep theoretical connections with other probabilistic frameworks such as \ac{MCMC} and diffusion models. Thus, we also introduce continuous normalizing flows following the description of coupling flows.
+A variety of architectures have been developed to realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the key publications and implementations in this domain. As outlined in the comprehensive review by \citet{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal (continuous) flows. Throughout this work, we focus primarily on coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, establishing deep theoretical connections with other probabilistic frameworks such as diffusion models. Thus, we also introduce continuous normalizing flows following the description of coupling flows.
 
 \subsubsection{Coupling Flows}
 The basic idea of the coupling flow is partitioning the input variables into two subsets, one subset of which is processed by neural networks and also concurrently directly passed through to the output variables, while the other subset is combined with the processed subset through affine functions.
@@ -472,28 +476,28 @@ And the inverse transformation is:
 \begin{equation}
     \boldsymbol{u}_1 = \boldsymbol{v}_1, \quad \boldsymbol{u}_2 = (\boldsymbol{v}_2-t(\boldsymbol{u}_1))\odot\exp(-s(\boldsymbol{u}_1)).
 \end{equation}
-The Jacobian determinant $\text{det}|\partial\boldsymbol{v}/\boldsymbol{u}|$ is then $exp(\Sigma_i s(\boldsymbol{u}_{1,i}))$.
+The Jacobian determinant $\det|\partial\boldsymbol{v}/\boldsymbol{u}|$ is then $exp(\Sigma_i s(\boldsymbol{u}_{1,i}))$.
 The architecture is shown in Figure \ref{fig:realnvp}.
 
 A further enhancement of \ac{RealNVP} is Glow \citep{kingma2018glow}, which inserts an invertible normalization layer and an invertible permutation layer before affine transformation. \ac{MAF} \citep{papamakarios2018maf} is a generalized \ac{RealNVP} and enables more interaction between high-dimensional variables.
 
 Such coupling flows and autoregressive flows build step-wise invertible transformations between distributions, enabling tractable Jacobian calculation and density estimation. A notable drawback lies in the strict architectural constraint on coupling blocks. To release this limitation, residual flows \citep{behrmann2019ires, chen2020resflow} introduce invertible mapping through specified residual blocks. A residual block \citep{he2015residual} takes the form $f(x)=x+F(x)$, where $F$ is a neural network. When $F$ is constrained to be Lipschitz continuous and the Lipschitz constant is smaller than 1 (explained in \ref{sec:cnf}), the function $f(x)$ is invertible. The residual block can be seen as an Euler discretization of an \ac{ODE} \citep{lu2020finitelayer, ruthotto2018deep, haber2017stable}, which is the foundation of continuous normalizing flows. 
 
-\subsubsection{Continuous Normalizing Flows}
+\subsubsection{Continuous Flows}
 \label{sec:cnf}
 \paragraph{Neural \acp{ODE}}
 For a dynamical system with states $\boldsymbol{h}$, an \ac{ODE} is:
 \begin{equation}
-    \frac{d\boldsymbol{h}(t)}{dt} = f(\boldsymbol{h}(t), t, \boldsymbol{\theta}),
+    \frac{d\boldsymbol{h}(t)}{dt} = f(\boldsymbol{h}(t), t; \boldsymbol{\theta}),
 \end{equation}
 where $\boldsymbol{\theta}$ denotes system parameters. When the \ac{ODE} is modeled by neural networks, it becomes a Neural \ac{ODE} \citep{chen2019node}. Given the initial state $\boldsymbol{h}(0)$, the final state $\boldsymbol{h}(T)$ is the solution of the initial value problem at the time step $T$ using a numerical solver. The loss function of training a Neural \ac{ODE} is:
 \begin{equation}
-    L(\boldsymbol{h}(T))=L(\text{solveODE}(\boldsymbol{h}(0), f,0, T,\boldsymbol{\theta})),
+    L(\boldsymbol{h}(T))=L(\int_0^Tf(\boldsymbol{h}(t), t; \boldsymbol{\theta})dt),
 \end{equation}
 where $f$ is a neural network parameterized by $\boldsymbol{\theta}$.
 A straightforward application of Neural \acp{ODE} is learning continuous time-series models. Moreover, when the time step is interpreted as architectural depth, the distributional transformation in \acp{NF} can also be constructed with a Neural \ac{ODE}. The Neural \ac{ODE} replaces an infinite number of transformations by change of variables with a single neural network, which represents the derivative of transformation at each depth. This enables more efficient and expressive probabilistic modeling and inference.
 
-A central technical challenge in training continuous-depth networks lies in executing reverse-mode differentiation (commonly known as backpropagation) through the ODE solver. This process requires computing gradients with respect to network parameters at various time points backwards from $t=T$ to $t=0$, resulting in large memory cost to store the intermediate states. The solution is using the adjoint method \citep{Bittner1963, adjoint1963}. The principle of the adjoint method is to solve a backward \ac{ODE} in parallel to the forward \ac{ODE}, where the intermediate states are required. In comparison to the backward \ac{ODE} alone, the adjoint method reduces the memory cost while increases the computational cost, making it more suitable for long sequences and high-dimensional variables but not for computationally complex network architectures.
+A central technical challenge in training continuous-depth networks lies in executing reverse-mode differentiation (commonly known as backpropagation) through the ODE solver. This process requires computing gradients with respect to network parameters at various time points backwards from $t=T$ to $t=0$, resulting in large memory cost to store the intermediate states. The solution is using the adjoint method \citep{Bittner1963, adjoint1963}. The principle of the adjoint method is to solve a backward \ac{ODE} alongside the forward \ac{ODE} whenever intermediate states are required. Compared to storing all intermediate states of the forward \ac{ODE}, the adjoint method reduces memory cost at the expense of increased computational cost. This trade-off makes it more suitable for long sequences and high-dimensional variables, but less efficient for computationally complex network architectures.
 
 % Denoting an adjoint state as $\boldsymbol{a}(t)=\partial L/\partial\boldsymbol{h}(t)$, the new \ac{ODE} problem to solve is:
 % \begin{equation}
@@ -506,9 +510,10 @@ A central technical challenge in training continuous-depth networks lies in exec
 \paragraph{Lipschitz continuity}
 We define a continuous normalizing flow as a Neural \ac{ODE}:
 \begin{equation}
-    \frac{d\boldsymbol{z}(t)}{dt}=f(\boldsymbol{z},t,\boldsymbol{\theta}),
+    \label{eq:cnfode}
+    \frac{d\boldsymbol{z}(t)}{dt}=f(\boldsymbol{z},t;\boldsymbol{\theta}),
 \end{equation}
-where $\boldsymbol{z}(t)$ follows the density $p(\boldsymbol{z}(t))$ at an instantaneous step $t$. The normalizing flow $f$ is parameterized by $\boldsymbol{\theta}$.
+where $\boldsymbol{z}(t)$ follows the density $p(\boldsymbol{z}(t))$ at an instantaneous step $t\in[t_0, t_1]$. The normalizing flow $f$ is parameterized by $\boldsymbol{\theta}$.
 To apply the Neural \ac{ODE} as continuous normalizing flows, the function $f$ should be uniformly Lipschitz continuous in the states $\boldsymbol{z}(t)$ and continuous in depth $t$. 
 
 The definition of a Lipschitz continuous function is referred to the work by \citeauthor{khromov2024Lipschitz} \citeyearpar{khromov2024Lipschitz}.
@@ -516,9 +521,46 @@ The definition of a Lipschitz continuous function is referred to the work by \ci
 (\textbf{Lipschitz continuous function}) A function $f:\mathbb{R}^d\rightarrow\mathbb{R}^K$, defined on some domain $dom(f)\subseteq \mathbb{R}^d$, is called $C$-Lipschitz continuous w.r.t. some $\alpha$-norm, if $\forall \boldsymbol{x}, \boldsymbol{y} \in dom(f):\left\| f(\boldsymbol{x})-f(\boldsymbol{y})\right\|_{\alpha}\leq C\left\| \boldsymbol{x}-\boldsymbol{y}\right\|_{\alpha}$. $C$ is called Lipschitz constant of $f$ and $0<C<\inf$.
 \end{definition}
 
-The Lipschitz condition guarantees that there exists a unique solution curve $\boldsymbol{t}$ for every initial condition $\boldsymbol{z}(0)$. This is known as the Picard–Lindel\"of theorem. Assuming the dynamics function $f$ is smooth, then it is a diffeomorphism, which means we also get the same $\boldsymbol{z}(0)$ by running the \ac{ODE} backwards. Recalling the residual flows, where the Lipschitz constant must be smaller than 1, invertibility is ensured naturally by a smooth and Lipschitz continuous \ac{ODE}.
+The Lipschitz condition guarantees that there exists a unique solution curve $\boldsymbol{t}$ for every initial condition $\boldsymbol{z}(0)$. This is known as the Picard–Lindel\"of theorem. Assuming the dynamics function $f$ is smooth, then it is a diffeomorphism, which means we also get the same $\boldsymbol{z}(0)$ by running the \ac{ODE} backwards. Recalling the residual flows, where the Lipschitz constant must be smaller than 1, invertibility is ensured naturally by a smooth and Lipschitz continuous \ac{ODE}. In practice, neural networks with smooth continuous activation functions satisfy this requirement.
 
-\paragraph{\ac{FFJORD}}
+\paragraph{Continuous normalizing flows}
+Besides for the ODE \ref{eq:cnfode}, the log-density of states changes according to another \ac{ODE}, the instantaneous change-of-variables formula \citep{chen2019node}:
+\begin{equation}
+    \label{eq:instchangeofvar}
+    \frac{d\log p(\boldsymbol{z}(t))}{d t}=-\text{Tr}(\frac{d f(\boldsymbol{z}(t),t;\boldsymbol{\theta})}{d \boldsymbol{z}(t)}).
+\end{equation}
+The trace can be approximated through Skilling-Hutchinson trace estimator \citep{Skilling1989,Hutchinson01011990,adams2018adams}:
+\begin{equation}
+    \text{Tr}(\frac{df}{d\boldsymbol{z}(t)})=\mathbb{E}_{p(\boldsymbol{\epsilon})}[\boldsymbol{\epsilon}^T\frac{df}{d\boldsymbol{z}(t)}\boldsymbol{\epsilon}],
+\end{equation}
+where $\boldsymbol{\epsilon}$ is a noise vector sampled from a standard normal distribution and kept unchanged to maintain determinism of the \ac{ODE}. The part of vector-Jacobian product $\boldsymbol{\epsilon}^Tdf/d\boldsymbol{z}(t)$ is computed with automatic differentiation.
+
+For a continuous normalizing flow between the data distribution $p(\boldsymbol{x})=p(\boldsymbol{z}(t_1))$ and the latent distribution $p_{Z_0}(\boldsymbol{z}_0)=p(\boldsymbol{z}(t_0))=\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$, we define the augmented states as $[\boldsymbol{z}(t), \log p(\boldsymbol{x})-\log p(\boldsymbol{z}(t))]$.
+Then, building the continuous normalizing flow is equivalent to solving the initial value problem \citep{grathwohl2018ffjord}:
+\begin{equation}
+    \underbrace{\begin{bmatrix}
+\boldsymbol{z}_0 \\
+\log p(\boldsymbol{x}) - \log p_{Z_0}(\boldsymbol{z}_0)
+\end{bmatrix}}_{\text{solutions}}
+=
+\int_{t_1}^{t_0}
+\underbrace{\begin{bmatrix}
+f(\boldsymbol{z}(t), t; \theta) \\
+-\text{Tr}\left(\frac{\partial f}{\partial \boldsymbol{z}(t)}\right)
+\end{bmatrix}}_{\text{dynamics}} dt,
+\underbrace{\begin{bmatrix}
+\boldsymbol{z}(t_1) \\
+\log p(\boldsymbol{x}) - \log p(\boldsymbol{z}(t_1))
+\end{bmatrix}}_{\text{initial values}}
+=
+\begin{bmatrix}
+\boldsymbol{x} \\
+0
+\end{bmatrix}.
+\end{equation}
+It is worth noting that the integral is backwards calculated from $t_0$ to $t_1$, meaning from the latent side to the data side. The time span can also be optimized to further improve the computational efficiency \citep{du2022toflow}.
+
+Continuous normalizing flows release the architectural constraints of discrete flows, allowing more flexible and expressive density estimation through the integration of Neural \acp{ODE}. This improved expressiveness, however, comes at a cost: computing the Jacobian trace and solving the associated ODE integrals is significantly more expensive than with stacked coupling flows.
 
 \subsubsection{BayesFlow}
 

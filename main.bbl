@@ -1,9 +1,14 @@
-\begin{thebibliography}{61}
+\begin{thebibliography}{66}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Adams et~al.(2018)Adams, Pennington, Johnson, Smith, Ovadia, Patton, and Saunderson]{adams2018adams}
+Ryan~P. Adams, Jeffrey Pennington, Matthew~J. Johnson, Jamie Smith, Yaniv Ovadia, Brian Patton, and James Saunderson.
+\newblock Estimating the spectral density of large implicit matrices, 2018.
+\newblock URL \url{https://arxiv.org/abs/1802.03451}.
 
 \bibitem[Allen(2007)]{Allen_2007}
 Edward Allen.
@@ -85,6 +90,11 @@ Laurent Dinh, David Krueger, and Yoshua Bengio.
 \newblock Nice: Non-linear independent components estimation, 2015.
 \newblock URL \url{https://arxiv.org/abs/1410.8516}.
 
+\bibitem[Du et~al.(2022)Du, Luo, Chen, Xu, and Zeng]{du2022toflow}
+Shian Du, Yihong Luo, Wei Chen, Jian Xu, and Delu Zeng.
+\newblock To-flow: Efficient continuous normalizing flows with temporal optimization adjoint with moving speed, 2022.
+\newblock URL \url{https://arxiv.org/abs/2203.10335}.
+
 \bibitem[Duane et~al.(1987)Duane, Kennedy, Pendleton, and Roweth]{duane1987hybrid}
 Simon Duane, A.D. Kennedy, Brian~J. Pendleton, and Duncan Roweth.
 \newblock Hybrid monte carlo.
@@ -155,6 +165,11 @@ Ethan Goan and Clinton Fookes.
 \newblock \doi{10.1007/978-3-030-42553-1_3}.
 \newblock URL \url{http://dx.doi.org/10.1007/978-3-030-42553-1_3}.
 
+\bibitem[Grathwohl et~al.(2018)Grathwohl, Chen, Bettencourt, Sutskever, and Duvenaud]{grathwohl2018ffjord}
+Will Grathwohl, Ricky T.~Q. Chen, Jesse Bettencourt, Ilya Sutskever, and David Duvenaud.
+\newblock Ffjord: Free-form continuous dynamics for scalable reversible generative models, 2018.
+\newblock URL \url{https://arxiv.org/abs/1810.01367}.
+
 \bibitem[Haber and Ruthotto(2017)]{haber2017stable}
 Eldad Haber and Lars Ruthotto.
 \newblock Stable architectures for deep neural networks.
@@ -180,6 +195,13 @@ Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
 Jonathan Ho, Ajay Jain, and Pieter Abbeel.
 \newblock Denoising diffusion probabilistic models, 2020.
 \newblock URL \url{https://arxiv.org/abs/2006.11239}.
+
+\bibitem[Hutchinson(1990)]{Hutchinson01011990}
+M.F. Hutchinson.
+\newblock A stochastic estimator of the trace of the influence matrix for laplacian smoothing splines.
+\newblock \emph{Communications in Statistics - Simulation and Computation}, 19\penalty0 (2):\penalty0 433--450, 1990.
+\newblock \doi{10.1080/03610919008812866}.
+\newblock URL \url{https://doi.org/10.1080/03610919008812866}.
 
 \bibitem[Izmailov et~al.(2021)Izmailov, Vikram, Hoffman, and Wilson]{izmailov2021bnnp}
 Pavel Izmailov, Sharad Vikram, Matthew~D. Hoffman, and Andrew~Gordon Wilson.
@@ -352,6 +374,14 @@ Kumar Shridhar, Felix Laumann, and Marcus Liwicki.
 Daniele Silvestro and Tobias Andermann.
 \newblock Prior choice affects ability of bayesian neural networks to identify unknowns, 2020.
 \newblock URL \url{https://arxiv.org/abs/2005.04987}.
+
+\bibitem[Skilling(1989)]{Skilling1989}
+John Skilling.
+\newblock \emph{The Eigenvalues of Mega-dimensional Matrices}, pages 455--466.
+\newblock Springer Netherlands, Dordrecht, 1989.
+\newblock ISBN 978-94-015-7860-8.
+\newblock \doi{10.1007/978-94-015-7860-8_48}.
+\newblock URL \url{https://doi.org/10.1007/978-94-015-7860-8_48}.
 
 \bibitem[Sohn et~al.(2015)Sohn, Lee, and Yan]{sohn2015cvae}
 Kihyuk Sohn, Honglak Lee, and Xinchen Yan.

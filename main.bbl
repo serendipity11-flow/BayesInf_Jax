@@ -1,4 +1,4 @@
-\begin{thebibliography}{66}
+\begin{thebibliography}{68}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -268,6 +268,11 @@ David~J.C MacKay.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/0168900294009317}.
 \newblock Proceedings of the Third Workshop on Neutron Scattering Data Analysis.
 
+\bibitem[Margossian and Blei(2024)]{margossian2024amortized}
+Charles~C. Margossian and David~M. Blei.
+\newblock Amortized variational inference: When and why?, 2024.
+\newblock URL \url{https://arxiv.org/abs/2307.11018}.
+
 \bibitem[Martínez-Palomera et~al.(2020)Martínez-Palomera, Bloom, and Abrahams]{martínezpalomera2020pelsvae}
 Jorge Martínez-Palomera, Joshua~S. Bloom, and Ellianna~S. Abrahams.
 \newblock Deep generative modeling of periodic variable stars using physical parameters, 2020.
@@ -338,6 +343,11 @@ George Papamakarios, Theo Pavlakou, and Iain Murray.
 George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed, and Balaji Lakshminarayanan.
 \newblock Normalizing flows for probabilistic modeling and inference, 2021.
 \newblock URL \url{https://arxiv.org/abs/1912.02762}.
+
+\bibitem[Radev(2021)]{radev2021diss}
+Stefan Radev.
+\newblock Deep learning architectures for amortized bayesian inference in cognitive modeling, 2021.
+\newblock URL \url{https://archiv.ub.uni-heidelberg.de/volltextserver/id/eprint/30807}.
 
 \bibitem[Rasmussen and Williams(2008)]{Rasmussen_Williams_2008}
 Carl~Edward Rasmussen and Christopher K.~I. Williams.

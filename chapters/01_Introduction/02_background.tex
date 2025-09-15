@@ -69,6 +69,7 @@ To maintain clarity throughout this document, we adopt the following notation:
 \end{enumerate}
 
 \subsection{Bayesian Inference}
+Bayesian inference gets its name from using Bayes' rule to perform statistical inference of probability distributions.
 This chapter refers to \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}, \textit{Handbook of MCMC} \citep{Allen_2007}, and \textit{Variational Inference} \citep{Blei_2017}.
 
 \subsubsection{Bayes' rule}
@@ -286,7 +287,7 @@ where each mini-batch $\mathcal{D}_i\subset\mathcal{D}$ is drawn from the equall
 \end{equation}
 where $\alpha$ is the learning rate. This procedure is called \ac{BbB} \citep{blundell2015bbb}.
 
-In comparison to \ac{DGP}, the \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \ac{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}. Nevertheless, several works raise concerns with BNNs including wrong uncertainty estimation in between separated regions of observations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and sensitive modeling ability to the choice of prior distributions \citep{silvestro2020prior}. These limitations motivate the applications of more powerful generative models, such as variational autoencoders and normalizing flows, which are discussed in the following sections.
+In comparison to \ac{DGP}, the \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \ac{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}. Nevertheless, several works raise concerns with BNNs including wrong uncertainty estimation in between separated regions of observations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and sensitive modeling ability to the choice of prior distributions \citep{silvestro2020prior}. These limitations motivate the applications of more powerful generative models, such as variational autoencoders and \acp{NF}, which are discussed in the following sections.
 
 \subsubsection{Variational Autoencoder}
 In classical \ac{VI} methods, the parameters of interest $\boldsymbol{\theta}$ are random variables, and the approximate posterior distribution over the parameters is parameterized by variational parameters $\boldsymbol{\phi}$. In contrast, a \acf{VAE} is constructed with deterministic neural networks and introduces variability by latent variables. For a dataset $\mathcal{D}=\{\boldsymbol{x}^{(i)}\}_{i=1}^{N}$, the samples are assumed to be \ac{i.i.d.} and drawn from an unchanging underlying distribution $p_{\boldsymbol{\theta}}(\boldsymbol{x})$. A \ac{VAE} extracts information from input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$ by a parameterized inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$, which is also called an encoder or recognition model. Then, the \ac{VAE} generates data $\boldsymbol{x}$ from the latent variables $\boldsymbol{z}$ by another parameterized model $p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$, which is also called a decoder. The decoder is often mentioned as a "generative" model. However, according to the formal definition \citep{Kingma_2019}, a generative model learns a joint distribution $p_{\boldsymbol{\theta}}(\boldsymbol{z}, \boldsymbol{x})=p_{\boldsymbol{\theta}}(\boldsymbol{z})p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$, including sampling $\boldsymbol{z}\sim p_{\boldsymbol{\theta}}(\boldsymbol{z})$ and sampling $\boldsymbol{x}\sim p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$. 
@@ -304,7 +305,7 @@ Same reparameterization trick as in the \ac{BNN} is used to enable gradient-base
     \boldsymbol{z} = \boldsymbol{\mu}_{\boldsymbol{\phi}}(\boldsymbol{x}) + \boldsymbol{\sigma}_{\boldsymbol{\phi}}(\boldsymbol{x}) \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon}\sim\mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
 \end{equation}
 where $\boldsymbol{\mu}_{\boldsymbol{\phi}}(\boldsymbol{x})$ and $\boldsymbol{\sigma}_{\boldsymbol{\phi}}(\boldsymbol{x})$ are also neural networks. 
-Different from the mini-batch optimization in the \ac{BNN}, we use one single encoder neural network to perform posterior inference over all samples in the dataset. This strategy of sharing variational parameters across datapoints is called amortized variational inference \citep{gershman2014amortized}, which improves the optimization efficiency. 
+Different from the mini-batch optimization in the \ac{BNN}, we use one single encoder neural network to perform posterior inference over all samples in the dataset. This strategy of sharing variational parameters across datapoints is called amortized variational inference \citep{gershman2014amortized, margossian2024amortized}, which improves the optimization efficiency. 
 
 The objective of the inference model is to minimize the \ac{KL}-divergence between the inferred and true posterior $D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p_{\boldsymbol{\theta}}(\boldsymbol{z}|\boldsymbol{x}))$. Recall the \ac{ELBO} in \ac{VI} (\ref{eq:elbo1}, \ref{eq:elbo2}), the \ac{ELBO} of a \ac{VAE} is given by:
 \begin{equation}
@@ -344,7 +345,7 @@ According to the change of variables formula \citep{changeofvariables}, when bot
 \end{equation}
 where $\varPsi$ is a continuous function, $\boldsymbol{J}_f(\boldsymbol{z})$ is the Jacobian of the mapping $f$ and $\det|\cdot|$ stands for determinant:
 \begin{equation}
-    \det\left|\boldsymbol{J}_f(\boldsymbol{z})\right|=\det\left|\frac{df(\boldsymbol{z})}{d\boldsymbol{z}}\right|.
+    \det\left|\boldsymbol{J}_f(\boldsymbol{z})\right|=\det\left|\frac{\partial f(\boldsymbol{z})}{\partial\boldsymbol{z}}\right|.
 \end{equation}
 This equation (\ref{eq:changeofvariables}) implies probability conservation under transformation. In probability theory, the Radon–Nikodym derivative \citep{DU04} is a way to express how one probability measure changes with respect to another, which can be seen as a generalization of the relationship between \ac{CDF} and \ac{PDF}.
 For a measurement set $A$ for the variable $\boldsymbol{x}$, the distribution is:
@@ -368,7 +369,7 @@ Using change of variables formula (\ref{eq:changeofvariables}), the last integra
 \end{equation}
 where the Jacobian determinant of the inverse mapping $f^{-1}$ is:
 \begin{equation}
-    \det\left|\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|=\det\left|\frac{df^{-1}(\boldsymbol{x})}{d\boldsymbol{x}}\right|=\det\left|\frac{d\boldsymbol{z}}{df(\boldsymbol{z})}\right|=\frac{1}{\det\left|\boldsymbol{J}_f(\boldsymbol{z})\right|}.
+    \det\left|\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|=\det\left|\frac{\partial f^{-1}(\boldsymbol{x})}{\partial\boldsymbol{x}}\right|=\det\left|\frac{\partial\boldsymbol{z}}{\partial f(\boldsymbol{z})}\right|=\frac{1}{\det\left|\boldsymbol{J}_f(\boldsymbol{z})\right|}.
 \end{equation}
 Fusing the equations \ref{eq:intx} and \ref{eq:intz} together, we get the integral equality on the measurement set $A$:
 \begin{equation}
@@ -427,7 +428,7 @@ where $p_Z(\boldsymbol{z})$ is a standard normal distribution. Then, the paramet
 
 The loss function of \acp{NF} suggests that during training, the learned latent representation is compared with the true latent distribution, while the term of Jacobian determinant ensures this comparison to be transformed back to the data space. Recalling the \ac{VAE}, the first term can be seen as inference, while the second term can be implicitly regarded as "preparation for generation". After the \ac{NF} model is well-trained, new data can be generated by sampling the latent variables and transforming them via the forward mapping.
 
-A variety of architectures have been developed to realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the key publications and implementations in this domain. As outlined in the comprehensive review by \citet{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal (continuous) flows. Throughout this work, we focus primarily on coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, establishing deep theoretical connections with other probabilistic frameworks such as diffusion models. Thus, we also introduce continuous normalizing flows following the description of coupling flows.
+A variety of architectures have been developed to realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the key publications and implementations in this domain. As outlined in the comprehensive review by \citet{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal (continuous) flows. Throughout this work, we focus primarily on coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, establishing deep theoretical connections with other probabilistic frameworks such as diffusion models. Thus, we also introduce continuous \acp{NF} following the description of coupling flows.
 
 \subsubsection{Coupling Flows}
 The basic idea of the coupling flow is partitioning the input variables into two subsets, one subset of which is processed by neural networks and also concurrently directly passed through to the output variables, while the other subset is combined with the processed subset through affine functions.
@@ -481,7 +482,7 @@ The architecture is shown in Figure \ref{fig:realnvp}.
 
 A further enhancement of \ac{RealNVP} is Glow \citep{kingma2018glow}, which inserts an invertible normalization layer and an invertible permutation layer before affine transformation. \ac{MAF} \citep{papamakarios2018maf} is a generalized \ac{RealNVP} and enables more interaction between high-dimensional variables.
 
-Such coupling flows and autoregressive flows build step-wise invertible transformations between distributions, enabling tractable Jacobian calculation and density estimation. A notable drawback lies in the strict architectural constraint on coupling blocks. To release this limitation, residual flows \citep{behrmann2019ires, chen2020resflow} introduce invertible mapping through specified residual blocks. A residual block \citep{he2015residual} takes the form $f(x)=x+F(x)$, where $F$ is a neural network. When $F$ is constrained to be Lipschitz continuous and the Lipschitz constant is smaller than 1 (explained in \ref{sec:cnf}), the function $f(x)$ is invertible. The residual block can be seen as an Euler discretization of an \ac{ODE} \citep{lu2020finitelayer, ruthotto2018deep, haber2017stable}, which is the foundation of continuous normalizing flows. 
+Such coupling flows and autoregressive flows build step-wise invertible transformations between distributions, enabling tractable Jacobian calculation and density estimation. A notable drawback lies in the strict architectural constraint on coupling blocks. To release this limitation, residual flows \citep{behrmann2019ires, chen2020resflow} introduce invertible mapping through specified residual blocks. A residual block \citep{he2015residual} takes the form $f(x)=x+F(x)$, where $F$ is a neural network. When $F$ is constrained to be Lipschitz continuous and the Lipschitz constant is smaller than 1 (explained in \ref{sec:cnf}), the function $f(x)$ is invertible. The residual block can be seen as an Euler discretization of an \ac{ODE} \citep{lu2020finitelayer, ruthotto2018deep, haber2017stable}, which is the foundation of continuous \acp{NF}. 
 
 \subsubsection{Continuous Flows}
 \label{sec:cnf}
@@ -508,13 +509,13 @@ A central technical challenge in training continuous-depth networks lies in exec
 % \end{equation}
 
 \paragraph{Lipschitz continuity}
-We define a continuous normalizing flow as a Neural \ac{ODE}:
+We define a continuous \ac{NF} as a Neural \ac{ODE}:
 \begin{equation}
     \label{eq:cnfode}
     \frac{d\boldsymbol{z}(t)}{dt}=f(\boldsymbol{z},t;\boldsymbol{\theta}),
 \end{equation}
-where $\boldsymbol{z}(t)$ follows the density $p(\boldsymbol{z}(t))$ at an instantaneous step $t\in[t_0, t_1]$. The normalizing flow $f$ is parameterized by $\boldsymbol{\theta}$.
-To apply the Neural \ac{ODE} as continuous normalizing flows, the function $f$ should be uniformly Lipschitz continuous in the states $\boldsymbol{z}(t)$ and continuous in depth $t$. 
+where $\boldsymbol{z}(t)$ follows the density $p(\boldsymbol{z}(t))$ at an instantaneous step $t\in[t_0, t_1]$. The \ac{NF} $f$ is parameterized by $\boldsymbol{\theta}$.
+To apply the Neural \ac{ODE} as continuous \acp{NF}, the function $f$ should be uniformly Lipschitz continuous in the states $\boldsymbol{z}(t)$ and continuous in depth $t$. 
 
 The definition of a Lipschitz continuous function is referred to the work by \citeauthor{khromov2024Lipschitz} \citeyearpar{khromov2024Lipschitz}.
 \begin{definition}
@@ -523,20 +524,20 @@ The definition of a Lipschitz continuous function is referred to the work by \ci
 
 The Lipschitz condition guarantees that there exists a unique solution curve $\boldsymbol{t}$ for every initial condition $\boldsymbol{z}(0)$. This is known as the Picard–Lindel\"of theorem. Assuming the dynamics function $f$ is smooth, then it is a diffeomorphism, which means we also get the same $\boldsymbol{z}(0)$ by running the \ac{ODE} backwards. Recalling the residual flows, where the Lipschitz constant must be smaller than 1, invertibility is ensured naturally by a smooth and Lipschitz continuous \ac{ODE}. In practice, neural networks with smooth continuous activation functions satisfy this requirement.
 
-\paragraph{Continuous normalizing flows}
+\paragraph{Continuous \acp{NF}}
 Besides for the ODE \ref{eq:cnfode}, the log-density of states changes according to another \ac{ODE}, the instantaneous change-of-variables formula \citep{chen2019node}:
 \begin{equation}
     \label{eq:instchangeofvar}
-    \frac{d\log p(\boldsymbol{z}(t))}{d t}=-\text{Tr}(\frac{d f(\boldsymbol{z}(t),t;\boldsymbol{\theta})}{d \boldsymbol{z}(t)}).
+    \frac{\partial\log p(\boldsymbol{z}(t))}{\partial t}=-\text{Tr}(\frac{\partial f(\boldsymbol{z}(t),t;\boldsymbol{\theta})}{\partial\boldsymbol{z}(t)}).
 \end{equation}
 The trace can be approximated through Skilling-Hutchinson trace estimator \citep{Skilling1989,Hutchinson01011990,adams2018adams}:
 \begin{equation}
-    \text{Tr}(\frac{df}{d\boldsymbol{z}(t)})=\mathbb{E}_{p(\boldsymbol{\epsilon})}[\boldsymbol{\epsilon}^T\frac{df}{d\boldsymbol{z}(t)}\boldsymbol{\epsilon}],
+    \text{Tr}(\frac{\partial f}{\partial \boldsymbol{z}(t)})=\mathbb{E}_{p(\boldsymbol{\epsilon})}[\boldsymbol{\epsilon}^T\frac{\partial f}{\partial \boldsymbol{z}(t)}\boldsymbol{\epsilon}],
 \end{equation}
-where $\boldsymbol{\epsilon}$ is a noise vector sampled from a standard normal distribution and kept unchanged to maintain determinism of the \ac{ODE}. The part of vector-Jacobian product $\boldsymbol{\epsilon}^Tdf/d\boldsymbol{z}(t)$ is computed with automatic differentiation.
+where $\boldsymbol{\epsilon}$ is a noise vector sampled from a standard normal distribution and kept unchanged to maintain determinism of the \ac{ODE}. The part of vector-Jacobian product $\boldsymbol{\epsilon}^T\partial f/\partial \boldsymbol{z}(t)$ is computed with automatic differentiation.
 
-For a continuous normalizing flow between the data distribution $p(\boldsymbol{x})=p(\boldsymbol{z}(t_1))$ and the latent distribution $p_{Z_0}(\boldsymbol{z}_0)=p(\boldsymbol{z}(t_0))=\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$, we define the augmented states as $[\boldsymbol{z}(t), \log p(\boldsymbol{x})-\log p(\boldsymbol{z}(t))]$.
-Then, building the continuous normalizing flow is equivalent to solving the initial value problem \citep{grathwohl2018ffjord}:
+For a continuous \ac{NF} between the data distribution $p(\boldsymbol{x})=p(\boldsymbol{z}(t_1))$ and the latent distribution $p_{Z_0}(\boldsymbol{z}_0)=p(\boldsymbol{z}(t_0))=\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$, we define the augmented states as $[\boldsymbol{z}(t), \log p(\boldsymbol{x})-\log p(\boldsymbol{z}(t))]$.
+Then, building the continuous \ac{NF} is equivalent to solving the initial value problem \citep{grathwohl2018ffjord}:
 \begin{equation}
     \underbrace{\begin{bmatrix}
 \boldsymbol{z}_0 \\
@@ -558,11 +559,14 @@ f(\boldsymbol{z}(t), t; \theta) \\
 0
 \end{bmatrix}.
 \end{equation}
-It is worth noting that the integral is backwards calculated from $t_0$ to $t_1$, meaning from the latent side to the data side. The time span can also be optimized to further improve the computational efficiency \citep{du2022toflow}.
+It is worth noting that the integral is backwards calculated from $t_1$ to $t_0$, meaning from the data side to the latent side. The time span can also be optimized to further improve the computational efficiency \citep{du2022toflow}.
 
-Continuous normalizing flows release the architectural constraints of discrete flows, allowing more flexible and expressive density estimation through the integration of Neural \acp{ODE}. This improved expressiveness, however, comes at a cost: computing the Jacobian trace and solving the associated ODE integrals is significantly more expensive than with stacked coupling flows.
+Continuous \acp{NF} release the architectural constraints of discrete flows, allowing more flexible and expressive density estimation through the integration of Neural \acp{ODE}. This improved expressiveness, however, comes at a cost: computing the Jacobian trace and the associated ODE integrals is significantly more expensive than in stacked coupling flows.
 
-\subsubsection{BayesFlow}
+\subsubsection{Conditional Normalizing Flows}
+Such capabilities of estimating complex densities are desirable in Bayesian inference of the posterior distribution of variables given observations $p(\boldsymbol{x}|\boldsymbol{y})$. Similar to \ac{VAE}, amortized Bayesian inference \citep{radev2021diss} is applied in \ac{NF} to achieve a general posterior estimation across all datapoints. Obtaining the posterior distribution is represented by a conditional density transformation via conditional \acp{NF}.
+
+To configure a conditional \ac{NF}, two questions should be thought in advance: (1) how to integrate the conditions into \acp{NF} while maintaining invertibility; (2) how to handle the latent variables. 
 
 \subsection{From Inference to Control}
 

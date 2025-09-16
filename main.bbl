@@ -1,4 +1,4 @@
-\begin{thebibliography}{68}
+\begin{thebibliography}{74}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -14,6 +14,24 @@ Ryan~P. Adams, Jeffrey Pennington, Matthew~J. Johnson, Jamie Smith, Yaniv Ovadia
 Edward Allen.
 \newblock \emph{Modeling with it\^o stochastic differential equations}, volume~22.
 \newblock Springer, 2007.
+
+\bibitem[{Anantha Padmanabha} and Zabaras(2021)]{govinda2021cinn}
+Govinda {Anantha Padmanabha} and Nicholas Zabaras.
+\newblock Solving inverse problems using conditional invertible neural networks.
+\newblock \emph{Journal of Computational Physics}, 433:\penalty0 110194, 2021.
+\newblock ISSN 0021-9991.
+\newblock \doi{https://doi.org/10.1016/j.jcp.2021.110194}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0021999121000899}.
+
+\bibitem[Ardizzone et~al.(2019{\natexlab{a}})Ardizzone, Kruse, Wirkert, Rahner, Pellegrini, Klessen, Maier-Hein, Rother, and Köthe]{ardizzone2019inn}
+Lynton Ardizzone, Jakob Kruse, Sebastian Wirkert, Daniel Rahner, Eric~W. Pellegrini, Ralf~S. Klessen, Lena Maier-Hein, Carsten Rother, and Ullrich Köthe.
+\newblock Analyzing inverse problems with invertible neural networks, 2019{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/1808.04730}.
+
+\bibitem[Ardizzone et~al.(2019{\natexlab{b}})Ardizzone, Lüth, Kruse, Rother, and Köthe]{ardizzone2019cinn}
+Lynton Ardizzone, Carsten Lüth, Jakob Kruse, Carsten Rother, and Ullrich Köthe.
+\newblock Guided image generation with conditional invertible neural networks, 2019{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/1907.02392}.
 
 \bibitem[Asperti(2020)]{asperti2020vae}
 Andrea Asperti.
@@ -247,6 +265,11 @@ Ivan Kobyzev, Simon~J.D. Prince, and Marcus~A. Brubaker.
 \newblock \doi{10.1109/tpami.2020.2992934}.
 \newblock URL \url{http://dx.doi.org/10.1109/TPAMI.2020.2992934}.
 
+\bibitem[Kruse et~al.(2021)Kruse, Detommaso, Köthe, and Scheichl]{kruse2021hint}
+Jakob Kruse, Gianluca Detommaso, Ullrich Köthe, and Robert Scheichl.
+\newblock Hint: Hierarchical invertible neural transport for density estimation and bayesian inference, 2021.
+\newblock URL \url{https://arxiv.org/abs/1905.10687}.
+
 \bibitem[Kullback and Leibler(1951)]{kl1951}
 S.~Kullback and R.~A. Leibler.
 \newblock On information and sufficiency.
@@ -349,6 +372,11 @@ Stefan Radev.
 \newblock Deep learning architectures for amortized bayesian inference in cognitive modeling, 2021.
 \newblock URL \url{https://archiv.ub.uni-heidelberg.de/volltextserver/id/eprint/30807}.
 
+\bibitem[Radev et~al.(2020)Radev, Mertens, Voss, Ardizzone, and Köthe]{radev2020bayesflow}
+Stefan~T. Radev, Ulf~K. Mertens, Andreas Voss, Lynton Ardizzone, and Ullrich Köthe.
+\newblock Bayesflow: Learning complex stochastic models with invertible neural networks, 2020.
+\newblock URL \url{https://arxiv.org/abs/2003.06281}.
+
 \bibitem[Rasmussen and Williams(2008)]{Rasmussen_Williams_2008}
 Carl~Edward Rasmussen and Christopher K.~I. Williams.
 \newblock \emph{Gaussian processes for machine learning}.
@@ -414,5 +442,10 @@ Martin~J Wainwright and Michael~I Jordan.
 Yixin Wang, David~M. Blei, and John~P. Cunningham.
 \newblock Posterior collapse and latent variable non-identifiability, 2023.
 \newblock URL \url{https://arxiv.org/abs/2301.00537}.
+
+\bibitem[Winkler et~al.(2023)Winkler, Worrall, Hoogeboom, and Welling]{winkler2023cnf}
+Christina Winkler, Daniel Worrall, Emiel Hoogeboom, and Max Welling.
+\newblock Learning likelihoods with conditional normalizing flows, 2023.
+\newblock URL \url{https://arxiv.org/abs/1912.00042}.
 
 \end{thebibliography}

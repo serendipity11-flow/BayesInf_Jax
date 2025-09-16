@@ -14,6 +14,7 @@
 \usepackage[protrusion=true,expansion=true]{microtype}
 \renewcommand{\thesection}{\arabic{section}}
 \renewcommand{\thechapter}{\Roman{chapter}}
+\usepackage[hidelinks, bookmarks=true, bookmarksopen=true, bookmarksopenlevel=4]{hyperref} % add [hidelinks] in the end to suppress the ugly boxes :)
 \usepackage{titlesec}
 \titleformat{\paragraph}[block]{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
 \setcounter{tocdepth}{3}
@@ -104,8 +105,6 @@
 
 \usepackage{textcomp}
 \usepackage{xurl}
-\usepackage[hidelinks]{hyperref} % add [hidelinks] in the end to suppress the ugly boxes :)
-%\usepackage[onehalfspacing]{setspace}
 \usepackage{setspace}
 \setstretch{1,1}
 

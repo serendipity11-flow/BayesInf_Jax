@@ -607,11 +607,53 @@ An essential goal of system modeling and identification is to provide a rigorous
     p(\mathcal{D}_{(t_1:t_N)}|\mathcal{D}_{t_0})=\prod _{n=1}^{N}p(\boldsymbol{y}_{t_n}|\boldsymbol{u}_{t_n}, \mathcal{D}_{t_{n-1}})p(\boldsymbol{u}_{t_n}|\mathcal{D}_{t_{n-1}}),
 \end{equation}
 where $\mathcal{D}_{t_n}$ denotes the input-output pair at the time step $t_n$, i.e.,$\mathcal{D}_{t_n}=\{\boldsymbol{u}_{t_n}, \boldsymbol{y}_{t_n}\}$.
-The conditional probability density $p(u_{t_n}|\mathcal{D}_{t_{n-1}})$ describes the process of determining the input $\boldsymbol{u}_{t_n}$ on the basis of the known past history. The left part $p(\boldsymbol{y}_{t_n}|\boldsymbol{u}_{t_n}, \mathcal{D}_{t_{n-1}})$ represents the dependence of the output on the corresponding input and the known past history, which can be interpreted as a system model or function to predict output with given control input.
+The conditional probability density $p(u_{t_n}|\mathcal{D}_{t_{n-1}})$ describes the process of determining the input $\boldsymbol{u}_{t_n}$ on the basis of the known past history. The left part $p(\boldsymbol{y}_{t_n}|\boldsymbol{u}_{t_n}, \mathcal{D}_{t_{n-1}})$ represents the dependence of the output on the corresponding input and the known past history, which can be interpreted as a system model or function to predict output with given control input. Identifying this system consists of two steps: model selection and parameter identification. The process of finding the most plausible model from a group of candidates is model selection. Then, system identification focuses on inferring parameters of a chosen system model.
+\paragraph{Bayesian model selection}
+Among different model structures $\{\mathcal{M}_i\}$, $i=1,\ldots|,\mathcal{M}|$, the probability density of the model $\mathcal{M}_i$ given the data $\mathcal{D}$ measures whether the model is suitable for the dataset, which can also be written using Bayes’ theorem:
+\begin{equation}
+    p(\mathcal{M}_i|\mathcal{D})=\frac{p(\mathcal{D}|\mathcal{M}_i)p(\mathcal{M}_i)}{p(\mathcal{D})}.
+\end{equation}
+Model selection is also as known as model comparison. The relative probability density of two different models given same data $\mathcal{D}$ is:
+\begin{equation}
+    \frac{p(\mathcal{M}_i|\mathcal{D})}{p(\mathcal{M}_j|\mathcal{D})} = \frac{p(\mathcal{D}|\mathcal{M}_j)p(\mathcal{M}_j)}{p(\mathcal{D}|\mathcal{M}_j)p(\mathcal{M}_j)}.
+\end{equation}
+Since a model has multiple undetermined parameters, the distribution $p(\mathcal{D}|\mathcal{M})$ is obtained by integral of all variants of parameters. The integral is usually untractable. Instead, \ac{DIC} \citep{Spiegelhalter2002,Spiegelhalter2014, li2025DIC} is applied as the model selection criterion. A deviance is defined as follows:
+\begin{equation}
+    \text{dev}(\boldsymbol{\theta}) = -2\log p(\mathcal{D}|\boldsymbol{\theta}, \mathcal{M}),
+\end{equation}
+where $\boldsymbol{\theta}$ denotes the parameters of the model $\mathcal{M}$. Then, the \ac{DIC} is defined as:
+\begin{equation}
+    \text{DIC}(\mathcal{M}) = \mathbb{E}_{\mathcal{M}}[\text{dev}(\boldsymbol{\theta})] + P_D(\mathcal{M}),
+\end{equation}
+where the first term is interpreted as a Bayesian measure of model fit:
+    \begin{equation}
+        \mathbb{E}_{\mathcal{M}}[\text{dev}(\boldsymbol{\theta})] = \int p(\boldsymbol{\theta}|\mathcal{D}, \mathcal{M})\text{dev}(\boldsymbol{\theta})d\boldsymbol{\theta},
+    \end{equation}
+and the second term is used to measure the model complexity:
+    \begin{equation}
+        P_D(\mathcal{M}) = \mathbb{E}[\text{dev}(\boldsymbol{\theta})] - \text{dev}(\overline{\boldsymbol{\theta}}),\quad \overline{\boldsymbol{\theta}}=\int p(\boldsymbol{\theta}|\mathcal{D},\mathcal{M})\boldsymbol{\theta}d\boldsymbol{\theta}.
+    \end{equation}
+The posterior $p(\boldsymbol{\theta}|\mathcal{D},\mathcal{M})$ is obtained by \ac{MCMC}.
+\ac{DIC} balances the goodness of fit (how well the model explains the data) and the model complexity (the number of parameters in the model). A lower \ac{DIC} value indicates better model fit for the given dataset. 
 
-The process of finding the most plausible model from a group of candidates is model selection. Here, Bayesian system identification focuses on inferring parameters of a chosen system model, which can be formulated by
+\paragraph{Bayesian Parameter Identification}
+Define a chosen system model with unknown parameters $\boldsymbol{\theta}$:
+\begin{equation}
+    \boldsymbol{y}_t=f(\boldsymbol{u}_t, \boldsymbol{\theta})+\boldsymbol{\epsilon}_t.
+\end{equation}
+The optimal parameters are selected by \ac{MAP} estimation:
+\begin{equation}
+    \boldsymbol{\theta}^*_{MAP}=\arg \max_{\boldsymbol{\theta}}p(\boldsymbol{\theta}|\mathcal{D}).
+\end{equation}
+Applying Bayes' rule (\ref{eq:bayes}), it becomes:
+\begin{equation}
+    \boldsymbol{\theta}^*_{MAP}=\arg \max_{\boldsymbol{\theta}}[\prod_{\{\boldsymbol{u}_i,\boldsymbol{y}_i\}\in\mathcal{D}} p(\boldsymbol{y}_i|\boldsymbol{u}_i,\boldsymbol{\theta})]p(\boldsymbol{\theta}),
+\end{equation}
+where $p(\mathcal{D})$ is dropped off since it is a constant with respect to $\boldsymbol{\theta}$. The noise $\boldsymbol{\epsilon}$ is commonly assumed to be Gaussian. Thus, the distribution $p(\boldsymbol{y}_i|\boldsymbol{u}_i,\boldsymbol{\theta})$ has a closed form, which makes this term equivalent to a weighted mean squared error. The term of the prior density $p(\boldsymbol{symbol})$ performs as $L2$ regularization.
+On top of the estimate of parameters, the confidence interval of parameters can also be obtained from the posterior distribution.
 
 \subsubsection{Bayesian State Estimation}
+Applying the estimated posterior again as a prior, and updating the posterior with new data, this is the basic idea of Bayesian state estimation. State estimation involves inference of the internal system states, which are not directly measurable. 
 
 \subsubsection{Model-free Control}
 

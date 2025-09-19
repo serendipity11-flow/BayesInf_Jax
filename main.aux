@@ -47,6 +47,8 @@
 \newacro{cINN}[\AC@hyperlink{cINN}{cINN}]{conditional Invertible Neural Network}
 \newacro{HINT}[\AC@hyperlink{HINT}{HINT}]{Hierarchical Invertible Neural Transport}
 \newacro{MPC}[\AC@hyperlink{MPC}{MPC}]{Model Predictive Control}
+\newacro{DIC}[\AC@hyperlink{DIC}{DIC}]{Deviance Information Criterion}
+\newacro{MAP}[\AC@hyperlink{MAP}{MAP}]{maximum a posteriori}
 \@writefile{toc}{\contentsline {chapter}{List of Figures}{iv}{section*.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {chapter}{List of Tables}{vii}{section*.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {chapter}{\numberline {I}Introduction}{1}{chapter.1}\protected@file@percent }
@@ -441,69 +443,82 @@
 \acronymused{cINN}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}From Inference to Control}{27}{subsection.1.2.5}\protected@file@percent }
 \citation{BayesSysId1981}
+\citation{Spiegelhalter2002,Spiegelhalter2014,li2025DIC}
 \acronymused{MPC}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.1}Bayesian System Identification}{28}{subsubsection.1.2.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.2}Bayesian State Estimation}{28}{subsubsection.1.2.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.3}Model-free Control}{28}{subsubsection.1.2.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.4}Model Predictive Control}{28}{subsubsection.1.2.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Literature Review}{29}{section.1.3}\protected@file@percent }
-\newlabel{sec:introduction:literature_review}{{3}{29}{Literature Review}{section.1.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Deep Probabilistic Models for Bayesian Inference}{29}{subsection.1.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Conditional Normalizing Flows}{29}{subsection.1.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Bayesian Approaches for System Identification and State Estimation}{29}{subsection.1.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Data-driven Control}{29}{subsection.1.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Objectives and Contributions}{30}{section.1.4}\protected@file@percent }
-\newlabel{sec:introduction:objectives}{{4}{30}{Objectives and Contributions}{section.1.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Outline}{31}{section.1.5}\protected@file@percent }
-\newlabel{sec:introduction:outline}{{5}{31}{Outline}{section.1.5}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {II}Methodologies}{33}{chapter.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Bayesian model selection}{28}{equation.1.69}\protected@file@percent }
+\AC@undonewlabel{acro:DIC}
+\newlabel{acro:DIC}{{2.5.1}{28}{Bayesian model selection}{section*.37}{}}
+\acronymused{DIC}
+\acronymused{DIC}
+\acronymused{MCMC}
+\acronymused{DIC}
+\acronymused{DIC}
+\@writefile{toc}{\contentsline {paragraph}{Bayesian Parameter Identification}{29}{equation.1.75}\protected@file@percent }
+\AC@undonewlabel{acro:MAP}
+\newlabel{acro:MAP}{{2.5.1}{29}{Bayesian Parameter Identification}{section*.38}{}}
+\acronymused{MAP}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.2}Bayesian State Estimation}{30}{subsubsection.1.2.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.3}Model-free Control}{30}{subsubsection.1.2.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.4}Model Predictive Control}{30}{subsubsection.1.2.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Literature Review}{31}{section.1.3}\protected@file@percent }
+\newlabel{sec:introduction:literature_review}{{3}{31}{Literature Review}{section.1.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Deep Probabilistic Models for Bayesian Inference}{31}{subsection.1.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Conditional Normalizing Flows}{31}{subsection.1.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Bayesian Approaches for System Identification and State Estimation}{31}{subsection.1.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Data-driven Control}{31}{subsection.1.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Objectives and Contributions}{32}{section.1.4}\protected@file@percent }
+\newlabel{sec:introduction:objectives}{{4}{32}{Objectives and Contributions}{section.1.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Outline}{33}{section.1.5}\protected@file@percent }
+\newlabel{sec:introduction:outline}{{5}{33}{Outline}{section.1.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {II}Methodologies}{35}{chapter.2}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:methods}{{II}{33}{Methodologies}{chapter.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{33}{section.2.1}\protected@file@percent }
-\newlabel{sec:methods:parameter_identification}{{1}{33}{Parameter Identification}{section.2.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Dynamics Identification}{34}{section.2.2}\protected@file@percent }
-\newlabel{sec:methods:dynamics_identification}{{2}{34}{Dynamics Identification}{section.2.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{35}{section.2.3}\protected@file@percent }
-\newlabel{sec:methods:state_estimation}{{3}{35}{State Estimation}{section.2.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Data-driven Control}{36}{section.2.4}\protected@file@percent }
-\newlabel{sec:methods:mpc}{{4}{36}{Data-driven Control}{section.2.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {III}Experiments and Results}{37}{chapter.3}\protected@file@percent }
+\newlabel{chap:methods}{{II}{35}{Methodologies}{chapter.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{35}{section.2.1}\protected@file@percent }
+\newlabel{sec:methods:parameter_identification}{{1}{35}{Parameter Identification}{section.2.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Dynamics Identification}{36}{section.2.2}\protected@file@percent }
+\newlabel{sec:methods:dynamics_identification}{{2}{36}{Dynamics Identification}{section.2.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{37}{section.2.3}\protected@file@percent }
+\newlabel{sec:methods:state_estimation}{{3}{37}{State Estimation}{section.2.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Data-driven Control}{38}{section.2.4}\protected@file@percent }
+\newlabel{sec:methods:mpc}{{4}{38}{Data-driven Control}{section.2.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {III}Experiments and Results}{39}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:experiments}{{III}{37}{Experiments and Results}{chapter.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{37}{section.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{37}{section.3.2}\protected@file@percent }
-\newlabel{sec:experiments:parameter_identification}{{2}{37}{Parameter Identification}{section.3.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Dynamics Identification}{37}{section.3.3}\protected@file@percent }
-\newlabel{sec:experiments:dynamics_identification}{{3}{37}{Dynamics Identification}{section.3.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}State Estimation}{37}{section.3.4}\protected@file@percent }
-\newlabel{sec:experiments:state_estimation}{{4}{37}{State Estimation}{section.3.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Data-driven Control}{37}{section.3.5}\protected@file@percent }
-\newlabel{sec:experiments:mpc}{{5}{37}{Data-driven Control}{section.3.5}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {IV}Discussion and Conclusion}{39}{chapter.4}\protected@file@percent }
+\newlabel{chap:experiments}{{III}{39}{Experiments and Results}{chapter.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{39}{section.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{39}{section.3.2}\protected@file@percent }
+\newlabel{sec:experiments:parameter_identification}{{2}{39}{Parameter Identification}{section.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Dynamics Identification}{39}{section.3.3}\protected@file@percent }
+\newlabel{sec:experiments:dynamics_identification}{{3}{39}{Dynamics Identification}{section.3.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}State Estimation}{39}{section.3.4}\protected@file@percent }
+\newlabel{sec:experiments:state_estimation}{{4}{39}{State Estimation}{section.3.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Data-driven Control}{39}{section.3.5}\protected@file@percent }
+\newlabel{sec:experiments:mpc}{{5}{39}{Data-driven Control}{section.3.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {IV}Discussion and Conclusion}{41}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{IV}{39}{Discussion and Conclusion}{chapter.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {V}Abstract}{41}{chapter.5}\protected@file@percent }
+\newlabel{chap:conclusion}{{IV}{41}{Discussion and Conclusion}{chapter.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {V}Abstract}{43}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {VI}Zusammenfassung}{43}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {VI}Zusammenfassung}{45}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{Bibliography}{44}{section*.37}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{45}{section*.37}\protected@file@percent }
-\newlabel{chap:contributions}{{VI}{45}{Zusammenfassung}{section*.37}{}}
-\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{45}{section*.38}\protected@file@percent }
-\newlabel{sec:own-data-acquisition}{{VI}{45}{}{section*.38}{}}
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{45}{section*.38}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{45}{section*.38}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Own Publications}{45}{section*.38}\protected@file@percent }
-\newlabel{sec:own-publications}{{VI}{45}{}{section*.38}{}}
-\newlabel{sec:publications:peer_reviewed_journal_first}{{VI}{45}{}{section*.38}{}}
-\newlabel{sec:publications:peer_reviewed_conf_first}{{VI}{45}{}{section*.38}{}}
+\@writefile{toc}{\contentsline {chapter}{Bibliography}{46}{section*.39}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{47}{section*.39}\protected@file@percent }
+\newlabel{chap:contributions}{{VI}{47}{Zusammenfassung}{section*.39}{}}
+\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{47}{section*.40}\protected@file@percent }
+\newlabel{sec:own-data-acquisition}{{VI}{47}{}{section*.40}{}}
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{47}{section*.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{47}{section*.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Own Publications}{47}{section*.40}\protected@file@percent }
+\newlabel{sec:own-publications}{{VI}{47}{}{section*.40}{}}
+\newlabel{sec:publications:peer_reviewed_journal_first}{{VI}{47}{}{section*.40}{}}
+\newlabel{sec:publications:peer_reviewed_conf_first}{{VI}{47}{}{section*.40}{}}
 \bibdata{refs}
-\newlabel{sec:publications:other_co}{{VI}{46}{}{section*.38}{}}
+\newlabel{sec:publications:other_co}{{VI}{48}{}{section*.40}{}}
 \bibcite{adams2018adams}{{1}{2018}{{Adams et~al.}}{{Adams, Pennington, Johnson, Smith, Ovadia, Patton, and Saunderson}}}
 \bibcite{Allen_2007}{{2}{2007}{{Allen}}{{}}}
 \bibcite{govinda2021cinn}{{3}{2021}{{{Anantha Padmanabha} and Zabaras}}{{}}}
@@ -549,39 +564,42 @@
 \bibcite{kobyzev2021nfsreview}{{43}{2021}{{Kobyzev et~al.}}{{Kobyzev, Prince, and Brubaker}}}
 \bibcite{kruse2021hint}{{44}{2021}{{Kruse et~al.}}{{Kruse, Detommaso, Köthe, and Scheichl}}}
 \bibcite{kl1951}{{45}{1951}{{Kullback and Leibler}}{{}}}
-\bibcite{lu2020finitelayer}{{46}{2020}{{Lu et~al.}}{{Lu, Zhong, Li, and Dong}}}
-\bibcite{MacKay1992}{{47}{1995}{{MacKay}}{{}}}
-\bibcite{margossian2024amortized}{{48}{2024}{{Margossian and Blei}}{{}}}
-\bibcite{martínezpalomera2020pelsvae}{{49}{2020}{{Martínez-Palomera et~al.}}{{Martínez-Palomera, Bloom, and Abrahams}}}
-\bibcite{mccarthy2020cvae}{{50}{2020}{{McCarthy et~al.}}{{McCarthy, Li, Gu, and Dong}}}
-\bibcite{Metropolis}{{51}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
-\bibcite{Mienye2025}{{52}{2025}{{Mienye and Swart}}{{}}}
-\bibcite{pml1Book}{{53}{2022}{{Murphy}}{{}}}
-\bibcite{pml2Book}{{54}{2023}{{Murphy}}{{}}}
-\bibcite{müller2024transbi}{{55}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
-\bibcite{Neal1996}{{56}{1996}{{Neal}}{{}}}
-\bibcite{PANIAGUA2024200344}{{57}{2024}{{Paniagua and López}}{{}}}
-\bibcite{papamakarios2018maf}{{58}{2018}{{Papamakarios et~al.}}{{Papamakarios, Pavlakou, and Murray}}}
-\bibcite{papamakarios2021nf}{{59}{2021}{{Papamakarios et~al.}}{{Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan}}}
-\bibcite{BayesSysId1981}{{60}{1981}{{Peterka}}{{}}}
-\bibcite{radev2021diss}{{61}{2021}{{Radev}}{{}}}
-\bibcite{radev2020bayesflow}{{62}{2020}{{Radev et~al.}}{{Radev, Mertens, Voss, Ardizzone, and Köthe}}}
-\bibcite{Rasmussen_Williams_2008}{{63}{2008}{{Rasmussen and Williams}}{{}}}
-\bibcite{rezende2016}{{64}{2016}{{Rezende and Mohamed}}{{}}}
-\bibcite{awesomenfs}{{65}{2023}{{Riebesell et~al.}}{{Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}}}}
-\bibcite{ruthotto2018deep}{{66}{2018}{{Ruthotto and Haber}}{{}}}
-\bibcite{changeofvariables}{{67}{1954}{{Schwartz}}{{}}}
-\bibcite{shridhar2019bcnn}{{68}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
-\bibcite{silvestro2020prior}{{69}{2020}{{Silvestro and Andermann}}{{}}}
-\bibcite{Skilling1989}{{70}{1989}{{Skilling}}{{}}}
-\bibcite{sohn2015cvae}{{71}{2015}{{Sohn et~al.}}{{Sohn, Lee, and Yan}}}
-\bibcite{sarkka2019gp}{{72}{2019}{{Särkkä}}{{}}}
-\bibcite{Wainwright2008}{{73}{2008}{{Wainwright and Jordan}}{{}}}
-\bibcite{wang2023vae}{{74}{2023}{{Wang et~al.}}{{Wang, Blei, and Cunningham}}}
-\bibcite{winkler2023cnf}{{75}{2023}{{Winkler et~al.}}{{Winkler, Worrall, Hoogeboom, and Welling}}}
-\@writefile{toc}{\contentsline {chapter}{Curriculum Vitae}{54}{section*.39}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Appendix}{57}{section*.39}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{59}{section*.39}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{61}{section*.39}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{63}{Item.12}\protected@file@percent }
-\gdef \@abspage@last{82}
+\bibcite{li2025DIC}{{46}{2025}{{Li et~al.}}{{Li, Mallick, Wang, Yu, and Zeng}}}
+\bibcite{lu2020finitelayer}{{47}{2020}{{Lu et~al.}}{{Lu, Zhong, Li, and Dong}}}
+\bibcite{MacKay1992}{{48}{1995}{{MacKay}}{{}}}
+\bibcite{margossian2024amortized}{{49}{2024}{{Margossian and Blei}}{{}}}
+\bibcite{martínezpalomera2020pelsvae}{{50}{2020}{{Martínez-Palomera et~al.}}{{Martínez-Palomera, Bloom, and Abrahams}}}
+\bibcite{mccarthy2020cvae}{{51}{2020}{{McCarthy et~al.}}{{McCarthy, Li, Gu, and Dong}}}
+\bibcite{Metropolis}{{52}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
+\bibcite{Mienye2025}{{53}{2025}{{Mienye and Swart}}{{}}}
+\bibcite{pml1Book}{{54}{2022}{{Murphy}}{{}}}
+\bibcite{pml2Book}{{55}{2023}{{Murphy}}{{}}}
+\bibcite{müller2024transbi}{{56}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
+\bibcite{Neal1996}{{57}{1996}{{Neal}}{{}}}
+\bibcite{PANIAGUA2024200344}{{58}{2024}{{Paniagua and López}}{{}}}
+\bibcite{papamakarios2018maf}{{59}{2018}{{Papamakarios et~al.}}{{Papamakarios, Pavlakou, and Murray}}}
+\bibcite{papamakarios2021nf}{{60}{2021}{{Papamakarios et~al.}}{{Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan}}}
+\bibcite{BayesSysId1981}{{61}{1981}{{Peterka}}{{}}}
+\bibcite{radev2021diss}{{62}{2021}{{Radev}}{{}}}
+\bibcite{radev2020bayesflow}{{63}{2020}{{Radev et~al.}}{{Radev, Mertens, Voss, Ardizzone, and Köthe}}}
+\bibcite{Rasmussen_Williams_2008}{{64}{2008}{{Rasmussen and Williams}}{{}}}
+\bibcite{rezende2016}{{65}{2016}{{Rezende and Mohamed}}{{}}}
+\bibcite{awesomenfs}{{66}{2023}{{Riebesell et~al.}}{{Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}}}}
+\bibcite{ruthotto2018deep}{{67}{2018}{{Ruthotto and Haber}}{{}}}
+\bibcite{changeofvariables}{{68}{1954}{{Schwartz}}{{}}}
+\bibcite{shridhar2019bcnn}{{69}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
+\bibcite{silvestro2020prior}{{70}{2020}{{Silvestro and Andermann}}{{}}}
+\bibcite{Skilling1989}{{71}{1989}{{Skilling}}{{}}}
+\bibcite{sohn2015cvae}{{72}{2015}{{Sohn et~al.}}{{Sohn, Lee, and Yan}}}
+\bibcite{Spiegelhalter2002}{{73}{2002}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and Van Der~Linde}}}
+\bibcite{Spiegelhalter2014}{{74}{2014}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and van~der Linde}}}
+\bibcite{sarkka2019gp}{{75}{2019}{{Särkkä}}{{}}}
+\bibcite{Wainwright2008}{{76}{2008}{{Wainwright and Jordan}}{{}}}
+\bibcite{wang2023vae}{{77}{2023}{{Wang et~al.}}{{Wang, Blei, and Cunningham}}}
+\bibcite{winkler2023cnf}{{78}{2023}{{Winkler et~al.}}{{Winkler, Worrall, Hoogeboom, and Welling}}}
+\@writefile{toc}{\contentsline {chapter}{Curriculum Vitae}{56}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Appendix}{59}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{61}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{63}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{65}{Item.12}\protected@file@percent }
+\gdef \@abspage@last{84}

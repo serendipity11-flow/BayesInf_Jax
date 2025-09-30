@@ -1,6 +1,6 @@
 \babel@toc {english}{}\relax 
 \contentsline {chapter}{Acronyms}{i}{Doc-Start}%
-\contentsline {chapter}{List of Figures}{iv}{section*.1}%
+\contentsline {chapter}{List of Figures}{v}{section*.1}%
 \contentsline {chapter}{List of Tables}{vii}{section*.1}%
 \contentsline {chapter}{\numberline {I}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1}Motivation}{1}{section.1.1}%
@@ -31,37 +31,37 @@
 \contentsline {paragraph}{Bayesian model selection}{28}{equation.1.69}%
 \contentsline {paragraph}{Bayesian Parameter Identification}{29}{equation.1.75}%
 \contentsline {subsubsection}{\numberline {2.5.2}Bayesian State Estimation}{30}{subsubsection.1.2.5.2}%
-\contentsline {subsubsection}{\numberline {2.5.3}Model-free Control}{30}{subsubsection.1.2.5.3}%
-\contentsline {subsubsection}{\numberline {2.5.4}Model Predictive Control}{30}{subsubsection.1.2.5.4}%
-\contentsline {section}{\numberline {3}Literature Review}{31}{section.1.3}%
-\contentsline {subsection}{\numberline {3.1}Deep Probabilistic Models for Bayesian Inference}{31}{subsection.1.3.1}%
-\contentsline {subsection}{\numberline {3.2}Conditional Normalizing Flows}{31}{subsection.1.3.2}%
-\contentsline {subsection}{\numberline {3.3}Bayesian Approaches for System Identification and State Estimation}{31}{subsection.1.3.3}%
-\contentsline {subsection}{\numberline {3.4}Data-driven Control}{31}{subsection.1.3.4}%
-\contentsline {section}{\numberline {4}Objectives and Contributions}{32}{section.1.4}%
-\contentsline {section}{\numberline {5}Outline}{33}{section.1.5}%
-\contentsline {chapter}{\numberline {II}Methodologies}{35}{chapter.2}%
-\contentsline {section}{\numberline {1}Parameter Identification}{35}{section.2.1}%
-\contentsline {section}{\numberline {2}Dynamics Identification}{36}{section.2.2}%
-\contentsline {section}{\numberline {3}State Estimation}{37}{section.2.3}%
-\contentsline {section}{\numberline {4}Data-driven Control}{38}{section.2.4}%
-\contentsline {chapter}{\numberline {III}Experiments and Results}{39}{chapter.3}%
-\contentsline {section}{\numberline {1}Overview}{39}{section.3.1}%
-\contentsline {section}{\numberline {2}Parameter Identification}{39}{section.3.2}%
-\contentsline {section}{\numberline {3}Dynamics Identification}{39}{section.3.3}%
-\contentsline {section}{\numberline {4}State Estimation}{39}{section.3.4}%
-\contentsline {section}{\numberline {5}Data-driven Control}{39}{section.3.5}%
-\contentsline {chapter}{\numberline {IV}Discussion and Conclusion}{41}{chapter.4}%
-\contentsline {chapter}{\numberline {V}Abstract}{43}{chapter.5}%
-\contentsline {chapter}{\numberline {VI}Zusammenfassung}{45}{chapter.6}%
-\contentsline {chapter}{Bibliography}{46}{section*.39}%
-\contentsline {chapter}{Own Contributions and Publications}{47}{section*.39}%
-\contentsline {section}{Own share in data acquisition and data analysis}{47}{section*.40}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{47}{section*.40}%
-\contentsline {paragraph}{Own share in Data Analysis.}{47}{section*.40}%
-\contentsline {section}{Own Publications}{47}{section*.40}%
-\contentsline {chapter}{Curriculum Vitae}{56}{section*.41}%
-\contentsline {chapter}{Appendix}{59}{section*.41}%
-\contentsline {chapter}{Acknowledgement}{61}{section*.41}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{63}{section*.41}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{65}{Item.12}%
+\contentsline {subsubsection}{\numberline {2.5.3}Model-free Reinforcement Learning}{32}{subsubsection.1.2.5.3}%
+\contentsline {subsubsection}{\numberline {2.5.4}Model Predictive Control}{33}{subsubsection.1.2.5.4}%
+\contentsline {section}{\numberline {3}Literature Review}{34}{section.1.3}%
+\contentsline {subsection}{\numberline {3.1}Deep Probabilistic Models for Bayesian Inference}{34}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {3.2}Conditional Normalizing Flows}{34}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {3.3}Bayesian Approaches for System Identification and State Estimation}{34}{subsection.1.3.3}%
+\contentsline {subsection}{\numberline {3.4}Data-driven Control}{34}{subsection.1.3.4}%
+\contentsline {section}{\numberline {4}Objectives and Contributions}{35}{section.1.4}%
+\contentsline {section}{\numberline {5}Outline}{36}{section.1.5}%
+\contentsline {chapter}{\numberline {II}Methodologies}{37}{chapter.2}%
+\contentsline {section}{\numberline {1}Parameter Identification}{37}{section.2.1}%
+\contentsline {section}{\numberline {2}Dynamics Identification}{38}{section.2.2}%
+\contentsline {section}{\numberline {3}State Estimation}{39}{section.2.3}%
+\contentsline {section}{\numberline {4}Data-driven Control}{40}{section.2.4}%
+\contentsline {chapter}{\numberline {III}Experiments and Results}{41}{chapter.3}%
+\contentsline {section}{\numberline {1}Overview}{41}{section.3.1}%
+\contentsline {section}{\numberline {2}Parameter Identification}{41}{section.3.2}%
+\contentsline {section}{\numberline {3}Dynamics Identification}{41}{section.3.3}%
+\contentsline {section}{\numberline {4}State Estimation}{41}{section.3.4}%
+\contentsline {section}{\numberline {5}Data-driven Control}{41}{section.3.5}%
+\contentsline {chapter}{\numberline {IV}Discussion and Conclusion}{43}{chapter.4}%
+\contentsline {chapter}{\numberline {V}Abstract}{45}{chapter.5}%
+\contentsline {chapter}{\numberline {VI}Zusammenfassung}{47}{chapter.6}%
+\contentsline {chapter}{Bibliography}{48}{section*.45}%
+\contentsline {chapter}{Own Contributions and Publications}{49}{section*.45}%
+\contentsline {section}{Own share in data acquisition and data analysis}{49}{section*.46}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{49}{section*.46}%
+\contentsline {paragraph}{Own share in Data Analysis.}{49}{section*.46}%
+\contentsline {section}{Own Publications}{49}{section*.46}%
+\contentsline {chapter}{Curriculum Vitae}{59}{section*.47}%
+\contentsline {chapter}{Appendix}{61}{section*.47}%
+\contentsline {chapter}{Acknowledgement}{63}{section*.47}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{65}{section*.47}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{67}{Item.12}%

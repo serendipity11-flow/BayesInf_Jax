@@ -84,12 +84,10 @@ Rearranging the terms gives Bayes' rule or Bayes' theorem:
 \end{equation}
 In Bayes' theorem, $p(\boldsymbol{\theta})$ is the initial distribution of the variables before any data samples are considered, which is called the prior distribution. $p(\boldsymbol{\theta}|\mathcal{D})$ is the posterior distribution of the target parameter after being updated by the observed data. $p(\mathcal{D}|\boldsymbol{\theta})$ is the likelihood of expected data given the setting of parameters $\boldsymbol{\theta}$. $p(\mathcal{D})$ is called the marginal likelihood or evidence of expected data across all possible parameter settings:
 \begin{subequations}
-    \begin{equation}
-    p(\mathcal{D}) = \Sigma_{\boldsymbol{\theta}'}p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')\Delta \boldsymbol{\theta}',
-    \end{equation}
-    \begin{equation}
-    p(\mathcal{D}) = \int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'.
-    \end{equation}
+    \begin{align}
+    p(\mathcal{D}) &= \Sigma_{\boldsymbol{\theta}'}p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')\Delta \boldsymbol{\theta}',\\
+    p(\mathcal{D}) &= \int p(D|\boldsymbol{\theta}')p(\boldsymbol{\theta}')d\boldsymbol{\theta}'.
+    \end{align}
 \end{subequations}
 In practice, it is often treated as a normalizing constant and ignored. The unnormalized posterior is then given by:
 \begin{equation}
@@ -181,7 +179,7 @@ Substituting Bayes' rule (\ref{eq:bayes}) into \ac{KL}-divergence, we have:
 \end{equation}
 The marginal likelihood $p(\mathcal{D})$ is usually intractable, as it involves integrating over all possible parameter settings. Therefore, the divergence cannot be computed directly.
 
-Expanding the above equation and extending it with the definition of \ac{KL}-divergence, we have:
+Expanding the above equation with the definition of \ac{KL}-divergence, we have:
 \begin{multline}
     D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) || p(\boldsymbol{\theta}|\mathcal{D})) = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}[\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta}) - \log p(\mathcal{D}|\boldsymbol{\theta}) - \log p(\boldsymbol{\theta}) + \log p(\mathcal{D})]\\
     = \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}|\boldsymbol{\theta})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}) + \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}).
@@ -327,14 +325,12 @@ diverse applications, such as representation learning, anomaly detection, and ge
 \subsubsection{Basics}
 We simplify a \ac{NF} as an invertible and differentiable function $f:\mathbb{R}^D\rightarrow\mathbb{R}^D$ (as known as a diffeomorphism) that maps a random variable $\boldsymbol{z}$ in latent space to another random variable $\boldsymbol{x}$ in data space:
 \begin{subequations}
-    \begin{equation}
+    \begin{align}
         \label{eq:xfz}
-        \boldsymbol{x} = f(\boldsymbol{z}),
-    \end{equation}
-    \begin{equation}
+        \boldsymbol{x} &= f(\boldsymbol{z}),\\
         \label{eq:zfx}
-        \boldsymbol{z} = f^{-1}(\boldsymbol{x}).
-    \end{equation}
+        \boldsymbol{z} &= f^{-1}(\boldsymbol{x}).
+    \end{align}
 \end{subequations}
 The variable $\boldsymbol{x}$ follows an underlying distribution of data $p_X(\boldsymbol{x})$. The variable $\boldsymbol{z}$ is drawn from a simple base distribution $p_Z(\boldsymbol{z})$, such as a standard normal distribution. Understanding the transformation between the two density functions is essential for comprehending \acp{NF}. 
 \paragraph{Change of Variables}
@@ -354,13 +350,11 @@ For a measurement set $A$ for the variable $\boldsymbol{x}$, the distribution is
 \end{equation}
 Applying the Equation \ref{eq:zfx}, we have:
 \begin{subequations}
-    \begin{equation}
-        P(X\in A)=P(Z\in f^{-1}(A)),
-    \end{equation}
-    \begin{equation}
+    \begin{gather}
+        P(X\in A)=P(Z\in f^{-1}(A)),\\
         \label{eq:intx}
         \int_A p_X(\boldsymbol{x})d\boldsymbol{x}=\int_{f^{-1}(A)}p_Z(\boldsymbol{z})d\boldsymbol{z}.
-    \end{equation}
+    \end{gather}
 \end{subequations}
 Using change of variables formula (\ref{eq:changeofvariables}), the last integral becomes:
 \begin{equation}
@@ -399,15 +393,11 @@ From the above derivation of the formulas, we can infer three important properti
 \end{enumerate}
 On top of them, another important property the transformation $f$ should be fulfilled is composability \citep{papamakarios2021nf}. Given a series of transformations $f_{L}\circ\cdots\circ f_{1}$, the following equations hold:
 \begin{subequations}
-    \begin{equation}
-        \boldsymbol{x}=f_L(\cdots f_{1}(\boldsymbol{z})),
-    \end{equation}
-    \begin{equation}
-        (f_{L}\circ\cdots\circ f_{1})^{-1}=(f_1)^{-1}\circ\cdots\circ (f_{L})^{-1},
-    \end{equation}
-    \begin{equation}
+    \begin{gather}
+        \boldsymbol{x}=f_L(\cdots f_{1}(\boldsymbol{z})),\\
+        (f_{L}\circ\cdots\circ f_{1})^{-1}=(f_1)^{-1}\circ\cdots\circ (f_{L})^{-1},\\
         \boldsymbol{J}_{f_{L}\circ\cdots\circ f_{1}}(\boldsymbol{z})=\boldsymbol{J}_{f_L}(f_{L-1}(\boldsymbol{z}))\cdots\boldsymbol{J}_{f_1}(\boldsymbol{z}),
-    \end{equation}
+    \end{gather}
 \end{subequations}
 where the total Jacobian determinant is the product of each intermediate ones.
 \paragraph{Using \acp{NF} for modeling and inference}
@@ -599,23 +589,23 @@ where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\theta}$ and $h$ is the
 The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, dynamics modeling, and state estimation.
 
 \subsection{From Inference to Control}
-Following the explanation of various Bayesian inference methodologies, this section focuses on their applications in control techniques. It begins with a review of conventional Bayesian approaches for system identification and state estimation, and subsequently proceeds to classical model-free control methods alongside the widely utilized model-based control method---\acf{MPC}.
+Following the explanation of various Bayesian inference methodologies, this section focuses on their applications in control techniques. It begins with a review of conventional Bayesian approaches for system identification and state estimation, and subsequently proceeds to model-free control methods---model-free reinforcement learning, alongside the widely utilized model-based control method---\acf{MPC}. 
 
 \subsubsection{Bayesian System Identification}
 An essential goal of system modeling and identification is to provide a rigorous framework for predicting and controlling the future evolution of system outputs. For any control strategy, the decision-maker needs to predict how the system will behave under any possible control input. This requires access to the joint probability distribution of the future input-output sequence, which can be factorized using the chain rule of probability \citep{BayesSysId1981}:
 \begin{equation}
     p(\mathcal{D}_{(t_1:t_N)}|\mathcal{D}_{t_0})=\prod _{n=1}^{N}p(\boldsymbol{y}_{t_n}|\boldsymbol{u}_{t_n}, \mathcal{D}_{t_{n-1}})p(\boldsymbol{u}_{t_n}|\mathcal{D}_{t_{n-1}}),
 \end{equation}
-where $\mathcal{D}_{t_n}$ denotes the input-output pair at the time step $t_n$, i.e.,$\mathcal{D}_{t_n}=\{\boldsymbol{u}_{t_n}, \boldsymbol{y}_{t_n}\}$.
-The conditional probability density $p(u_{t_n}|\mathcal{D}_{t_{n-1}})$ describes the process of determining the input $\boldsymbol{u}_{t_n}$ on the basis of the known past history. The left part $p(\boldsymbol{y}_{t_n}|\boldsymbol{u}_{t_n}, \mathcal{D}_{t_{n-1}})$ represents the dependence of the output on the corresponding input and the known past history, which can be interpreted as a system model or function to predict output with given control input. Identifying this system consists of two steps: model selection and parameter identification. The process of finding the most plausible model from a group of candidates is model selection. Then, system identification focuses on inferring parameters of a chosen system model.
+where $\mathcal{D}_{t_n}$ denotes the input-output pair at the time step $t_n$, i.e., $\mathcal{D}_{t_n}=\{\boldsymbol{u}_{t_n}, \boldsymbol{y}_{t_n}\}$.
+The conditional probability density $p(\boldsymbol{u}_{t_n}|\mathcal{D}_{t_{n-1}})$ describes the process of determining the input $\boldsymbol{u}_{t_n}$ on the basis of the known past history. The left part $p(\boldsymbol{y}_{t_n}|\boldsymbol{u}_{t_n}, \mathcal{D}_{t_{n-1}})$ represents the dependence of the output on the corresponding input and the known past history, which can be interpreted as a system model or function to predict output with given control input. Identifying this system consists of two steps: model selection and parameter identification. The process of finding the most plausible model from a group of candidates is model selection. Then, system identification focuses on inferring parameters of a chosen system model.
 \paragraph{Bayesian model selection}
-Among different model structures $\{\mathcal{M}_i\}$, $i=1,\ldots|,\mathcal{M}|$, the probability density of the model $\mathcal{M}_i$ given the data $\mathcal{D}$ measures whether the model is suitable for the dataset, which can also be written using Bayes’ theorem:
+Among different model structures $\{\mathcal{M}_i\}$, $i=1,\ldots,|\mathcal{M}|$, the probability density of the model $\mathcal{M}_i$ given the data $\mathcal{D}$ measures whether the model is suitable for the dataset, which can also be written using Bayes’ theorem:
 \begin{equation}
     p(\mathcal{M}_i|\mathcal{D})=\frac{p(\mathcal{D}|\mathcal{M}_i)p(\mathcal{M}_i)}{p(\mathcal{D})}.
 \end{equation}
 Model selection is also as known as model comparison. The relative probability density of two different models given same data $\mathcal{D}$ is:
 \begin{equation}
-    \frac{p(\mathcal{M}_i|\mathcal{D})}{p(\mathcal{M}_j|\mathcal{D})} = \frac{p(\mathcal{D}|\mathcal{M}_j)p(\mathcal{M}_j)}{p(\mathcal{D}|\mathcal{M}_j)p(\mathcal{M}_j)}.
+    \frac{p(\mathcal{M}_i|\mathcal{D})}{p(\mathcal{M}_j|\mathcal{D})} = \frac{p(\mathcal{D}|\mathcal{M}_i)p(\mathcal{M}_i)}{p(\mathcal{D}|\mathcal{M}_j)p(\mathcal{M}_j)}.
 \end{equation}
 Since a model has multiple undetermined parameters, the distribution $p(\mathcal{D}|\mathcal{M})$ is obtained by integral of all variants of parameters. The integral is usually untractable. Instead, \ac{DIC} \citep{Spiegelhalter2002,Spiegelhalter2014, li2025DIC} is applied as the model selection criterion. A deviance is defined as follows:
 \begin{equation}
@@ -631,13 +621,13 @@ where the first term is interpreted as a Bayesian measure of model fit:
     \end{equation}
 and the second term is used to measure the model complexity:
     \begin{equation}
-        P_D(\mathcal{M}) = \mathbb{E}[\text{dev}(\boldsymbol{\theta})] - \text{dev}(\overline{\boldsymbol{\theta}}),\quad \overline{\boldsymbol{\theta}}=\int p(\boldsymbol{\theta}|\mathcal{D},\mathcal{M})\boldsymbol{\theta}d\boldsymbol{\theta}.
+        P_D(\mathcal{M}) = \mathbb{E}_{\mathcal{M}}[\text{dev}(\boldsymbol{\theta})] - \text{dev}(\overline{\boldsymbol{\theta}}),\quad \overline{\boldsymbol{\theta}}=\int p(\boldsymbol{\theta}|\mathcal{D},\mathcal{M})\boldsymbol{\theta}d\boldsymbol{\theta}.
     \end{equation}
 The posterior $p(\boldsymbol{\theta}|\mathcal{D},\mathcal{M})$ is obtained by \ac{MCMC}.
 \ac{DIC} balances the goodness of fit (how well the model explains the data) and the model complexity (the number of parameters in the model). A lower \ac{DIC} value indicates better model fit for the given dataset. 
 
 \paragraph{Bayesian Parameter Identification}
-Define a chosen system model with unknown parameters $\boldsymbol{\theta}$:
+We first define a chosen system model with unknown parameters $\boldsymbol{\theta}$:
 \begin{equation}
     \boldsymbol{y}_t=f(\boldsymbol{u}_t, \boldsymbol{\theta})+\boldsymbol{\epsilon}_t.
 \end{equation}
@@ -649,12 +639,76 @@ Applying Bayes' rule (\ref{eq:bayes}), it becomes:
 \begin{equation}
     \boldsymbol{\theta}^*_{MAP}=\arg \max_{\boldsymbol{\theta}}[\prod_{\{\boldsymbol{u}_i,\boldsymbol{y}_i\}\in\mathcal{D}} p(\boldsymbol{y}_i|\boldsymbol{u}_i,\boldsymbol{\theta})]p(\boldsymbol{\theta}),
 \end{equation}
-where $p(\mathcal{D})$ is dropped off since it is a constant with respect to $\boldsymbol{\theta}$. The noise $\boldsymbol{\epsilon}$ is commonly assumed to be Gaussian. Thus, the distribution $p(\boldsymbol{y}_i|\boldsymbol{u}_i,\boldsymbol{\theta})$ has a closed form, which makes this term equivalent to a weighted mean squared error. The term of the prior density $p(\boldsymbol{symbol})$ performs as $L2$ regularization.
+where $p(\mathcal{D})$ is dropped off since it is a constant with respect to $\boldsymbol{\theta}$. The noise $\boldsymbol{\epsilon}_t$ is commonly assumed to be Gaussian. Thus, the distribution $p(\boldsymbol{y}_i|\boldsymbol{u}_i,\boldsymbol{\theta})$ has a closed form, which makes this term equivalent to a weighted mean squared error. The term of the prior density $p(\boldsymbol{\theta})$ performs as $L2$ regularization.
 On top of the estimate of parameters, the confidence interval of parameters can also be obtained from the posterior distribution.
 
 \subsubsection{Bayesian State Estimation}
-Applying the estimated posterior again as a prior, and updating the posterior with new data, this is the basic idea of Bayesian state estimation. State estimation involves inference of the internal system states, which are not directly measurable. 
+Applying the estimated posterior of system parameters again as a prior, and updating the posterior with new data, this is the basic idea of Bayesian state estimation \citep{bayesestimation}. State estimation involves inference of the internal system states, which are not directly measurable. Expressing the state estimation problem in a probabilistic framework, the goal is to infer the posterior distribution of the states given observations $p(\boldsymbol{x}_{0:t}|\boldsymbol{y}_{1:t})$. Assuming a Markovian system, the posterior of the state chain is factorized as:
+\begin{equation}
+    \begin{split}
+        p(\boldsymbol{x}_{0:t}|\boldsymbol{y}_{1:t})=p(\boldsymbol{x}_{0:t}|\boldsymbol{y}_{t}, \boldsymbol{y}_{1:t-1})&=\frac{p(\boldsymbol{y}_t|\boldsymbol{x}_{0:t}, \boldsymbol{y}_{1:t-1})p(\boldsymbol{x}_{0:t}|\boldsymbol{y}_{1:t-1})}{p(\boldsymbol{y}_t|\boldsymbol{y}_{1:t-1})} \quad\text{[Bayes' rule]} \\
+        &=\frac{p(\boldsymbol{y}_t|\boldsymbol{x}_t)p(\boldsymbol{x}_{0:t}|\boldsymbol{y}_{1:t-1})}{p(\boldsymbol{y}_t|\boldsymbol{y}_{1:t-1})} \quad\text{[Markov property]} \\
+        &=\frac{p(\boldsymbol{y}_t|\boldsymbol{x}_t)p(\boldsymbol{x}_{t}|\boldsymbol{x}_{t-1})}{p(\boldsymbol{y}_t|\boldsymbol{y}_{1:t-1})}p(\boldsymbol{x}_{0:t-1}|\boldsymbol{y}_{1:t-1}),
+    \end{split}
+\end{equation}
+where $p(\boldsymbol{x}_{t}|\boldsymbol{x}_{t-1})$ is referred as evolution model, or state transition model, and $p(\boldsymbol{y}_t|\boldsymbol{x}_t)$ is called observation model, or measurement model. The posterior $p(\boldsymbol{x}_{0:t-1}|\boldsymbol{y}_{1:t-1})$ is the result of the previous time step. The equation above describes a recursive process of state estimation.
 
-\subsubsection{Model-free Control}
+Considering only one state $\boldsymbol{x}_{t}$ at a time, the problem is called marginal state estimation, or filtering. The equation becomes:
+\begin{equation}
+    \label{eq:bayesfilter}
+    \begin{split}
+        p(\boldsymbol{x}_{t}|\boldsymbol{y}_{1:t})&=\frac{p(\boldsymbol{y}_t|\boldsymbol{x}_t)p(\boldsymbol{x}_{t}|\boldsymbol{y}_{1:t-1})}{p(\boldsymbol{y}_t|\boldsymbol{y}_{1:t-1})}\\
+        &=\frac{p(\boldsymbol{y}_t|\boldsymbol{x}_t)}{p(\boldsymbol{y}_t|\boldsymbol{y}_{1:t-1})}\int p(\boldsymbol{x}_{t}|\boldsymbol{x}_{t-1})p(\boldsymbol{x}_{t-1}|\boldsymbol{y}_{1:t-1})d\boldsymbol{x}_{t-1}.
+    \end{split}
+\end{equation}
+Usually, calculation of the above equation is divided into two steps: prediction and update. In the prediction step, the result of state transition from $\boldsymbol{x}_{t-1}$ to $\boldsymbol{x}_t$ is computed through the evolution model. In the update step, the last observation likelihood $p(\boldsymbol{y}_t|\boldsymbol{x}_t)$ weights the predicted belief. These two steps build the Bayesian filtering methods: Kalman filters and particle filters \citep{chen_bayesian_2003}.
+
+The \ac{KF} \citep{kf1960} can be directly derived from Equation \ref{eq:bayesfilter} under the assumptions of linear systems and Gaussian noise. For a linear system:
+\begin{subequations}
+    \begin{align}
+        \boldsymbol{x}_t &= F_t\boldsymbol{x}_{t-1} + \boldsymbol{w}_t, \quad \boldsymbol{w}_t\sim\mathcal{N}(\boldsymbol{0}, \Sigma_{w_t}),\\
+        \boldsymbol{y}_t &= H_t\boldsymbol{x}_t + \boldsymbol{v}_t, \quad \boldsymbol{v}_t\sim\mathcal{N}(\boldsymbol{0}, \Sigma_{v_t}),
+    \end{align}
+\end{subequations}
+the iterative algorithm of filtering is:
+\begin{itemize}
+    \item Prediction:
+    \begin{subequations}\label{eq:kalman_prediction}
+    \begin{align}
+        \boldsymbol{x}'_t &= F_t\boldsymbol{x}_{t-1}, \label{eq:kalman_prediction_a} \\
+        \Sigma'_{t} &= F_t\Sigma_{t-1}F_t^T+\Sigma_{w_t}. \label{eq:kalman_prediction_b}
+    \end{align}
+    \end{subequations}
+    \item Update:
+    \begin{subequations}\label{eq:kalman_update}
+    \begin{align}
+        K_t &= \Sigma'_{t}H_t^T(H_t\Sigma'_{t}H_t^T+\Sigma_{v_t})^{-1} \label{eq:kalman_update_a}, \\
+        \boldsymbol{x}_t &= \boldsymbol{x}'_t+K_t(\boldsymbol{y}_t-H_t\boldsymbol{x}'_t) \label{eq:kalman_update_b}, \\
+        \Sigma_t &= (I-K_tH_t)\Sigma'_{t} \label{eq:kalman_update_c}.
+    \end{align}
+    \end{subequations}
+\end{itemize}
+
+For nonlinear systems, the \acf{EKF} \citep{simon2006optimal} obtains the matrices $F_t$ and $H_t$ by linearizing the nonlinear functions at the current estimate, i.e., $F_t=\nabla_{\boldsymbol{x}} f_t|_{\boldsymbol{x}_t}$ and $H_t=\nabla_{\boldsymbol{x}} h_t|_{\boldsymbol{x}_t}$. In such a way, the \ac{EKF} can be considered as the first-order approximation to the optimal terms. This approximation, however, can introduce large errors, which may lead to suboptimal performance and sometimes divergence of the filter. The \acf{UKF} \citep{ukf2000} addressed the approximation issues by carefully choosing a minimal set of samples points, which are called sigma points. The sigma points completely capture the mean and covariance of states, which are viewed as Gaussian random variables. The sample points are then propagated through the nonlinear functions, and the mean and covariance of the estimate are reconstructed from the transformed points. 
+
+Relaxing the assumptions on model linearity and Gaussian noise, \ac{PF} \citep{pf1993, Elfring2021-xf} is a more general Bayesian filtering method. The integral in Equation \ref{eq:bayesfilter} is approximated through Monte Carlo estimation, yielding an average of all weighted particles. Each particle represents a possible state of the system, and its weight reflects the likelihood of that state given the observations. In the prediction step, each particle is propagated through the system dynamics. In the update step, weights are adjusted according to each particle based on the likelihood of the observation given the particle's state. Unlike Kalman filters, in each iteration of the \ac{PF}, a resampling step is included to avoid weight degeneracy, meaning that most particles carry very small weights over time. In the resampling step, particles are replaced with equally weighted ones, replicating high-weight particles and discarding low-weight ones.
+
+In summary, \ac{KF} is efficient and provides optimal state estimates for linear systems with Gaussian noise. \ac{EKF} extends \ac{KF} to nonlinear systems through linearization, but may suffer from approximation errors. \ac{UKF}, instead of linearization, applies sigma points to better capture the mean and covariance of the state distribution, leading to more accurate estimates for highly nonlinear systems. \ac{PF} is the most flexible, capable of handling arbitrary nonlinearities and non-Gaussian noise, but computationally expensive due to the need for numerous particles.
+
+\subsubsection{Model-free Reinforcement Learning}
+After investigating Bayesian system identification and state estimation, we now turn our attention to control strategies, meaning obtaining control inputs from system outputs. Control methods can be broadly categorized into model-based and model-free approaches. Model-based control relies on an explicit model of the system dynamics to predict future states and optimize control actions accordingly. In contrast, model-free control approaches do not require a state transition model of the system, instead learning control strategies directly from interactions with the system. Classical model-free control methods are \ac{PID} controllers \citep{Fliess_2013}. In recent years, data-driven control methods attract more and more attention. A prominent example is model-free \ac{RL} \citep{modelfreeRL}, which has been successfully applied in various domains, including robotics, game playing, and autonomous systems.
+
+We first introduce some terminologies of \ac{RL}:
+\begin{itemize}
+\item agent: the controller,
+\item environment: the to-be-controlled system,
+\item action: the control input, $a_t$,
+\item state: the complete state of the environment, $s_t$,
+\item policy: the control strategy, which can be deterministic ($a_t=\mu(s_t)$) or probabilistic ($a_t=\pi(\cdot|s_t)$),
+\item reward: the feedback on the agent's success, $r_t=R(s_t,a_t)$.
+\end{itemize}
+The objective of an \ac{RL} algorithm is to maximize the expected cumulative reward (known as value) through trial-and-error interactions between the agent and the environment. In comparison to optimal control methods, \ac{RL} methods aim to optimize long-term sequential decision-making performance. Actor-Critic method \citep{actorcritic1999} is one of the most famous model-free \ac{RL} algorithms. The actor is responsible for selecting actions based on the current policy, while the critic evaluates the actions by estimating the value function. Then, the actor updates the policy based on feedback from the critic, leading to improved action selection over time.
+
+\ac{RL} provides a flexible framework for learning control policies directly from data, enabling adaptation to changing environments and complex system dynamics. However, it often requires a large amount of data and may suffer from explainability, stability, and reliability issues. In safety-critical applications, model-based control methods are often preferred.
 
 \subsubsection{Model Predictive Control}

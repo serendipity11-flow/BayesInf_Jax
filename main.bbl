@@ -1,4 +1,4 @@
-\begin{thebibliography}{78}
+\begin{thebibliography}{88}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -37,6 +37,14 @@ Lynton Ardizzone, Carsten Lüth, Jakob Kruse, Carsten Rother, and Ullrich Köthe
 Andrea Asperti.
 \newblock Variance loss in variational autoencoders, 2020.
 \newblock URL \url{https://arxiv.org/abs/2002.09860}.
+
+\bibitem[Barker et~al.(1995)Barker, Brown, and Martin]{bayesestimation}
+A.L. Barker, D.E. Brown, and W.N. Martin.
+\newblock Bayesian estimation and the kalman filter.
+\newblock \emph{Computers \& Mathematics with Applications}, 30\penalty0 (10):\penalty0 55--77, 1995.
+\newblock ISSN 0898-1221.
+\newblock \doi{https://doi.org/10.1016/0898-1221(95)00156-S}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/089812219500156S}.
 
 \bibitem[Behrmann et~al.(2019)Behrmann, Grathwohl, Chen, Duvenaud, and Jacobsen]{behrmann2019ires}
 Jens Behrmann, Will Grathwohl, Ricky T.~Q. Chen, David Duvenaud, and Jörn-Henrik Jacobsen.
@@ -98,10 +106,23 @@ Ricky T.~Q. Chen, Jens Behrmann, David Duvenaud, and Jörn-Henrik Jacobsen.
 \newblock Residual flows for invertible generative modeling, 2020.
 \newblock URL \url{https://arxiv.org/abs/1906.02735}.
 
+\bibitem[Chen(2003)]{chen_bayesian_2003}
+Zhe Chen.
+\newblock Bayesian {Filtering}: {From} {Kalman} {Filters} to {Particle} {Filters}, and {Beyond}.
+\newblock \emph{Statistics}, 182, January 2003.
+\newblock \doi{10/bkztpw}.
+\newblock 01234 ZSCC: 0001234.
+
 \bibitem[Damianou and Lawrence(2013)]{damianou2013dgp}
 Andreas~C. Damianou and Neil~D. Lawrence.
 \newblock Deep gaussian processes, 2013.
 \newblock URL \url{https://arxiv.org/abs/1211.0358}.
+
+\bibitem[Degris et~al.(2012)Degris, Pilarski, and Sutton]{modelfreeRL}
+Thomas Degris, Patrick~M. Pilarski, and Richard~S. Sutton.
+\newblock Model-free reinforcement learning with continuous action in practice.
+\newblock In \emph{2012 American Control Conference (ACC)}, pages 2177--2182, 2012.
+\newblock \doi{10.1109/ACC.2012.6315022}.
 
 \bibitem[Dinh et~al.(2015)Dinh, Krueger, and Bengio]{dinh2015nice}
 Laurent Dinh, David Krueger, and Yoshua Bengio.
@@ -126,6 +147,19 @@ Richard Durrett.
 \newblock \emph{Probability: theory and examples}.
 \newblock Duxbury Press, Belmont, CA, second edition, 1996.
 \newblock ISBN 0-534-24318-5.
+
+\bibitem[Elfring et~al.(2021)Elfring, Torta, and van~de Molengraft]{Elfring2021-xf}
+Jos Elfring, Elena Torta, and Ren{\'e} van~de Molengraft.
+\newblock Particle filters: A {Hands-On} tutorial.
+\newblock \emph{Sensors (Basel)}, 21\penalty0 (2), jan 2021.
+
+\bibitem[Fliess and Join(2013)]{Fliess_2013}
+Michel Fliess and Cédric Join.
+\newblock Model-free control.
+\newblock \emph{International Journal of Control}, 86\penalty0 (12):\penalty0 2228–2252, December 2013.
+\newblock ISSN 1366-5820.
+\newblock \doi{10.1080/00207179.2013.810345}.
+\newblock URL \url{http://dx.doi.org/10.1080/00207179.2013.810345}.
 
 \bibitem[Foong et~al.(2019)Foong, Li, Hernández-Lobato, and Turner]{foong2019inbetween}
 Andrew Y.~K. Foong, Yingzhen Li, José~Miguel Hernández-Lobato, and Richard~E. Turner.
@@ -183,6 +217,13 @@ Ethan Goan and Clinton Fookes.
 \newblock \doi{10.1007/978-3-030-42553-1_3}.
 \newblock URL \url{http://dx.doi.org/10.1007/978-3-030-42553-1_3}.
 
+\bibitem[Gordon et~al.(1993)Gordon, Salmond, and Smith]{pf1993}
+N.J. Gordon, D.J. Salmond, and A.F.M. Smith.
+\newblock Novel approach to nonlinear/non-gaussian bayesian state estimation.
+\newblock \emph{IEE Proceedings F (Radar and Signal Processing)}, 140:\penalty0 107--113, 1993.
+\newblock \doi{10.1049/ip-f-2.1993.0015}.
+\newblock URL \url{https://digital-library.theiet.org/doi/abs/10.1049/ip-f-2.1993.0015}.
+
 \bibitem[Grathwohl et~al.(2018)Grathwohl, Chen, Bettencourt, Sutskever, and Duvenaud]{grathwohl2018ffjord}
 Will Grathwohl, Ricky T.~Q. Chen, Jesse Bettencourt, Ilya Sutskever, and David Duvenaud.
 \newblock Ffjord: Free-form continuous dynamics for scalable reversible generative models, 2018.
@@ -234,6 +275,14 @@ Michael~I. Jordan, Zoubin Ghahramani, Tommi~S. Jaakkola, and Lawrence~K. Saul.
 \newblock \doi{10.1007/978-94-011-5014-9_5}.
 \newblock URL \url{https://doi.org/10.1007/978-94-011-5014-9_5}.
 
+\bibitem[Kalman(1960)]{kf1960}
+R.~E. Kalman.
+\newblock A new approach to linear filtering and prediction problems.
+\newblock \emph{Journal of Basic Engineering}, 82\penalty0 (1):\penalty0 35--45, 03 1960.
+\newblock ISSN 0021-9223.
+\newblock \doi{10.1115/1.3662552}.
+\newblock URL \url{https://doi.org/10.1115/1.3662552}.
+
 \bibitem[Khromov and Singh(2024)]{khromov2024Lipschitz}
 Grigory Khromov and Sidak~Pal Singh.
 \newblock Some fundamental aspects about lipschitz continuity of neural networks, 2024.
@@ -264,6 +313,12 @@ Ivan Kobyzev, Simon~J.D. Prince, and Marcus~A. Brubaker.
 \newblock ISSN 1939-3539.
 \newblock \doi{10.1109/tpami.2020.2992934}.
 \newblock URL \url{http://dx.doi.org/10.1109/TPAMI.2020.2992934}.
+
+\bibitem[Konda and Tsitsiklis(1999)]{actorcritic1999}
+Vijay Konda and John Tsitsiklis.
+\newblock Actor-critic algorithms.
+\newblock In S.~Solla, T.~Leen, and K.~M\"{u}ller, editors, \emph{Advances in Neural Information Processing Systems}, volume~12. MIT Press, 1999.
+\newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/1999/file/6449f44a102fde848669bdd9eb6b76fa-Paper.pdf}.
 
 \bibitem[Kruse et~al.(2021)Kruse, Detommaso, Köthe, and Scheichl]{kruse2021hint}
 Jakob Kruse, Gianluca Detommaso, Ullrich Köthe, and Robert Scheichl.
@@ -429,6 +484,11 @@ Daniele Silvestro and Tobias Andermann.
 \newblock Prior choice affects ability of bayesian neural networks to identify unknowns, 2020.
 \newblock URL \url{https://arxiv.org/abs/2005.04987}.
 
+\bibitem[Simon(2006)]{simon2006optimal}
+Dan Simon.
+\newblock \emph{Optimal state estimation: Kalman, H $\infty$, and nonlinear approaches}.
+\newblock John Wiley \& Sons, 2006.
+
 \bibitem[Skilling(1989)]{Skilling1989}
 John Skilling.
 \newblock \emph{The Eigenvalues of Mega-dimensional Matrices}, pages 455--466.
@@ -468,6 +528,12 @@ Martin~J Wainwright and Michael~I Jordan.
 \newblock \emph{Graphical Models, Exponential Families, and Variational Inference}.
 \newblock Now Publishers Inc., Hanover, MA, USA, 2008.
 \newblock ISBN 1601981848.
+
+\bibitem[Wan and Van Der~Merwe(2000)]{ukf2000}
+E.A. Wan and R.~Van Der~Merwe.
+\newblock The unscented kalman filter for nonlinear estimation.
+\newblock In \emph{Proceedings of the IEEE 2000 Adaptive Systems for Signal Processing, Communications, and Control Symposium (Cat. No.00EX373)}, pages 153--158, 2000.
+\newblock \doi{10.1109/ASSPCC.2000.882463}.
 
 \bibitem[Wang et~al.(2023)Wang, Blei, and Cunningham]{wang2023vae}
 Yixin Wang, David~M. Blei, and John~P. Cunningham.

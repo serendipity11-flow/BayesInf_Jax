@@ -1,9 +1,16 @@
-\begin{thebibliography}{88}
+\begin{thebibliography}{95}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Chr(2007)]{Christophersen2007}
+\emph{Receding Horizon Control}, pages 26--38.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2007.
+\newblock ISBN 978-3-540-72701-9.
+\newblock \doi{10.1007/978-3-540-72701-9_3}.
+\newblock URL \url{https://doi.org/10.1007/978-3-540-72701-9_3}.
 
 \bibitem[Adams et~al.(2018)Adams, Pennington, Johnson, Smith, Ovadia, Patton, and Saunderson]{adams2018adams}
 Ryan~P. Adams, Jeffrey Pennington, Matthew~J. Johnson, Jamie Smith, Yaniv Ovadia, Brian Patton, and James Saunderson.
@@ -96,6 +103,14 @@ Samuel~R. Bowman, Luke Vilnis, Oriol Vinyals, Andrew Dai, Rafal Jozefowicz, and 
 \newblock \doi{10.18653/v1/K16-1002}.
 \newblock URL \url{https://aclanthology.org/K16-1002/}.
 
+\bibitem[Buşoniu et~al.(2018)Buşoniu, {de Bruin}, Tolić, Kober, and Palunko]{rlforcontrol2018}
+Lucian Buşoniu, Tim {de Bruin}, Domagoj Tolić, Jens Kober, and Ivana Palunko.
+\newblock Reinforcement learning for control: Performance, stability, and deep approximators.
+\newblock \emph{Annual Reviews in Control}, 46:\penalty0 8--28, 2018.
+\newblock ISSN 1367-5788.
+\newblock \doi{https://doi.org/10.1016/j.arcontrol.2018.09.005}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S1367578818301184}.
+
 \bibitem[Chen et~al.(2019)Chen, Rubanova, Bettencourt, and Duvenaud]{chen2019node}
 Ricky T.~Q. Chen, Yulia Rubanova, Jesse Bettencourt, and David Duvenaud.
 \newblock Neural ordinary differential equations, 2019.
@@ -118,11 +133,13 @@ Andreas~C. Damianou and Neil~D. Lawrence.
 \newblock Deep gaussian processes, 2013.
 \newblock URL \url{https://arxiv.org/abs/1211.0358}.
 
-\bibitem[Degris et~al.(2012)Degris, Pilarski, and Sutton]{modelfreeRL}
-Thomas Degris, Patrick~M. Pilarski, and Richard~S. Sutton.
-\newblock Model-free reinforcement learning with continuous action in practice.
-\newblock In \emph{2012 American Control Conference (ACC)}, pages 2177--2182, 2012.
-\newblock \doi{10.1109/ACC.2012.6315022}.
+\bibitem[Diehl(2013)]{Diehl2013}
+Moritz Diehl.
+\newblock \emph{Optimization Algorithms for Model Predictive Control}, pages 1--11.
+\newblock Springer London, London, 2013.
+\newblock ISBN 978-1-4471-5102-9.
+\newblock \doi{10.1007/978-1-4471-5102-9_9-1}.
+\newblock URL \url{https://doi.org/10.1007/978-1-4471-5102-9_9-1}.
 
 \bibitem[Dinh et~al.(2015)Dinh, Krueger, and Bengio]{dinh2015nice}
 Laurent Dinh, David Krueger, and Yoshua Bengio.
@@ -180,6 +197,14 @@ Meire Fortunato, Charles Blundell, and Oriol Vinyals.
 F.~Gabbiani and S.J. Cox.
 \newblock \emph{Mathematics for Neuroscientists}.
 \newblock Elsevier science \& technology books. Elsevier Science, 2010.
+
+\bibitem[García et~al.(1989)García, Prett, and Morari]{mpcreview1989}
+Carlos~E. García, David~M. Prett, and Manfred Morari.
+\newblock Model predictive control: Theory and practice—a survey.
+\newblock \emph{Automatica}, 25\penalty0 (3):\penalty0 335--348, 1989.
+\newblock ISSN 0005-1098.
+\newblock \doi{https://doi.org/10.1016/0005-1098(89)90002-2}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/0005109889900022}.
 
 \bibitem[Gavrilović et~al.(1963)Gavrilović, Petrović, and Šiljak]{adjoint1963}
 M.~Gavrilović, R.~Petrović, and D.~Šiljak.
@@ -314,12 +339,6 @@ Ivan Kobyzev, Simon~J.D. Prince, and Marcus~A. Brubaker.
 \newblock \doi{10.1109/tpami.2020.2992934}.
 \newblock URL \url{http://dx.doi.org/10.1109/TPAMI.2020.2992934}.
 
-\bibitem[Konda and Tsitsiklis(1999)]{actorcritic1999}
-Vijay Konda and John Tsitsiklis.
-\newblock Actor-critic algorithms.
-\newblock In S.~Solla, T.~Leen, and K.~M\"{u}ller, editors, \emph{Advances in Neural Information Processing Systems}, volume~12. MIT Press, 1999.
-\newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/1999/file/6449f44a102fde848669bdd9eb6b76fa-Paper.pdf}.
-
 \bibitem[Kruse et~al.(2021)Kruse, Detommaso, Köthe, and Scheichl]{kruse2021hint}
 Jakob Kruse, Gianluca Detommaso, Ullrich Köthe, and Robert Scheichl.
 \newblock Hint: Hierarchical invertible neural transport for density estimation and bayesian inference, 2021.
@@ -387,6 +406,11 @@ Ibomoiye~Domor Mienye and Theo~G. Swart.
 \newblock \doi{10.1007/s11831-025-10260-5}.
 \newblock URL \url{https://doi.org/10.1007/s11831-025-10260-5}.
 
+\bibitem[Moerland et~al.(2022)Moerland, Broekens, Plaat, and Jonker]{mbrl2020}
+Thomas~M. Moerland, Joost Broekens, Aske Plaat, and Catholijn~M. Jonker.
+\newblock Model-based reinforcement learning: A survey, 2022.
+\newblock URL \url{https://arxiv.org/abs/2006.16712}.
+
 \bibitem[Murphy(2022)]{pml1Book}
 Kevin~P. Murphy.
 \newblock \emph{Probabilistic Machine Learning: An introduction}.
@@ -438,6 +462,14 @@ V.~Peterka.
 \newblock \doi{https://doi.org/10.1016/0005-1098(81)90083-2}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/0005109881900832}.
 
+\bibitem[Puterman(1994)]{mdp2014}
+Martin~L. Puterman.
+\newblock \emph{Markov Decision Processes: Discrete Stochastic Dynamic Programming}.
+\newblock Wiley Series in Probability and Statistics. Wiley, 1994.
+\newblock ISBN 978-0-47161977-2.
+\newblock \doi{10.1002/9780470316887}.
+\newblock URL \url{https://doi.org/10.1002/9780470316887}.
+
 \bibitem[Radev(2021)]{radev2021diss}
 Stefan Radev.
 \newblock Deep learning architectures for amortized bayesian inference in cognitive modeling, 2021.
@@ -452,6 +484,12 @@ Stefan~T. Radev, Ulf~K. Mertens, Andreas Voss, Lynton Ardizzone, and Ullrich Kö
 Carl~Edward Rasmussen and Christopher K.~I. Williams.
 \newblock \emph{Gaussian processes for machine learning}.
 \newblock MIT Press, 2008.
+
+\bibitem[Rawlings et~al.(2020)Rawlings, Mayne, and Diehl]{mpcbook2020}
+James Rawlings, David Mayne, and Moritz Diehl.
+\newblock \emph{Model predictive control: theory, computation and design}.
+\newblock Nob Hill Publishing, LLC, Santa Barbara, second edition. edition, 2020.
+\newblock ISBN 9780975937754.
 
 \bibitem[Rezende and Mohamed(2016)]{rezende2016}
 Danilo~Jimenez Rezende and Shakir Mohamed.
@@ -473,6 +511,14 @@ J.~Schwartz.
 \newblock \emph{The American Mathematical Monthly}, 61\penalty0 (2):\penalty0 81--85, 1954.
 \newblock ISSN 00029890, 19300972.
 \newblock URL \url{http://www.jstor.org/stable/2307790}.
+
+\bibitem[Schwenzer et~al.(2021)Schwenzer, Ay, Bergs, and Abel]{Schwenzer2021}
+Max Schwenzer, Muzaffer Ay, Thomas Bergs, and Dirk Abel.
+\newblock Review on model predictive control: an engineering perspective.
+\newblock \emph{The International Journal of Advanced Manufacturing Technology}, 117\penalty0 (5):\penalty0 1327--1349, Nov 2021.
+\newblock ISSN 1433-3015.
+\newblock \doi{10.1007/s00170-021-07682-3}.
+\newblock URL \url{https://doi.org/10.1007/s00170-021-07682-3}.
 
 \bibitem[Shridhar et~al.(2019)Shridhar, Laumann, and Liwicki]{shridhar2019bcnn}
 Kumar Shridhar, Felix Laumann, and Marcus Liwicki.
@@ -517,6 +563,14 @@ David~J. Spiegelhalter, Nicola~G. Best, Bradley~P. Carlin, and Angelika van~der 
 \newblock \emph{Journal of the Royal Statistical Society. Series B (Statistical Methodology)}, 76\penalty0 (3):\penalty0 485--493, 2014.
 \newblock ISSN 13697412, 14679868.
 \newblock URL \url{http://www.jstor.org/stable/24774528}.
+
+\bibitem[Sutton(1990)]{sutton1990}
+Richard~S. Sutton.
+\newblock Integrated architectures for learning, planning, and reacting based on approximating dynamic programming.
+\newblock In Bruce Porter and Raymond Mooney, editors, \emph{Machine Learning Proceedings 1990}, pages 216--224. Morgan Kaufmann, San Francisco (CA), 1990.
+\newblock ISBN 978-1-55860-141-3.
+\newblock \doi{https://doi.org/10.1016/B978-1-55860-141-3.50030-4}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/B9781558601413500304}.
 
 \bibitem[Särkkä(2019)]{sarkka2019gp}
 Simo Särkkä.

@@ -564,6 +564,7 @@ It is worth noting that the integral is backwards calculated from $t_1$ to $t_0$
 Continuous \acp{NF} release the architectural constraints of discrete flows, allowing more flexible and expressive density estimation through the integration of Neural \acp{ODE}. This improved expressiveness, however, comes at a cost: computing the Jacobian trace and the associated ODE integrals is significantly more expensive than in stacked coupling flows.
 
 \subsubsection{Conditional Normalizing Flows}
+\label{sec:condnf}
 Such capabilities of estimating complex densities are desirable in Bayesian inference of the posterior distribution of variables given observations $p(\boldsymbol{x}|\boldsymbol{y})$. Similar to \ac{VAE}, amortized Bayesian inference \citep{radev2021diss} is applied in \ac{NF} to achieve a general posterior estimation across all datapoints. Obtaining the posterior distribution is represented by a conditional density transformation via a conditional \ac{NF}. The change of variables for a conditional NF extends the standard one (\ref{eq:xnfz}) by the condition $\boldsymbol{y}$:
 \begin{equation}
     p_{X|Y}(\boldsymbol{x}|\boldsymbol{y}) = p_{Z|Y}(f^{-1}(\boldsymbol{x},\boldsymbol{y})|\boldsymbol{y})\det\left|\frac{\partial f^{-1}(\boldsymbol{x},\boldsymbol{y})}{\partial\boldsymbol{x}}\right|,
@@ -589,7 +590,7 @@ where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\theta}$ and $h$ is the
 The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, dynamics modeling, and state estimation.
 
 \subsection{From Inference to Control}
-Following the explanation of various Bayesian inference methodologies, this section focuses on their applications in control techniques. It begins with a review of conventional Bayesian approaches for system identification and state estimation, and subsequently proceeds to model-free control methods---model-free reinforcement learning, alongside the widely utilized model-based control method---\acf{MPC}. 
+This section bridges the probabilistic inference methodologies discussed above to their practical applications in control systems. We first review how Bayesian approaches are employed for system identification and state estimation. Next, we introduce \acf{MPC}, which is a widely used model-based control technique for optimal decision-making based on the system identification results. Finally, we discuss \acf{RL} as a data-driven control paradigm, highlighting its ability to learn control policies directly from interactions with the environment without requiring explicit system models. Together, these approaches illustrate the synergy between probabilistic inference and modern control strategies, enabling robust and adaptive solutions for complex dynamical systems.
 
 \subsubsection{Bayesian System Identification}
 An essential goal of system modeling and identification is to provide a rigorous framework for predicting and controlling the future evolution of system outputs. For any control strategy, the decision-maker needs to predict how the system will behave under any possible control input. This requires access to the joint probability distribution of the future input-output sequence, which can be factorized using the chain rule of probability \citep{BayesSysId1981}:
@@ -695,10 +696,52 @@ Relaxing the assumptions on model linearity and Gaussian noise, \ac{PF} \citep{p
 
 In summary, \ac{KF} is efficient and provides optimal state estimates for linear systems with Gaussian noise. \ac{EKF} extends \ac{KF} to nonlinear systems through linearization, but may suffer from approximation errors. \ac{UKF}, instead of linearization, applies sigma points to better capture the mean and covariance of the state distribution, leading to more accurate estimates for highly nonlinear systems. \ac{PF} is the most flexible, capable of handling arbitrary nonlinearities and non-Gaussian noise, but computationally expensive due to the need for numerous particles.
 
-\subsubsection{Model-free Reinforcement Learning}
-After investigating Bayesian system identification and state estimation, we now turn our attention to control strategies, meaning obtaining control inputs from system outputs. Control methods can be broadly categorized into model-based and model-free approaches. Model-based control relies on an explicit model of the system dynamics to predict future states and optimize control actions accordingly. In contrast, model-free control approaches do not require a state transition model of the system, instead learning control strategies directly from interactions with the system. Classical model-free control methods are \ac{PID} controllers \citep{Fliess_2013}. In recent years, data-driven control methods attract more and more attention. A prominent example is model-free \ac{RL} \citep{modelfreeRL}, which has been successfully applied in various domains, including robotics, game playing, and autonomous systems.
+\begin{figure*}[htp!]
+    \centering
+    \begin{subfigure}[b]{0.62\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/MPC.pdf} 
+        \caption[Schematic of Model Predictive Control]{Schematic of \ac{MPC} for a system with disturbance $\boldsymbol{\epsilon}$. This figure is adapted from \cite{Schwenzer2021}.}
+        \label{fig:mpc}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/RL.pdf} 
+        \caption[Block diagram of Reinforcement Learning]{Block diagram of \ac{RL}. }
+        \label{fig:rl}
+    \end{subfigure}
+    \caption{\ac{MPC} and \ac{RL}.}
+\end{figure*}
 
-We first introduce some terminologies of \ac{RL}:
+\subsubsection{Model Predictive Control}
+After investigating Bayesian system identification and state estimation, we now turn our attention to control strategies, meaning optimizing system inputs given target and system observations. Control methods can be broadly categorized into model-based and model-free approaches. Model-based control relies on an explicit model of the system dynamics to predict future states and optimize control actions accordingly. In contrast, model-free control approaches do not require a state transition model of the system, instead learning control strategies directly from interactions with the system. A prominent example of model-based control is \acf{MPC} \citep{mpcreview1989, mpcbook2020}. 
+
+A to-be-controlled system is at first modelled in discrete time steps:
+\begin{subequations}
+\begin{align}
+    \label{eq:mpc_model}
+    \boldsymbol{x}_{k+1} &= f(\boldsymbol{x}_k, \boldsymbol{u}_k), \\
+    \boldsymbol{y}_k &= h(\boldsymbol{x}_k),
+\end{align}
+\end{subequations}
+where $\boldsymbol{x}_k$ is the system state, $\boldsymbol{u}_k$ and $\boldsymbol{y}_k$ are the control input and system output at time step $k$, respectively. The function $f$ describes the state transition, and $h$ is the measurement function. Assuming that a full measurement or estimate of the state $\boldsymbol{x}_k$ is available, the objective of \ac{MPC} is to find an optimal sequence of control inputs $\boldsymbol{u}_{k:k+N-1}$ over a finite prediction horizon $N$. The objective function is:
+\begin{subequations}
+    \label{eq:mpc}
+    \begin{gather}
+        \min_{\boldsymbol{u}_{k:k+N-1}} \sum_{i=k}^{k+N-1}(\boldsymbol{w}_{i}-\boldsymbol{y}_{i})^TQ_y(\boldsymbol{w}_i-\boldsymbol{y}_{i})+(\boldsymbol{u}_i-\boldsymbol{u}_{i-1})^TQ_u(\boldsymbol{u}_i-\boldsymbol{u}_{i-1}),\\
+        s.t. \quad    \boldsymbol{x}_{i+1} = f(\boldsymbol{x}_i, \boldsymbol{u}_i), \quad \boldsymbol{y}_i = h(\boldsymbol{x}_i),\\
+        g_j(\boldsymbol{x}_i, \boldsymbol{u}_i)\leq 0, \quad j=1,\ldots,n_g, \quad i=k,\ldots,k+N-1.
+    \end{gather}
+\end{subequations}
+The weighting matrices $Q_y$ and $Q_u$ are used to balance the trade-off between tracking performance and control effort. The reference trajectory $\boldsymbol{w}_{k:k+N-1}$ represents the desired output over the prediction horizon. The constraints $g_j(\boldsymbol{x}_i, \boldsymbol{u}_i)\leq 0$ can represent physical limitations of the system or other operational constraints. A simplified schematic of \ac{MPC} is shown in Figure \ref{fig:mpc}. 
+
+ The optimization problem in \ac{MPC} can be solved using various numerical methods, such as sequential quadratic programming, interior-point methods, or gradient-based approaches \citep{Diehl2013}. The choice of method depends on the specific characteristics of the system model and constraints. The first step of the solution (Equation \ref{eq:mpc}) $\boldsymbol{u}^*_k$ is applied to the system, and the whole process is repeated at the next time step with updated state information. That's why \ac{MPC} is also known as receding horizon control \citep{Christophersen2007}.
+
+\subsubsection{Reinforcement Learning for Control}
+When an accurate model of the system is unavailable or difficult to obtain, model-free control methods can be employed. Classical model-free control methods are \ac{PID} controllers \citep{Fliess_2013}. In recent years, data-driven control methods attract increasing attention. Especially, \acf{RL} can be viewed as a model-free framework for solving optimal control problems, and has been successfully applied in various domains, including robotics, game playing, and autonomous systems.
+
+We first introduce the terminology of \ac{RL}:
 \begin{itemize}
 \item agent: the controller,
 \item environment: the to-be-controlled system,
@@ -707,8 +750,13 @@ We first introduce some terminologies of \ac{RL}:
 \item policy: the control strategy, which can be deterministic ($a_t=\mu(s_t)$) or probabilistic ($a_t=\pi(\cdot|s_t)$),
 \item reward: the feedback on the agent's success, $r_t=R(s_t,a_t)$.
 \end{itemize}
-The objective of an \ac{RL} algorithm is to maximize the expected cumulative reward (known as value) through trial-and-error interactions between the agent and the environment. In comparison to optimal control methods, \ac{RL} methods aim to optimize long-term sequential decision-making performance. Actor-Critic method \citep{actorcritic1999} is one of the most famous model-free \ac{RL} algorithms. The actor is responsible for selecting actions based on the current policy, while the critic evaluates the actions by estimating the value function. Then, the actor updates the policy based on feedback from the critic, leading to improved action selection over time.
+The foundation of \ac{RL} is the \ac{MDP} \citep{mdp2014}. An \ac{MDP} is defined by the tuple $(\mathcal{S}, \mathcal{A}, P, R, \gamma)$, where $\mathcal{S}$ is the set of states, $\mathcal{A}$ is the set of actions, $P(s_{t+1}|s_t,a_t)$ is the state transition probability, $R(s_t,a_t)$ is the reward function, and $\gamma\in[0,1]$ is the discount factor. The interaction process between the agent and the environment at each time step $t$ is as follows: the agent observes the current state $s_t$, selects an action $a_t$ according to its policy $\pi(a_t|s_t)$, receives a reward $r_t=R(s_t,a_t)$ from the environment, and transitions to a new state $s_{t+1}$ based on the state transition probability $P(s_{t+1}|s_t,a_t)$. The goal of the agent is to learn an optimal policy $\pi^*$ that maximizes the expected cumulative discounted reward (known as value function):
+\begin{equation}
+    \pi^* = \arg\max_{\pi} \mathbb{E}{\pi}\left[\sum_{t=0}^{\infty} \gamma^t r_t\right].
+\end{equation}          
+
+In comparison to other optimal control methods, \ac{RL} methods aim to optimize long-term sequential decision-making performance. Besides, generality and scalability are the two main advantages of \ac{RL} methods. They can handle nonlinear, high-dimensional, and stochastic dynamics and also non-quadratic reward functions. The work by \citeauthor{rlforcontrol2018} \citeyearpar{rlforcontrol2018} provides a comprehensive review of \ac{RL} for control. 
+
+It is worth noting that there is also an \ac{RL} method applying a surrogate model for the sake of improving the policy, which is called model-based \ac{RL} \citep{sutton1990, mbrl2020}. The surrogate model is learned from data in advance. Then, the model can also be used for planning, simulation, or generating synthetic data to augment real-world data. In comparison to the model-free \ac{RL}, the model-based \ac{RL} can reduce the required amount of samples gathered directly from the environment. From the perspective of leveraging a state transition model, model-based \ac{RL} can be viewed as a hybrid approach that combines elements of both model-based and model-free control strategies.
 
 \ac{RL} provides a flexible framework for learning control policies directly from data, enabling adaptation to changing environments and complex system dynamics. However, it often requires a large amount of data and may suffer from explainability, stability, and reliability issues. In safety-critical applications, model-based control methods are often preferred.
-
-\subsubsection{Model Predictive Control}

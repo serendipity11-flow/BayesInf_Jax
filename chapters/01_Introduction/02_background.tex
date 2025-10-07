@@ -242,7 +242,7 @@ Using a Gaussian process to infer variables from observed data based on prior di
 \end{equation}
 where $\epsilon_i \sim \mathcal{N}(0, \sigma_\epsilon^2)$ are \ac{i.i.d.} noises for all dimensions. We denote the collection of latent functions as $\boldsymbol{f}=[f(x_1), \dots, f(x_N)]^T$. So, the likelihood of $\boldsymbol{y}$ is given by:
 \begin{equation}
-    p(\boldsymbol{y}|\boldsymbol{f}) = \prod_{i=1}^{N}p(y_i|f(x_i)) = \prod_{i=1}^{N}\mathcal{N}(y_i|f(x_i)), \sigma_\epsilon^2).    
+    p(\boldsymbol{y}|\boldsymbol{f}) = \prod_{i=1}^{N}p(y_i|f(x_i)) = \prod_{i=1}^{N}\mathcal{N}(y_i|f(x_i), \sigma_\epsilon^2).    
 \end{equation}                                                                                                                          
 The prior distribution over functions $f(\cdot)$ is assumed to a zero-mean Gaussian process. We denote it as:
 \begin{equation}
@@ -579,7 +579,7 @@ For simpler conditioning scenarios, incorporating the conditional prior could ac
 
 In terms of architectures of conditional \acp{NF}, a direct adaptation based on the \ac{INN} is the \ac{cINN} \citep{ardizzone2019cinn}. It takes the condition as augmented input to the neural networks. In cases of higher-dimensional conditions, such as images, \citeauthor{govinda2021cinn} \citeyearpar{govinda2021cinn} apply a staged \ac{cINN} coupled with a staged condition network, wherein the conditions are progressively processed, and each intermediate representation is fed into its corresponding \ac{cINN} block.
 
-In scenarios involving complex conditions and relatively simple target variables, BayesFlow \citep{radev2020bayesflow} offers a general framework by extracting informative representations through a summary network and incorporating them, alongside the inputs, as augmented inputs to the \ac{cINN}. This framework is particularly well-suited for parameter identification from time series observations, where the summary network is typically chosen as a time series modeling architecture, such as \ac{RNN}. Both the summary network and \ac{cINN} are optimized together by minimizing the \ac{KL}-divergence between the true posterior density and the estimated one (similar to Equation \ref{eq:kl_nf}):
+In scenarios involving complex conditions and relatively simple target variables, BayesFlow \citep{radev2020bayesflow} offers a general framework by extracting informative representations through a summary network and incorporating them, alongside the inputs, as augmented inputs to the \ac{cINN}. This framework is particularly well-suited for parameter identification from time series observations, where the summary network is typically chosen as a time series modeling architecture, such as \ac{RNN}. The architecture is illustrated in Figure \ref{fig:bayesflow}. Both the summary network and \ac{cINN} are optimized together by minimizing the \ac{KL}-divergence between the true posterior density and the estimated one (similar to Equation \ref{eq:kl_nf}):
 \begin{multline}
 \label{eq:kl_cnf}
 D_{\text{KL}}(p_{X|Y}(\boldsymbol{x}|\boldsymbol{y})||p_{X|Y}(\boldsymbol{x}|\boldsymbol{y};\boldsymbol{\theta},\boldsymbol{\phi}))\approx const. - \\
@@ -587,6 +587,12 @@ D_{\text{KL}}(p_{X|Y}(\boldsymbol{x}|\boldsymbol{y})||p_{X|Y}(\boldsymbol{x}|\bo
 \end{multline}
 where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\theta}$ and $h$ is the summary network parameterized by $\boldsymbol{\phi}$.
 
+\begin{figure}[htp!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/bayesFlow.pdf}
+    \caption[BayesFlow Architecture]{ The architecture of BayesFlow. The blue arrows indicate the forward direction for training BayesFlow, while the yellow arrows indicate the reverse direction for inference. The summary network extracts informative representations from the observations, which are then fed into the \ac{cINN} alongside the target variables.}
+    \label{fig:bayesflow}
+\end{figure}
 The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, dynamics modeling, and state estimation.
 
 \subsection{From Inference to Control}

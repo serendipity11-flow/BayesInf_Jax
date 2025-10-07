@@ -2,7 +2,8 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {I.1}{\ignorespaces Variational Autoencoder Architecture}}{16}{figure.caption.29}%
 \contentsline {figure}{\numberline {I.2}{\ignorespaces Coupling Flow Architecture}}{22}{figure.caption.31}%
-\contentsline {figure}{\numberline {I.3}{\ignorespaces \ac {MPC} and \ac {RL}.}}{31}{figure.caption.46}%
+\contentsline {figure}{\numberline {I.3}{\ignorespaces BayesFlow Architecture}}{27}{figure.caption.39}%
+\contentsline {figure}{\numberline {I.4}{\ignorespaces \ac {MPC} and \ac {RL}.}}{32}{figure.caption.47}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

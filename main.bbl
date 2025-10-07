@@ -1,21 +1,25 @@
-\begin{thebibliography}{95}
+\begin{thebibliography}{120}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[Chr(2007)]{Christophersen2007}
-\emph{Receding Horizon Control}, pages 26--38.
-\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2007.
-\newblock ISBN 978-3-540-72701-9.
-\newblock \doi{10.1007/978-3-540-72701-9_3}.
-\newblock URL \url{https://doi.org/10.1007/978-3-540-72701-9_3}.
+\bibitem[Abraham and Deo(2023)]{abraham2023deepgp}
+Kweku Abraham and Neil Deo.
+\newblock Deep gaussian process priors for bayesian inference in nonlinear inverse problems, 2023.
+\newblock URL \url{https://arxiv.org/abs/2312.14294}.
 
 \bibitem[Adams et~al.(2018)Adams, Pennington, Johnson, Smith, Ovadia, Patton, and Saunderson]{adams2018adams}
 Ryan~P. Adams, Jeffrey Pennington, Matthew~J. Johnson, Jamie Smith, Yaniv Ovadia, Brian Patton, and James Saunderson.
 \newblock Estimating the spectral density of large implicit matrices, 2018.
 \newblock URL \url{https://arxiv.org/abs/1802.03451}.
+
+\bibitem[Alaa and van~der Schaar(2017)]{NIPS2017_861dc9bd}
+Ahmed~M. Alaa and Mihaela van~der Schaar.
+\newblock Deep multi-task gaussian processes for survival analysis with competing risks.
+\newblock In \emph{Proceedings of the 31st International Conference on Neural Information Processing Systems}, NIPS'17, page 2326–2334, Red Hook, NY, USA, 2017. Curran Associates Inc.
+\newblock ISBN 9781510860964.
 
 \bibitem[Allen(2007)]{Allen_2007}
 Edward Allen.
@@ -44,6 +48,11 @@ Lynton Ardizzone, Carsten Lüth, Jakob Kruse, Carsten Rother, and Ullrich Köthe
 Andrea Asperti.
 \newblock Variance loss in variational autoencoders, 2020.
 \newblock URL \url{https://arxiv.org/abs/2002.09860}.
+
+\bibitem[Baldassari et~al.(2023)Baldassari, Siahkoohi, Garnier, Solna, and de~Hoop]{baldassari2023}
+Lorenzo Baldassari, Ali Siahkoohi, Josselin Garnier, Knut Solna, and Maarten~V. de~Hoop.
+\newblock Conditional score-based diffusion models for bayesian inference in infinite dimensions, 2023.
+\newblock URL \url{https://arxiv.org/abs/2305.19147}.
 
 \bibitem[Barker et~al.(1995)Barker, Brown, and Martin]{bayesestimation}
 A.L. Barker, D.E. Brown, and W.N. Martin.
@@ -121,6 +130,11 @@ Ricky T.~Q. Chen, Jens Behrmann, David Duvenaud, and Jörn-Henrik Jacobsen.
 \newblock Residual flows for invertible generative modeling, 2020.
 \newblock URL \url{https://arxiv.org/abs/1906.02735}.
 
+\bibitem[Chen et~al.(2025)Chen, Bansal, and Scott]{chen2025conddiff}
+Tianyu Chen, Vansh Bansal, and James~G. Scott.
+\newblock Conditional diffusions for amortized neural posterior estimation, 2025.
+\newblock URL \url{https://arxiv.org/abs/2410.19105}.
+
 \bibitem[Chen(2003)]{chen_bayesian_2003}
 Zhe Chen.
 \newblock Bayesian {Filtering}: {From} {Kalman} {Filters} to {Particle} {Filters}, and {Beyond}.
@@ -128,10 +142,34 @@ Zhe Chen.
 \newblock \doi{10/bkztpw}.
 \newblock 01234 ZSCC: 0001234.
 
+\bibitem[Christophersen(2007)]{Christophersen2007}
+Frank~J. Christophersen.
+\newblock \emph{Receding Horizon Control}, pages 26--38.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2007.
+\newblock ISBN 978-3-540-72701-9.
+\newblock \doi{10.1007/978-3-540-72701-9_3}.
+\newblock URL \url{https://doi.org/10.1007/978-3-540-72701-9_3}.
+
 \bibitem[Damianou and Lawrence(2013)]{damianou2013dgp}
 Andreas~C. Damianou and Neil~D. Lawrence.
 \newblock Deep gaussian processes, 2013.
 \newblock URL \url{https://arxiv.org/abs/1211.0358}.
+
+\bibitem[De~Santi et~al.(2024)De~Santi, Razzano, Fidecaro, Muccillo, Papalini, and Patricelli]{De_Santi_2024}
+Federico De~Santi, Massimiliano Razzano, Francesco Fidecaro, Luca Muccillo, Lucia Papalini, and Barbara Patricelli.
+\newblock Deep learning to detect gravitational waves from binary close encounters: Fast parameter estimation using normalizing flows.
+\newblock \emph{Physical Review D}, 109\penalty0 (10), May 2024.
+\newblock ISSN 2470-0029.
+\newblock \doi{10.1103/physrevd.109.102004}.
+\newblock URL \url{http://dx.doi.org/10.1103/PhysRevD.109.102004}.
+
+\bibitem[Desai et~al.(2023)Desai, Gujarathi, Parikh, Yadav, Patel, and Batra]{dgp2023desai}
+Aadesh Desai, Eshan Gujarathi, Saagar Parikh, Sachin Yadav, Zeel Patel, and Nipun Batra.
+\newblock Deep gaussian processes for air quality inference.
+\newblock In \emph{Proceedings of the 6th Joint International Conference on Data Science \& Management of Data (10th ACM IKDD CODS and 28th COMAD)}, CODS-COMAD '23, page 278–279, New York, NY, USA, 2023. Association for Computing Machinery.
+\newblock ISBN 9781450397971.
+\newblock \doi{10.1145/3570991.3571004}.
+\newblock URL \url{https://doi.org/10.1145/3570991.3571004}.
 
 \bibitem[Diehl(2013)]{Diehl2013}
 Moritz Diehl.
@@ -145,6 +183,14 @@ Moritz Diehl.
 Laurent Dinh, David Krueger, and Yoshua Bengio.
 \newblock Nice: Non-linear independent components estimation, 2015.
 \newblock URL \url{https://arxiv.org/abs/1410.8516}.
+
+\bibitem[Dong et~al.(2025)Dong, Jacobsen, Khalloufi, Akram, Liu, Duraisamy, and Huan]{DONG2025117457}
+Jiayuan Dong, Christian Jacobsen, Mehdi Khalloufi, Maryam Akram, Wanjiao Liu, Karthik Duraisamy, and Xun Huan.
+\newblock Variational bayesian optimal experimental design with normalizing flows.
+\newblock \emph{Computer Methods in Applied Mechanics and Engineering}, 433:\penalty0 117457, 2025.
+\newblock ISSN 0045-7825.
+\newblock \doi{https://doi.org/10.1016/j.cma.2024.117457}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0045782524007126}.
 
 \bibitem[Du et~al.(2022)Du, Luo, Chen, Xu, and Zeng]{du2022toflow}
 Shian Du, Yihong Luo, Wei Chen, Jian Xu, and Delu Zeng.
@@ -170,6 +216,14 @@ Jos Elfring, Elena Torta, and Ren{\'e} van~de Molengraft.
 \newblock Particle filters: A {Hands-On} tutorial.
 \newblock \emph{Sensors (Basel)}, 21\penalty0 (2), jan 2021.
 
+\bibitem[Ferreira and Bejger(2025)]{Ferreira_2025}
+Márcio Ferreira and Michał Bejger.
+\newblock Conditional variational autoencoder inference of neutron star equation of state from astrophysical observations.
+\newblock \emph{Physical Review D}, 111\penalty0 (2), January 2025.
+\newblock ISSN 2470-0029.
+\newblock \doi{10.1103/physrevd.111.023035}.
+\newblock URL \url{http://dx.doi.org/10.1103/PhysRevD.111.023035}.
+
 \bibitem[Fliess and Join(2013)]{Fliess_2013}
 Michel Fliess and Cédric Join.
 \newblock Model-free control.
@@ -192,6 +246,14 @@ Andrew Y.~K. Foong, David~R. Burt, Yingzhen Li, and Richard~E. Turner.
 Meire Fortunato, Charles Blundell, and Oriol Vinyals.
 \newblock Bayesian recurrent neural networks, 2019.
 \newblock URL \url{https://arxiv.org/abs/1704.02798}.
+
+\bibitem[Gabbard et~al.(2022)Gabbard, Messenger, Heng, Tonolini, and Murray-Smith]{Gabbard2022}
+Hunter Gabbard, Chris Messenger, Ik~Siong Heng, Francesco Tonolini, and Roderick Murray-Smith.
+\newblock Bayesian parameter estimation using conditional variational autoencoders for gravitational-wave astronomy.
+\newblock \emph{Nature Physics}, 18\penalty0 (1):\penalty0 112--117, Jan 2022.
+\newblock ISSN 1745-2481.
+\newblock \doi{10.1038/s41567-021-01425-7}.
+\newblock URL \url{https://doi.org/10.1038/s41567-021-01425-7}.
 
 \bibitem[Gabbiani and Cox(2010)]{gabbiani2010mathematics}
 F.~Gabbiani and S.J. Cox.
@@ -262,6 +324,11 @@ Eldad Haber and Lars Ruthotto.
 \newblock \doi{10.1088/1361-6420/aa9a90}.
 \newblock URL \url{http://dx.doi.org/10.1088/1361-6420/aa9a90}.
 
+\bibitem[Haitsiukevich et~al.(2024)Haitsiukevich, Poyraz, Marttinen, and Ilin]{haitsiukevich2024}
+Katsiaryna Haitsiukevich, Onur Poyraz, Pekka Marttinen, and Alexander Ilin.
+\newblock Diffusion models as probabilistic neural operators for recovering unobserved states of dynamical systems, 2024.
+\newblock URL \url{https://arxiv.org/abs/2405.07097}.
+
 \bibitem[Hastings(1970)]{Hastings}
 W.~K. Hastings.
 \newblock Monte carlo sampling methods using markov chains and their applications.
@@ -280,6 +347,13 @@ Jonathan Ho, Ajay Jain, and Pieter Abbeel.
 \newblock Denoising diffusion probabilistic models, 2020.
 \newblock URL \url{https://arxiv.org/abs/2006.11239}.
 
+\bibitem[Ho et~al.(2025)Ho, Song, Sachdev, Jiang, and Wen]{cvae2025}
+Mai~P. Ho, Yang Song, Perminder~S. Sachdev, Jiyang Jiang, and Wei Wen.
+\newblock An enhanced conditional variational autoencoder-based normative model for neuroimaging analysis.
+\newblock \emph{bioRxiv}, 2025.
+\newblock \doi{10.1101/2025.01.05.631276}.
+\newblock URL \url{https://www.biorxiv.org/content/early/2025/01/05/2025.01.05.631276}.
+
 \bibitem[Hutchinson(1990)]{Hutchinson01011990}
 M.F. Hutchinson.
 \newblock A stochastic estimator of the trace of the influence matrix for laplacian smoothing splines.
@@ -291,6 +365,11 @@ M.F. Hutchinson.
 Pavel Izmailov, Sharad Vikram, Matthew~D. Hoffman, and Andrew~Gordon Wilson.
 \newblock What are bayesian neural network posteriors really like?, 2021.
 \newblock URL \url{https://arxiv.org/abs/2104.14421}.
+
+\bibitem[Jakkala(2021)]{jakkala2021survey}
+Kalvik Jakkala.
+\newblock Deep gaussian processes: A survey, 2021.
+\newblock URL \url{https://arxiv.org/abs/2106.12135}.
 
 \bibitem[Jordan et~al.(1998)Jordan, Ghahramani, Jaakkola, and Saul]{Jordan1998}
 Michael~I. Jordan, Zoubin Ghahramani, Tommi~S. Jaakkola, and Lawrence~K. Saul.
@@ -344,6 +423,13 @@ Jakob Kruse, Gianluca Detommaso, Ullrich Köthe, and Robert Scheichl.
 \newblock Hint: Hierarchical invertible neural transport for density estimation and bayesian inference, 2021.
 \newblock URL \url{https://arxiv.org/abs/1905.10687}.
 
+\bibitem[Kucharský and Bürkner(2025)]{Kucharsk2025}
+Šimon Kucharský and Paul~Christian Bürkner.
+\newblock Amortized bayesian cognitive modeling with bayesflow.
+\newblock \emph{PsyArXiv}, May 2025.
+\newblock \doi{10.31234/osf.io/34k6q_v1}.
+\newblock URL \url{http://dx.doi.org/10.31234/osf.io/34k6q_v1}.
+
 \bibitem[Kullback and Leibler(1951)]{kl1951}
 S.~Kullback and R.~A. Leibler.
 \newblock On information and sufficiency.
@@ -390,6 +476,11 @@ Arya~D. McCarthy, Xian Li, Jiatao Gu, and Ning Dong.
 \newblock \doi{10.18653/v1/2020.acl-main.753}.
 \newblock URL \url{https://aclanthology.org/2020.acl-main.753/}.
 
+\bibitem[Merkatas and Särkkä(2022)]{merkatas2022bnn}
+Christos Merkatas and Simo Särkkä.
+\newblock System identification using bayesian neural networks with nonparametric noise models, 2022.
+\newblock URL \url{https://arxiv.org/abs/2104.12119}.
+
 \bibitem[Metropolis et~al.(1953)Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller]{Metropolis}
 Nicholas Metropolis, Arianna~W. Rosenbluth, Marshall~N. Rosenbluth, Augusta~H. Teller, and Edward Teller.
 \newblock Equation of state calculations by fast computing machines.
@@ -428,6 +519,11 @@ Samuel Müller, Noah Hollmann, Sebastian~Pineda Arango, Josif Grabocka, and Fran
 \newblock Transformers can do bayesian inference, 2024.
 \newblock URL \url{https://arxiv.org/abs/2112.10510}.
 
+\bibitem[Nautiyal et~al.(2024)Nautiyal, Shternshis, Hellander, and Singh]{vae_sbi}
+Mayank Nautiyal, Andrey Shternshis, Andreas Hellander, and Prashant Singh.
+\newblock Variational autoencoders for efficient simulation-based inference, 2024.
+\newblock URL \url{https://arxiv.org/abs/2411.14511}.
+
 \bibitem[Neal(1996)]{Neal1996}
 Radford~M. Neal.
 \newblock \emph{Priors for Infinite Networks}, pages 29--53.
@@ -454,6 +550,12 @@ George Papamakarios, Eric Nalisnick, Danilo~Jimenez Rezende, Shakir Mohamed, and
 \newblock Normalizing flows for probabilistic modeling and inference, 2021.
 \newblock URL \url{https://arxiv.org/abs/1912.02762}.
 
+\bibitem[Park et~al.(2018)Park, Tagade, and Choi]{dgp2018park}
+Young-Jin Park, Piyush~M. Tagade, and Han-Lim Choi.
+\newblock Deep gaussian process-based bayesian inference for contaminant source localization.
+\newblock \emph{IEEE Access}, 6:\penalty0 49432--49449, 2018.
+\newblock \doi{10.1109/ACCESS.2018.2867687}.
+
 \bibitem[Peterka(1981)]{BayesSysId1981}
 V.~Peterka.
 \newblock Bayesian system identification.
@@ -479,6 +581,11 @@ Stefan Radev.
 Stefan~T. Radev, Ulf~K. Mertens, Andreas Voss, Lynton Ardizzone, and Ullrich Köthe.
 \newblock Bayesflow: Learning complex stochastic models with invertible neural networks, 2020.
 \newblock URL \url{https://arxiv.org/abs/2003.06281}.
+
+\bibitem[Rahmandad et~al.(2025)Rahmandad, Akhavan, and Jalali]{Rahmandad2025_uh}
+Hazhir Rahmandad, Ali Akhavan, and Mohammad~S Jalali.
+\newblock Incorporating deep learning into system dynamics: Amortized bayesian inference for scalable likelihood‐free parameter estimation.
+\newblock \emph{Syst. Dyn. Rev.}, 41\penalty0 (1), January 2025.
 
 \bibitem[Rasmussen and Williams(2008)]{Rasmussen_Williams_2008}
 Carl~Edward Rasmussen and Christopher K.~I. Williams.
@@ -564,6 +671,14 @@ David~J. Spiegelhalter, Nicola~G. Best, Bradley~P. Carlin, and Angelika van~der 
 \newblock ISSN 13697412, 14679868.
 \newblock URL \url{http://www.jstor.org/stable/24774528}.
 
+\bibitem[Sun et~al.(2025)Sun, Wang, and He]{Sun_2025}
+Hui Sun, He~Wang, and Jibo He.
+\newblock Accelerating bayesian sampling for massive black hole binaries with prior constraints from conditional variational autoencoder.
+\newblock \emph{Physical Review D}, 111\penalty0 (10), May 2025.
+\newblock ISSN 2470-0029.
+\newblock \doi{10.1103/8r8b-hckx}.
+\newblock URL \url{http://dx.doi.org/10.1103/8r8b-hckx}.
+
 \bibitem[Sutton(1990)]{sutton1990}
 Richard~S. Sutton.
 \newblock Integrated architectures for learning, planning, and reacting based on approximating dynamic programming.
@@ -576,6 +691,14 @@ Richard~S. Sutton.
 Simo Särkkä.
 \newblock The use of gaussian processes in system identification, 2019.
 \newblock URL \url{https://arxiv.org/abs/1907.06066}.
+
+\bibitem[Tune et~al.(2025)Tune, Kooiker, Davis, Daniel, and Moussavi-Harami]{TUNE2025179}
+Travis Tune, Kristina~B. Kooiker, Jennifer Davis, Thomas Daniel, and Farid Moussavi-Harami.
+\newblock Bayesian estimation of muscle mechanisms and therapeutic targets using variational autoencoders.
+\newblock \emph{Biophysical Journal}, 124\penalty0 (1):\penalty0 179--191, 2025.
+\newblock ISSN 0006-3495.
+\newblock \doi{https://doi.org/10.1016/j.bpj.2024.11.3310}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0006349524022380}.
 
 \bibitem[Wainwright and Jordan(2008)]{Wainwright2008}
 Martin~J Wainwright and Michael~I Jordan.
@@ -598,5 +721,40 @@ Yixin Wang, David~M. Blei, and John~P. Cunningham.
 Christina Winkler, Daniel Worrall, Emiel Hoogeboom, and Max Welling.
 \newblock Learning likelihoods with conditional normalizing flows, 2023.
 \newblock URL \url{https://arxiv.org/abs/1912.00042}.
+
+\bibitem[Yamamoto and Tanaka(2020)]{Yamamoto_2020rse}
+Takahiro~S. Yamamoto and Takahiro Tanaka.
+\newblock {Use of conditional variational auto encoder to analyze ringdown gravitational waves}, 2 2020.
+
+\bibitem[Yan et~al.(2024)Yan, Liang, Zheng, Fan, Wang, and Wang]{yan2024brnn}
+Shi Yan, Yan Liang, Le~Zheng, Mingyang Fan, Xiaoxu Wang, and Binglu Wang.
+\newblock Explainable gated bayesian recurrent neural network for non-markov state estimation, 2024.
+\newblock URL \url{https://arxiv.org/abs/2310.17187}.
+
+\bibitem[Yang et~al.(2021)Yang, Meng, and Karniadakis]{YANG2021109913}
+Liu Yang, Xuhui Meng, and George~Em Karniadakis.
+\newblock B-pinns: Bayesian physics-informed neural networks for forward and inverse pde problems with noisy data.
+\newblock \emph{Journal of Computational Physics}, 425:\penalty0 109913, 2021.
+\newblock ISSN 0021-9991.
+\newblock \doi{https://doi.org/10.1016/j.jcp.2020.109913}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0021999120306872}.
+
+\bibitem[Zeng et~al.(2023)Zeng, Todd, and Hu]{Zeng2023}
+Jice Zeng, Michael~D. Todd, and Zhen Hu.
+\newblock Probabilistic damage detection using a new likelihood-free bayesian inference method.
+\newblock \emph{Journal of Civil Structural Health Monitoring}, 13\penalty0 (2):\penalty0 319--341, Mar 2023.
+\newblock ISSN 2190-5479.
+\newblock \doi{10.1007/s13349-022-00638-5}.
+\newblock URL \url{https://doi.org/10.1007/s13349-022-00638-5}.
+
+\bibitem[Zhdanov et~al.(2022)Zhdanov, Randolph, Kluge, Nakatsutsumi, Gutt, Ganeva, and Hoffmann]{zhdanov2022gisaxs}
+Maksim Zhdanov, Lisa Randolph, Thomas Kluge, Motoaki Nakatsutsumi, Christian Gutt, Marina Ganeva, and Nico Hoffmann.
+\newblock Amortized bayesian inference of gisaxs data with normalizing flows, 2022.
+\newblock URL \url{https://arxiv.org/abs/2210.01543}.
+
+\bibitem[Zhu et~al.(2025)Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue]{zhu2025diffusion}
+Feiqin Zhu, Dmitrii Torbunov, Zhongjing Jiang, Tianqiao Zhao, Amirthagunaraj Yogarathnam, Yihui Ren, and Meng Yue.
+\newblock Diffusion model-based parameter estimation in dynamic power systems, 2025.
+\newblock URL \url{https://arxiv.org/abs/2411.10431}.
 
 \end{thebibliography}

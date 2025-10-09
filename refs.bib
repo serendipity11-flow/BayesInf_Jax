@@ -1514,7 +1514,7 @@ abstract = {Bayesian optimal experimental design (OED) seeks experiments that ma
  volume = {34},
  year = {2021}
 }
-﻿@Book{Durbin2012,
+@Book{Durbin2012,
 author={Durbin, J.
 and Koopman, Siem Jan},
 title={Time series analysis by state space methods},
@@ -1526,7 +1526,7 @@ address={Oxford},
 isbn={9780199641178; 019964117X},
 language={English}
 }
-﻿@Article{Dempster1977,
+@Article{Dempster1977,
 author={Dempster, A. P.
 and Laird, N. M.
 and Rubin, D. B.},
@@ -1543,7 +1543,7 @@ note={Full publication date: 1977},
 issn={00359246},
 url={http://www.jstor.org/stable/2984875}
 }
-﻿@Article{Durbin2000,
+@Article{Durbin2000,
 author={Durbin, J.
 and Koopman, S. J.},
 title={Time Series Analysis of Non-Gaussian Observations Based on State Space Models from Both Classical and Bayesian Perspectives},
@@ -1558,17 +1558,65 @@ abstract={[The analysis of non-Gaussian time series using state space models is 
 note={Full publication date: 2000},
 url={http://www.jstor.org/stable/2680676}
 }
-@article{PANIAGUA2024200344,
-title = {Nonlinear system identification using modified variational autoencoders},
-journal = {Intelligent Systems with Applications},
-volume = {22},
-pages = {200344},
-year = {2024},
-issn = {2667-3053},
-doi = {https://doi.org/10.1016/j.iswa.2024.200344},
-url = {https://www.sciencedirect.com/science/article/pii/S2667305324000206},
-author = {Jose L. Paniagua and Jesús A. López},
-keywords = {System identification, Deep learning, Generative modeling, Nonlinear dynamic systems},
-abstract = {This research proposes a methodology for identifying nonlinear systems using input/output data and deep learning generative models. Our framework integrates Variational Autoencoders (VAE) with Nonlinear Autoregressive with exogenous input (NARX) in a unified identification structure to address overfitting in nonlinear system identification using NARX structures. Specifically, we modify a variational autoencoder by replacing the decoder module with a NARX model using the latent space information captured from the VAE encoder module as one of the exogenous inputs. Following the training phase, the decoder module can be used as a nonlinear model of the system. We evaluate the efficacy of our approach by performing open-loop prediction tests on data from four nonlinear benchmark systems: Cascaded tanks, Gas furnace, Silverbox, and Wiener-Hammerstein. The proposed VAE-NARX method reported Root Mean Squared Error (RMSE) of 8.23×10−3, 16.69×10−3, 0.002×10−3 and 0.037×10−3 respectively. Our results demonstrate that our proposed method achieves similar and outperforms prediction performances to standard identification techniques and can enhance the performance of traditional nonlinear system identification methods based on multi-layer perceptron models.}
+@ARTICLE{Merkatas2023_sm,
+  title     = "System identification using autoregressive Bayesian neural
+               networks with nonparametric noise models",
+  author    = "Merkatas, Christos and S{\"a}rkk{\"a}, Simo",
+  abstract  = "System identification is of special interest in science and
+               engineering. This article is concerned with a system
+               identification problem arising in stochastic dynamic systems,
+               where the aim is to estimate the parameters of a system along
+               with its unknown noise processes. In particular, we propose a
+               Bayesian nonparametric approach for system identification in
+               discrete time nonlinear random dynamical systems assuming only
+               the order of the Markov process is known. The proposed method
+               replaces the assumption of Gaussian distributed error components
+               with a flexible family of probability density functions based on
+               Bayesian nonparametric priors. Additionally, the functional form
+               of the system is estimated by leveraging Bayesian neural
+               networks, which leads to flexible uncertainty quantification.
+               Hamiltonian Monte Carlo sampler within a Gibbs sampler for
+               posterior inference is proposed and its effectiveness is
+               illustrated in real time series.",
+  journal   = "J. Time Ser. Anal.",
+  publisher = "Wiley",
+  volume    =  44,
+  number    =  3,
+  pages     = "319--330",
+  month     =  may,
+  year      =  2023,
+  copyright = "http://creativecommons.org/licenses/by/4.0/",
+  language  = "en"
 }
-
+@misc{roeder2019abi,
+      title={Efficient Amortised Bayesian Inference for Hierarchical and Nonlinear Dynamical Systems}, 
+      author={Geoffrey Roeder and Paul K. Grant and Andrew Phillips and Neil Dalchau and Edward Meeds},
+      year={2019},
+      eprint={1905.12090},
+      archivePrefix={arXiv},
+      primaryClass={stat.ML},
+      url={https://arxiv.org/abs/1905.12090}, 
+}
+@article{MITRENTSIS2022108403,
+title = {A Gaussian process framework for the probabilistic dynamic modeling of active distribution networks using exogenous variables},
+journal = {Electric Power Systems Research},
+volume = {211},
+pages = {108403},
+year = {2022},
+issn = {0378-7796},
+doi = {https://doi.org/10.1016/j.epsr.2022.108403},
+url = {https://www.sciencedirect.com/science/article/pii/S0378779622005521},
+author = {Georgios Mitrentsis and Hendrik Lens},
+keywords = {Active distribution networks, Gaussian process, Measurement-based approach, Nonlinear system identification, Uncertain dynamical systems},
+abstract = {The stochastic nature of load and distributed generation (DG) poses many challenges in the development of realistic dynamic models for active distribution networks (ADNs). The consumers constantly alter their power demand both in magnitude and composition while the DG output is governed by weather conditions. To this end, we introduce a dynamic ADN model that can directly incorporate time and weather variables in order to decode their influence and eventually yield more accurate predictions. To do so, we tailor a Gaussian process (GP) model such that it can capture the nonlinear ADN dynamics while learning any relevant information encoded in a list of exogenous variables such as time of the day, month, air temperature, etc. Furthermore, in addition to a traditional dynamic response, the model generates the associated predictive uncertainty. Finally, the ability of the proposed model to reflect the time-varying and weather dependent dynamics of load and DG is highlighted using field data acquired over a year in four different substations spread out in Southern Germany.}
+}
+@INPROCEEDINGS{10207626,
+  author={Trivedi, Ananya and Bazzi, Salah and Zolotas, Mark and Padır, Taşkın},
+  booktitle={2023 IEEE International Conference on Assured Autonomy (ICAA)}, 
+  title={Probabilistic Dynamic Modeling and Control for Skid-Steered Mobile Robots in Off-Road Environments}, 
+  year={2023},
+  volume={},
+  number={},
+  pages={57-60},
+  keywords={Adaptation models;Dynamics;Predictive models;Probabilistic logic;Prediction algorithms;Real-time systems;Planning;Skid-Steered Mobile Robots;Nonlinear Stochastic Model Predictive Control;Learning and Adaptive Systems;Dynamics Modeling},
+  doi={10.1109/ICAA58325.2023.00016}}

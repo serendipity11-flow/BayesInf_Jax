@@ -1,4 +1,4 @@
-\begin{thebibliography}{125}
+\begin{thebibliography}{127}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -502,6 +502,11 @@ Arya~D. McCarthy, Xian Li, Jiatao Gu, and Ning Dong.
 \newblock \doi{10.18653/v1/2020.acl-main.753}.
 \newblock URL \url{https://aclanthology.org/2020.acl-main.753/}.
 
+\bibitem[Merkatas and S{\"a}rkk{\"a}(2023)]{Merkatas2023_sm}
+Christos Merkatas and Simo S{\"a}rkk{\"a}.
+\newblock System identification using autoregressive bayesian neural networks with nonparametric noise models.
+\newblock \emph{J. Time Ser. Anal.}, 44\penalty0 (3):\penalty0 319--330, May 2023.
+
 \bibitem[Merkatas and Särkkä(2022)]{merkatas2022bnn}
 Christos Merkatas and Simo Särkkä.
 \newblock System identification using bayesian neural networks with nonparametric noise models, 2022.
@@ -632,6 +637,11 @@ Danilo~Jimenez Rezende and Shakir Mohamed.
 \bibitem[Riebesell et~al.(2023)Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}]{awesomenfs}
 Janosh Riebesell, Kapil Sachdeva, Juan~Emmanuel Johnson, Fran{\c c}ois Rozet, {AifuHan}, Byeongkeun Ahn, He~Wang, Hossein Pourbozorg, Hyounguk Shon, John~Franklin Crenshaw, Kristian Hartikainen, Kyle Cranmer, Matthew Skiffington, Maxime Vandegar, Rafael Orozco, Sandeep Nagar, Thorsten Gl{\"u}senkamp, Vincent Stimper, and {kleinicke}.
 \newblock janosh/awesome-normalizing-flows: v1.0.0, 2023.
+
+\bibitem[Roeder et~al.(2019)Roeder, Grant, Phillips, Dalchau, and Meeds]{roeder2019abi}
+Geoffrey Roeder, Paul~K. Grant, Andrew Phillips, Neil Dalchau, and Edward Meeds.
+\newblock Efficient amortised bayesian inference for hierarchical and nonlinear dynamical systems, 2019.
+\newblock URL \url{https://arxiv.org/abs/1905.12090}.
 
 \bibitem[Ruthotto and Haber(2018)]{ruthotto2018deep}
 Lars Ruthotto and Eldad Haber.

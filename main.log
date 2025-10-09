@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  9 OCT 2025 12:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  9 OCT 2025 15:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1156,12 +1156,17 @@ l.35 ...ictive Control}{33}{subsubsection.1.2.5.4}
                                                   % [7
 
 ]
+Overfull \hbox (2.99524pt too wide) detected at line 68
+\T1/lmr/bx/n/10.95 VII 
+ []
+
+
 
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.67 ...butions and Publications}{53}{section*.56}
+l.68 ...rline {VII}Zusammenfassung}{53}{chapter.7}
                                                   % [8])
 \tf@toc=\write5
 \openout5 = `main.toc'.
@@ -1235,7 +1240,7 @@ although it is yet undefined on input line 6.
 
 [8
 
-] (./chapters/01_Introduction/00.tex
+] (./chapters/Introduction/00.tex
 Chapter I.
 LaTeX Font Info:    Trying to load font information for OT1+phv on input line 1.
 (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/psnfss/ot1phv.fd
@@ -1250,7 +1255,7 @@ LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 1.
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 ) (c:/Users/zhangyi/texlive/texmf-dist/tex/latex/microtype/mt-ptm.cfg
 File: mt-ptm.cfg 2006/04/20 v1.7 microtype config. file: Times (RS)
-) (./chapters/01_Introduction/01_motivation.tex
+) (./chapters/Introduction/01_motivation.tex
 Underfull \vbox (badness 1005) has occurred while \output is active []
 
 
@@ -1286,7 +1291,7 @@ Underfull \vbox (badness 2096) has occurred while \output is active []
 Package acronym Info: Label `acro:MPC' overridden on input line 39.
 
 
-[4]) (./chapters/01_Introduction/02_background.tex
+[4]) (./chapters/Introduction/02_background.tex
 Package acronym Info: Label `acro:DGP' newly defined as it shall be overridden
 although it is yet undefined on input line 3.
 
@@ -1312,6 +1317,8 @@ Underfull \hbox (badness 10000) in paragraph at lines 38--39
  []
 
 
+
+[6]
 Underfull \hbox (badness 10000) in paragraph at lines 47--48
 
  []
@@ -1319,8 +1326,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 47--48
 Package acronym Info: Label `acro:PDF' newly defined as it shall be overridden
 although it is yet undefined on input line 51.
 
-
-[6]
 Underfull \hbox (badness 10000) in paragraph at lines 59--61
 
  []
@@ -1351,19 +1356,15 @@ although it is yet undefined on input line 168.
 
 
 [10]
-Package acronym Info: Label `acro:ELBO' newly defined as it shall be overridden
-although it is yet undefined on input line 207.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 3792) has occurred while \output is active []
 
 
 
 [11]
+Package acronym Info: Label `acro:ELBO' newly defined as it shall be overridden
+although it is yet undefined on input line 207.
 Package acronym Info: Label `acro:CAVI' newly defined as it shall be overridden
 although it is yet undefined on input line 226.
-
-Underfull \vbox (badness 1077) has occurred while \output is active []
-
 
 
 [12]
@@ -1376,14 +1377,8 @@ although it is yet undefined on input line 251.
 Package acronym Info: Label `acro:RBF' newly defined as it shall be overridden
 although it is yet undefined on input line 251.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
 
 [13]
-Underfull \vbox (badness 1755) has occurred while \output is active []
-
-
 
 [14]
 Package acronym Info: Label `acro:SGD' newly defined as it shall be overridden
@@ -1393,9 +1388,12 @@ although it is yet undefined on input line 286.
 Package acronym Info: Label `acro:CNN' newly defined as it shall be overridden
 although it is yet undefined on input line 288.
 
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
 
 [15]
-<figures/VAE.pdf, id=963, 536.96606pt x 317.26529pt>
+<figures/VAE.pdf, id=988, 536.96606pt x 317.26529pt>
 File: figures/VAE.pdf Graphic file (type pdf)
 <use figures/VAE.pdf>
 Package pdftex.def Info: figures/VAE.pdf  used on input line 296.
@@ -1403,13 +1401,13 @@ Package pdftex.def Info: figures/VAE.pdf  used on input line 296.
 
 
 [16 <./figures/VAE.pdf>]
+Underfull \vbox (badness 5741) has occurred while \output is active []
+
+
 
 [17]
 Package acronym Info: Label `acro:CDF' newly defined as it shall be overridden
-although it is yet undefined on input line 346.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+although it is yet undefined on input line 345.
 
 
 [18]
@@ -1417,45 +1415,45 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 [19]
 
 [20]
-<figures/NICE.pdf, id=1112, 166.7028pt x 106.4778pt>
+<figures/NICE.pdf, id=1138, 166.7028pt x 106.4778pt>
 File: figures/NICE.pdf Graphic file (type pdf)
 <use figures/NICE.pdf>
-Package pdftex.def Info: figures/NICE.pdf  used on input line 431.
+Package pdftex.def Info: figures/NICE.pdf  used on input line 430.
 (pdftex.def)             Requested size: 166.70238pt x 106.47752pt.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 432.
+(Font)              <10> on input line 431.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 432.
+(Font)              <7> on input line 431.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 432.
+(Font)              <5> on input line 431.
 Package acronym Info: Label `acro:NICE' newly defined as it shall be overridden
-although it is yet undefined on input line 432.
-<figures/RealNVP.pdf, id=1115, 197.7789pt x 106.4778pt>
+although it is yet undefined on input line 431.
+<figures/RealNVP.pdf, id=1141, 197.7789pt x 106.4778pt>
 File: figures/RealNVP.pdf Graphic file (type pdf)
 <use figures/RealNVP.pdf>
-Package pdftex.def Info: figures/RealNVP.pdf  used on input line 437.
+Package pdftex.def Info: figures/RealNVP.pdf  used on input line 436.
 (pdftex.def)             Requested size: 197.77841pt x 106.47752pt.
 Package acronym Info: Label `acro:RealNVP' newly defined as it shall be overridden
-although it is yet undefined on input line 438.
-<figures/INN.pdf, id=1118, 397.485pt x 106.4778pt>
+although it is yet undefined on input line 437.
+<figures/INN.pdf, id=1144, 397.485pt x 106.4778pt>
 File: figures/INN.pdf Graphic file (type pdf)
 <use figures/INN.pdf>
-Package pdftex.def Info: figures/INN.pdf  used on input line 442.
+Package pdftex.def Info: figures/INN.pdf  used on input line 441.
 (pdftex.def)             Requested size: 397.48402pt x 106.47752pt.
 Package acronym Info: Label `acro:INN' newly defined as it shall be overridden
-although it is yet undefined on input line 443.
+although it is yet undefined on input line 442.
 
 
 [21]
 Package acronym Info: Label `acro:HINT' newly defined as it shall be overridden
-although it is yet undefined on input line 483.
+although it is yet undefined on input line 482.
 Package acronym Info: Label `acro:MAF' newly defined as it shall be overridden
-although it is yet undefined on input line 483.
+although it is yet undefined on input line 482.
 
 
 [22 <./figures/NICE.pdf> <./figures/RealNVP.pdf> <./figures/INN.pdf>]
 Package acronym Info: Label `acro:ODE' newly defined as it shall be overridden
-although it is yet undefined on input line 485.
+although it is yet undefined on input line 484.
 
 
 [23]
@@ -1467,142 +1465,146 @@ Underfull \vbox (badness 3250) has occurred while \output is active []
 
 [25]
 Package acronym Info: Label `acro:cINN' newly defined as it shall be overridden
-although it is yet undefined on input line 580.
+although it is yet undefined on input line 579.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
 [26]
-<figures/bayesFlow.pdf, id=1315, 536.0025pt x 150.5625pt>
+<figures/bayesFlow.pdf, id=1342, 536.0025pt x 150.5625pt>
 File: figures/bayesFlow.pdf Graphic file (type pdf)
 <use figures/bayesFlow.pdf>
-Package pdftex.def Info: figures/bayesFlow.pdf  used on input line 592.
+Package pdftex.def Info: figures/bayesFlow.pdf  used on input line 591.
 (pdftex.def)             Requested size: 362.77524pt x 101.90327pt.
-Package acronym Info: Label `acro:RL' overridden on input line 599.
+Package acronym Info: Label `acro:RL' overridden on input line 598.
 
 
 [27 <./figures/bayesflow.pdf>]
 Package acronym Info: Label `acro:DIC' newly defined as it shall be overridden
-although it is yet undefined on input line 617.
+although it is yet undefined on input line 616.
 
 
 [28]
 Package acronym Info: Label `acro:MAP' newly defined as it shall be overridden
-although it is yet undefined on input line 641.
+although it is yet undefined on input line 640.
 
 
 [29]
 Package acronym Info: Label `acro:KF' newly defined as it shall be overridden
-although it is yet undefined on input line 673.
+although it is yet undefined on input line 672.
 
 
 [30]
 Package acronym Info: Label `acro:EKF' newly defined as it shall be overridden
-although it is yet undefined on input line 699.
+although it is yet undefined on input line 698.
 Package acronym Info: Label `acro:UKF' newly defined as it shall be overridden
-although it is yet undefined on input line 699.
+although it is yet undefined on input line 698.
 Package acronym Info: Label `acro:PF' newly defined as it shall be overridden
-although it is yet undefined on input line 701.
+although it is yet undefined on input line 700.
 
 
 [31]
 Package acronym Info: Label `acro:SSM' newly defined as it shall be overridden
-although it is yet undefined on input line 706.
+although it is yet undefined on input line 705.
 Package acronym Info: Label `acro:EM' newly defined as it shall be overridden
-although it is yet undefined on input line 718.
+although it is yet undefined on input line 717.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
 [32]
-<figures/MPC.pdf, id=1457, 419.64778pt x 211.7511pt>
+<figures/MPC.pdf, id=1486, 419.64778pt x 211.7511pt>
 File: figures/MPC.pdf Graphic file (type pdf)
 <use figures/MPC.pdf>
-Package pdftex.def Info: figures/MPC.pdf  used on input line 741.
+Package pdftex.def Info: figures/MPC.pdf  used on input line 740.
 (pdftex.def)             Requested size: 264.60854pt x 133.52344pt.
-<figures/RL.pdf, id=1464, 207.65579pt x 197.7789pt>
+<figures/RL.pdf, id=1493, 207.65579pt x 197.7789pt>
 File: figures/RL.pdf Graphic file (type pdf)
 <use figures/RL.pdf>
-Package pdftex.def Info: figures/RL.pdf  used on input line 748.
+Package pdftex.def Info: figures/RL.pdf  used on input line 747.
 (pdftex.def)             Requested size: 149.37956pt x 142.28299pt.
 
 
 [33 <./figures/MPC.pdf> <./figures/RL.pdf>]
 Package acronym Info: Label `acro:PID' newly defined as it shall be overridden
-although it is yet undefined on input line 779.
+although it is yet undefined on input line 778.
 
 
 [34]
 Package acronym Info: Label `acro:MDP' newly defined as it shall be overridden
-although it is yet undefined on input line 790.
-) (./chapters/01_Introduction/03_literature_review.tex
+although it is yet undefined on input line 789.
+) (./chapters/Introduction/04_objectives.tex
 
-[35]
+[35]) (./chapters/Introduction/05_outline.tex
+
+[36])) (./chapters/Literature_Review.tex
+
+[37]
+
+[38
+
+]
+Chapter II.
+Package acronym Info: Label `acro:DGP' overridden on input line 3.
+Package acronym Info: Label `acro:BNN' overridden on input line 3.
+Package acronym Info: Label `acro:CVAE' newly defined as it shall be overridden
+although it is yet undefined on input line 3.
+Package acronym Info: Label `acro:NF' overridden on input line 3.
+Package acronym Info: Label `acro:GPR' overridden on input line 6.
 Package acronym Info: Label `acro:PDE' newly defined as it shall be overridden
 although it is yet undefined on input line 6.
 Package acronym Info: Label `acro:PINN' newly defined as it shall be overridden
 although it is yet undefined on input line 10.
+Package acronym Info: Label `acro:ODE' overridden on input line 10.
+Package acronym Info: Label `acro:MCMC' overridden on input line 10.
+Package acronym Info: Label `acro:RNN' overridden on input line 10.
 
 
-[36]
-Package acronym Info: Label `acro:CVAE' newly defined as it shall be overridden
-although it is yet undefined on input line 13.
+[39]
+Package acronym Info: Label `acro:VAE' overridden on input line 13.
 
-
-[37]
-Package acronym Info: Label `acro:NAXR' newly defined as it shall be overridden
-although it is yet undefined on input line 26.
-
-
-Package acronym Warning: Acronym NAXR is not defined on input line 26.
-
-
-Package acronym Warning: Acronym NAXR is not defined on input line 26.
-
-
-Package acronym Warning: Acronym NAXR is not defined on input line 26.
-
-
-
-[38]) (./chapters/01_Introduction/04_objectives.tex
-
-[39]) (./chapters/01_Introduction/05_outline.tex)) (./chapters/02_Methodologies/00.tex
 
 [40]
-Chapter II.
-(./chapters/02_Methodologies/01_parameter_identification.tex)
+Package acronym Info: Label `acro:DGM' overridden on input line 20.
+Package acronym Info: Label `acro:SSM' overridden on input line 23.
+Package acronym Info: Label `acro:NARX' overridden on input line 25.
+Package acronym Info: Label `acro:HMC' overridden on input line 27.
 
-[41
+Underfull \vbox (badness 4686) has occurred while \output is active []
 
-] (./chapters/02_Methodologies/02_dynamics_identification.tex)
 
-[42] (./chapters/02_Methodologies/03_state_estimation.tex)
 
-[43] (./chapters/02_Methodologies/04_data_driven_control.tex)) (./chapters/03_Experiments_Results/00.tex
+[41]
+Package acronym Info: Label `acro:EKF' overridden on input line 32.
+) (./chapters/Methodologies/00.tex
 
-[44]
+[42]
 Chapter III.
-(./chapters/03_Experiments_Results/01_parameter_identification.tex) (./chapters/03_Experiments_Results/02_dynamics_identification.tex) (./chapters/03_Experiments_Results/03_state_estimation.tex) (./chapters/03_Experiments_Results/04_data_driven_control.tex)) (./chapters/04_Discussion_Conclusion.tex
+(./chapters/Methodologies/01_parameter_identification.tex)
 
-[45
+[43
 
-]
+] (./chapters/Methodologies/02_dynamic_modeling.tex)
 
-[46
+[44] (./chapters/Methodologies/03_state_estimation.tex)
 
-]
+[45] (./chapters/Methodologies/04_data_driven_control.tex)) (./chapters/Experiments_Results/00.tex
+
+[46]
 Chapter IV.
-) (./chapters/05_Abstract.tex
+(./chapters/Experiments_Results/01_parameter_identification.tex) (./chapters/Experiments_Results/02_dynamic_modeling.tex) (./chapters/Experiments_Results/03_state_estimation.tex) (./chapters/Experiments_Results/04_data_driven_control.tex)) (./chapters/Discussion_Conclusion.tex
 
-[47]
+[47
+
+]
 
 [48
 
 ]
 Chapter V.
-) (./chapters/06_Zusammenfassung.tex
+) (./chapters/Abstract.tex
 
 [49]
 
@@ -1610,11 +1612,19 @@ Chapter V.
 
 ]
 Chapter VI.
-)
+) (./chapters/Zusammenfassung.tex
 
-[51] (./chapters/07_Own_Publications.tex
+[51]
 
 [52
+
+]
+Chapter VII.
+)
+
+[53] (./chapters/Own_Publications.tex
+
+[54
 
 
 ]
@@ -1632,17 +1642,13 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             See the microtype manual for details.
 
 
-[53]) (./main.bbl
-
-[54]
-
-[55
-
-]
+[55]) (./main.bbl
 
 [56]
 
-[57]
+[57
+
+]
 
 [58]
 
@@ -1660,55 +1666,59 @@ Package microtype Info: Loading generic protrusion settings for font family
 
 [65]
 
-[66]) (./chapters/08_Appendix.tex
+[66]
 
 [67]
 
-[68
-
-]) (./chapters/09_Acknowledgement.tex
+[68]) (./chapters/Appendix.tex
 
 [69]
 
 [70
 
-]) (./chapters/10_Eidestattliche_Erklärung.tex
+]) (./chapters/Acknowledgement.tex
 
 [71]
 
 [72
 
-]) (./chapters/11_Angabe_KI.tex
+]) (./chapters/Eidestattliche_Erklärung.tex
 
 [73]
 
 [74
 
+]) (./chapters/Angabe_KI.tex
+
+[75]
+
+[76
+
 ]
 
-[75])
+[77])
 
-[76] (./main.aux)
+[78] (./main.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 355582EA6EB2356FC08A72245FE65DAE;11144.
+(rerunfilecheck)             Checksum: EFBCF04FE5413CE11BA9B59CC923A12C;11225.
  ) 
 Here is how much of TeX's memory you used:
- 38486 strings out of 469679
- 727809 string characters out of 5477725
- 1217109 words of memory out of 5000000
- 65205 multiletter control sequences out of 15000+600000
- 788745 words of font info for 346 fonts, out of 8000000 for 9000
+ 38508 strings out of 469679
+ 727237 string characters out of 5477725
+ 1217268 words of memory out of 5000000
+ 65208 multiletter control sequences out of 15000+600000
+ 788778 words of font info for 346 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 113i,21n,145p,1733b,937s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 113i,21n,145p,1697b,937s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbsy7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbxi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmex10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmib10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmib7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/bookman/ubkl8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on main.pdf (94 pages, 871581 bytes).
+Output written on main.pdf (96 pages, 876088 bytes).
 PDF statistics:
- 2302 PDF objects out of 2487 (max. 8388607)
- 2088 compressed objects within 21 object streams
- 494 named destinations out of 1000 (max. 500000)
- 102952 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 2366 PDF objects out of 2487 (max. 8388607)
+ 2149 compressed objects within 22 object streams
+ 513 named destinations out of 1000 (max. 500000)
+ 102976 words of extra memory for PDF output out of 106986 (max. 10000000)
 

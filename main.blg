@@ -3,44 +3,49 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: plainnat.bst
 Database file #1: refs.bib
-You've used 120 entries,
+Repeated entry---line 1561 of file refs.bib
+ : @article{PANIAGUA2024200344
+ :                            ,
+I'm skipping whatever remains of this entry
+You've used 125 entries,
             2773 wiz_defined-function locations,
-            1440 strings with 32149 characters,
-and the built_in function-call counts, 57936 in all, are:
-= -- 5161
-> -- 3811
-< -- 69
-+ -- 1286
-- -- 1165
-* -- 4804
-:= -- 9080
-add.period$ -- 521
-call.type$ -- 120
-change.case$ -- 728
-chr.to.int$ -- 119
-cite$ -- 240
-duplicate$ -- 2385
-empty$ -- 4356
-format.name$ -- 1339
-if$ -- 12179
+            1483 strings with 33546 characters,
+and the built_in function-call counts, 60711 in all, are:
+= -- 5414
+> -- 3996
+< -- 73
++ -- 1347
+- -- 1221
+* -- 5044
+:= -- 9509
+add.period$ -- 545
+call.type$ -- 125
+change.case$ -- 760
+chr.to.int$ -- 124
+cite$ -- 250
+duplicate$ -- 2499
+empty$ -- 4557
+format.name$ -- 1404
+if$ -- 12771
 int.to.chr$ -- 2
 int.to.str$ -- 1
-missing$ -- 89
-newline$ -- 760
-num.names$ -- 488
-pop$ -- 1509
+missing$ -- 94
+newline$ -- 792
+num.names$ -- 510
+pop$ -- 1565
 preamble$ -- 1
-purify$ -- 624
+purify$ -- 651
 quote$ -- 0
-skip$ -- 2076
+skip$ -- 2174
 stack$ -- 0
-substring$ -- 1222
-swap$ -- 298
-text.length$ -- 16
+substring$ -- 1304
+swap$ -- 320
+text.length$ -- 18
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 1225
+type$ -- 1275
 warning$ -- 0
-while$ -- 427
+while$ -- 448
 width$ -- 0
-write$ -- 1835
+write$ -- 1917
+(There was 1 error message)

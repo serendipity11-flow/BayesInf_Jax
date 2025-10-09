@@ -593,7 +593,7 @@ where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\theta}$ and $h$ is the
     \caption[BayesFlow Architecture]{ The architecture of BayesFlow. The blue arrows indicate the forward direction for training BayesFlow, while the yellow arrows indicate the reverse direction for inference. The summary network extracts informative representations from the observations, which are then fed into the \ac{cINN} alongside the target variables.}
     \label{fig:bayesflow}
 \end{figure}
-The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, dynamics modeling, and state estimation.
+The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, dynamic modeling, and state estimation.
 
 \subsection{From Inference to Control}
 This section bridges the probabilistic inference methodologies discussed above to their practical applications in control systems. We first review how Bayesian approaches are employed for system identification and state estimation. Next, we introduce \acf{MPC}, which is a widely used model-based control technique for optimal decision-making based on the system identification results. Finally, we discuss \acf{RL} as a data-driven control paradigm, highlighting its ability to learn control policies directly from interactions with the environment without requiring explicit system models. Together, these approaches illustrate the synergy between probabilistic inference and modern control strategies, enabling robust and adaptive solutions for complex dynamical systems.
@@ -702,6 +702,38 @@ Relaxing the assumptions on model linearity and Gaussian noise, \ac{PF} \citep{p
 
 In summary, \ac{KF} is efficient and provides optimal state estimates for linear systems with Gaussian noise. \ac{EKF} extends \ac{KF} to nonlinear systems through linearization, but may suffer from approximation errors. \ac{UKF}, instead of linearization, applies sigma points to better capture the mean and covariance of the state distribution, leading to more accurate estimates for highly nonlinear systems. \ac{PF} is the most flexible, capable of handling arbitrary nonlinearities and non-Gaussian noise, but computationally expensive due to the need for numerous particles.
 
+\subsubsection{State-Space Models}
+For modeling system dynamics completely from data, \acfp{SSM} \citep{Durbin2012} are widely used. An \ac{SSM} consists of a latent state vector $\boldsymbol{h}_t$ and an observation vector $\boldsymbol{y}_t$. The state vector captures the internal dynamics of the system, while the observation vector represents the measurable outputs. $\boldsymbol{h}_t$ follows a Markov process, meaning that the previous state $\boldsymbol{h}_{t-1}$ carries all information to obtain the current state $\boldsymbol{h}_t$. $\boldsymbol{y}_t$ is solely dependent on the latent state $\boldsymbol{h}_t$. These assumptions lead to the following factorization of the joint distribution:
+\begin{equation}
+    p(\boldsymbol{y}_{1:T}, \boldsymbol{h}_{0:T}) = p(\boldsymbol{h}_0) \prod_{t=1}^{T}p(\boldsymbol{h}_t|\boldsymbol{h}_{t-1})p(\boldsymbol{y}_t|\boldsymbol{h}_t).
+\end{equation}
+In the simplest case, the state transition distribution $p(\boldsymbol{h}_t|\boldsymbol{h}_{t-1})$ and the observation distribution $p(\boldsymbol{y}_t|\boldsymbol{h}_t)$ are assumed to be linear Gaussian models:
+\begin{subequations}
+    \begin{gather}
+        \boldsymbol{h}_0\sim\mathcal{N}(\boldsymbol{0}, \Sigma_0), \\
+        \boldsymbol{h}_t=\boldsymbol{A}\boldsymbol{h}_{t-1}+\boldsymbol{w}_t, \quad \boldsymbol{w}_t\sim\mathcal{N}(\boldsymbol{0},\Sigma_{w_t})\\
+        \boldsymbol{y}_t=\boldsymbol{C}\boldsymbol{h}_t+\boldsymbol{v}_t, \quad \boldsymbol{v}_t\sim\mathcal{N}(\boldsymbol{0},\Sigma_{v_t}).
+    \end{gather}
+\end{subequations}
+In the previous section, we have shown estimation of states using Kalman filters with known system matrices ($\boldsymbol{A}$, $\boldsymbol{C}$) and noise covariance matrices ($\Sigma_{w_t}, \Sigma_{v_t}$). When these matrices are unknown, they can be estimated from data using the \ac{EM} algorithm \citep{Dempster1977}. The \ac{EM} algorithm iteratively maximizes the expected log-likelihood of the complete data (both observed and latent variables) given the current parameter estimates. The algorithm consists of two main steps:
+\begin{itemize}
+    \item E-step: Compute the expectations of the latent states using the current parameter estimates:
+    \begin{equation*}
+        E_t=E[\boldsymbol{h}_t],\quad E_{t,t}=E[\boldsymbol{h}_t\boldsymbol{h}_t^T],\quad E_{t,t-1}=E[\boldsymbol{h}_t\boldsymbol{h}_{t-1}^T].
+    \end{equation*}.
+    The states come from running the Kalman filter (Equation \ref{eq:kalman_prediction}, \ref{eq:kalman_update}) on the current parameters.
+    \item M-step: Update parameters using the expectations:
+    \begin{subequations}
+        \begin{align*}
+            \boldsymbol{A}&=\left(\sum_{t=1}^{T}E_{t,t-1}\right)\left(\sum_{t=1}^{T}E_{t-1, t-1}\right)^{-1}, \quad \boldsymbol{C}=\left(\sum_{t=0}^{T}\boldsymbol{y}_tE_t^T\right)\left(\sum_{t=1}^{T}E_{t,t}\right)^{-1}, \\
+            \Sigma_{w_t}&=\frac{1}{T}\left(\sum_{t=1}^{T}E_{t,t}-\boldsymbol{A}\sum_{t=1}^{T}E_{t,t-1}^T\right), \quad \Sigma_{v_t}=\frac{1}{T}\left(\sum_{t=0}^{T}\boldsymbol{y}_t\boldsymbol{y}_t^T-\boldsymbol{C}\sum_{t=0}^{T}\boldsymbol{y}_tE_t^T\right).
+        \end{align*}
+    \end{subequations}
+\end{itemize}
+The E-step and M-step are iterated until convergence. The \ac{EM} algorithm guarantees that the likelihood of the observed data does not decrease with each iteration, leading to convergence to a local maximum. Similar to Kalman filters, for nonlinear models, \acp{EKF} and \acp{UKF} are applied in the E-step; while for nonlinear and non-Gaussian \acp{SSM}, \acp{PF} are used to approximate the expectations in the E-step \citep{Durbin2000}.
+
+\subsubsection{Model Predictive Control}
+
 \begin{figure*}[htp!]
     \centering
     \begin{subfigure}[b]{0.62\textwidth}
@@ -720,7 +752,6 @@ In summary, \ac{KF} is efficient and provides optimal state estimates for linear
     \caption{\ac{MPC} and \ac{RL}.}
 \end{figure*}
 
-\subsubsection{Model Predictive Control}
 After investigating Bayesian system identification and state estimation, we now turn our attention to control strategies, meaning optimizing system inputs given target and system observations. Control methods can be broadly categorized into model-based and model-free approaches. Model-based control relies on an explicit model of the system dynamics to predict future states and optimize control actions accordingly. In contrast, model-free control approaches do not require a state transition model of the system, instead learning control strategies directly from interactions with the system. A prominent example of model-based control is \acf{MPC} \citep{mpcreview1989, mpcbook2020}. 
 
 A to-be-controlled system is at first modelled in discrete time steps:

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  7 OCT 2025 21:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  9 OCT 2025 12:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1152,10 +1152,17 @@ File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.35 ...ng for Control}{33}{subsubsection.1.2.5.4}
+l.35 ...ictive Control}{33}{subsubsection.1.2.5.4}
                                                   % [7
 
-])
+]
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.67 ...butions and Publications}{53}{section*.56}
+                                                  % [8])
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
@@ -1166,10 +1173,18 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.}) has be
 <to be read again> 
                    \relax 
 l.28     \cleardoublepage
-                          [8] (./chapters/Acronyms.tex
+                          [9]
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.28     \cleardoublepage
+                          [10
+
+] (./chapters/Acronyms.tex
 
 [1
-
 
 
 ]
@@ -1380,7 +1395,7 @@ although it is yet undefined on input line 288.
 
 
 [15]
-<figures/VAE.pdf, id=898, 536.96606pt x 317.26529pt>
+<figures/VAE.pdf, id=963, 536.96606pt x 317.26529pt>
 File: figures/VAE.pdf Graphic file (type pdf)
 <use figures/VAE.pdf>
 Package pdftex.def Info: figures/VAE.pdf  used on input line 296.
@@ -1402,7 +1417,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 [19]
 
 [20]
-<figures/NICE.pdf, id=1046, 166.7028pt x 106.4778pt>
+<figures/NICE.pdf, id=1112, 166.7028pt x 106.4778pt>
 File: figures/NICE.pdf Graphic file (type pdf)
 <use figures/NICE.pdf>
 Package pdftex.def Info: figures/NICE.pdf  used on input line 431.
@@ -1415,14 +1430,14 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 432.
 Package acronym Info: Label `acro:NICE' newly defined as it shall be overridden
 although it is yet undefined on input line 432.
-<figures/RealNVP.pdf, id=1049, 197.7789pt x 106.4778pt>
+<figures/RealNVP.pdf, id=1115, 197.7789pt x 106.4778pt>
 File: figures/RealNVP.pdf Graphic file (type pdf)
 <use figures/RealNVP.pdf>
 Package pdftex.def Info: figures/RealNVP.pdf  used on input line 437.
 (pdftex.def)             Requested size: 197.77841pt x 106.47752pt.
 Package acronym Info: Label `acro:RealNVP' newly defined as it shall be overridden
 although it is yet undefined on input line 438.
-<figures/INN.pdf, id=1052, 397.485pt x 106.4778pt>
+<figures/INN.pdf, id=1118, 397.485pt x 106.4778pt>
 File: figures/INN.pdf Graphic file (type pdf)
 <use figures/INN.pdf>
 Package pdftex.def Info: figures/INN.pdf  used on input line 442.
@@ -1459,7 +1474,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 [26]
-<figures/bayesFlow.pdf, id=1249, 536.0025pt x 150.5625pt>
+<figures/bayesFlow.pdf, id=1315, 536.0025pt x 150.5625pt>
 File: figures/bayesFlow.pdf Graphic file (type pdf)
 <use figures/bayesFlow.pdf>
 Package pdftex.def Info: figures/bayesFlow.pdf  used on input line 592.
@@ -1492,58 +1507,76 @@ although it is yet undefined on input line 701.
 
 
 [31]
-<figures/MPC.pdf, id=1362, 419.64778pt x 211.7511pt>
+Package acronym Info: Label `acro:SSM' newly defined as it shall be overridden
+although it is yet undefined on input line 706.
+Package acronym Info: Label `acro:EM' newly defined as it shall be overridden
+although it is yet undefined on input line 718.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+[32]
+<figures/MPC.pdf, id=1457, 419.64778pt x 211.7511pt>
 File: figures/MPC.pdf Graphic file (type pdf)
 <use figures/MPC.pdf>
-Package pdftex.def Info: figures/MPC.pdf  used on input line 709.
+Package pdftex.def Info: figures/MPC.pdf  used on input line 741.
 (pdftex.def)             Requested size: 264.60854pt x 133.52344pt.
-<figures/RL.pdf, id=1369, 207.65579pt x 197.7789pt>
+<figures/RL.pdf, id=1464, 207.65579pt x 197.7789pt>
 File: figures/RL.pdf Graphic file (type pdf)
 <use figures/RL.pdf>
-Package pdftex.def Info: figures/RL.pdf  used on input line 716.
+Package pdftex.def Info: figures/RL.pdf  used on input line 748.
 (pdftex.def)             Requested size: 149.37956pt x 142.28299pt.
 
-Underfull \vbox (badness 1546) has occurred while \output is active []
 
-
-
-[32 <./figures/MPC.pdf> <./figures/RL.pdf>]
+[33 <./figures/MPC.pdf> <./figures/RL.pdf>]
 Package acronym Info: Label `acro:PID' newly defined as it shall be overridden
-although it is yet undefined on input line 748.
+although it is yet undefined on input line 779.
 
-
-[33]
-Package acronym Info: Label `acro:MDP' newly defined as it shall be overridden
-although it is yet undefined on input line 759.
-) (./chapters/01_Introduction/03_literature_review.tex
 
 [34]
+Package acronym Info: Label `acro:MDP' newly defined as it shall be overridden
+although it is yet undefined on input line 790.
+) (./chapters/01_Introduction/03_literature_review.tex
+
+[35]
 Package acronym Info: Label `acro:PDE' newly defined as it shall be overridden
 although it is yet undefined on input line 6.
 Package acronym Info: Label `acro:PINN' newly defined as it shall be overridden
 although it is yet undefined on input line 10.
 
 
-[35]
+[36]
 Package acronym Info: Label `acro:CVAE' newly defined as it shall be overridden
 although it is yet undefined on input line 13.
 
 
-[36]) (./chapters/01_Introduction/04_objectives.tex
+[37]
+Package acronym Info: Label `acro:NAXR' newly defined as it shall be overridden
+although it is yet undefined on input line 26.
 
-[37]) (./chapters/01_Introduction/05_outline.tex
 
-[38])) (./chapters/02_Methodologies/00.tex
+Package acronym Warning: Acronym NAXR is not defined on input line 26.
 
-[39]
 
-[40
+Package acronym Warning: Acronym NAXR is not defined on input line 26.
 
-]
+
+Package acronym Warning: Acronym NAXR is not defined on input line 26.
+
+
+
+[38]) (./chapters/01_Introduction/04_objectives.tex
+
+[39]) (./chapters/01_Introduction/05_outline.tex)) (./chapters/02_Methodologies/00.tex
+
+[40]
 Chapter II.
 (./chapters/02_Methodologies/01_parameter_identification.tex)
 
-[41] (./chapters/02_Methodologies/02_dynamics_identification.tex)
+[41
+
+] (./chapters/02_Methodologies/02_dynamics_identification.tex)
 
 [42] (./chapters/02_Methodologies/03_state_estimation.tex)
 
@@ -1661,21 +1694,21 @@ LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: B9734E4131F2C609BA2EFFB727822CFB;9114.
+(rerunfilecheck)             Checksum: 355582EA6EB2356FC08A72245FE65DAE;11144.
  ) 
 Here is how much of TeX's memory you used:
- 38413 strings out of 469679
- 726577 string characters out of 5477725
- 1216575 words of memory out of 5000000
- 65162 multiletter control sequences out of 15000+600000
- 788470 words of font info for 344 fonts, out of 8000000 for 9000
+ 38486 strings out of 469679
+ 727809 string characters out of 5477725
+ 1217109 words of memory out of 5000000
+ 65205 multiletter control sequences out of 15000+600000
+ 788745 words of font info for 346 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 113i,21n,145p,1733b,943s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 113i,21n,145p,1733b,937s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbsy7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbxi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmex10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmib10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmib7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/bookman/ubkl8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on main.pdf (92 pages, 859964 bytes).
+Output written on main.pdf (94 pages, 871581 bytes).
 PDF statistics:
- 2181 PDF objects out of 2487 (max. 8388607)
- 1970 compressed objects within 20 object streams
- 468 named destinations out of 1000 (max. 500000)
- 102872 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 2302 PDF objects out of 2487 (max. 8388607)
+ 2088 compressed objects within 21 object streams
+ 494 named destinations out of 1000 (max. 500000)
+ 102952 words of extra memory for PDF output out of 106986 (max. 10000000)
 

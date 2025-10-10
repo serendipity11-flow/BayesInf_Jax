@@ -1,4 +1,4 @@
-\begin{thebibliography}{127}
+\begin{thebibliography}{137}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -112,6 +112,12 @@ Samuel~R. Bowman, Luke Vilnis, Oriol Vinyals, Andrew Dai, Rafal Jozefowicz, and 
 \newblock \doi{10.18653/v1/K16-1002}.
 \newblock URL \url{https://aclanthology.org/K16-1002/}.
 
+\bibitem[Brusaferri et~al.(2019)Brusaferri, Matteucci, Portolani, and Spinelli]{8972113}
+Alessandro Brusaferri, Matteo Matteucci, Pietro Portolani, and Stefano Spinelli.
+\newblock Nonlinear system identification using a recurrent network in a bayesian framework.
+\newblock In \emph{2019 IEEE 17th International Conference on Industrial Informatics (INDIN)}, volume~1, pages 319--324, 2019.
+\newblock \doi{10.1109/INDIN41052.2019.8972113}.
+
 \bibitem[Buşoniu et~al.(2018)Buşoniu, {de Bruin}, Tolić, Kober, and Palunko]{rlforcontrol2018}
 Lucian Buşoniu, Tim {de Bruin}, Domagoj Tolić, Jens Kober, and Ivana Palunko.
 \newblock Reinforcement learning for control: Performance, stability, and deep approximators.
@@ -119,6 +125,20 @@ Lucian Buşoniu, Tim {de Bruin}, Domagoj Tolić, Jens Kober, and Ivana Palunko.
 \newblock ISSN 1367-5788.
 \newblock \doi{https://doi.org/10.1016/j.arcontrol.2018.09.005}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S1367578818301184}.
+
+\bibitem[Calafiore and Fagiano(2013)]{Calafiore_2013}
+Giuseppe~C. Calafiore and Lorenzo Fagiano.
+\newblock Robust model predictive control via scenario optimization.
+\newblock \emph{IEEE Transactions on Automatic Control}, 58\penalty0 (1):\penalty0 219–224, January 2013.
+\newblock ISSN 1558-2523.
+\newblock \doi{10.1109/tac.2012.2203054}.
+\newblock URL \url{http://dx.doi.org/10.1109/TAC.2012.2203054}.
+
+\bibitem[Campo and Morari(1987)]{rmpc1987}
+Peter~J. Campo and Manfred Morari.
+\newblock Robust model predictive control.
+\newblock In \emph{1987 American Control Conference}, pages 1021--1026, 1987.
+\newblock \doi{10.23919/ACC.1987.4789462}.
 
 \bibitem[Chen et~al.(2019)Chen, Rubanova, Bettencourt, and Duvenaud]{chen2019node}
 Ricky T.~Q. Chen, Yulia Rubanova, Jesse Bettencourt, and David Duvenaud.
@@ -134,6 +154,11 @@ Ricky T.~Q. Chen, Jens Behrmann, David Duvenaud, and Jörn-Henrik Jacobsen.
 Tianyu Chen, Vansh Bansal, and James~G. Scott.
 \newblock Conditional diffusions for amortized neural posterior estimation, 2025.
 \newblock URL \url{https://arxiv.org/abs/2410.19105}.
+
+\bibitem[Chen et~al.(2021)Chen, Wen, and Li]{chen2021dpfcnf}
+Xiongjie Chen, Hao Wen, and Yunpeng Li.
+\newblock Differentiable particle filters through conditional normalizing flow, 2021.
+\newblock URL \url{https://arxiv.org/abs/2107.00488}.
 
 \bibitem[Chen(2003)]{chen_bayesian_2003}
 Zhe Chen.
@@ -191,11 +216,6 @@ Moritz Diehl.
 Laurent Dinh, David Krueger, and Yoshua Bengio.
 \newblock Nice: Non-linear independent components estimation, 2015.
 \newblock URL \url{https://arxiv.org/abs/1410.8516}.
-
-\bibitem[Doerr et~al.(2018)Doerr, Daniel, Schiegg, Nguyen-Tuong, Schaal, Toussaint, and Trimpe]{doerr2018prssm}
-Andreas Doerr, Christian Daniel, Martin Schiegg, Duy Nguyen-Tuong, Stefan Schaal, Marc Toussaint, and Sebastian Trimpe.
-\newblock Probabilistic recurrent state-space models, 2018.
-\newblock URL \url{https://arxiv.org/abs/1801.10395}.
 
 \bibitem[Dong et~al.(2025)Dong, Jacobsen, Khalloufi, Akram, Liu, Duraisamy, and Huan]{DONG2025117457}
 Jiayuan Dong, Christian Jacobsen, Mehdi Khalloufi, Maryam Akram, Wanjiao Liu, Karthik Duraisamy, and Xun Huan.
@@ -272,6 +292,11 @@ Andrew Y.~K. Foong, David~R. Burt, Yingzhen Li, and Richard~E. Turner.
 Meire Fortunato, Charles Blundell, and Oriol Vinyals.
 \newblock Bayesian recurrent neural networks, 2019.
 \newblock URL \url{https://arxiv.org/abs/1704.02798}.
+
+\bibitem[Fraccaro et~al.(2017)Fraccaro, Kamronn, Paquet, and Winther]{fraccaro2017kvae}
+Marco Fraccaro, Simon Kamronn, Ulrich Paquet, and Ole Winther.
+\newblock A disentangled recognition and nonlinear dynamics model for unsupervised learning, 2017.
+\newblock URL \url{https://arxiv.org/abs/1710.05741}.
 
 \bibitem[Gabbard et~al.(2022)Gabbard, Messenger, Heng, Tonolini, and Murray-Smith]{Gabbard2022}
 Hunter Gabbard, Chris Messenger, Ik~Siong Heng, Francesco Tonolini, and Roderick Murray-Smith.
@@ -367,6 +392,15 @@ W.~K. Hastings.
 Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
 \newblock Deep residual learning for image recognition, 2015.
 \newblock URL \url{https://arxiv.org/abs/1512.03385}.
+
+\bibitem[Heirung et~al.(2018)Heirung, Paulson, O’Leary, and Mesbah]{HEIRUNG2018158}
+Tor Aksel~N. Heirung, Joel~A. Paulson, Jared O’Leary, and Ali Mesbah.
+\newblock Stochastic model predictive control — how does it work?
+\newblock \emph{Computers \& Chemical Engineering}, 114:\penalty0 158--170, 2018.
+\newblock ISSN 0098-1354.
+\newblock \doi{https://doi.org/10.1016/j.compchemeng.2017.10.026}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0098135417303812}.
+\newblock FOCAPO/CPC 2017.
 
 \bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020ddpm}
 Jonathan Ho, Ajay Jain, and Pieter Abbeel.
@@ -507,10 +541,11 @@ Christos Merkatas and Simo S{\"a}rkk{\"a}.
 \newblock System identification using autoregressive bayesian neural networks with nonparametric noise models.
 \newblock \emph{J. Time Ser. Anal.}, 44\penalty0 (3):\penalty0 319--330, May 2023.
 
-\bibitem[Merkatas and Särkkä(2022)]{merkatas2022bnn}
-Christos Merkatas and Simo Särkkä.
-\newblock System identification using bayesian neural networks with nonparametric noise models, 2022.
-\newblock URL \url{https://arxiv.org/abs/2104.12119}.
+\bibitem[Mesbah(2016)]{smpc2016}
+Ali Mesbah.
+\newblock Stochastic model predictive control: An overview and perspectives for future research.
+\newblock \emph{IEEE Control Systems Magazine}, 36\penalty0 (6):\penalty0 30--44, 2016.
+\newblock \doi{10.1109/MCS.2016.2602087}.
 
 \bibitem[Metropolis et~al.(1953)Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller]{Metropolis}
 Nicholas Metropolis, Arianna~W. Rosenbluth, Marshall~N. Rosenbluth, Augusta~H. Teller, and Edward Teller.
@@ -563,6 +598,14 @@ Radford~M. Neal.
 \newblock \doi{10.1007/978-1-4612-0745-0_2}.
 \newblock URL \url{https://doi.org/10.1007/978-1-4612-0745-0_2}.
 
+\bibitem[{\O}ksendal(1985)]{oksendal1985}
+Bernt {\O}ksendal.
+\newblock \emph{Stochastic Differential Equations}, pages 38--50.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 1985.
+\newblock ISBN 978-3-662-13050-6.
+\newblock \doi{10.1007/978-3-662-13050-6_5}.
+\newblock URL \url{https://doi.org/10.1007/978-3-662-13050-6_5}.
+
 \bibitem[Paniagua and López(2024)]{PANIAGUA2024200344}
 Jose~L. Paniagua and Jesús~A. López.
 \newblock Nonlinear system identification using modified variational autoencoders.
@@ -586,6 +629,11 @@ Young-Jin Park, Piyush~M. Tagade, and Han-Lim Choi.
 \newblock Deep gaussian process-based bayesian inference for contaminant source localization.
 \newblock \emph{IEEE Access}, 6:\penalty0 49432--49449, 2018.
 \newblock \doi{10.1109/ACCESS.2018.2867687}.
+
+\bibitem[Pasmans et~al.(2025)Pasmans, Chen, Finn, Bocquet, and Carrassi]{pasmans2025ekfl}
+Ivo Pasmans, Yumeng Chen, Tobias~Sebastian Finn, Marc Bocquet, and Alberto Carrassi.
+\newblock Ensemble kalman filter in latent space using a variational autoencoder pair, 2025.
+\newblock URL \url{https://arxiv.org/abs/2502.12987}.
 
 \bibitem[Peterka(1981)]{BayesSysId1981}
 V.~Peterka.
@@ -617,6 +665,14 @@ Stefan~T. Radev, Ulf~K. Mertens, Andreas Voss, Lynton Ardizzone, and Ullrich Kö
 Hazhir Rahmandad, Ali Akhavan, and Mohammad~S Jalali.
 \newblock Incorporating deep learning into system dynamics: Amortized bayesian inference for scalable likelihood‐free parameter estimation.
 \newblock \emph{Syst. Dyn. Rev.}, 41\penalty0 (1), January 2025.
+
+\bibitem[Raimondo et~al.(2009)Raimondo, Limon, Lazar, Magni, and {ndez Camacho}]{RAIMONDO20095}
+Davide~Martino Raimondo, Daniel Limon, Mircea Lazar, Lalo Magni, and Eduardo~Ferná {ndez Camacho}.
+\newblock Min-max model predictive control of nonlinear systems: A unifying overview on stability.
+\newblock \emph{European Journal of Control}, 15\penalty0 (1):\penalty0 5--21, 2009.
+\newblock ISSN 0947-3580.
+\newblock \doi{https://doi.org/10.3166/ejc.15.5-21}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0947358009707034}.
 
 \bibitem[Rasmussen and Williams(2008)]{Rasmussen_Williams_2008}
 Carl~Edward Rasmussen and Christopher K.~I. Williams.
@@ -754,6 +810,11 @@ E.A. Wan and R.~Van Der~Merwe.
 \newblock In \emph{Proceedings of the IEEE 2000 Adaptive Systems for Signal Processing, Communications, and Control Symposium (Cat. No.00EX373)}, pages 153--158, 2000.
 \newblock \doi{10.1109/ASSPCC.2000.882463}.
 
+\bibitem[Wang et~al.(2025)Wang, Guan, Guo, and Wu]{wang2025flow}
+Xintong Wang, Xiaofei Guan, Ling Guo, and Hao Wu.
+\newblock Flow-based bayesian filtering for high-dimensional nonlinear stochastic dynamical systems, 2025.
+\newblock URL \url{https://arxiv.org/abs/2502.16232}.
+
 \bibitem[Wang et~al.(2023)Wang, Blei, and Cunningham]{wang2023vae}
 Yixin Wang, David~M. Blei, and John~P. Cunningham.
 \newblock Posterior collapse and latent variable non-identifiability, 2023.
@@ -788,6 +849,14 @@ Jice Zeng, Michael~D. Todd, and Zhen Hu.
 \newblock ISSN 2190-5479.
 \newblock \doi{10.1007/s13349-022-00638-5}.
 \newblock URL \url{https://doi.org/10.1007/s13349-022-00638-5}.
+
+\bibitem[Zhang et~al.(2023)Zhang, Zhu, Zhang, and Gao]{ZHANG2023106424}
+Zheng Zhang, Jinlin Zhu, Shuyu Zhang, and Furong Gao.
+\newblock Process monitoring using recurrent kalman variational auto-encoder for general complex dynamic processes.
+\newblock \emph{Engineering Applications of Artificial Intelligence}, 123:\penalty0 106424, 2023.
+\newblock ISSN 0952-1976.
+\newblock \doi{https://doi.org/10.1016/j.engappai.2023.106424}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0952197623006085}.
 
 \bibitem[Zhdanov et~al.(2022)Zhdanov, Randolph, Kluge, Nakatsutsumi, Gutt, Ganeva, and Hoffmann]{zhdanov2022gisaxs}
 Maksim Zhdanov, Lisa Randolph, Thomas Kluge, Motoaki Nakatsutsumi, Christian Gutt, Marina Ganeva, and Nico Hoffmann.

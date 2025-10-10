@@ -1,6 +1,6 @@
 \section{Background and Preliminaries} 
 \label{sec:introduction:background}
-This section introduces the necessary foundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic models, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge probabilistic inference to control methods, covering system identification, state estimation, state-space model and model predictive control.
+This section introduces the necessary foundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic models, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge probabilistic inference to control methods, covering system identification, state estimation, and model predictive control.
 
 \subsection{Notations}
 
@@ -592,7 +592,7 @@ where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\theta}$ and $h$ is the
     \caption[BayesFlow Architecture]{ The architecture of BayesFlow. The blue arrows indicate the forward direction for training BayesFlow, while the yellow arrows indicate the reverse direction for inference. The summary network extracts informative representations from the observations, which are then fed into the \ac{cINN} alongside the target variables.}
     \label{fig:bayesflow}
 \end{figure}
-The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, dynamic modeling, and state estimation.
+The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, system dynamics modeling, and state estimation.
 
 \subsection{From Inference to Control}
 This section bridges the probabilistic inference methodologies discussed above to their practical applications in control systems. We first review how Bayesian approaches are employed for system identification and state estimation. Next, we introduce \acf{MPC}, which is a widely used model-based control technique for optimal decision-making based on the system identification results. Finally, we discuss \acf{RL} as a data-driven control paradigm, highlighting its ability to learn control policies directly from interactions with the environment without requiring explicit system models. Together, these approaches illustrate the synergy between probabilistic inference and modern control strategies, enabling robust and adaptive solutions for complex dynamical systems.
@@ -658,7 +658,8 @@ Applying the estimated posterior of system parameters again as a prior, and upda
     \end{split}
 \end{equation}
 where $p(\boldsymbol{x}_{t}|\boldsymbol{x}_{t-1})$ is referred as evolution model, or state transition model, and $p(\boldsymbol{y}_t|\boldsymbol{x}_t)$ is called observation model, or measurement model. The posterior $p(\boldsymbol{x}_{0:t-1}|\boldsymbol{y}_{1:t-1})$ is the result of the previous time step. The equation above describes a recursive process of state estimation.
-
+\paragraph{Bayesian Filtering}
+\label{sec:bayesfilter}
 Considering only one state $\boldsymbol{x}_{t}$ at a time, the problem is called marginal state estimation, or filtering. The equation becomes:
 \begin{equation}
     \label{eq:bayesfilter}
@@ -701,35 +702,48 @@ Relaxing the assumptions on model linearity and Gaussian noise, \ac{PF} \citep{p
 
 In summary, \ac{KF} is efficient and provides optimal state estimates for linear systems with Gaussian noise. \ac{EKF} extends \ac{KF} to nonlinear systems through linearization, but may suffer from approximation errors. \ac{UKF}, instead of linearization, applies sigma points to better capture the mean and covariance of the state distribution, leading to more accurate estimates for highly nonlinear systems. \ac{PF} is the most flexible, capable of handling arbitrary nonlinearities and non-Gaussian noise, but computationally expensive due to the need for numerous particles.
 
-\subsubsection{State-Space Models}
-For modeling system dynamics completely from data, \acfp{SSM} \citep{Durbin2012} are widely used. An \ac{SSM} consists of a latent state vector $\boldsymbol{h}_t$ and an observation vector $\boldsymbol{y}_t$. The state vector captures the internal dynamics of the system, while the observation vector represents the measurable outputs. $\boldsymbol{h}_t$ follows a Markov process, meaning that the previous state $\boldsymbol{h}_{t-1}$ carries all information to obtain the current state $\boldsymbol{h}_t$. $\boldsymbol{y}_t$ is solely dependent on the latent state $\boldsymbol{h}_t$. These assumptions lead to the following factorization of the joint distribution:
+\paragraph{State-Space Models}
+For modeling system dynamics completely from data, \acfp{SSM} \citep{Durbin2012} are widely used. An \ac{SSM} consists of a latent state vector $\boldsymbol{x}_t$ and an observation vector $\boldsymbol{y}_t$. The state vector captures the internal dynamics of the system, while the observation vector represents the measurable outputs. $\boldsymbol{x}_t$ follows a Markov process, meaning that the previous state $\boldsymbol{x}_{t-1}$ carries all information to obtain the current state $\boldsymbol{x}_t$. $\boldsymbol{y}_t$ is solely dependent on the latent state $\boldsymbol{x}_t$. These assumptions lead to the following factorization of the joint distribution:
 \begin{equation}
-    p(\boldsymbol{y}_{1:T}, \boldsymbol{h}_{0:T}) = p(\boldsymbol{h}_0) \prod_{t=1}^{T}p(\boldsymbol{h}_t|\boldsymbol{h}_{t-1})p(\boldsymbol{y}_t|\boldsymbol{h}_t).
+    p(\boldsymbol{y}_{1:T}, \boldsymbol{x}_{0:T}) = p(\boldsymbol{x}_0) \prod_{t=1}^{T}p(\boldsymbol{x}_t|\boldsymbol{x}_{t-1})p(\boldsymbol{y}_t|\boldsymbol{x}_t).
 \end{equation}
-In the simplest case, the state transition distribution $p(\boldsymbol{h}_t|\boldsymbol{h}_{t-1})$ and the observation distribution $p(\boldsymbol{y}_t|\boldsymbol{h}_t)$ are assumed to be linear Gaussian models:
+In the simplest case, the state transition distribution $p(\boldsymbol{x}_t|\boldsymbol{x}_{t-1})$ and the observation distribution $p(\boldsymbol{y}_t|\boldsymbol{x}_t)$ are assumed to be linear Gaussian models:
 \begin{subequations}
     \begin{gather}
-        \boldsymbol{h}_0\sim\mathcal{N}(\boldsymbol{0}, \Sigma_0), \\
-        \boldsymbol{h}_t=\boldsymbol{A}\boldsymbol{h}_{t-1}+\boldsymbol{w}_t, \quad \boldsymbol{w}_t\sim\mathcal{N}(\boldsymbol{0},\Sigma_{w_t})\\
-        \boldsymbol{y}_t=\boldsymbol{C}\boldsymbol{h}_t+\boldsymbol{v}_t, \quad \boldsymbol{v}_t\sim\mathcal{N}(\boldsymbol{0},\Sigma_{v_t}).
+        \boldsymbol{x}_0\sim\mathcal{N}(\boldsymbol{0}, \Sigma_0), \\
+        \boldsymbol{x}_t=\boldsymbol{F}\boldsymbol{x}_{t-1}+\boldsymbol{w}_t, \quad \boldsymbol{w}_t\sim\mathcal{N}(\boldsymbol{0},\Sigma_{w_t})\\
+        \boldsymbol{y}_t=\boldsymbol{H}\boldsymbol{x}_t+\boldsymbol{v}_t, \quad \boldsymbol{v}_t\sim\mathcal{N}(\boldsymbol{0},\Sigma_{v_t}).
     \end{gather}
 \end{subequations}
-In the previous section, we have shown estimation of states using Kalman filters with known system matrices ($\boldsymbol{A}$, $\boldsymbol{C}$) and noise covariance matrices ($\Sigma_{w_t}, \Sigma_{v_t}$). When these matrices are unknown, they can be estimated from data using the \ac{EM} algorithm \citep{Dempster1977}. The \ac{EM} algorithm iteratively maximizes the expected log-likelihood of the complete data (both observed and latent variables) given the current parameter estimates. The algorithm consists of two main steps:
+In the previous section, we have shown estimation of states using Kalman filters with known system matrices ($\boldsymbol{F}$, $\boldsymbol{H}$) and noise covariance matrices ($\Sigma_{w_t}, \Sigma_{v_t}$). When these matrices are unknown, they can be estimated from data using the \ac{EM} algorithm \citep{Dempster1977}. The \ac{EM} algorithm iteratively maximizes the expected log-likelihood of the complete data (both observed and latent variables) given the current parameter estimates. The algorithm consists of two main steps:
 \begin{itemize}
     \item E-step: Compute the expectations of the latent states using the current parameter estimates:
     \begin{equation*}
-        E_t=E[\boldsymbol{h}_t],\quad E_{t,t}=E[\boldsymbol{h}_t\boldsymbol{h}_t^T],\quad E_{t,t-1}=E[\boldsymbol{h}_t\boldsymbol{h}_{t-1}^T].
+        E_t=E[\boldsymbol{x}_t],\quad E_{t,t}=E[\boldsymbol{x}_t\boldsymbol{x}_t^T],\quad E_{t,t-1}=E[\boldsymbol{x}_t\boldsymbol{x}_{t-1}^T].
     \end{equation*}.
     The states come from running the Kalman filter (Equation \ref{eq:kalman_prediction}, \ref{eq:kalman_update}) on the current parameters.
     \item M-step: Update parameters using the expectations:
     \begin{subequations}
         \begin{align*}
-            \boldsymbol{A}&=\left(\sum_{t=1}^{T}E_{t,t-1}\right)\left(\sum_{t=1}^{T}E_{t-1, t-1}\right)^{-1}, \quad \boldsymbol{C}=\left(\sum_{t=0}^{T}\boldsymbol{y}_tE_t^T\right)\left(\sum_{t=1}^{T}E_{t,t}\right)^{-1}, \\
-            \Sigma_{w_t}&=\frac{1}{T}\left(\sum_{t=1}^{T}E_{t,t}-\boldsymbol{A}\sum_{t=1}^{T}E_{t,t-1}^T\right), \quad \Sigma_{v_t}=\frac{1}{T}\left(\sum_{t=0}^{T}\boldsymbol{y}_t\boldsymbol{y}_t^T-\boldsymbol{C}\sum_{t=0}^{T}\boldsymbol{y}_tE_t^T\right).
+            \boldsymbol{F}&=\left(\sum_{t=1}^{T}E_{t,t-1}\right)\left(\sum_{t=1}^{T}E_{t-1, t-1}\right)^{-1}, \quad \boldsymbol{H}=\left(\sum_{t=0}^{T}\boldsymbol{y}_tE_t^T\right)\left(\sum_{t=1}^{T}E_{t,t}\right)^{-1}, \\
+            \Sigma_{w_t}&=\frac{1}{T}\left(\sum_{t=1}^{T}E_{t,t}-\boldsymbol{F}\sum_{t=1}^{T}E_{t,t-1}^T\right), \quad \Sigma_{v_t}=\frac{1}{T}\left(\sum_{t=0}^{T}\boldsymbol{y}_t\boldsymbol{y}_t^T-\boldsymbol{H}\sum_{t=0}^{T}\boldsymbol{y}_tE_t^T\right).
         \end{align*}
     \end{subequations}
 \end{itemize}
 The E-step and M-step are iterated until convergence. The \ac{EM} algorithm guarantees that the likelihood of the observed data does not decrease with each iteration, leading to convergence to a local maximum. Similar to Kalman filters, for nonlinear models, \acp{EKF} and \acp{UKF} are applied in the E-step; while for nonlinear and non-Gaussian \acp{SSM}, \acp{PF} are used to approximate the expectations in the E-step \citep{Durbin2000}.
+
+\paragraph{Stochastic Differential Equations}
+The core strength of \acp{SSM} lies in separating the latent states and noise, enabling capturing dynamics from the noisy observations. When we upgrade \acp{SSM} from discrete time to continuous time, \acfp{SDE} \citep{oksendal1985} are a natural choice for modeling the evolution of latent states. A general form of an \ac{SDE} is:
+\begin{equation}
+    dX_t = \mu(X_t, t)dt + \sigma(X_t, t)dW_t,
+\end{equation}
+where $dX_t$ is the infinitesimal change in the state, $\mu(X_t, t)$ is the drift function representing the deterministic part of the dynamics, $\sigma(X_t, t)$ is the diffusion function representing the stochastic part, and $W_t$ is a Wiener process (or Brownian motion) capturing the random fluctuations. A Wiener process is a standard stochastic process with independent, normally distributed increments and continuous paths. It has the following properties \citep{gabbiani2010mathematics}:
+\begin{itemize}
+    \item $W_0=0$.
+    \item For any $0\leq s<t$, the increment $W_t-W_s$ is normally distributed with mean $0$ and variance $t-s$, i.e., $W_t-W_s\sim\mathcal{N}(0, (t-s)I)$.
+    \item The process has independent increments, meaning that for any $0\leq t_0<t_1<\ldots<t_n$, the increments $W_{t_1}-W_{t_0}, W_{t_2}-W_{t_1}, \ldots, W_{t_n}-W_{t_{n-1}}$ are independent random variables.
+\end{itemize}
+A stochastic process is a collection of random variables indexed by time. It can be seen as a continuous-time generalization of the state vector in the \acp{SSM}. 
 
 \subsubsection{Model Predictive Control}
 
@@ -753,6 +767,7 @@ The E-step and M-step are iterated until convergence. The \ac{EM} algorithm guar
 
 After investigating Bayesian system identification and state estimation, we now turn our attention to control strategies, meaning optimizing system inputs given target and system observations. Control methods can be broadly categorized into model-based and model-free approaches. Model-based control relies on an explicit model of the system dynamics to predict future states and optimize control actions accordingly. In contrast, model-free control approaches do not require a state transition model of the system, instead learning control strategies directly from interactions with the system. A prominent example of model-based control is \acf{MPC} \citep{mpcreview1989, mpcbook2020}. 
 
+\paragraph{Nominal Model Predictive Control}
 A to-be-controlled system is at first modelled in discrete time steps:
 \begin{subequations}
 \begin{align}
@@ -765,15 +780,29 @@ where $\boldsymbol{x}_k$ is the system state, $\boldsymbol{u}_k$ and $\boldsymbo
 \begin{subequations}
     \label{eq:mpc}
     \begin{gather}
-        \min_{\boldsymbol{u}_{k:k+N-1}} \sum_{i=k}^{k+N-1}(\boldsymbol{w}_{i}-\boldsymbol{y}_{i})^TQ_y(\boldsymbol{w}_i-\boldsymbol{y}_{i})+(\boldsymbol{u}_i-\boldsymbol{u}_{i-1})^TQ_u(\boldsymbol{u}_i-\boldsymbol{u}_{i-1}),\\
-        s.t. \quad    \boldsymbol{x}_{i+1} = f(\boldsymbol{x}_i, \boldsymbol{u}_i), \quad \boldsymbol{y}_i = h(\boldsymbol{x}_i),\\
-        g_j(\boldsymbol{x}_i, \boldsymbol{u}_i)\leq 0, \quad j=1,\ldots,n_g, \quad i=k,\ldots,k+N-1.
+        \min_{\boldsymbol{u}_{k:k+N-1}} \sum_{i=k}^{k+N-1}\ell(\boldsymbol{y}_{i}, \boldsymbol{u}_{i}, \boldsymbol{y}^r_{i})+L_f(\boldsymbol{y}^r_{k+N},\boldsymbol{y}_{k+N}),\\
+        \ell(\boldsymbol{y}_{i}, \boldsymbol{u}_{i}, \boldsymbol{y}^r_{i})=(\boldsymbol{y}_{i}-\boldsymbol{y}^r_{i})^TQ_y(\boldsymbol{y}_{i}-\boldsymbol{y}^r_{i})+\boldsymbol{u}_{i}^TQ_u\boldsymbol{u}_{i},\\
+        \text{subject to} \quad \boldsymbol{x}_{i+1} = f(\boldsymbol{x}_i, \boldsymbol{u}_i), \quad \boldsymbol{y}_i = h(\boldsymbol{x}_i),\\
+        g_j(\boldsymbol{x}_i, \boldsymbol{u}_i)\leq 0, \quad j=1,\ldots,n_g, \quad i=k,\ldots,k+N-1,\\
+        \boldsymbol{u}_{min}\leq\boldsymbol{u}_i\leq\boldsymbol{u}_{max}, \quad i=k,\ldots,k+N-1.
     \end{gather}
 \end{subequations}
-The weighting matrices $Q_y$ and $Q_u$ are used to balance the trade-off between tracking performance and control effort. The reference trajectory $\boldsymbol{w}_{k:k+N-1}$ represents the desired output over the prediction horizon. The constraints $g_j(\boldsymbol{x}_i, \boldsymbol{u}_i)\leq 0$ can represent physical limitations of the system or other operational constraints. A simplified schematic of \ac{MPC} is shown in Figure \ref{fig:mpc}. 
+The cost function consists of a sum of stage costs $\ell$ and a final cost function $L_f$. In the stage cost, weighting matrices $Q_y$ and $Q_u$ are used to balance the trade-off between tracking performance and control effort. The reference trajectory $\boldsymbol{y}^r$ represents the desired output over the prediction horizon. The constraints $g_j(\boldsymbol{x}_i, \boldsymbol{u}_i)\leq 0$ can represent physical limitations of the system or other operational constraints. A simplified schematic of \ac{MPC} is shown in Figure \ref{fig:mpc}. 
 
- The optimization problem in \ac{MPC} can be solved using various numerical methods, such as sequential quadratic programming, interior-point methods, or gradient-based approaches \citep{Diehl2013}. The choice of method depends on the specific characteristics of the system model and constraints. The first step of the solution (Equation \ref{eq:mpc}) $\boldsymbol{u}^*_k$ is applied to the system, and the whole process is repeated at the next time step with updated state information. That's why \ac{MPC} is also known as receding horizon control \citep{Christophersen2007}.
+The optimization problem in \ac{MPC} can be solved using various numerical methods, such as sequential quadratic programming, interior-point methods, or gradient-based approaches \citep{Diehl2013}. The choice of method depends on the specific characteristics of the system model and constraints. The first step of the solution (Equation \ref{eq:mpc}) $\boldsymbol{u}^*_k$ is applied to the system, and the whole process is repeated at the next time step with updated state information. That's why \ac{MPC} is also known as receding horizon control \citep{Christophersen2007}.
 
+\paragraph{Stochastic Model Predictive Control}
+Taking system uncertainties and disturbances into account, robust \ac{MPC} \citep{rmpc1987} aims to satisfy system stability and constraints despite uncertainties and disturbances. There exist several sound robust \ac{MPC} methods, including Min-Max\ac{MPC} \citep{RAIMONDO20095}, scenario \ac{MPC} \citep{Calafiore_2013}, and stochastic \ac{MPC} \citep{HEIRUNG2018158,smpc2016}. The Min-Max \ac{MPC} chooses control actions that minimize the worst possible cost under bounded disturbances. The scenario \ac{MPC} samples a finite number of random uncertainty realizations as scenarios and optimizes control actions that satisfy constraints for each scenario. Stochastic \ac{MPC} incorporates the probabilistic descriptions of uncertainties into a stochastic optimal control problem through defining chance constraints. A mathematical formulation of stochastic \ac{MPC} is as follows \citep{HEIRUNG2018158} :
+\begin{subequations}
+    \label{eq:smpc}
+    \begin{gather}
+        \min_{\boldsymbol{u}_{k:k+N-1}}\sum_{i=k}^{k+N-1}\mathbb{E}[\ell(\boldsymbol{y}_{i}, \boldsymbol{u}_{i}, \boldsymbol{y}^r_{i})]+\mathbb{E}[L_f(\boldsymbol{y}^r_{k+N},\boldsymbol{y}_{k+N})],\\
+        \text{subject to} \quad \boldsymbol{x}_{i+1} = f(\boldsymbol{x}_i, \boldsymbol{u}_i, \boldsymbol{w}_i), \quad \boldsymbol{y}_i = h(\boldsymbol{x}_i, \boldsymbol{v}_i),\\
+        \mathbb{P}[g_j(\boldsymbol{x}_i, \boldsymbol{u}_i)\leq 0]\geq1-\beta_j, \quad\beta_j\in(0,1],\quad j=1,\ldots,n_g, \quad i=k,\ldots,k+N-1,\\
+        \boldsymbol{u}_{min}\leq\boldsymbol{u}_i\leq\boldsymbol{u}_{max}, \quad i=k,\ldots,k+N-1.
+    \end{gather}    
+\end{subequations}   
+The chance constraints $\mathbb{P}$ regularize the inequality constraints $g_i$, allowing for a small probability $\beta_j$ of constraint violation. The expectation in the cost function can be approximated using Monte Carlo simulation or analytical methods if the distributions are known.                                                                                                                                                                              
 \subsubsection{Reinforcement Learning for Control}
 When an accurate model of the system is unavailable or difficult to obtain, model-free control methods can be employed. Classical model-free control methods are \ac{PID} controllers \citep{Fliess_2013}. In recent years, data-driven control methods attract increasing attention. Especially, \acf{RL} can be viewed as a model-free framework for solving optimal control problems, and has been successfully applied in various domains, including robotics, game playing, and autonomous systems.
 

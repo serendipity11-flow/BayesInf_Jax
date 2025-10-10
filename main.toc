@@ -10,13 +10,13 @@
 \contentsline {subsubsection}{\numberline {2.2.1}Bayes' rule}{7}{subsubsection.1.2.2.1}%
 \contentsline {subsubsection}{\numberline {2.2.2}Markov Chain Monte Carlo}{8}{subsubsection.1.2.2.2}%
 \contentsline {paragraph}{\acf {MH} algorithm}{9}{subsubsection.1.2.2.2}%
-\contentsline {paragraph}{\acf {MALA}}{10}{equation.1.9}%
-\contentsline {subsubsection}{\numberline {2.2.3}Variational Inference}{11}{subsubsection.1.2.2.3}%
+\contentsline {paragraph}{\acf {MALA}}{9}{equation.1.9}%
+\contentsline {subsubsection}{\numberline {2.2.3}Variational Inference}{10}{subsubsection.1.2.2.3}%
 \contentsline {subsection}{\numberline {2.3}Deep Probabilistic Models}{12}{subsection.1.2.3}%
 \contentsline {subsubsection}{\numberline {2.3.1}Deep Gaussian Process}{13}{subsubsection.1.2.3.1}%
 \contentsline {subsubsection}{\numberline {2.3.2}Bayesian Neural Networks}{14}{subsubsection.1.2.3.2}%
-\contentsline {subsubsection}{\numberline {2.3.3}Variational Autoencoder}{16}{subsubsection.1.2.3.3}%
-\contentsline {subsection}{\numberline {2.4}Normalizing Flows}{18}{subsection.1.2.4}%
+\contentsline {subsubsection}{\numberline {2.3.3}Variational Autoencoder}{15}{subsubsection.1.2.3.3}%
+\contentsline {subsection}{\numberline {2.4}Normalizing Flows}{17}{subsection.1.2.4}%
 \contentsline {subsubsection}{\numberline {2.4.1}Basics}{18}{subsubsection.1.2.4.1}%
 \contentsline {paragraph}{Change of Variables}{18}{equation.1.38b}%
 \contentsline {paragraph}{Using \acp {NF} for modeling and inference}{20}{equation.1.50c}%
@@ -31,48 +31,53 @@
 \contentsline {paragraph}{Bayesian model selection}{28}{equation.1.68}%
 \contentsline {paragraph}{Bayesian Parameter Identification}{29}{equation.1.74}%
 \contentsline {subsubsection}{\numberline {2.5.2}Bayesian State Estimation}{30}{subsubsection.1.2.5.2}%
-\contentsline {subsubsection}{\numberline {2.5.3}State-Space Models}{32}{subsubsection.1.2.5.3}%
-\contentsline {subsubsection}{\numberline {2.5.4}Model Predictive Control}{33}{subsubsection.1.2.5.4}%
-\contentsline {subsubsection}{\numberline {2.5.5}Reinforcement Learning for Control}{34}{subsubsection.1.2.5.5}%
-\contentsline {section}{\numberline {3}Objectives and Contributions}{36}{section.1.3}%
-\contentsline {section}{\numberline {4}Outline}{37}{section.1.4}%
+\contentsline {paragraph}{Bayesian Filtering}{30}{equation.1.78}%
+\contentsline {paragraph}{State-Space Models}{32}{equation.1.82c}%
+\contentsline {paragraph}{Stochastic Differential Equations}{33}{equation.1.85}%
+\contentsline {subsubsection}{\numberline {2.5.3}Model Predictive Control}{34}{subsubsection.1.2.5.3}%
+\contentsline {paragraph}{Nominal Model Predictive Control}{34}{figure.caption.49}%
+\contentsline {paragraph}{Stochastic Model Predictive Control}{35}{equation.1.88e}%
+\contentsline {subsubsection}{\numberline {2.5.4}Reinforcement Learning for Control}{36}{subsubsection.1.2.5.4}%
+\contentsline {section}{\numberline {3}Objectives and Contributions}{37}{section.1.3}%
+\contentsline {section}{\numberline {4}Outline}{38}{section.1.4}%
 \contentsline {chapter}{\numberline {II}Literature Review}{39}{chapter.2}%
 \contentsline {section}{\numberline {1}Parameter Identification}{39}{section.2.1}%
 \contentsline {subsection}{\numberline {1.1}Deep Gaussian Processes}{39}{subsection.2.1.1}%
 \contentsline {subsection}{\numberline {1.2}Bayesian Neural Networks}{39}{subsection.2.1.2}%
 \contentsline {subsection}{\numberline {1.3}Conditional Variational Autoencoders}{40}{subsection.2.1.3}%
 \contentsline {subsection}{\numberline {1.4}Conditional Normalizing Flows}{40}{subsection.2.1.4}%
-\contentsline {subsection}{\numberline {1.5}Diffusion Models}{41}{subsection.2.1.5}%
-\contentsline {section}{\numberline {2}Dynamic Modeling and State Estimation}{41}{section.2.2}%
-\contentsline {subsection}{\numberline {2.1}Dynamic Modeling}{42}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {1.5}Conditional Diffusion Models}{41}{subsection.2.1.5}%
+\contentsline {section}{\numberline {2}System Dynamics Modeling and State Estimation}{41}{section.2.2}%
+\contentsline {subsection}{\numberline {2.1}System Dynamics Modeling}{41}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2}State Estimation}{42}{subsection.2.2.2}%
-\contentsline {subsection}{\numberline {2.3}Probabilistic State-Space Models}{42}{subsection.2.2.3}%
-\contentsline {subsection}{\numberline {2.4}Stochastic Processes}{42}{subsection.2.2.4}%
-\contentsline {subsection}{\numberline {2.5}Probabilistic Time Series Modeling}{42}{subsection.2.2.5}%
-\contentsline {section}{\numberline {3}Data-driven Control}{42}{section.2.3}%
-\contentsline {subsection}{\numberline {3.1}Model-Free Reinforcement Learning}{42}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {3.2}Model-Based Reinforcement Learning}{42}{subsection.2.3.2}%
-\contentsline {chapter}{\numberline {III}Methodologies}{43}{chapter.3}%
-\contentsline {section}{\numberline {1}Parameter Identification}{43}{section.3.1}%
-\contentsline {section}{\numberline {2}Dynamic Modeling}{44}{section.3.2}%
-\contentsline {section}{\numberline {3}State Estimation}{45}{section.3.3}%
-\contentsline {section}{\numberline {4}Data-driven Control}{46}{section.3.4}%
-\contentsline {chapter}{\numberline {IV}Experiments and Results}{47}{chapter.4}%
-\contentsline {section}{\numberline {1}Overview}{47}{section.4.1}%
-\contentsline {section}{\numberline {2}Parameter Identification}{47}{section.4.2}%
-\contentsline {section}{\numberline {3}Dynamic Modeling}{47}{section.4.3}%
-\contentsline {section}{\numberline {4}State Estimation}{47}{section.4.4}%
-\contentsline {section}{\numberline {5}Data-driven Control}{47}{section.4.5}%
-\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{49}{chapter.5}%
-\contentsline {chapter}{\numberline {VI}Abstract}{51}{chapter.6}%
-\contentsline {chapter}{\numberline {VII}Zusammenfassung}{53}{chapter.7}%
-\contentsline {chapter}{Bibliography}{54}{section*.68}%
-\contentsline {chapter}{Own Contributions and Publications}{55}{section*.68}%
-\contentsline {section}{Own share in data acquisition and data analysis}{55}{section*.69}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{55}{section*.69}%
-\contentsline {paragraph}{Own share in Data Analysis.}{55}{section*.69}%
-\contentsline {section}{Own Publications}{55}{section*.69}%
-\contentsline {chapter}{Appendix}{71}{section*.69}%
-\contentsline {chapter}{Acknowledgement}{73}{section*.69}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{75}{section*.69}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{77}{Item.12}%
+\contentsline {subsection}{\numberline {2.3}Probabilistic State-Space Models}{43}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.4}Stochastic Processes}{43}{subsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.5}Probabilistic Time Series Modeling}{43}{subsection.2.2.5}%
+\contentsline {section}{\numberline {3}Data-driven Control}{43}{section.2.3}%
+\contentsline {subsection}{\numberline {3.1}Neural-Network-based Model Predictive Control}{43}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {3.2}Model-Free Reinforcement Learning}{43}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {3.3}Model-Based Reinforcement Learning}{43}{subsection.2.3.3}%
+\contentsline {chapter}{\numberline {III}Methodologies}{45}{chapter.3}%
+\contentsline {section}{\numberline {1}Parameter Identification}{45}{section.3.1}%
+\contentsline {section}{\numberline {2}System Dynamics Modeling}{46}{section.3.2}%
+\contentsline {section}{\numberline {3}State Estimation}{47}{section.3.3}%
+\contentsline {section}{\numberline {4}Data-driven Control}{48}{section.3.4}%
+\contentsline {chapter}{\numberline {IV}Experiments and Results}{49}{chapter.4}%
+\contentsline {section}{\numberline {1}Overview}{49}{section.4.1}%
+\contentsline {section}{\numberline {2}Parameter Identification}{49}{section.4.2}%
+\contentsline {section}{\numberline {3}System Dynamics Modeling}{49}{section.4.3}%
+\contentsline {section}{\numberline {4}State Estimation}{49}{section.4.4}%
+\contentsline {section}{\numberline {5}Data-driven Control}{49}{section.4.5}%
+\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{51}{chapter.5}%
+\contentsline {chapter}{Abstract}{53}{chapter.5}%
+\contentsline {chapter}{Zusammenfassung}{55}{chapter.5}%
+\contentsline {chapter}{Bibliography}{56}{section*.69}%
+\contentsline {chapter}{Own Contributions and Publications}{57}{section*.69}%
+\contentsline {section}{Own share in data acquisition and data analysis}{57}{section*.70}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{57}{section*.70}%
+\contentsline {paragraph}{Own share in Data Analysis.}{57}{section*.70}%
+\contentsline {section}{Own Publications}{57}{section*.70}%
+\contentsline {chapter}{Appendix}{75}{section*.70}%
+\contentsline {chapter}{Acknowledgement}{77}{section*.70}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{79}{section*.70}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{81}{Item.12}%

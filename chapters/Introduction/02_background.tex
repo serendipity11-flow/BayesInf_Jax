@@ -1,78 +1,52 @@
 \section{Background and Preliminaries} 
 \label{sec:introduction:background}
-This section introduces the necessary foundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic models, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge probabilistic inference to control methods, covering system identification, state estimation, and model predictive control.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/Mindmap.pdf}
+    \caption[Knowledge Map]{Knowledge Map of Foundational Theories}
+    \label{fig:knowledgemap}
+\end{figure}
+This section introduces the necessary foundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic methods, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge probabilistic inference to control methods, covering system identification, state estimation, and model predictive control. The overview for this chapter is shown in Figure \ref{fig:knowledgemap}.
 
 \subsection{Notations}
 
 To maintain clarity throughout this document, we adopt the following notation:
 
-\begin{enumerate}[label=\textbf{\arabic*.}, wide=0pt, leftmargin=*, labelsep=1em]
-    \item[Basic symbols]\mbox{}\\[-1em] 
-    \begin{itemize}
-        \setlength\itemsep{1em}     % space between items
-        \setlength\parsep{0em}      % space between paragraphs within items
-        \item Scalars are denoted by lowercase letters, e.g., $x$.
-        \item Vectors are denoted by bold lowercase letters, e.g., $\boldsymbol{x}$.
-        \item Matrices are denoted by bold uppercase letters, e.g., $\boldsymbol{X}$.
-        \item Sets or collections of mixed or unspecified data types are denoted by calligraphic letters, e.g., $\mathcal{D}$.
-    \end{itemize}
-
-    \item[Random variables]\mbox{}\\[-1em] 
-    \begin{itemize}[itemsep=1em]
-        \setlength\itemsep{1em}     % space between items
-        \setlength\parsep{0em}      % space between paragraphs within items
-        \item Multiple dimensional random variables are vectors, e.g., $\boldsymbol{x}$, which consist of single dimensional random variables, e.g., $[x_1,\dots,x_N]^T$.
-        \item The $i$-th sample in a dataset is denoted by a superscript, e.g., $\boldsymbol{x}^{(i)}$.
-        \item Stochastic processes are denoted by italic capital letters with a time argument, e.g., $\it{X}(t)$, where $t$ indicates time dependence.
-    \end{itemize}
-
-    \item[Time series]\mbox{}\\[-1em] 
-    \begin{itemize}[itemsep=1em]
-        \setlength\itemsep{1em}     % space between items
-        \setlength\parsep{0em}      % space between paragraphs within items
-        \item A time series of length $T$ is denoted by $\boldsymbol{x}_{(1:T)}$, where the subscript within parentheses indicates the time index.
-        \item When a variable is empathized as a function of time, it is denoted by $\boldsymbol{x}(t)$ for a multidimensional variable or $x(t)$ as a single one.
-        \item The $i$-th dimension of a time series is denoted by a subscript, e.g., $\boldsymbol{x}_i$.
-    \end{itemize}
-
-    \item[Variable modifications]\mbox{}\\[-1em] 
-    \begin{itemize}[itemsep=1em]
-        \setlength\itemsep{1em}     % space between items
-        \setlength\parsep{0em}      % space between paragraphs within items
-        \item Estimated variables are denoted with a hat, e.g., $\hat{\boldsymbol{x}}$.
-        \item Processed or transformed variables are denoted with a tilde, e.g., $\tilde{\boldsymbol{x}}$.
-        \item Derivatives are denoted with a dot for time derivatives, e.g., $\dot{\boldsymbol{x}}$.
-    \end{itemize}
-
-    \item[Probability and statistics]\mbox{}\\[-1em] 
-    \begin{itemize}[itemsep=0.5em]
-        \setlength\itemsep{1em}     % space between items
-        \setlength\parsep{0em}      % space between paragraphs within items
-        \item \acf{PDF}: $p(\cdot)$.
-        \item Joint PDF: $p(\cdot, \cdot)$.
-        \item Conditional PDF: $p(\cdot \mid \cdot)$.
-        \item Expectation of a function $f(x)$ under PDF $p(x)$: $\mathbb{E}_{p(x)}[f(x)]$.
-        \item Covariance between random vectors $\boldsymbol{x}$ and $\boldsymbol{y}$: $\text{Cov}[\boldsymbol{x}, \boldsymbol{y}]$.
-        \item Variance of a random variable $\boldsymbol{x}$: $\text{Var}[\boldsymbol{x}]$.
-    \end{itemize}
-
-    \item[Matrix operations]\mbox{}\\[-1em] 
-    \begin{itemize}
-        \setlength\itemsep{1em}     % space between items
-        \setlength\parsep{0em}      % space between paragraphs within items
-        \item Identity matrix: $\boldsymbol{I}$.
-        \item Jacobian matrix: $\boldsymbol{J}$.
-        \item Determinant of $\boldsymbol{J}$: $\det|\boldsymbol{J}|$.
-        \item Trace of a matrix $\boldsymbol{X}$: $\text{Tr}(\boldsymbol{X})$.
-        \item Transpose of a matrix $\boldsymbol{X}$: $\boldsymbol{X}^\top$.
-    \end{itemize}
-\end{enumerate}
+\begin{table}[htbp]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries}l X}
+\toprule
+Category & Description \\
+\midrule
+Basic Symbols &
+Scalars: $x$; Vectors: $\boldsymbol{x}$; Matrices: $\boldsymbol{X}$; Sets: $\mathcal{D}$ \\
+\midrule
+Random Variables &
+Multidimensional random variables: $\boldsymbol{x} = [x_1,\dots,x_N]^T$; Sample index: $\boldsymbol{x}^{(i)}$; Stochastic processes: $\it{X}(t)$ \\
+\midrule
+Time Series &
+Time series of length $T$: $\boldsymbol{x}_{(1:T)}$; Time-dependent variables: $\boldsymbol{x}(t)$ or $x(t)$; Dimension index: $\boldsymbol{x}_i$ \\
+\midrule
+Variable Modifications &
+Estimated: $\hat{\boldsymbol{x}}$; Transformed: $\tilde{\boldsymbol{x}}$; Time derivative: $\dot{\boldsymbol{x}}$ \\
+\midrule
+Probability and Statistics &
+PDF: $p(\cdot)$; Joint PDF: $p(\cdot, \cdot)$; Conditional PDF: $p(\cdot \mid \cdot)$; Expectation: $\mathbb{E}_{p(x)}[f(x)]$; Covariance: $\text{Cov}[\boldsymbol{x}, \boldsymbol{y}]$; Variance: $\text{Var}[\boldsymbol{x}]$ \\
+\midrule
+Matrix Operations &
+Identity: $\boldsymbol{I}$; Jacobian: $\boldsymbol{J}$; Determinant: $\det|\boldsymbol{J}|$; Trace: $\text{Tr}(\boldsymbol{X})$; Transpose: $\boldsymbol{X}^\top$ \\
+\bottomrule
+\end{tabularx}
+\caption{Notation Summary}
+\label{tab:notation-summary}
+\end{table}
 
 \subsection{Bayesian Inference}
 Bayesian inference gets its name from using Bayes' rule to perform statistical inference of probability distributions.
 This chapter refers to \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}, \textit{Handbook of MCMC} \citep{Allen_2007}, and \textit{Variational Inference} \citep{Blei_2017}.
 
-\subsubsection{Bayes' rule}
+\subsubsection{Bayes' Rule}
 Bayes' rule is derived from the chain rule of conditional probability. For target variables $\boldsymbol{\theta}$ and the corresponding observed data $\mathcal{D}$, the chain rule states that:
 \begin{equation}
     p(\boldsymbol{\theta}, \mathcal{D}) = p(\boldsymbol{\theta}|\mathcal{D})p(\mathcal{D}) = p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta}).
@@ -227,11 +201,11 @@ where the expectation is taken with respect to the distributions of all other gr
 
 The assumption of the mean-field \ac{VI} simplifies the optimization problem, and thus makes it scalable for large dimensional variables and also enables parallelizable computation. However, it may also limit the expressiveness of the variational distribution, especially when the posterior correlations are crucial, leading to suboptimal approximations of the true posterior. Summarizing, \ac{VI} is generally faster than \ac{MCMC} and scales better to large datasets, but it may provide less accurate approximations of the posterior distribution \citep{Blei_2017}. 
 
-\subsection{Deep Probabilistic Models}
-Deep probabilistic models combine the representational power of deep learning with the principled uncertainty modeling of probabilistic inference methods. This integration aims to provide both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic models: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder.
+\subsection{Deep Probabilistic Methods}
+Deep probabilistic methods combine the representational power of deep learning with the principled uncertainty modelling of probabilistic inference methods. This integration aims to provide both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic methods: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder.
 
 \subsubsection{Deep Gaussian Process}
-A Gaussian process is a stochastic process, where at each time point the random variables follow normal distributions. It can be interpreted as an infinite-dimensional Gaussian distribution. For an $N$-dimensional random variable $\boldsymbol{x}=[x_1,\dots,x_N]^T$, a Gaussian process $\it{X}(t)$ is fully specified by its mean function $\mu(\cdot)$ and covariance function $k(\cdot, \cdot)$:
+A Gaussian process can be interpreted as an infinite-dimensional Gaussian distribution, where at each time point the random variables follow normal distributions. For an $N$-dimensional random variable $\boldsymbol{x}=[x_1,\dots,x_N]^T$, a Gaussian process $\it{X}(t)$ is fully specified by its mean function $\mu(\cdot)$ and covariance function $k(\cdot, \cdot)$:
 \begin{equation}
      \begin{bmatrix} \it{X}_1(t) \\ \cdots \\\it{X}_N(t) \end{bmatrix}\sim\mathcal{N}( \begin{bmatrix} \mu(x_1) \\ \cdots \\\mu(x_N) \end{bmatrix},  \begin{bmatrix} k(x_1,x_1),\dots,k(x_1, x_N) \\ \cdots \\k(x_N,x_1), \dots,k(x_N, x_N) \end{bmatrix})
 \end{equation}
@@ -266,8 +240,8 @@ To improve expressiveness, \ac{DGP} \citep{damianou2013dgp} is proposed as multi
 \end{multline}  
 The deep architecture enables Gaussian processes to learn more complex data patterns and hierarchical representations. It can be seen as a deep neural network with infinitely wide layers \citep{Neal1996}, where each layer applies a Gaussian process, instead of nonlinear matrix transformation. However, due to the computational cost and storage consumption the \ac{DGP} is still cumbersome to apply in practice. 
 
-\subsubsection{Bayesian Neural Networks}
-Another approach to constructing deep probabilistic models involves integrating Bayesian inference with deep neural networks. A \acf{BNN} \citep{Neal1996, MacKay1992} places prior distributions over the network’s weights and biases, allowing uncertainty to be modeled directly within the architecture. 
+\subsubsection{Bayesian Neural Network}
+Another approach of deep probabilistic methods involves integrating Bayesian inference with deep neural networks. A \acf{BNN} \citep{Neal1996, MacKay1992} places prior distributions over the network’s weights and biases, allowing uncertainty to be modeled directly within the architecture. 
 
 The goal of training a \ac{BNN} is to infer the posterior distribution over the parameters $\boldsymbol{\theta}=[\boldsymbol{w}, \boldsymbol{b}]$ given the training data $\mathcal{D}$, i.e., $p(\boldsymbol{\theta}|\mathcal{D})$. \ac{VI} is commonly employed to approximate the posterior by optimizing the \ac{ELBO} (\ref{eq:elbo2}). 
 To facilitate gradient-based optimization via backpropagation---similar to standard neural networks---the reparameterization trick \citep{kingma2013auto} is used. This technique expresses random variables as deterministic variables of noise, enabling efficient and differentiable sampling during training. For example, for a Gaussian variational distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})=\mathcal{N}(\boldsymbol{\theta}|\boldsymbol{\mu}, \text{diag}(\boldsymbol{\sigma}^2))$, we can reparameterize $\boldsymbol{\theta}$ as:  
@@ -285,7 +259,7 @@ where each mini-batch $\mathcal{D}_i\subset\mathcal{D}$ is drawn from the equall
 \end{equation}
 where $\alpha$ is the learning rate. This procedure is called \ac{BbB} \citep{blundell2015bbb}.
 
-In comparison to \ac{DGP}, the \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \ac{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}. Nevertheless, several works raise concerns with BNNs including wrong uncertainty estimation in between separated regions of observations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and sensitive modeling ability to the choice of prior distributions \citep{silvestro2020prior}. These limitations motivate the applications of more powerful generative models, such as variational autoencoders and \acp{NF}, which are discussed in the following sections.
+In comparison to \ac{DGP}, the \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \ac{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}. Nevertheless, several works raise concerns with BNNs including wrong uncertainty estimation in between separated regions of observations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and sensitive modelling ability to the choice of prior distributions \citep{silvestro2020prior}. These limitations motivate the applications of more powerful generative models, such as variational autoencoders and \acp{NF}, which are discussed in the following sections.
 
 \subsubsection{Variational Autoencoder}
 In classical \ac{VI} methods, the parameters of interest $\boldsymbol{\theta}$ are random variables, and the approximate posterior distribution over the parameters is parameterized by variational parameters $\boldsymbol{\phi}$. In contrast, a \acf{VAE} is constructed with deterministic neural networks and introduces variability by latent variables. For a dataset $\mathcal{D}=\{\boldsymbol{x}^{(i)}\}_{i=1}^{N}$, the samples are assumed to be \ac{i.i.d.} and drawn from an unchanging underlying distribution $p_{\boldsymbol{\theta}}(\boldsymbol{x})$. A \ac{VAE} extracts information from input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$ by a parameterized inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$, which is also called an encoder or recognition model. Then, the \ac{VAE} generates data $\boldsymbol{x}$ from the latent variables $\boldsymbol{z}$ by another parameterized model $p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$, which is also called a decoder. The decoder is often mentioned as a "generative" model. However, according to the formal definition \citep{Kingma_2019}, a generative model learns a joint distribution $p_{\boldsymbol{\theta}}(\boldsymbol{z}, \boldsymbol{x})=p_{\boldsymbol{\theta}}(\boldsymbol{z})p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$, including sampling $\boldsymbol{z}\sim p_{\boldsymbol{\theta}}(\boldsymbol{z})$ and sampling $\boldsymbol{x}\sim p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$. 
@@ -316,9 +290,9 @@ Changing the prior distribution in the \ac{ELBO}, $p_{\boldsymbol{\theta}}(\bold
 \end{equation}
 The first term is a reconstruction loss, which encourages the decoder to reconstruct the input data from the latent variables. The second term is a regularization term, which forces the approximate posterior to be close to the prior distribution.
 
-\acp{VAE} have proven to be versatile and powerful in diverse applications, such as representation learning, anomaly detection, and generative modeling \citep{Mienye2025}. To enable \acp{VAE} to perform probabilistic inference of variables $\boldsymbol{x}$ given observations $\boldsymbol{y}$, the observations should be inserted into both the encoder and decoder as conditions. This method is named as conditional \ac{VAE} \citep{sohn2015cvae}. The inference model becomes $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{y})$, the prior distribution becomes $p(\boldsymbol{z}|\boldsymbol{y})$, and the generative model becomes $p_{\boldsymbol{\theta}}(\boldsymbol{z}, \boldsymbol{x}|\boldsymbol{y})$. The conditions are often constrained to be low-dimensional variables, such as class labels \citep{sohn2015cvae} or physical parameters \citep{martínezpalomera2020pelsvae}. For high-dimensional and complex conditions, a powerful decoder is required to capture the relationship between the variables and observations. In this case, the latent variables may be ignored and thus the variability losses. This issue is known as posterior collapse \citep{bowman2016cvae, mccarthy2020cvae}, which limits the application of \acp{VAE} in conditional inference tasks.
+\acp{VAE} have proven to be versatile and powerful in diverse applications, such as representation learning, anomaly detection, and generative modelling \citep{Mienye2025}. To enable \acp{VAE} to perform probabilistic inference of variables $\boldsymbol{x}$ given observations $\boldsymbol{y}$, the observations should be inserted into both the encoder and decoder as conditions. This method is named as conditional \ac{VAE} \citep{sohn2015cvae}. The inference model becomes $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{y})$, the prior distribution becomes $p(\boldsymbol{z}|\boldsymbol{y})$, and the generative model becomes $p_{\boldsymbol{\theta}}(\boldsymbol{z}, \boldsymbol{x}|\boldsymbol{y})$. The conditions are often constrained to be low-dimensional variables, such as class labels \citep{sohn2015cvae} or physical parameters \citep{martínezpalomera2020pelsvae}. For high-dimensional and complex conditions, a powerful decoder is required to capture the relationship between the variables and observations. In this case, the latent variables may be ignored and thus the variability losses. This issue is known as posterior collapse \citep{bowman2016cvae, mccarthy2020cvae}, which limits the application of \acp{VAE} in conditional inference tasks.
 
-\subsection{Normalizing Flows}
+\subsection{Normalizing Flow}
 Another deep probabilistic model is the \acfp{NF}. \citeauthor{rezende2016} \citeyearpar{rezende2016} proposed \ac{NF} as a method for approximating posterior distributions by transforming a simple base distribution through a sequence of invertible mappings into complex target distributions. 
 
 \subsubsection{Basics}
@@ -399,7 +373,7 @@ On top of them, another important property the transformation $f$ should be fulf
     \end{gather}
 \end{subequations}
 where the total Jacobian determinant is the product of each intermediate ones.
-\paragraph{Using \acp{NF} for modeling and inference}
+\paragraph{Using \acp{NF} for modelling and inference}
 The invertibility also provides us easy way to fit \ac{NF} models, i.e., minimizing the divergence between the true data distribution and the estimated one. For a \ac{NF} with parameters $\boldsymbol{\theta}$, the KL-divergence is given by:
 \begin{equation}
     D_{\text{KL}}(p_X(\boldsymbol{x})||p_{X}(\boldsymbol{x};\boldsymbol{\theta}))=\mathbb{E}_{p_X(\boldsymbol{x})}\log p_X(\boldsymbol{x}) - \mathbb{E}_{p_X(\boldsymbol{x})}\log p_{X}(\boldsymbol{x};\boldsymbol{\theta}).
@@ -495,7 +469,7 @@ where $\boldsymbol{\theta}$ denotes system parameters. When the \ac{ODE} is mode
     L(\boldsymbol{h}(T))=L(\int_0^Tf(\boldsymbol{h}(t), t; \boldsymbol{\theta})dt),
 \end{equation}
 where $f$ is a neural network parameterized by $\boldsymbol{\theta}$.
-A straightforward application of Neural \acp{ODE} is learning continuous time-series models. Moreover, when the time step is interpreted as architectural depth, the distributional transformation in \acp{NF} can also be constructed with a Neural \ac{ODE}. The Neural \ac{ODE} replaces an infinite number of transformations by change of variables with a single neural network, which represents the derivative of transformation at each depth. This enables more efficient and expressive probabilistic modeling and inference.
+A straightforward application of Neural \acp{ODE} is learning continuous time-series models. Moreover, when the time step is interpreted as architectural depth, the distributional transformation in \acp{NF} can also be constructed with a Neural \ac{ODE}. The Neural \ac{ODE} replaces an infinite number of transformations by change of variables with a single neural network, which represents the derivative of transformation at each depth. This enables more efficient and expressive probabilistic modelling and inference.
 
 A central technical challenge in training continuous-depth networks lies in executing reverse-mode differentiation (commonly known as backpropagation) through the ODE solver. This process requires computing gradients with respect to network parameters at various time points backwards from $t=T$ to $t=0$, resulting in large memory cost to store the intermediate states. The solution is using the adjoint method \citep{Bittner1963, adjoint1963}. The principle of the adjoint method is to solve a backward \ac{ODE} alongside the forward \ac{ODE} whenever intermediate states are required. Compared to storing all intermediate states of the forward \ac{ODE}, the adjoint method reduces memory cost at the expense of increased computational cost. This trade-off makes it more suitable for long sequences and high-dimensional variables, but less efficient for computationally complex network architectures.
 
@@ -564,21 +538,21 @@ Continuous \acp{NF} release the architectural constraints of discrete flows, all
 
 \subsubsection{Conditional Normalizing Flows}
 \label{sec:condnf}
-Such capabilities of estimating complex densities are desirable in Bayesian inference of the posterior distribution of variables given observations $p(\boldsymbol{x}|\boldsymbol{y})$. Similar to \ac{VAE}, amortized Bayesian inference \citep{radev2021diss} is applied in \ac{NF} to achieve a general posterior estimation across all datapoints. Obtaining the posterior distribution is represented by a conditional density transformation via a conditional \ac{NF}. The change of variables for a conditional NF extends the standard one (\ref{eq:xnfz}) by the condition $\boldsymbol{y}$:
+Such capabilities of estimating complex densities are desirable in Bayesian inference of the posterior distribution of variables given observations $p(\boldsymbol{x}|\boldsymbol{y})$. Similar to \ac{VAE}, amortized Bayesian inference \citep{radev2021diss} is applied in \ac{NF} to achieve a general posterior estimation across all datapoints. Obtaining the posterior distribution is represented by a conditional density transformation via a \ac{CNF}. The change of variables for a \ac{CNF} extends the standard one (\ref{eq:xnfz}) by the condition $\boldsymbol{y}$:
 \begin{equation}
     p_{X|Y}(\boldsymbol{x}|\boldsymbol{y}) = p_{Z|Y}(f^{-1}(\boldsymbol{x},\boldsymbol{y})|\boldsymbol{y})\det\left|\frac{\partial f^{-1}(\boldsymbol{x},\boldsymbol{y})}{\partial\boldsymbol{x}}\right|,
 \end{equation}
 where the mapping $f:Z\rightarrow X\times Y$ is bijective between $X$ and $Z$, and $\boldsymbol{z}=f^{-1}(\boldsymbol{x},\boldsymbol{y})$.
 
-Designing such a conditional NF requires addressing two key considerations in advance: (1) how to manage the conditioned latent variables, and (2) how to incorporate conditions into the flow architecture while preserving invertibility. \citeauthor{winkler2023cnf} \citeyearpar{winkler2023cnf} proposed to build the conditional prior $p_{Z|Y}(\boldsymbol{z}|\boldsymbol{y})$ as a diagonal Gaussian:
+Designing such a \ac{CNF} requires addressing two key considerations in advance: (1) how to manage the conditioned latent variables, and (2) how to incorporate conditions into the flow architecture while preserving invertibility. \citeauthor{winkler2023cnf} \citeyearpar{winkler2023cnf} proposed to build the conditional prior $p_{Z|Y}(\boldsymbol{z}|\boldsymbol{y})$ as a diagonal Gaussian:
 \begin{equation}
     p_{Z|Y}(\boldsymbol{z}|\boldsymbol{y}) = \mathcal{N}{\boldsymbol{z}|\mu(\boldsymbol{y}, \text{diag}(\sigma^2(\boldsymbol{y})))}.
 \end{equation}
-For simpler conditioning scenarios, incorporating the conditional prior could accelerate the transformation through leveraging the information from conditions. For complex conditions, summarizing the conditions through mean and variance may result in information loss, thereby degrading posterior estimation quality. This limitation likely explains why most existing work on conditional normalizing flows adopts a standard Gaussian as the latent base distribution, bypassing the need for an explicitly conditioned prior and relying instead on the normalizing flows to capture conditional information.
+For simpler conditioning scenarios, incorporating the conditional prior could accelerate the transformation through leveraging the information from conditions. For complex conditions, summarizing the conditions through mean and variance may result in information loss, thereby degrading posterior estimation quality. This limitation likely explains why most existing work on \acp{CNF} adopts a standard Gaussian as the latent base distribution, bypassing the need for an explicitly conditioned prior and relying instead on the normalizing flows to capture conditional information.
 
-In terms of architectures of conditional \acp{NF}, a direct adaptation based on the \ac{INN} is the \ac{cINN} \citep{ardizzone2019cinn}. It takes the condition as augmented input to the neural networks. In cases of higher-dimensional conditions, such as images, \citeauthor{govinda2021cinn} \citeyearpar{govinda2021cinn} apply a staged \ac{cINN} coupled with a staged condition network, wherein the conditions are progressively processed, and each intermediate representation is fed into its corresponding \ac{cINN} block.
+In terms of architectures of \acp{CNF}, a direct adaptation based on the \ac{INN} is the \ac{cINN} \citep{ardizzone2019cinn}. It takes the condition as augmented input to the neural networks. In cases of higher-dimensional conditions, such as images, \citeauthor{govinda2021cinn} \citeyearpar{govinda2021cinn} apply a staged \ac{cINN} coupled with a staged condition network, wherein the conditions are progressively processed, and each intermediate representation is fed into its corresponding \ac{cINN} block.
 
-In scenarios involving complex conditions and relatively simple target variables, BayesFlow \citep{radev2020bayesflow} offers a general framework by extracting informative representations through a summary network and incorporating them, alongside the inputs, as augmented inputs to the \ac{cINN}. This framework is particularly well-suited for parameter identification from time series observations, where the summary network is typically chosen as a time series modeling architecture, such as \ac{RNN}. The architecture is illustrated in Figure \ref{fig:bayesflow}. Both the summary network and \ac{cINN} are optimized together by minimizing the \ac{KL}-divergence between the true posterior density and the estimated one (similar to Equation \ref{eq:kl_nf}):
+In scenarios involving complex conditions and relatively simple target variables, BayesFlow \citep{radev2020bayesflow} offers a general framework by extracting informative representations through a summary network and incorporating them, alongside the inputs, as augmented inputs to the \ac{cINN}. This framework is particularly well-suited for parameter identification from time series observations, where the summary network is typically chosen as a time series modelling architecture, such as \ac{RNN}. The architecture is illustrated in Figure \ref{fig:bayesflow}. Both the summary network and \ac{cINN} are optimized together by minimizing the \ac{KL}-divergence between the true posterior density and the estimated one (similar to Equation \ref{eq:kl_nf}):
 \begin{multline}
 \label{eq:kl_cnf}
 D_{\text{KL}}(p_{X|Y}(\boldsymbol{x}|\boldsymbol{y})||p_{X|Y}(\boldsymbol{x}|\boldsymbol{y};\boldsymbol{\theta},\boldsymbol{\phi}))\approx const. - \\
@@ -592,13 +566,13 @@ where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\theta}$ and $h$ is the
     \caption[BayesFlow Architecture]{ The architecture of BayesFlow. The blue arrows indicate the forward direction for training BayesFlow, while the yellow arrows indicate the reverse direction for inference. The summary network extracts informative representations from the observations, which are then fed into the \ac{cINN} alongside the target variables.}
     \label{fig:bayesflow}
 \end{figure}
-The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, system dynamics modeling, and state estimation.
+The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, system dynamics modelling, and state estimation.
 
 \subsection{From Inference to Control}
 This section bridges the probabilistic inference methodologies discussed above to their practical applications in control systems. We first review how Bayesian approaches are employed for system identification and state estimation. Next, we introduce \acf{MPC}, which is a widely used model-based control technique for optimal decision-making based on the system identification results. Finally, we discuss \acf{RL} as a data-driven control paradigm, highlighting its ability to learn control policies directly from interactions with the environment without requiring explicit system models. Together, these approaches illustrate the synergy between probabilistic inference and modern control strategies, enabling robust and adaptive solutions for complex dynamical systems.
 
 \subsubsection{Bayesian System Identification}
-An essential goal of system modeling and identification is to provide a rigorous framework for predicting and controlling the future evolution of system outputs. For any control strategy, the decision-maker needs to predict how the system will behave under any possible control input. This requires access to the joint probability distribution of the future input-output sequence, which can be factorized using the chain rule of probability \citep{BayesSysId1981}:
+An essential goal of system modelling and identification is to provide a rigorous framework for predicting and controlling the future evolution of system outputs. For any control strategy, the decision-maker needs to predict how the system will behave under any possible control input. This requires access to the joint probability distribution of the future input-output sequence, which can be factorized using the chain rule of probability \citep{BayesSysId1981}:
 \begin{equation}
     p(\mathcal{D}_{(t_1:t_N)}|\mathcal{D}_{t_0})=\prod _{n=1}^{N}p(\boldsymbol{y}_{t_n}|\boldsymbol{u}_{t_n}, \mathcal{D}_{t_{n-1}})p(\boldsymbol{u}_{t_n}|\mathcal{D}_{t_{n-1}}),
 \end{equation}
@@ -658,7 +632,7 @@ Applying the estimated posterior of system parameters again as a prior, and upda
     \end{split}
 \end{equation}
 where $p(\boldsymbol{x}_{t}|\boldsymbol{x}_{t-1})$ is referred as evolution model, or state transition model, and $p(\boldsymbol{y}_t|\boldsymbol{x}_t)$ is called observation model, or measurement model. The posterior $p(\boldsymbol{x}_{0:t-1}|\boldsymbol{y}_{1:t-1})$ is the result of the previous time step. The equation above describes a recursive process of state estimation.
-\paragraph{Bayesian Filtering}
+\paragraph{Bayesian Filters}
 \label{sec:bayesfilter}
 Considering only one state $\boldsymbol{x}_{t}$ at a time, the problem is called marginal state estimation, or filtering. The equation becomes:
 \begin{equation}
@@ -703,7 +677,7 @@ Relaxing the assumptions on model linearity and Gaussian noise, \ac{PF} \citep{p
 In summary, \ac{KF} is efficient and provides optimal state estimates for linear systems with Gaussian noise. \ac{EKF} extends \ac{KF} to nonlinear systems through linearization, but may suffer from approximation errors. \ac{UKF}, instead of linearization, applies sigma points to better capture the mean and covariance of the state distribution, leading to more accurate estimates for highly nonlinear systems. \ac{PF} is the most flexible, capable of handling arbitrary nonlinearities and non-Gaussian noise, but computationally expensive due to the need for numerous particles.
 
 \paragraph{State-Space Models}
-For modeling system dynamics completely from data, \acfp{SSM} \citep{Durbin2012} are widely used. An \ac{SSM} consists of a latent state vector $\boldsymbol{x}_t$ and an observation vector $\boldsymbol{y}_t$. The state vector captures the internal dynamics of the system, while the observation vector represents the measurable outputs. $\boldsymbol{x}_t$ follows a Markov process, meaning that the previous state $\boldsymbol{x}_{t-1}$ carries all information to obtain the current state $\boldsymbol{x}_t$. $\boldsymbol{y}_t$ is solely dependent on the latent state $\boldsymbol{x}_t$. These assumptions lead to the following factorization of the joint distribution:
+For modelling system dynamics completely from data, \acfp{SSM} \citep{Durbin2012} are widely used. An \ac{SSM} consists of a latent state vector $\boldsymbol{x}_t$ and an observation vector $\boldsymbol{y}_t$. The state vector captures the internal dynamics of the system, while the observation vector represents the measurable outputs. $\boldsymbol{x}_t$ follows a Markov process, meaning that the previous state $\boldsymbol{x}_{t-1}$ carries all information to obtain the current state $\boldsymbol{x}_t$. $\boldsymbol{y}_t$ is solely dependent on the latent state $\boldsymbol{x}_t$. These assumptions lead to the following factorization of the joint distribution:
 \begin{equation}
     p(\boldsymbol{y}_{1:T}, \boldsymbol{x}_{0:T}) = p(\boldsymbol{x}_0) \prod_{t=1}^{T}p(\boldsymbol{x}_t|\boldsymbol{x}_{t-1})p(\boldsymbol{y}_t|\boldsymbol{x}_t).
 \end{equation}
@@ -733,7 +707,7 @@ In the previous section, we have shown estimation of states using Kalman filters
 The E-step and M-step are iterated until convergence. The \ac{EM} algorithm guarantees that the likelihood of the observed data does not decrease with each iteration, leading to convergence to a local maximum. Similar to Kalman filters, for nonlinear models, \acp{EKF} and \acp{UKF} are applied in the E-step; while for nonlinear and non-Gaussian \acp{SSM}, \acp{PF} are used to approximate the expectations in the E-step \citep{Durbin2000}.
 
 \paragraph{Stochastic Differential Equations}
-The core strength of \acp{SSM} lies in separating the latent states and noise, enabling capturing dynamics from the noisy observations. When we upgrade \acp{SSM} from discrete time to continuous time, \acfp{SDE} \citep{oksendal1985} are a natural choice for modeling the evolution of latent states. A general form of an \ac{SDE} is:
+The core strength of \acp{SSM} lies in separating the latent states and noise, enabling capturing dynamics from the noisy observations. When we upgrade \acp{SSM} from discrete time to continuous time, \acfp{SDE} \citep{oksendal1985} are a natural choice for modelling the evolution of latent states. A general form of an \ac{SDE} is:
 \begin{equation}
     dX_t = \mu(X_t, t)dt + \sigma(X_t, t)dW_t,
 \end{equation}

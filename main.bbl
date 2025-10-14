@@ -1,4 +1,4 @@
-\begin{thebibliography}{137}
+\begin{thebibliography}{146}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -66,6 +66,12 @@ A.L. Barker, D.E. Brown, and W.N. Martin.
 Jens Behrmann, Will Grathwohl, Ricky T.~Q. Chen, David Duvenaud, and Jörn-Henrik Jacobsen.
 \newblock Invertible residual networks, 2019.
 \newblock URL \url{https://arxiv.org/abs/1811.00995}.
+
+\bibitem[Bekri et~al.(2024)Bekri, Drumetz, and Vermet]{Bekri_2024}
+Naoufal~El Bekri, Lucas Drumetz, and Franck Vermet.
+\newblock Time changed normalizing flows for accurate sde modeling.
+\newblock In \emph{ICASSP 2024 - 2024 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, page 6395–6399. IEEE, April 2024.
+\newblock \doi{10.1109/icassp48485.2024.10446131}.
 
 \bibitem[Besag(2004)]{besag2004markov}
 Julian Besag.
@@ -195,6 +201,14 @@ A.~P. Dempster, N.~M. Laird, and D.~B. Rubin.
 \newblock ISSN 00359246.
 \newblock URL \url{http://www.jstor.org/stable/2984875}.
 \newblock Full publication date: 1977.
+
+\bibitem[Deng et~al.(2021{\natexlab{a}})Deng, Brubaker, Mori, and Lehrmann]{deng2021continuous}
+Ruizhi Deng, Marcus~A. Brubaker, Greg Mori, and Andreas~M. Lehrmann.
+\newblock Continuous latent process flows, 2021{\natexlab{a}}.
+
+\bibitem[Deng et~al.(2021{\natexlab{b}})Deng, Chang, Brubaker, Mori, and Lehrmann]{deng2021ctfp}
+Ruizhi Deng, Bo~Chang, Marcus~A. Brubaker, Greg Mori, and Andreas Lehrmann.
+\newblock Modeling continuous stochastic processes with dynamic normalizing flows, 2021{\natexlab{b}}.
 
 \bibitem[Desai et~al.(2023)Desai, Gujarathi, Parikh, Yadav, Patel, and Batra]{dgp2023desai}
 Aadesh Desai, Eshan Gujarathi, Saagar Parikh, Sachin Yadav, Zeel Patel, and Nipun Batra.
@@ -339,6 +353,11 @@ Samuel Gershman and Noah Goodman.
 \newblock Amortized inference in probabilistic reasoning.
 \newblock In \emph{Proceedings of the annual meeting of the cognitive science society}, volume~36, 2014.
 
+\bibitem[Ghugare and Eysenbach(2025)]{ghugare2025nf}
+Raj Ghugare and Benjamin Eysenbach.
+\newblock Normalizing flows are capable models for rl, 2025.
+\newblock URL \url{https://arxiv.org/abs/2505.23527}.
+
 \bibitem[Girin et~al.(2021)Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda]{Girin_2021}
 Laurent Girin, Simon Leglaive, Xiaoyu Bie, Julien Diard, Thomas Hueber, and Xavier Alameda-Pineda.
 \newblock Dynamical variational autoencoders: A comprehensive review.
@@ -413,6 +432,11 @@ Mai~P. Ho, Yang Song, Perminder~S. Sachdev, Jiyang Jiang, and Wei Wen.
 \newblock \emph{bioRxiv}, 2025.
 \newblock \doi{10.1101/2025.01.05.631276}.
 \newblock URL \url{https://www.biorxiv.org/content/early/2025/01/05/2025.01.05.631276}.
+
+\bibitem[Hodgkinson et~al.(2021)Hodgkinson, van~der Heide, Roosta, and Mahoney]{hodg2021stoch}
+Liam Hodgkinson, Chris van~der Heide, Fred Roosta, and Michael~W. Mahoney.
+\newblock Stochastic continuous normalizing flows: training {SDEs} as {ODEs}.
+\newblock In Cassio de~Campos and Marloes~H. Maathuis, editors, \emph{Proceedings of the Thirty-Seventh Conference on Uncertainty in Artificial Intelligence}, volume 161 of \emph{Proceedings of Machine Learning Research}, pages 1130--1140. PMLR, 27--30 Jul 2021.
 
 \bibitem[Hutchinson(1990)]{Hutchinson01011990}
 M.F. Hutchinson.
@@ -497,6 +521,10 @@ S.~Kullback and R.~A. Leibler.
 \newblock ISSN 00034851.
 \newblock URL \url{http://www.jstor.org/stable/2236703}.
 
+\bibitem[Li et~al.(2020)Li, Wong, Chen, and Duvenaud]{li2020scalable}
+Xuechen Li, Ting-Kam~Leonard Wong, Ricky T.~Q. Chen, and David Duvenaud.
+\newblock Scalable gradients for stochastic differential equations, 2020.
+
 \bibitem[Li et~al.(2025)Li, Mallick, Wang, Yu, and Zeng]{li2025DIC}
 Yong Li, Sushanta~K. Mallick, Nianling Wang, Jun Yu, and Tao Zeng.
 \newblock Deviance information criterion for bayesian model selection: Theoretical justification and applications.
@@ -504,6 +532,16 @@ Yong Li, Sushanta~K. Mallick, Nianling Wang, Jun Yu, and Tao Zeng.
 \newblock ISSN 0304-4076.
 \newblock \doi{https://doi.org/10.1016/j.jeconom.2025.105978}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0304407625000326}.
+
+\bibitem[Lin and Michailidis(2024)]{lin2024ssm}
+Jiahe Lin and George Michailidis.
+\newblock Deep learning-based approaches for state space models: A selective review, 2024.
+\newblock URL \url{https://arxiv.org/abs/2412.11211}.
+
+\bibitem[Lin et~al.(2025)Lin, Li, Yin, Maroñas, and Thiéry]{lin2025}
+Zhidi Lin, Ying Li, Feng Yin, Juan Maroñas, and Alexandre~H. Thiéry.
+\newblock Efficient transformed gaussian process state-space models for non-stationary high-dimensional dynamical systems, 2025.
+\newblock URL \url{https://arxiv.org/abs/2503.18309}.
 
 \bibitem[Lu et~al.(2020)Lu, Zhong, Li, and Dong]{lu2020finitelayer}
 Yiping Lu, Aoxiao Zhong, Quanzheng Li, and Bin Dong.
@@ -704,12 +742,6 @@ Lars Ruthotto and Eldad Haber.
 \newblock Deep neural networks motivated by partial differential equations, 2018.
 \newblock URL \url{https://arxiv.org/abs/1804.04272}.
 
-\bibitem[Schmidt et~al.(2021)Schmidt, Kr\"{a}mer, and Hennig]{NEURIPS2021_6734fa70}
-Jonathan Schmidt, Nicholas Kr\"{a}mer, and Philipp Hennig.
-\newblock A probabilistic state space model for joint inference from differential equations and data.
-\newblock In M.~Ranzato, A.~Beygelzimer, Y.~Dauphin, P.S. Liang, and J.~Wortman Vaughan, editors, \emph{Advances in Neural Information Processing Systems}, volume~34, pages 12374--12385. Curran Associates, Inc., 2021.
-\newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/2021/file/6734fa703f6633ab896eecbdfad8953a-Paper.pdf}.
-
 \bibitem[Schwartz(1954)]{changeofvariables}
 J.~Schwartz.
 \newblock The formula for change in variables in a multiple integral.
@@ -753,6 +785,11 @@ Kihyuk Sohn, Honglak Lee, and Xinchen Yan.
 \newblock Learning structured output representation using deep conditional generative models.
 \newblock In C.~Cortes, N.~Lawrence, D.~Lee, M.~Sugiyama, and R.~Garnett, editors, \emph{Advances in Neural Information Processing Systems}, volume~28. Curran Associates, Inc., 2015.
 \newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/2015/file/8d55a249e6baa5c06772297520da2051-Paper.pdf}.
+
+\bibitem[Somvanshi et~al.(2025)Somvanshi, Islam, Mimi, Polock, Chhetri, and Das]{somvanshi2025s4mamba}
+Shriyank Somvanshi, Md~Monzurul Islam, Mahmuda~Sultana Mimi, Sazzad Bin~Bashar Polock, Gaurab Chhetri, and Subasish Das.
+\newblock From s4 to mamba: A comprehensive survey on structured state space models, 2025.
+\newblock URL \url{https://arxiv.org/abs/2503.18970}.
 
 \bibitem[Spiegelhalter et~al.(2002)Spiegelhalter, Best, Carlin, and Van Der~Linde]{Spiegelhalter2002}
 David~J. Spiegelhalter, Nicola~G. Best, Bradley~P. Carlin, and Angelika Van Der~Linde.
@@ -867,5 +904,10 @@ Maksim Zhdanov, Lisa Randolph, Thomas Kluge, Motoaki Nakatsutsumi, Christian Gut
 Feiqin Zhu, Dmitrii Torbunov, Zhongjing Jiang, Tianqiao Zhao, Amirthagunaraj Yogarathnam, Yihui Ren, and Meng Yue.
 \newblock Diffusion model-based parameter estimation in dynamic power systems, 2025.
 \newblock URL \url{https://arxiv.org/abs/2411.10431}.
+
+\bibitem[Zhu et~al.(2024)Zhu, Zhao, He, Zhong, Zhang, Guo, Chen, and Zhang]{zhu2024diffusion}
+Zhengbang Zhu, Hanye Zhao, Haoran He, Yichao Zhong, Shenyu Zhang, Haoquan Guo, Tingting Chen, and Weinan Zhang.
+\newblock Diffusion models for reinforcement learning: A survey, 2024.
+\newblock URL \url{https://arxiv.org/abs/2311.01223}.
 
 \end{thebibliography}

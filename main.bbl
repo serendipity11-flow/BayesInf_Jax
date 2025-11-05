@@ -1,4 +1,4 @@
-\begin{thebibliography}{146}
+\begin{thebibliography}{147}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -542,6 +542,11 @@ Jiahe Lin and George Michailidis.
 Zhidi Lin, Ying Li, Feng Yin, Juan Maroñas, and Alexandre~H. Thiéry.
 \newblock Efficient transformed gaussian process state-space models for non-stationary high-dimensional dynamical systems, 2025.
 \newblock URL \url{https://arxiv.org/abs/2503.18309}.
+
+\bibitem[Lipman et~al.(2023)Lipman, Chen, Ben-Hamu, Nickel, and Le]{lipman2023flowmatching}
+Yaron Lipman, Ricky T.~Q. Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le.
+\newblock Flow matching for generative modeling, 2023.
+\newblock URL \url{https://arxiv.org/abs/2210.02747}.
 
 \bibitem[Lu et~al.(2020)Lu, Zhong, Li, and Dong]{lu2020finitelayer}
 Yiping Lu, Aoxiao Zhong, Quanzheng Li, and Bin Dong.

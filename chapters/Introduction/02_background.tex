@@ -538,10 +538,21 @@ Continuous \acp{NF} release the architectural constraints of discrete flows, all
 
 \subsubsection{Flow Matching}
 \label{sec:flowmatching}
+\ac{FM} \citep{lipman2023flowmatching} is a novel approach for training continuous \acp{NF}. The key idea is to learn a vector field that directly matches the step-by-step transport (infinitesimal transport) between the data distribution and the latent distribution. This is achieved by minimizing the expected squared error between the learned vector field and the true velocity field defined by the optimal transport plan. The optimal transport plan is normally a linear interpolation between the latent samples $\boldsymbol{z}(t_0)$ and the data samples $\boldsymbol{x}=\boldsymbol{z}(t_1)$:
+\begin{equation}
+    \boldsymbol{v}^{OT}(\boldsymbol{z}, t) = \frac{\boldsymbol{z}(t_1)-\boldsymbol{z}(t_0)}{t_1 - t_0}.
+\end{equation}
+The training objective is formulated as:
+\begin{equation}
+    L(\boldsymbol{\theta}) = \mathbb{E}_{t\sim\mathcal{U}(0,1),\boldsymbol{z}\sim p_t(\boldsymbol{z})}\left[\left\|v_{\boldsymbol{\theta}}(\boldsymbol{z}, t; \boldsymbol{\theta}) - \boldsymbol{v}^*(\boldsymbol{z}, t)\right\|^2\right],
+\end{equation}
+where $v_{\boldsymbol{\theta}}(\boldsymbol{z}, t; \boldsymbol{\theta})$ is the learned vector field parameterized by $\boldsymbol{\theta}$, and $\boldsymbol{v}^*(\boldsymbol{z}, t)$ is the true velocity field derived from the optimal transport plan. Simply put, the \ac{FM} loss regresses the vector field $\boldsymbol{v}^*$ with a neural network $v_{\boldsymbol{\theta}}$. Upon reaching zero loss, the learned continuous \ac{NF} model will generate data samples by integrating the learned vector field from $t_0$ to $t_1$. 
+
+The main difference from other \acp{NF} is that \ac{FM} is not trained by maximizing likelihood via change of variables between distributions. Instead, it focuses on learning the vector field that defines the continuous transformation between distributions. This approach avoids the computational overhead of solving \acp{ODE} during training, making it more efficient and scalable to high-dimensional data. On the other hand, \ac{FM} cannot be directly applied to exact density estimation because it does not transform the data distribution into a known latent distribution. The sample density it generates is only an approximation of the data density. For exact estimation, \ac{FM} must invert the generative process via a backward \ac{ODE}, which makes it computationally heavier than the single-pass inference of other \acp{NF}.
 
 \subsubsection{Conditional Normalizing Flows}
 \label{sec:condnf}
-Such capabilities of estimating complex densities are desirable in Bayesian inference of the posterior distribution of variables given observations $p(\boldsymbol{x}|\boldsymbol{y})$. Similar to \ac{VAE}, amortized Bayesian inference \citep{radev2021diss} is applied in \ac{NF} to achieve a general posterior estimation across all datapoints. Obtaining the posterior distribution is represented by a conditional density transformation via a \ac{CNF}. The change of variables for a \ac{CNF} extends the standard one (\ref{eq:xnfz}) by the condition $\boldsymbol{y}$:
+Such capabilities of estimating complex densities are desirable in Bayesian inference of the posterior distribution of variables given observations $p(\boldsymbol{x}|\boldsymbol{y})$. Similar to \ac{VAE}, amortized Bayesian inference \citep{radev2021diss} is applied in \ac{NF} to achieve a general posterior estimation across all data points. Obtaining the posterior distribution is represented by a conditional density transformation via a \ac{CNF}. The change of variables for a \ac{CNF} extends the standard one (\ref{eq:xnfz}) by the condition $\boldsymbol{y}$:
 \begin{equation}
     p_{X|Y}(\boldsymbol{x}|\boldsymbol{y}) = p_{Z|Y}(f^{-1}(\boldsymbol{x},\boldsymbol{y})|\boldsymbol{y})\det\left|\frac{\partial f^{-1}(\boldsymbol{x},\boldsymbol{y})}{\partial\boldsymbol{x}}\right|,
 \end{equation}
@@ -697,7 +708,7 @@ In the previous section, we have shown estimation of states using Kalman filters
     \item E-step: Compute the expectations of the latent states using the current parameter estimates:
     \begin{equation*}
         E_t=E[\boldsymbol{x}_t],\quad E_{t,t}=E[\boldsymbol{x}_t\boldsymbol{x}_t^T],\quad E_{t,t-1}=E[\boldsymbol{x}_t\boldsymbol{x}_{t-1}^T].
-    \end{equation*}.
+    \end{equation*}
     The states come from running the Kalman filter (Equation \ref{eq:kalman_prediction}, \ref{eq:kalman_update}) on the current parameters.
     \item M-step: Update parameters using the expectations:
     \begin{subequations}

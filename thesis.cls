@@ -37,6 +37,8 @@
 \usepackage{changepage}
 \usepackage{pdfpages}
 \usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xltabular}
 \usepackage{tabularx}
 \usepackage{multirow}
 \usepackage{placeins}

@@ -1,4 +1,4 @@
-\begin{thebibliography}{147}
+\begin{thebibliography}{179}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -15,6 +15,11 @@ Ryan~P. Adams, Jeffrey Pennington, Matthew~J. Johnson, Jamie Smith, Yaniv Ovadia
 \newblock Estimating the spectral density of large implicit matrices, 2018.
 \newblock URL \url{https://arxiv.org/abs/1802.03451}.
 
+\bibitem[Agarwal et~al.(2022)Agarwal, Sikchi, Gulino, Wilkinson, and Gautam]{agarwal2022imitativeplanning}
+Shubhankar Agarwal, Harshit Sikchi, Cole Gulino, Eric Wilkinson, and Shivam Gautam.
+\newblock Imitative planning using conditional normalizing flow, 2022.
+\newblock URL \url{https://arxiv.org/abs/2007.16162}.
+
 \bibitem[Alaa and van~der Schaar(2017)]{NIPS2017_861dc9bd}
 Ahmed~M. Alaa and Mihaela van~der Schaar.
 \newblock Deep multi-task gaussian processes for survival analysis with competing risks.
@@ -25,6 +30,11 @@ Ahmed~M. Alaa and Mihaela van~der Schaar.
 Edward Allen.
 \newblock \emph{Modeling with it\^o stochastic differential equations}, volume~22.
 \newblock Springer, 2007.
+
+\bibitem[Alles et~al.(2025)Alles, Chen, van~der Smagt, and Cseke]{alles2025flowqenergyguidedflowpolicies}
+Marvin Alles, Nutan Chen, Patrick van~der Smagt, and Botond Cseke.
+\newblock Flowq: Energy-guided flow policies for offline reinforcement learning, 2025.
+\newblock URL \url{https://arxiv.org/abs/2505.14139}.
 
 \bibitem[{Anantha Padmanabha} and Zabaras(2021)]{govinda2021cinn}
 Govinda {Anantha Padmanabha} and Nicholas Zabaras.
@@ -105,6 +115,12 @@ Charles Blundell, Julien Cornebise, Koray Kavukcuoglu, and Daan Wierstra.
 \newblock Weight uncertainty in neural networks, 2015.
 \newblock URL \url{https://arxiv.org/abs/1505.05424}.
 
+\bibitem[Boborzi et~al.(2021)Boborzi, Straehle, Buchner, and Mikelsons]{damian2021}
+Damian Boborzi, Christoph-Nikolas Straehle, Jens~S. Buchner, and Lars Mikelsons.
+\newblock Learning normalizing flow policies based on highway demonstrations.
+\newblock In \emph{2021 IEEE International Intelligent Transportation Systems Conference (ITSC)}, pages 22--29, 2021.
+\newblock \doi{10.1109/ITSC48978.2021.9564456}.
+
 \bibitem[Bottou(1999)]{bottou1999sgd}
 L\'{e}on Bottou.
 \newblock \emph{On-line learning and stochastic approximations}, page 9–42.
@@ -117,6 +133,12 @@ Samuel~R. Bowman, Luke Vilnis, Oriol Vinyals, Andrew Dai, Rafal Jozefowicz, and 
 \newblock In Stefan Riezler and Yoav Goldberg, editors, \emph{Proceedings of the 20th {SIGNLL} Conference on Computational Natural Language Learning}, pages 10--21, Berlin, Germany, August 2016. Association for Computational Linguistics.
 \newblock \doi{10.18653/v1/K16-1002}.
 \newblock URL \url{https://aclanthology.org/K16-1002/}.
+
+\bibitem[Brahmanage et~al.(2023)Brahmanage, LING, and Kumar]{NEURIPS2023_3fd9fe8e}
+Janaka Brahmanage, Jiajing LING, and Akshat Kumar.
+\newblock Flowpg: Action-constrained policy gradient with normalizing flows.
+\newblock In A.~Oh, T.~Naumann, A.~Globerson, K.~Saenko, M.~Hardt, and S.~Levine, editors, \emph{Advances in Neural Information Processing Systems}, volume~36, pages 20118--20132. Curran Associates, Inc., 2023.
+\newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/2023/file/3fd9fe8ec6d7238bf71784797399bb61-Paper-Conference.pdf}.
 
 \bibitem[Brusaferri et~al.(2019)Brusaferri, Matteucci, Portolani, and Spinelli]{8972113}
 Alessandro Brusaferri, Matteo Matteucci, Pietro Portolani, and Stefano Spinelli.
@@ -146,6 +168,18 @@ Peter~J. Campo and Manfred Morari.
 \newblock In \emph{1987 American Control Conference}, pages 1021--1026, 1987.
 \newblock \doi{10.23919/ACC.1987.4789462}.
 
+\bibitem[Chang et~al.(2022)Chang, Higuera, Fujimoto, Meger, and Dudek]{chang2022ilflowimitationlearningobservation}
+Wei-Di Chang, Juan Camilo~Gamboa Higuera, Scott Fujimoto, David Meger, and Gregory Dudek.
+\newblock Il-flow: Imitation learning from observation using normalizing flows, 2022.
+\newblock URL \url{https://arxiv.org/abs/2205.09251}.
+
+\bibitem[Chao et~al.(2024)Chao, Feng, Sun, Lee, See, and Lee]{NEURIPS2024_661c37f3}
+Chen-Hao Chao, Chien Feng, Wei-Fang Sun, Cheng-Kuang Lee, Simon See, and Chun-Yi Lee.
+\newblock Maximum entropy reinforcement learning via energy-based normalizing flow.
+\newblock In A.~Globerson, L.~Mackey, D.~Belgrave, A.~Fan, U.~Paquet, J.~Tomczak, and C.~Zhang, editors, \emph{Advances in Neural Information Processing Systems}, volume~37, pages 56136--56165. Curran Associates, Inc., 2024.
+\newblock \doi{10.52202/079017-1786}.
+\newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/2024/file/661c37f3b098bdee53fd7d9c4ef6964a-Paper-Conference.pdf}.
+
 \bibitem[Chen et~al.(2019)Chen, Rubanova, Bettencourt, and Duvenaud]{chen2019node}
 Ricky T.~Q. Chen, Yulia Rubanova, Jesse Bettencourt, and David Duvenaud.
 \newblock Neural ordinary differential equations, 2019.
@@ -172,6 +206,11 @@ Zhe Chen.
 \newblock \emph{Statistics}, 182, January 2003.
 \newblock \doi{10/bkztpw}.
 \newblock 01234 ZSCC: 0001234.
+
+\bibitem[Cho et~al.(2024)Cho, How, and Sun]{cho2024outofdistributionadaptationofflinerl}
+Minjae Cho, Jonathan~P. How, and Chuangchuang Sun.
+\newblock Out-of-distribution adaptation in offline rl: Counterfactual reasoning via causal normalizing flows, 2024.
+\newblock URL \url{https://arxiv.org/abs/2405.03892}.
 
 \bibitem[Christophersen(2007)]{Christophersen2007}
 Frank~J. Christophersen.
@@ -311,6 +350,12 @@ Meire Fortunato, Charles Blundell, and Oriol Vinyals.
 Marco Fraccaro, Simon Kamronn, Ulrich Paquet, and Ole Winther.
 \newblock A disentangled recognition and nonlinear dynamics model for unsupervised learning, 2017.
 \newblock URL \url{https://arxiv.org/abs/1710.05741}.
+
+\bibitem[Freund et~al.(2023)Freund, Sarafian, and Kraus]{coupledflowimitation2023}
+Gideon~Joseph Freund, Elad Sarafian, and Sarit Kraus.
+\newblock A coupled flow approach to imitation learning.
+\newblock In Andreas Krause, Emma Brunskill, Kyunghyun Cho, Barbara Engelhardt, Sivan Sabato, and Jonathan Scarlett, editors, \emph{Proceedings of the 40th International Conference on Machine Learning}, volume 202 of \emph{Proceedings of Machine Learning Research}, pages 10357--10372. PMLR, 23--29 Jul 2023.
+\newblock URL \url{https://proceedings.mlr.press/v202/freund23a.html}.
 
 \bibitem[Gabbard et~al.(2022)Gabbard, Messenger, Heng, Tonolini, and Murray-Smith]{Gabbard2022}
 Hunter Gabbard, Chris Messenger, Ik~Siong Heng, Francesco Tonolini, and Roderick Murray-Smith.
@@ -471,6 +516,12 @@ R.~E. Kalman.
 \newblock \doi{10.1115/1.3662552}.
 \newblock URL \url{https://doi.org/10.1115/1.3662552}.
 
+\bibitem[Khader et~al.(2021)Khader, Yin, Falco, and Kragic]{stableflow2021}
+Shahbaz~Abdul Khader, Hang Yin, Pietro Falco, and Danica Kragic.
+\newblock Learning stable normalizing-flow control for robotic manipulation.
+\newblock In \emph{2021 IEEE International Conference on Robotics and Automation (ICRA)}, pages 1644--1650, 2021.
+\newblock \doi{10.1109/ICRA48506.2021.9562071}.
+
 \bibitem[Khromov and Singh(2024)]{khromov2024Lipschitz}
 Grigory Khromov and Sidak~Pal Singh.
 \newblock Some fundamental aspects about lipschitz continuity of neural networks, 2024.
@@ -502,6 +553,11 @@ Ivan Kobyzev, Simon~J.D. Prince, and Marcus~A. Brubaker.
 \newblock \doi{10.1109/tpami.2020.2992934}.
 \newblock URL \url{http://dx.doi.org/10.1109/TPAMI.2020.2992934}.
 
+\bibitem[Kong et~al.(2025)Kong, Wang, Wang, Xiong, and Tambe]{kong2025compositeflowmatchingreinforcement}
+Lingkai Kong, Haichuan Wang, Tonghan Wang, Guojun Xiong, and Milind Tambe.
+\newblock Composite flow matching for reinforcement learning with shifted-dynamics data, 2025.
+\newblock URL \url{https://arxiv.org/abs/2505.23062}.
+
 \bibitem[Kruse et~al.(2021)Kruse, Detommaso, Köthe, and Scheichl]{kruse2021hint}
 Jakob Kruse, Gianluca Detommaso, Ullrich Köthe, and Robert Scheichl.
 \newblock Hint: Hierarchical invertible neural transport for density estimation and bayesian inference, 2021.
@@ -520,6 +576,11 @@ S.~Kullback and R.~A. Leibler.
 \newblock \emph{The Annals of Mathematical Statistics}, 22\penalty0 (1):\penalty0 79--86, 1951.
 \newblock ISSN 00034851.
 \newblock URL \url{http://www.jstor.org/stable/2236703}.
+
+\bibitem[Lee and Diwan(2023)]{Lee2023ImprovingPM}
+Mason Lee and Siddharth Diwan.
+\newblock Improving probabilistic model based reinforcement learning control in chaotic environments with conditional normalizing flows, 2023.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:260067705}.
 
 \bibitem[Li et~al.(2020)Li, Wong, Chen, and Duvenaud]{li2020scalable}
 Xuechen Li, Ting-Kam~Leonard Wong, Ricky T.~Q. Chen, and David Duvenaud.
@@ -543,6 +604,11 @@ Zhidi Lin, Ying Li, Feng Yin, Juan Maroñas, and Alexandre~H. Thiéry.
 \newblock Efficient transformed gaussian process state-space models for non-stationary high-dimensional dynamical systems, 2025.
 \newblock URL \url{https://arxiv.org/abs/2503.18309}.
 
+\bibitem[Lind et~al.(2025)Lind, Li, Stenmark, and Krüger]{lind2025normalizingflowscapablevisuomotor}
+Simon~Kristoffersson Lind, Jialong Li, Maj Stenmark, and Volker Krüger.
+\newblock Normalizing flows are capable visuomotor policy learning models, 2025.
+\newblock URL \url{https://arxiv.org/abs/2509.21073}.
+
 \bibitem[Lipman et~al.(2023)Lipman, Chen, Ben-Hamu, Nickel, and Le]{lipman2023flowmatching}
 Yaron Lipman, Ricky T.~Q. Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le.
 \newblock Flow matching for generative modeling, 2023.
@@ -552,6 +618,17 @@ Yaron Lipman, Ricky T.~Q. Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le.
 Yiping Lu, Aoxiao Zhong, Quanzheng Li, and Bin Dong.
 \newblock Beyond finite layer neural networks: Bridging deep architectures and numerical differential equations, 2020.
 \newblock URL \url{https://arxiv.org/abs/1710.10121}.
+
+\bibitem[Lv et~al.(2025)Lv, Li, Luo, Sun, Kong, Xu, and Ma]{lv2025flowbasedpolicy}
+Lei Lv, Yunfei Li, Yu~Luo, Fuchun Sun, Tao Kong, Jiafeng Xu, and Xiao Ma.
+\newblock Flow-based policy for online reinforcement learning, 2025.
+\newblock URL \url{https://arxiv.org/abs/2506.12811}.
+
+\bibitem[Ma et~al.(2020)Ma, Gupta, and Kochenderfer]{ma2020normalizingflowpolicy}
+Xiaobai Ma, Jayesh~K. Gupta, and Mykel~J. Kochenderfer.
+\newblock Normalizing flow model for policy representation in continuous action multi-agent systems.
+\newblock In \emph{Proceedings of the 19th International Conference on Autonomous Agents and MultiAgent Systems}, AAMAS '20, page 1916–1918, Richland, SC, 2020. International Foundation for Autonomous Agents and Multiagent Systems.
+\newblock ISBN 9781450375184.
 
 \bibitem[MacKay(1995)]{MacKay1992}
 David~J.C MacKay.
@@ -571,6 +648,17 @@ Charles~C. Margossian and David~M. Blei.
 Jorge Martínez-Palomera, Joshua~S. Bloom, and Ellianna~S. Abrahams.
 \newblock Deep generative modeling of periodic variable stars using physical parameters, 2020.
 \newblock URL \url{https://arxiv.org/abs/2005.07773}.
+
+\bibitem[Mazoure et~al.(2020)Mazoure, Doan, Durand, Pineau, and Hjelm]{offpolicy2020}
+Bogdan Mazoure, Thang Doan, Audrey Durand, Joelle Pineau, and R~Devon Hjelm.
+\newblock Leveraging exploration in off-policy algorithms via normalizing flows.
+\newblock In Leslie~Pack Kaelbling, Danica Kragic, and Komei Sugiura, editors, \emph{Proceedings of the Conference on Robot Learning}, volume 100 of \emph{Proceedings of Machine Learning Research}, pages 430--444. PMLR, 30 Oct--01 Nov 2020.
+\newblock URL \url{https://proceedings.mlr.press/v100/mazoure20a.html}.
+
+\bibitem[McAllister et~al.(2025)McAllister, Ge, Yi, Kim, Weber, Choi, Feng, and Kanazawa]{mcallister2025flowmatchingpolicygradients}
+David McAllister, Songwei Ge, Brent Yi, Chung~Min Kim, Ethan Weber, Hongsuk Choi, Haiwen Feng, and Angjoo Kanazawa.
+\newblock Flow matching policy gradients, 2025.
+\newblock URL \url{https://arxiv.org/abs/2507.21053}.
 
 \bibitem[McCarthy et~al.(2020)McCarthy, Li, Gu, and Dong]{mccarthy2020cvae}
 Arya~D. McCarthy, Xian Li, Jiatao Gu, and Ning Dong.
@@ -686,6 +774,16 @@ V.~Peterka.
 \newblock \doi{https://doi.org/10.1016/0005-1098(81)90083-2}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/0005109881900832}.
 
+\bibitem[Pivezhandi and Saifullah(2025)]{pivezhandi2025fm}
+Mohammad Pivezhandi and Abusayeed Saifullah.
+\newblock A distribution-aware flow-matching for generating unstructured data for few-shot reinforcement learning, 2025.
+\newblock URL \url{https://arxiv.org/abs/2409.14178}.
+
+\bibitem[Power and Berenson(2022)]{power2022variationalinferencempcusing}
+Thomas Power and Dmitry Berenson.
+\newblock Variational inference mpc using normalizing flows and out-of-distribution projection, 2022.
+\newblock URL \url{https://arxiv.org/abs/2205.04667}.
+
 \bibitem[Puterman(1994)]{mdp2014}
 Martin~L. Puterman.
 \newblock \emph{Markov Decision Processes: Discrete Stochastic Dynamic Programming}.
@@ -737,10 +835,20 @@ Danilo~Jimenez Rezende and Shakir Mohamed.
 Janosh Riebesell, Kapil Sachdeva, Juan~Emmanuel Johnson, Fran{\c c}ois Rozet, {AifuHan}, Byeongkeun Ahn, He~Wang, Hossein Pourbozorg, Hyounguk Shon, John~Franklin Crenshaw, Kristian Hartikainen, Kyle Cranmer, Matthew Skiffington, Maxime Vandegar, Rafael Orozco, Sandeep Nagar, Thorsten Gl{\"u}senkamp, Vincent Stimper, and {kleinicke}.
 \newblock janosh/awesome-normalizing-flows: v1.0.0, 2023.
 
+\bibitem[Rietz et~al.(2024)Rietz, Schaffernicht, Heinrich, and Stork]{rietz2024constrained}
+Finn Rietz, Erik Schaffernicht, Stefan Heinrich, and Johannes~A. Stork.
+\newblock Towards interpretable reinforcement learning with constrained normalizing flow policies, 2024.
+\newblock URL \url{https://arxiv.org/abs/2405.01198}.
+
 \bibitem[Roeder et~al.(2019)Roeder, Grant, Phillips, Dalchau, and Meeds]{roeder2019abi}
 Geoffrey Roeder, Paul~K. Grant, Andrew Phillips, Neil Dalchau, and Edward Meeds.
 \newblock Efficient amortised bayesian inference for hierarchical and nonlinear dynamical systems, 2019.
 \newblock URL \url{https://arxiv.org/abs/1905.12090}.
+
+\bibitem[Rouxel et~al.(2025)Rouxel, Donoso, Chen, Ivaldi, and Mouret]{rouxel2025extremumflowmatchingoffline}
+Quentin Rouxel, Clemente Donoso, Fei Chen, Serena Ivaldi, and Jean-Baptiste Mouret.
+\newblock Extremum flow matching for offline goal conditioned reinforcement learning, 2025.
+\newblock URL \url{https://arxiv.org/abs/2505.19717}.
 
 \bibitem[Ruthotto and Haber(2018)]{ruthotto2018deep}
 Lars Ruthotto and Eldad Haber.
@@ -832,6 +940,11 @@ Simo Särkkä.
 \newblock The use of gaussian processes in system identification, 2019.
 \newblock URL \url{https://arxiv.org/abs/1907.06066}.
 
+\bibitem[Tarasov et~al.(2025)Tarasov, Nikulin, Zisman, Klepach, Lyubaykin, Polubarov, Derevyagin, and Kurenkov]{tarasov2025vla}
+Denis Tarasov, Alexander Nikulin, Ilya Zisman, Albina Klepach, Nikita Lyubaykin, Andrei Polubarov, Alexander Derevyagin, and Vladislav Kurenkov.
+\newblock Nina: Normalizing flows in action. training vla models with normalizing flows, 2025.
+\newblock URL \url{https://arxiv.org/abs/2508.16845}.
+
 \bibitem[Tune et~al.(2025)Tune, Kooiker, Davis, Daniel, and Moussavi-Harami]{TUNE2025179}
 Travis Tune, Kristina~B. Kooiker, Jennifer Davis, Thomas Daniel, and Farid Moussavi-Harami.
 \newblock Bayesian estimation of muscle mechanisms and therapeutic targets using variational autoencoders.
@@ -839,6 +952,12 @@ Travis Tune, Kristina~B. Kooiker, Jennifer Davis, Thomas Daniel, and Farid Mouss
 \newblock ISSN 0006-3495.
 \newblock \doi{https://doi.org/10.1016/j.bpj.2024.11.3310}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0006349524022380}.
+
+\bibitem[Urain et~al.(2020)Urain, Ginesi, Tateo, and Peters]{imitationflow2020}
+Julen Urain, Michele Ginesi, Davide Tateo, and Jan Peters.
+\newblock Imitationflow: Learning deep stable stochastic dynamic systems by normalizing flows.
+\newblock In \emph{2020 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)}, pages 5231--5237, 2020.
+\newblock \doi{10.1109/IROS45743.2020.9341035}.
 
 \bibitem[Wainwright and Jordan(2008)]{Wainwright2008}
 Martin~J Wainwright and Michael~I Jordan.
@@ -852,6 +971,11 @@ E.A. Wan and R.~Van Der~Merwe.
 \newblock In \emph{Proceedings of the IEEE 2000 Adaptive Systems for Signal Processing, Communications, and Control Symposium (Cat. No.00EX373)}, pages 153--158, 2000.
 \newblock \doi{10.1109/ASSPCC.2000.882463}.
 
+\bibitem[Wan et~al.(2025)Wan, Wu, Yu, Zhang, Lei, An, and Tsang]{wan2025fmirlflowmatchingrewardmodeling}
+Zhenglin Wan, Jingxuan Wu, Xingrui Yu, Chubin Zhang, Mingcong Lei, Bo~An, and Ivor Tsang.
+\newblock Fm-irl: Flow-matching for reward modeling and policy regularization in reinforcement learning, 2025.
+\newblock URL \url{https://arxiv.org/abs/2510.09222}.
+
 \bibitem[Wang et~al.(2025)Wang, Guan, Guo, and Wu]{wang2025flow}
 Xintong Wang, Xiaofei Guan, Ling Guo, and Hao Wu.
 \newblock Flow-based bayesian filtering for high-dimensional nonlinear stochastic dynamical systems, 2025.
@@ -862,10 +986,26 @@ Yixin Wang, David~M. Blei, and John~P. Cunningham.
 \newblock Posterior collapse and latent variable non-identifiability, 2023.
 \newblock URL \url{https://arxiv.org/abs/2301.00537}.
 
+\bibitem[Ward et~al.(2019)Ward, Smofsky, and Bose]{ward2019sacnf}
+Patrick~Nadeem Ward, Ariella Smofsky, and Avishek~Joey Bose.
+\newblock Improving exploration in soft-actor-critic with normalizing flows policies, 2019.
+\newblock URL \url{https://arxiv.org/abs/1906.02771}.
+
+\bibitem[Wen et~al.(2025)Wen, Zhu, Zhu, Tang, Li, Zhou, Li, Liu, Peng, Shen, and Feng]{wen2025diffusionvla}
+Junjie Wen, Minjie Zhu, Yichen Zhu, Zhibin Tang, Jinming Li, Zhongyi Zhou, Chengmeng Li, Xiaoyu Liu, Yaxin Peng, Chaomin Shen, and Feifei Feng.
+\newblock Diffusion-vla: Generalizable and interpretable robot foundation model via self-generated reasoning, 2025.
+\newblock URL \url{https://arxiv.org/abs/2412.03293}.
+
 \bibitem[Winkler et~al.(2023)Winkler, Worrall, Hoogeboom, and Welling]{winkler2023cnf}
 Christina Winkler, Daniel Worrall, Emiel Hoogeboom, and Max Welling.
 \newblock Learning likelihoods with conditional normalizing flows, 2023.
 \newblock URL \url{https://arxiv.org/abs/1912.00042}.
+
+\bibitem[Xu and Liu(2024)]{xu2024uncertaintyaware}
+Sheng Xu and Guiliang Liu.
+\newblock Uncertainty-aware constraint inference in inverse constrained reinforcement learning.
+\newblock In \emph{The Twelfth International Conference on Learning Representations}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=ILYjDvUM6U}.
 
 \bibitem[Yamamoto and Tanaka(2020)]{Yamamoto_2020rse}
 Takahiro~S. Yamamoto and Takahiro Tanaka.
@@ -884,6 +1024,12 @@ Liu Yang, Xuhui Meng, and George~Em Karniadakis.
 \newblock \doi{https://doi.org/10.1016/j.jcp.2020.109913}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0021999120306872}.
 
+\bibitem[Yin et~al.(2022)Yin, Verginis, and Kragic]{Consensus2022}
+Hang Yin, Christos~K. Verginis, and Danica Kragic.
+\newblock Consensus-based normalizing-flow control: A case study in learning dual-arm coordination.
+\newblock In \emph{2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)}, pages 10417--10424, 2022.
+\newblock \doi{10.1109/IROS47612.2022.9981827}.
+
 \bibitem[Zeng et~al.(2023)Zeng, Todd, and Hu]{Zeng2023}
 Jice Zeng, Michael~D. Todd, and Zhen Hu.
 \newblock Probabilistic damage detection using a new likelihood-free bayesian inference method.
@@ -891,6 +1037,28 @@ Jice Zeng, Michael~D. Todd, and Zhen Hu.
 \newblock ISSN 2190-5479.
 \newblock \doi{10.1007/s13349-022-00638-5}.
 \newblock URL \url{https://doi.org/10.1007/s13349-022-00638-5}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Liu, Fan, Liu, Zeng, and Liu]{2025flowpolicy}
+Qinglun Zhang, Zhen Liu, Haoqiang Fan, Guanghui Liu, Bing Zeng, and Shuaicheng Liu.
+\newblock Flowpolicy: Enabling fast and robust 3d flow-based policy via consistency flow matching for robot manipulation.
+\newblock \emph{Proceedings of the AAAI Conference on Artificial Intelligence}, 39\penalty0 (14):\penalty0 14754--14762, Apr. 2025{\natexlab{a}}.
+\newblock \doi{10.1609/aaai.v39i14.33617}.
+\newblock URL \url{https://ojs.aaai.org/index.php/AAAI/article/view/33617}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Zhang, and Gu]{zhang2025energyweightedflowmatchingoffline}
+Shiyuan Zhang, Weitong Zhang, and Quanquan Gu.
+\newblock Energy-weighted flow matching for offline reinforcement learning, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2503.04975}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{c}})Zhang, Yu, Su, and Wang]{zhang2025reinflowfinetuningflowmatching}
+Tonghe Zhang, Chao Yu, Sichang Su, and Yu~Wang.
+\newblock Reinflow: Fine-tuning flow matching policy with online reinforcement learning, 2025{\natexlab{c}}.
+\newblock URL \url{https://arxiv.org/abs/2505.22094}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{d}})Zhang, Yu, Zhang, Guang, Hui, Long, Wang, Yu, and Ding]{zhang2025sacflow}
+Yixian Zhang, Shu'ang Yu, Tonghe Zhang, Mo~Guang, Haojia Hui, Kaiwen Long, Yu~Wang, Chao Yu, and Wenbo Ding.
+\newblock Sac flow: Sample-efficient reinforcement learning of flow-based policies via velocity-reparameterized sequential modeling, 2025{\natexlab{d}}.
+\newblock URL \url{https://arxiv.org/abs/2509.25756}.
 
 \bibitem[Zhang et~al.(2023)Zhang, Zhu, Zhang, and Gao]{ZHANG2023106424}
 Zheng Zhang, Jinlin Zhu, Shuyu Zhang, and Furong Gao.
@@ -904,6 +1072,11 @@ Zheng Zhang, Jinlin Zhu, Shuyu Zhang, and Furong Gao.
 Maksim Zhdanov, Lisa Randolph, Thomas Kluge, Motoaki Nakatsutsumi, Christian Gutt, Marina Ganeva, and Nico Hoffmann.
 \newblock Amortized bayesian inference of gisaxs data with normalizing flows, 2022.
 \newblock URL \url{https://arxiv.org/abs/2210.01543}.
+
+\bibitem[Zhong et~al.(2025)Zhong, Ding, Diao, Wang, Teh, and Peng]{zhong2025flowcriticbridgingvalueestimation}
+Shan Zhong, Shutong Ding, He~Diao, Xiangyu Wang, Kah~Chan Teh, and Bei Peng.
+\newblock Flowcritic: Bridging value estimation with flow matching in reinforcement learning, 2025.
+\newblock URL \url{https://arxiv.org/abs/2510.22686}.
 
 \bibitem[Zhu et~al.(2025)Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue]{zhu2025diffusion}
 Feiqin Zhu, Dmitrii Torbunov, Zhongjing Jiang, Tianqiao Zhao, Amirthagunaraj Yogarathnam, Yihui Ren, and Meng Yue.

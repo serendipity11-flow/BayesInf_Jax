@@ -68,7 +68,14 @@
 \newacro{SDE}[\AC@hyperlink{SDE}{SDE}]{Stochastic Differential Equation}
 \newacro{SCNF}[\AC@hyperlink{SCNF}{SCNF}]{Stochastic Continuous Normalizing Flow}
 \newacro{CTFP}[\AC@hyperlink{CTFP}{CTFP}]{Continuous Time Flow Process}
-\newacro{FM}[\AC@hyperlink{FM}{FM}]{Flow Matching}
+\newacro{VLA}[\AC@hyperlink{VLA}{VLA}]{Vision-Language-Action}
+\newacro{DDPG}[\AC@hyperlink{DDPG}{DDPG}]{Deep Deterministic Policy Gradient}
+\newacro{SAC}[\AC@hyperlink{SAC}{SAC}]{Soft Actor-Critic}
+\newacro{IL}[\AC@hyperlink{IL}{IL}]{Imitation Learning}
+\newacro{DAC}[\AC@hyperlink{DAC}{DAC}]{Discriminator Actor Critic}
+\newacro{SotA}[\AC@hyperlink{SotA}{SotA}]{State-of-the-Art}
+\newacro{OoD}[\AC@hyperlink{OoD}{OoD}]{Out-of-Distribution}
+\newacro{PGRL}[\AC@hyperlink{PGRL}{PGRL}]{Policy Gradient Reinforcement Learning}
 \@writefile{toc}{\contentsline {chapter}{List of Figures}{vi}{section*.1}\protected@file@percent }
 \AC@undonewlabel{acro:MPC}
 \newlabel{acro:MPC}{{}{vii}{}{section*.2}{}}
@@ -644,6 +651,7 @@
 \acronymused{RL}
 \acronymused{RL}
 \citation{radev2020bayesflow}
+\acronymused{RL}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Objectives and Contributions}{38}{section.1.3}\protected@file@percent }
 \newlabel{sec:introduction:objectives}{{3}{38}{Objectives and Contributions}{section.1.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Outline}{38}{section.1.4}\protected@file@percent }
@@ -852,8 +860,7 @@
 \citation{deng2021continuous}
 \citation{li2020scalable}
 \citation{zhu2024diffusion}
-\citation{ghugare2025nf}
-\citation{ghugare2025nf}
+\citation{wen2025diffusionvla}
 \acronymused{VAE}
 \acronymused{ODE}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Normalizing Flows and Stochastic Processes}{46}{subsection.2.3.2}\protected@file@percent }
@@ -871,205 +878,277 @@
 \acronymused{CTFP}
 \acronymused{CTFP}
 \acronymused{CTFP}
+\citation{ghugare2025nf}
+\citation{ghugare2025nf}
+\citation{ward2019sacnf,offpolicy2020}
+\citation{lind2025normalizingflowscapablevisuomotor}
+\citation{chang2022ilflowimitationlearningobservation}
+\citation{cho2024outofdistributionadaptationofflinerl}
+\citation{stableflow2021,Consensus2022}
+\citation{rietz2024constrained}
+\citation{tarasov2025vla}
+\citation{NEURIPS2023_3fd9fe8e}
+\citation{power2022variationalinferencempcusing}
+\citation{damian2021}
+\citation{agarwal2022imitativeplanning}
+\citation{ma2020normalizingflowpolicy}
+\citation{Lee2023ImprovingPM}
+\citation{imitationflow2020}
+\citation{coupledflowimitation2023}
+\citation{pivezhandi2025fm}
+\citation{xu2024uncertaintyaware}
+\citation{lv2025flowbasedpolicy}
+\citation{zhang2025sacflow}
+\citation{kong2025compositeflowmatchingreinforcement}
+\citation{2025flowpolicy}
+\citation{rouxel2025extremumflowmatchingoffline}
+\citation{mcallister2025flowmatchingpolicygradients}
+\citation{wan2025fmirlflowmatchingrewardmodeling}
+\citation{zhong2025flowcriticbridgingvalueestimation}
+\citation{NEURIPS2024_661c37f3}
+\citation{alles2025flowqenergyguidedflowpolicies}
+\citation{zhang2025energyweightedflowmatchingoffline}
+\citation{zhang2025reinflowfinetuningflowmatching}
+\gdef \LT@i {\LT@entry 
+    {1}{111.58464pt}\LT@entry 
+    {1}{111.58464pt}\LT@entry 
+    {1}{203.62206pt}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Deep Generative Models as Control Policy}{47}{section.2.4}\protected@file@percent }
 \AC@undonewlabel{acro:RL}
 \newlabel{acro:RL}{{4}{47}{Deep Generative Models as Control Policy}{section*.77}{}}
 \acronymused{RL}
 \acronymused{NF}
+\acronymused{NF}
+\acronymused{NF}
+\acronymused{RL}
 \acronymused{RL}
 \acronymused{NF}
 \AC@undonewlabel{acro:FM}
 \newlabel{acro:FM}{{4}{47}{Deep Generative Models as Control Policy}{section*.78}{}}
 \acronymused{FM}
-\@writefile{toc}{\contentsline {chapter}{\numberline {III}Methodologies}{49}{chapter.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II.1}{\ignorespaces \textbf  {Normalizing Flows in Reinforcement Learning}}}{47}{table.2.1}\protected@file@percent }
+\newlabel{tab:nf_rl}{{II.1}{47}{\textbf {Normalizing Flows in Reinforcement Learning}}{table.2.1}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {III}Methodologies}{51}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:methods}{{III}{49}{Methodologies}{chapter.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{49}{section.3.1}\protected@file@percent }
-\newlabel{sec:methods:parameter_identification}{{1}{49}{Parameter Identification}{section.3.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}State Estimation}{50}{section.3.2}\protected@file@percent }
-\newlabel{sec:methods:state_estimation}{{2}{50}{State Estimation}{section.3.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Optimal Control}{51}{section.3.3}\protected@file@percent }
-\newlabel{sec:methods:control}{{3}{51}{Optimal Control}{section.3.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {IV}Experiments and Results}{53}{chapter.4}\protected@file@percent }
+\newlabel{chap:methods}{{III}{51}{Methodologies}{chapter.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{51}{section.3.1}\protected@file@percent }
+\newlabel{sec:methods:parameter_identification}{{1}{51}{Parameter Identification}{section.3.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}State Estimation}{52}{section.3.2}\protected@file@percent }
+\newlabel{sec:methods:state_estimation}{{2}{52}{State Estimation}{section.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Optimal Control}{53}{section.3.3}\protected@file@percent }
+\newlabel{sec:methods:control}{{3}{53}{Optimal Control}{section.3.3}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {IV}Experiments and Results}{55}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:experiments}{{IV}{53}{Experiments and Results}{chapter.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{53}{section.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{53}{section.4.2}\protected@file@percent }
-\newlabel{sec:experiments:parameter_identification}{{2}{53}{Parameter Identification}{section.4.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{53}{section.4.3}\protected@file@percent }
-\newlabel{sec:experiments:state_estimation}{{3}{53}{State Estimation}{section.4.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Optimal Control}{53}{section.4.4}\protected@file@percent }
-\newlabel{sec:experiments:mpc}{{4}{53}{Optimal Control}{section.4.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{55}{chapter.5}\protected@file@percent }
+\newlabel{chap:experiments}{{IV}{55}{Experiments and Results}{chapter.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{55}{section.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{55}{section.4.2}\protected@file@percent }
+\newlabel{sec:experiments:parameter_identification}{{2}{55}{Parameter Identification}{section.4.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{55}{section.4.3}\protected@file@percent }
+\newlabel{sec:experiments:state_estimation}{{3}{55}{State Estimation}{section.4.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Optimal Control}{55}{section.4.4}\protected@file@percent }
+\newlabel{sec:experiments:mpc}{{4}{55}{Optimal Control}{section.4.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{57}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{V}{55}{Discussion and Conclusion}{chapter.5}{}}
-\@writefile{toc}{\contentsline {chapter}{Abstract}{57}{chapter.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Zusammenfassung}{59}{chapter.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Bibliography}{60}{section*.79}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{61}{section*.79}\protected@file@percent }
-\newlabel{chap:contributions}{{V}{61}{Discussion and Conclusion}{section*.79}{}}
-\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{61}{section*.80}\protected@file@percent }
-\newlabel{sec:own-data-acquisition}{{V}{61}{}{section*.80}{}}
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{61}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{61}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Own Publications}{61}{section*.80}\protected@file@percent }
-\newlabel{sec:own-publications}{{V}{61}{}{section*.80}{}}
-\newlabel{sec:publications:peer_reviewed_journal_first}{{V}{61}{}{section*.80}{}}
-\newlabel{sec:publications:peer_reviewed_conf_first}{{V}{61}{}{section*.80}{}}
+\newlabel{chap:conclusion}{{V}{57}{Discussion and Conclusion}{chapter.5}{}}
+\@writefile{toc}{\contentsline {chapter}{Abstract}{59}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Zusammenfassung}{61}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Bibliography}{62}{section*.79}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{63}{section*.79}\protected@file@percent }
+\newlabel{chap:contributions}{{V}{63}{Discussion and Conclusion}{section*.79}{}}
+\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{63}{section*.80}\protected@file@percent }
+\newlabel{sec:own-data-acquisition}{{V}{63}{}{section*.80}{}}
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{63}{section*.80}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{63}{section*.80}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Own Publications}{63}{section*.80}\protected@file@percent }
+\newlabel{sec:own-publications}{{V}{63}{}{section*.80}{}}
+\newlabel{sec:publications:peer_reviewed_journal_first}{{V}{63}{}{section*.80}{}}
+\newlabel{sec:publications:peer_reviewed_conf_first}{{V}{63}{}{section*.80}{}}
 \bibdata{refs}
-\newlabel{sec:publications:other_co}{{V}{62}{}{section*.80}{}}
+\newlabel{sec:publications:other_co}{{V}{64}{}{section*.80}{}}
 \bibcite{abraham2023deepgp}{{1}{2023}{{Abraham and Deo}}{{}}}
 \bibcite{adams2018adams}{{2}{2018}{{Adams et~al.}}{{Adams, Pennington, Johnson, Smith, Ovadia, Patton, and Saunderson}}}
-\bibcite{NIPS2017_861dc9bd}{{3}{2017}{{Alaa and van~der Schaar}}{{}}}
-\bibcite{Allen_2007}{{4}{2007}{{Allen}}{{}}}
-\bibcite{govinda2021cinn}{{5}{2021}{{{Anantha Padmanabha} and Zabaras}}{{}}}
-\bibcite{ardizzone2019inn}{{6}{2019{a}}{{Ardizzone et~al.}}{{Ardizzone, Kruse, Wirkert, Rahner, Pellegrini, Klessen, Maier-Hein, Rother, and Köthe}}}
-\bibcite{ardizzone2019cinn}{{7}{2019{b}}{{Ardizzone et~al.}}{{Ardizzone, Lüth, Kruse, Rother, and Köthe}}}
-\bibcite{asperti2020vae}{{8}{2020}{{Asperti}}{{}}}
-\bibcite{baldassari2023}{{9}{2023}{{Baldassari et~al.}}{{Baldassari, Siahkoohi, Garnier, Solna, and de~Hoop}}}
-\bibcite{bayesestimation}{{10}{1995}{{Barker et~al.}}{{Barker, Brown, and Martin}}}
-\bibcite{behrmann2019ires}{{11}{2019}{{Behrmann et~al.}}{{Behrmann, Grathwohl, Chen, Duvenaud, and Jacobsen}}}
-\bibcite{Bekri_2024}{{12}{2024}{{Bekri et~al.}}{{Bekri, Drumetz, and Vermet}}}
-\bibcite{besag2004markov}{{13}{2004}{{Besag}}{{}}}
-\bibcite{bishop2006}{{14}{2006}{{Bishop}}{{}}}
-\bibcite{Bittner1963}{{15}{1963}{{Bittner}}{{}}}
-\bibcite{Blei_2017}{{16}{2017}{{Blei et~al.}}{{Blei, Kucukelbir, and McAuliffe}}}
-\bibcite{blundell2015bbb}{{17}{2015}{{Blundell et~al.}}{{Blundell, Cornebise, Kavukcuoglu, and Wierstra}}}
-\bibcite{bottou1999sgd}{{18}{1999}{{Bottou}}{{}}}
-\bibcite{bowman2016cvae}{{19}{2016}{{Bowman et~al.}}{{Bowman, Vilnis, Vinyals, Dai, Jozefowicz, and Bengio}}}
-\bibcite{8972113}{{20}{2019}{{Brusaferri et~al.}}{{Brusaferri, Matteucci, Portolani, and Spinelli}}}
-\bibcite{rlforcontrol2018}{{21}{2018}{{Buşoniu et~al.}}{{Buşoniu, {de Bruin}, Tolić, Kober, and Palunko}}}
-\bibcite{Calafiore_2013}{{22}{2013}{{Calafiore and Fagiano}}{{}}}
-\bibcite{rmpc1987}{{23}{1987}{{Campo and Morari}}{{}}}
-\bibcite{chen2019node}{{24}{2019}{{Chen et~al.}}{{Chen, Rubanova, Bettencourt, and Duvenaud}}}
-\bibcite{chen2020resflow}{{25}{2020}{{Chen et~al.}}{{Chen, Behrmann, Duvenaud, and Jacobsen}}}
-\bibcite{chen2025conddiff}{{26}{2025}{{Chen et~al.}}{{Chen, Bansal, and Scott}}}
-\bibcite{chen2021dpfcnf}{{27}{2021}{{Chen et~al.}}{{Chen, Wen, and Li}}}
-\bibcite{chen_bayesian_2003}{{28}{2003}{{Chen}}{{}}}
-\bibcite{Christophersen2007}{{29}{2007}{{Christophersen}}{{}}}
-\bibcite{damianou2013dgp}{{30}{2013}{{Damianou and Lawrence}}{{}}}
-\bibcite{De_Santi_2024}{{31}{2024}{{De~Santi et~al.}}{{De~Santi, Razzano, Fidecaro, Muccillo, Papalini, and Patricelli}}}
-\bibcite{Dempster1977}{{32}{1977}{{Dempster et~al.}}{{Dempster, Laird, and Rubin}}}
-\bibcite{deng2021continuous}{{33}{2021{a}}{{Deng et~al.}}{{Deng, Brubaker, Mori, and Lehrmann}}}
-\bibcite{deng2021ctfp}{{34}{2021{b}}{{Deng et~al.}}{{Deng, Chang, Brubaker, Mori, and Lehrmann}}}
-\bibcite{dgp2023desai}{{35}{2023}{{Desai et~al.}}{{Desai, Gujarathi, Parikh, Yadav, Patel, and Batra}}}
-\bibcite{Diehl2013}{{36}{2013}{{Diehl}}{{}}}
-\bibcite{dinh2015nice}{{37}{2015}{{Dinh et~al.}}{{Dinh, Krueger, and Bengio}}}
-\bibcite{DONG2025117457}{{38}{2025}{{Dong et~al.}}{{Dong, Jacobsen, Khalloufi, Akram, Liu, Duraisamy, and Huan}}}
-\bibcite{du2022toflow}{{39}{2022}{{Du et~al.}}{{Du, Luo, Chen, Xu, and Zeng}}}
-\bibcite{duane1987hybrid}{{40}{1987}{{Duane et~al.}}{{Duane, Kennedy, Pendleton, and Roweth}}}
-\bibcite{Durbin2000}{{41}{2000}{{Durbin and Koopman}}{{}}}
-\bibcite{Durbin2012}{{42}{2012}{{Durbin and Koopman}}{{}}}
-\bibcite{DU04}{{43}{1996}{{Durrett}}{{}}}
-\bibcite{Elfring2021-xf}{{44}{2021}{{Elfring et~al.}}{{Elfring, Torta, and van~de Molengraft}}}
-\bibcite{Ferreira_2025}{{45}{2025}{{Ferreira and Bejger}}{{}}}
-\bibcite{Fliess_2013}{{46}{2013}{{Fliess and Join}}{{}}}
-\bibcite{foong2019inbetween}{{47}{2019}{{Foong et~al.}}{{Foong, Li, Hernández-Lobato, and Turner}}}
-\bibcite{foong2020bnn}{{48}{2020}{{Foong et~al.}}{{Foong, Burt, Li, and Turner}}}
-\bibcite{fortunato2019brnn}{{49}{2019}{{Fortunato et~al.}}{{Fortunato, Blundell, and Vinyals}}}
-\bibcite{fraccaro2017kvae}{{50}{2017}{{Fraccaro et~al.}}{{Fraccaro, Kamronn, Paquet, and Winther}}}
-\bibcite{Gabbard2022}{{51}{2022}{{Gabbard et~al.}}{{Gabbard, Messenger, Heng, Tonolini, and Murray-Smith}}}
-\bibcite{gabbiani2010mathematics}{{52}{2010}{{Gabbiani and Cox}}{{}}}
-\bibcite{mpcreview1989}{{53}{1989}{{García et~al.}}{{García, Prett, and Morari}}}
-\bibcite{adjoint1963}{{54}{1963}{{Gavrilović et~al.}}{{Gavrilović, Petrović, and Šiljak}}}
-\bibcite{gelman2013bayesian}{{55}{2013}{{Gelman et~al.}}{{Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin}}}
-\bibcite{gershman2014amortized}{{56}{2014}{{Gershman and Goodman}}{{}}}
-\bibcite{ghugare2025nf}{{57}{2025}{{Ghugare and Eysenbach}}{{}}}
-\bibcite{Girin_2021}{{58}{2021}{{Girin et~al.}}{{Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda}}}
-\bibcite{Goan_2020}{{59}{2020}{{Goan and Fookes}}{{}}}
-\bibcite{pf1993}{{60}{1993}{{Gordon et~al.}}{{Gordon, Salmond, and Smith}}}
-\bibcite{grathwohl2018ffjord}{{61}{2018}{{Grathwohl et~al.}}{{Grathwohl, Chen, Bettencourt, Sutskever, and Duvenaud}}}
-\bibcite{haber2017stable}{{62}{2017}{{Haber and Ruthotto}}{{}}}
-\bibcite{haitsiukevich2024}{{63}{2024}{{Haitsiukevich et~al.}}{{Haitsiukevich, Poyraz, Marttinen, and Ilin}}}
-\bibcite{Hastings}{{64}{1970}{{Hastings}}{{}}}
-\bibcite{he2015residual}{{65}{2015}{{He et~al.}}{{He, Zhang, Ren, and Sun}}}
-\bibcite{HEIRUNG2018158}{{66}{2018}{{Heirung et~al.}}{{Heirung, Paulson, O’Leary, and Mesbah}}}
-\bibcite{ho2020ddpm}{{67}{2020}{{Ho et~al.}}{{Ho, Jain, and Abbeel}}}
-\bibcite{cvae2025}{{68}{2025}{{Ho et~al.}}{{Ho, Song, Sachdev, Jiang, and Wen}}}
-\bibcite{hodg2021stoch}{{69}{2021}{{Hodgkinson et~al.}}{{Hodgkinson, van~der Heide, Roosta, and Mahoney}}}
-\bibcite{Hutchinson01011990}{{70}{1990}{{Hutchinson}}{{}}}
-\bibcite{izmailov2021bnnp}{{71}{2021}{{Izmailov et~al.}}{{Izmailov, Vikram, Hoffman, and Wilson}}}
-\bibcite{jakkala2021survey}{{72}{2021}{{Jakkala}}{{}}}
-\bibcite{Jordan1998}{{73}{1998}{{Jordan et~al.}}{{Jordan, Ghahramani, Jaakkola, and Saul}}}
-\bibcite{kf1960}{{74}{1960}{{Kalman}}{{}}}
-\bibcite{khromov2024Lipschitz}{{75}{2024}{{Khromov and Singh}}{{}}}
-\bibcite{kingma2018glow}{{76}{2018}{{Kingma and Dhariwal}}{{}}}
-\bibcite{Kingma_2019}{{77}{2019}{{Kingma and Welling}}{{}}}
-\bibcite{kingma2013auto}{{78}{2022}{{Kingma and Welling}}{{}}}
-\bibcite{kobyzev2021nfsreview}{{79}{2021}{{Kobyzev et~al.}}{{Kobyzev, Prince, and Brubaker}}}
-\bibcite{kruse2021hint}{{80}{2021}{{Kruse et~al.}}{{Kruse, Detommaso, Köthe, and Scheichl}}}
-\bibcite{Kucharsk2025}{{81}{2025}{{Kucharský and Bürkner}}{{}}}
-\bibcite{kl1951}{{82}{1951}{{Kullback and Leibler}}{{}}}
-\bibcite{li2020scalable}{{83}{2020}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
-\bibcite{li2025DIC}{{84}{2025}{{Li et~al.}}{{Li, Mallick, Wang, Yu, and Zeng}}}
-\bibcite{lin2024ssm}{{85}{2024}{{Lin and Michailidis}}{{}}}
-\bibcite{lin2025}{{86}{2025}{{Lin et~al.}}{{Lin, Li, Yin, Maroñas, and Thiéry}}}
-\bibcite{lipman2023flowmatching}{{87}{2023}{{Lipman et~al.}}{{Lipman, Chen, Ben-Hamu, Nickel, and Le}}}
-\bibcite{lu2020finitelayer}{{88}{2020}{{Lu et~al.}}{{Lu, Zhong, Li, and Dong}}}
-\bibcite{MacKay1992}{{89}{1995}{{MacKay}}{{}}}
-\bibcite{margossian2024amortized}{{90}{2024}{{Margossian and Blei}}{{}}}
-\bibcite{martínezpalomera2020pelsvae}{{91}{2020}{{Martínez-Palomera et~al.}}{{Martínez-Palomera, Bloom, and Abrahams}}}
-\bibcite{mccarthy2020cvae}{{92}{2020}{{McCarthy et~al.}}{{McCarthy, Li, Gu, and Dong}}}
-\bibcite{Merkatas2023_sm}{{93}{2023}{{Merkatas and S{\"a}rkk{\"a}}}{{}}}
-\bibcite{smpc2016}{{94}{2016}{{Mesbah}}{{}}}
-\bibcite{Metropolis}{{95}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
-\bibcite{Mienye2025}{{96}{2025}{{Mienye and Swart}}{{}}}
-\bibcite{mbrl2020}{{97}{2022}{{Moerland et~al.}}{{Moerland, Broekens, Plaat, and Jonker}}}
-\bibcite{pml1Book}{{98}{2022}{{Murphy}}{{}}}
-\bibcite{pml2Book}{{99}{2023}{{Murphy}}{{}}}
-\bibcite{müller2024transbi}{{100}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
-\bibcite{vae_sbi}{{101}{2024}{{Nautiyal et~al.}}{{Nautiyal, Shternshis, Hellander, and Singh}}}
-\bibcite{Neal1996}{{102}{1996}{{Neal}}{{}}}
-\bibcite{oksendal1985}{{103}{1985}{{{\O }ksendal}}{{}}}
-\bibcite{PANIAGUA2024200344}{{104}{2024}{{Paniagua and López}}{{}}}
-\bibcite{papamakarios2018maf}{{105}{2018}{{Papamakarios et~al.}}{{Papamakarios, Pavlakou, and Murray}}}
-\bibcite{papamakarios2021nf}{{106}{2021}{{Papamakarios et~al.}}{{Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan}}}
-\bibcite{dgp2018park}{{107}{2018}{{Park et~al.}}{{Park, Tagade, and Choi}}}
-\bibcite{pasmans2025ekfl}{{108}{2025}{{Pasmans et~al.}}{{Pasmans, Chen, Finn, Bocquet, and Carrassi}}}
-\bibcite{BayesSysId1981}{{109}{1981}{{Peterka}}{{}}}
-\bibcite{mdp2014}{{110}{1994}{{Puterman}}{{}}}
-\bibcite{radev2021diss}{{111}{2021}{{Radev}}{{}}}
-\bibcite{radev2020bayesflow}{{112}{2020}{{Radev et~al.}}{{Radev, Mertens, Voss, Ardizzone, and Köthe}}}
-\bibcite{Rahmandad2025_uh}{{113}{2025}{{Rahmandad et~al.}}{{Rahmandad, Akhavan, and Jalali}}}
-\bibcite{RAIMONDO20095}{{114}{2009}{{Raimondo et~al.}}{{Raimondo, Limon, Lazar, Magni, and {ndez Camacho}}}}
-\bibcite{Rasmussen_Williams_2008}{{115}{2008}{{Rasmussen and Williams}}{{}}}
-\bibcite{mpcbook2020}{{116}{2020}{{Rawlings et~al.}}{{Rawlings, Mayne, and Diehl}}}
-\bibcite{rezende2016}{{117}{2016}{{Rezende and Mohamed}}{{}}}
-\bibcite{awesomenfs}{{118}{2023}{{Riebesell et~al.}}{{Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}}}}
-\bibcite{roeder2019abi}{{119}{2019}{{Roeder et~al.}}{{Roeder, Grant, Phillips, Dalchau, and Meeds}}}
-\bibcite{ruthotto2018deep}{{120}{2018}{{Ruthotto and Haber}}{{}}}
-\bibcite{changeofvariables}{{121}{1954}{{Schwartz}}{{}}}
-\bibcite{Schwenzer2021}{{122}{2021}{{Schwenzer et~al.}}{{Schwenzer, Ay, Bergs, and Abel}}}
-\bibcite{shridhar2019bcnn}{{123}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
-\bibcite{silvestro2020prior}{{124}{2020}{{Silvestro and Andermann}}{{}}}
-\bibcite{simon2006optimal}{{125}{2006}{{Simon}}{{}}}
-\bibcite{Skilling1989}{{126}{1989}{{Skilling}}{{}}}
-\bibcite{sohn2015cvae}{{127}{2015}{{Sohn et~al.}}{{Sohn, Lee, and Yan}}}
-\bibcite{somvanshi2025s4mamba}{{128}{2025}{{Somvanshi et~al.}}{{Somvanshi, Islam, Mimi, Polock, Chhetri, and Das}}}
-\bibcite{Spiegelhalter2002}{{129}{2002}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and Van Der~Linde}}}
-\bibcite{Spiegelhalter2014}{{130}{2014}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and van~der Linde}}}
-\bibcite{Sun_2025}{{131}{2025}{{Sun et~al.}}{{Sun, Wang, and He}}}
-\bibcite{sutton1990}{{132}{1990}{{Sutton}}{{}}}
-\bibcite{sarkka2019gp}{{133}{2019}{{Särkkä}}{{}}}
-\bibcite{TUNE2025179}{{134}{2025}{{Tune et~al.}}{{Tune, Kooiker, Davis, Daniel, and Moussavi-Harami}}}
-\bibcite{Wainwright2008}{{135}{2008}{{Wainwright and Jordan}}{{}}}
-\bibcite{ukf2000}{{136}{2000}{{Wan and Van Der~Merwe}}{{}}}
-\bibcite{wang2025flow}{{137}{2025}{{Wang et~al.}}{{Wang, Guan, Guo, and Wu}}}
-\bibcite{wang2023vae}{{138}{2023}{{Wang et~al.}}{{Wang, Blei, and Cunningham}}}
-\bibcite{winkler2023cnf}{{139}{2023}{{Winkler et~al.}}{{Winkler, Worrall, Hoogeboom, and Welling}}}
-\bibcite{Yamamoto_2020rse}{{140}{2020}{{Yamamoto and Tanaka}}{{}}}
-\bibcite{yan2024brnn}{{141}{2024}{{Yan et~al.}}{{Yan, Liang, Zheng, Fan, Wang, and Wang}}}
-\bibcite{YANG2021109913}{{142}{2021}{{Yang et~al.}}{{Yang, Meng, and Karniadakis}}}
-\bibcite{Zeng2023}{{143}{2023}{{Zeng et~al.}}{{Zeng, Todd, and Hu}}}
-\bibcite{ZHANG2023106424}{{144}{2023}{{Zhang et~al.}}{{Zhang, Zhu, Zhang, and Gao}}}
-\bibcite{zhdanov2022gisaxs}{{145}{2022}{{Zhdanov et~al.}}{{Zhdanov, Randolph, Kluge, Nakatsutsumi, Gutt, Ganeva, and Hoffmann}}}
-\bibcite{zhu2025diffusion}{{146}{2025}{{Zhu et~al.}}{{Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue}}}
-\bibcite{zhu2024diffusion}{{147}{2024}{{Zhu et~al.}}{{Zhu, Zhao, He, Zhong, Zhang, Guo, Chen, and Zhang}}}
-\@writefile{toc}{\contentsline {chapter}{Appendix}{79}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{81}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{83}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{85}{Item.12}\protected@file@percent }
-\gdef \@abspage@last{106}
+\bibcite{agarwal2022imitativeplanning}{{3}{2022}{{Agarwal et~al.}}{{Agarwal, Sikchi, Gulino, Wilkinson, and Gautam}}}
+\bibcite{NIPS2017_861dc9bd}{{4}{2017}{{Alaa and van~der Schaar}}{{}}}
+\bibcite{Allen_2007}{{5}{2007}{{Allen}}{{}}}
+\bibcite{alles2025flowqenergyguidedflowpolicies}{{6}{2025}{{Alles et~al.}}{{Alles, Chen, van~der Smagt, and Cseke}}}
+\bibcite{govinda2021cinn}{{7}{2021}{{{Anantha Padmanabha} and Zabaras}}{{}}}
+\bibcite{ardizzone2019inn}{{8}{2019{a}}{{Ardizzone et~al.}}{{Ardizzone, Kruse, Wirkert, Rahner, Pellegrini, Klessen, Maier-Hein, Rother, and Köthe}}}
+\bibcite{ardizzone2019cinn}{{9}{2019{b}}{{Ardizzone et~al.}}{{Ardizzone, Lüth, Kruse, Rother, and Köthe}}}
+\bibcite{asperti2020vae}{{10}{2020}{{Asperti}}{{}}}
+\bibcite{baldassari2023}{{11}{2023}{{Baldassari et~al.}}{{Baldassari, Siahkoohi, Garnier, Solna, and de~Hoop}}}
+\bibcite{bayesestimation}{{12}{1995}{{Barker et~al.}}{{Barker, Brown, and Martin}}}
+\bibcite{behrmann2019ires}{{13}{2019}{{Behrmann et~al.}}{{Behrmann, Grathwohl, Chen, Duvenaud, and Jacobsen}}}
+\bibcite{Bekri_2024}{{14}{2024}{{Bekri et~al.}}{{Bekri, Drumetz, and Vermet}}}
+\bibcite{besag2004markov}{{15}{2004}{{Besag}}{{}}}
+\bibcite{bishop2006}{{16}{2006}{{Bishop}}{{}}}
+\bibcite{Bittner1963}{{17}{1963}{{Bittner}}{{}}}
+\bibcite{Blei_2017}{{18}{2017}{{Blei et~al.}}{{Blei, Kucukelbir, and McAuliffe}}}
+\bibcite{blundell2015bbb}{{19}{2015}{{Blundell et~al.}}{{Blundell, Cornebise, Kavukcuoglu, and Wierstra}}}
+\bibcite{damian2021}{{20}{2021}{{Boborzi et~al.}}{{Boborzi, Straehle, Buchner, and Mikelsons}}}
+\bibcite{bottou1999sgd}{{21}{1999}{{Bottou}}{{}}}
+\bibcite{bowman2016cvae}{{22}{2016}{{Bowman et~al.}}{{Bowman, Vilnis, Vinyals, Dai, Jozefowicz, and Bengio}}}
+\bibcite{NEURIPS2023_3fd9fe8e}{{23}{2023}{{Brahmanage et~al.}}{{Brahmanage, LING, and Kumar}}}
+\bibcite{8972113}{{24}{2019}{{Brusaferri et~al.}}{{Brusaferri, Matteucci, Portolani, and Spinelli}}}
+\bibcite{rlforcontrol2018}{{25}{2018}{{Buşoniu et~al.}}{{Buşoniu, {de Bruin}, Tolić, Kober, and Palunko}}}
+\bibcite{Calafiore_2013}{{26}{2013}{{Calafiore and Fagiano}}{{}}}
+\bibcite{rmpc1987}{{27}{1987}{{Campo and Morari}}{{}}}
+\bibcite{chang2022ilflowimitationlearningobservation}{{28}{2022}{{Chang et~al.}}{{Chang, Higuera, Fujimoto, Meger, and Dudek}}}
+\bibcite{NEURIPS2024_661c37f3}{{29}{2024}{{Chao et~al.}}{{Chao, Feng, Sun, Lee, See, and Lee}}}
+\bibcite{chen2019node}{{30}{2019}{{Chen et~al.}}{{Chen, Rubanova, Bettencourt, and Duvenaud}}}
+\bibcite{chen2020resflow}{{31}{2020}{{Chen et~al.}}{{Chen, Behrmann, Duvenaud, and Jacobsen}}}
+\bibcite{chen2025conddiff}{{32}{2025}{{Chen et~al.}}{{Chen, Bansal, and Scott}}}
+\bibcite{chen2021dpfcnf}{{33}{2021}{{Chen et~al.}}{{Chen, Wen, and Li}}}
+\bibcite{chen_bayesian_2003}{{34}{2003}{{Chen}}{{}}}
+\bibcite{cho2024outofdistributionadaptationofflinerl}{{35}{2024}{{Cho et~al.}}{{Cho, How, and Sun}}}
+\bibcite{Christophersen2007}{{36}{2007}{{Christophersen}}{{}}}
+\bibcite{damianou2013dgp}{{37}{2013}{{Damianou and Lawrence}}{{}}}
+\bibcite{De_Santi_2024}{{38}{2024}{{De~Santi et~al.}}{{De~Santi, Razzano, Fidecaro, Muccillo, Papalini, and Patricelli}}}
+\bibcite{Dempster1977}{{39}{1977}{{Dempster et~al.}}{{Dempster, Laird, and Rubin}}}
+\bibcite{deng2021continuous}{{40}{2021{a}}{{Deng et~al.}}{{Deng, Brubaker, Mori, and Lehrmann}}}
+\bibcite{deng2021ctfp}{{41}{2021{b}}{{Deng et~al.}}{{Deng, Chang, Brubaker, Mori, and Lehrmann}}}
+\bibcite{dgp2023desai}{{42}{2023}{{Desai et~al.}}{{Desai, Gujarathi, Parikh, Yadav, Patel, and Batra}}}
+\bibcite{Diehl2013}{{43}{2013}{{Diehl}}{{}}}
+\bibcite{dinh2015nice}{{44}{2015}{{Dinh et~al.}}{{Dinh, Krueger, and Bengio}}}
+\bibcite{DONG2025117457}{{45}{2025}{{Dong et~al.}}{{Dong, Jacobsen, Khalloufi, Akram, Liu, Duraisamy, and Huan}}}
+\bibcite{du2022toflow}{{46}{2022}{{Du et~al.}}{{Du, Luo, Chen, Xu, and Zeng}}}
+\bibcite{duane1987hybrid}{{47}{1987}{{Duane et~al.}}{{Duane, Kennedy, Pendleton, and Roweth}}}
+\bibcite{Durbin2000}{{48}{2000}{{Durbin and Koopman}}{{}}}
+\bibcite{Durbin2012}{{49}{2012}{{Durbin and Koopman}}{{}}}
+\bibcite{DU04}{{50}{1996}{{Durrett}}{{}}}
+\bibcite{Elfring2021-xf}{{51}{2021}{{Elfring et~al.}}{{Elfring, Torta, and van~de Molengraft}}}
+\bibcite{Ferreira_2025}{{52}{2025}{{Ferreira and Bejger}}{{}}}
+\bibcite{Fliess_2013}{{53}{2013}{{Fliess and Join}}{{}}}
+\bibcite{foong2019inbetween}{{54}{2019}{{Foong et~al.}}{{Foong, Li, Hernández-Lobato, and Turner}}}
+\bibcite{foong2020bnn}{{55}{2020}{{Foong et~al.}}{{Foong, Burt, Li, and Turner}}}
+\bibcite{fortunato2019brnn}{{56}{2019}{{Fortunato et~al.}}{{Fortunato, Blundell, and Vinyals}}}
+\bibcite{fraccaro2017kvae}{{57}{2017}{{Fraccaro et~al.}}{{Fraccaro, Kamronn, Paquet, and Winther}}}
+\bibcite{coupledflowimitation2023}{{58}{2023}{{Freund et~al.}}{{Freund, Sarafian, and Kraus}}}
+\bibcite{Gabbard2022}{{59}{2022}{{Gabbard et~al.}}{{Gabbard, Messenger, Heng, Tonolini, and Murray-Smith}}}
+\bibcite{gabbiani2010mathematics}{{60}{2010}{{Gabbiani and Cox}}{{}}}
+\bibcite{mpcreview1989}{{61}{1989}{{García et~al.}}{{García, Prett, and Morari}}}
+\bibcite{adjoint1963}{{62}{1963}{{Gavrilović et~al.}}{{Gavrilović, Petrović, and Šiljak}}}
+\bibcite{gelman2013bayesian}{{63}{2013}{{Gelman et~al.}}{{Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin}}}
+\bibcite{gershman2014amortized}{{64}{2014}{{Gershman and Goodman}}{{}}}
+\bibcite{ghugare2025nf}{{65}{2025}{{Ghugare and Eysenbach}}{{}}}
+\bibcite{Girin_2021}{{66}{2021}{{Girin et~al.}}{{Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda}}}
+\bibcite{Goan_2020}{{67}{2020}{{Goan and Fookes}}{{}}}
+\bibcite{pf1993}{{68}{1993}{{Gordon et~al.}}{{Gordon, Salmond, and Smith}}}
+\bibcite{grathwohl2018ffjord}{{69}{2018}{{Grathwohl et~al.}}{{Grathwohl, Chen, Bettencourt, Sutskever, and Duvenaud}}}
+\bibcite{haber2017stable}{{70}{2017}{{Haber and Ruthotto}}{{}}}
+\bibcite{haitsiukevich2024}{{71}{2024}{{Haitsiukevich et~al.}}{{Haitsiukevich, Poyraz, Marttinen, and Ilin}}}
+\bibcite{Hastings}{{72}{1970}{{Hastings}}{{}}}
+\bibcite{he2015residual}{{73}{2015}{{He et~al.}}{{He, Zhang, Ren, and Sun}}}
+\bibcite{HEIRUNG2018158}{{74}{2018}{{Heirung et~al.}}{{Heirung, Paulson, O’Leary, and Mesbah}}}
+\bibcite{ho2020ddpm}{{75}{2020}{{Ho et~al.}}{{Ho, Jain, and Abbeel}}}
+\bibcite{cvae2025}{{76}{2025}{{Ho et~al.}}{{Ho, Song, Sachdev, Jiang, and Wen}}}
+\bibcite{hodg2021stoch}{{77}{2021}{{Hodgkinson et~al.}}{{Hodgkinson, van~der Heide, Roosta, and Mahoney}}}
+\bibcite{Hutchinson01011990}{{78}{1990}{{Hutchinson}}{{}}}
+\bibcite{izmailov2021bnnp}{{79}{2021}{{Izmailov et~al.}}{{Izmailov, Vikram, Hoffman, and Wilson}}}
+\bibcite{jakkala2021survey}{{80}{2021}{{Jakkala}}{{}}}
+\bibcite{Jordan1998}{{81}{1998}{{Jordan et~al.}}{{Jordan, Ghahramani, Jaakkola, and Saul}}}
+\bibcite{kf1960}{{82}{1960}{{Kalman}}{{}}}
+\bibcite{stableflow2021}{{83}{2021}{{Khader et~al.}}{{Khader, Yin, Falco, and Kragic}}}
+\bibcite{khromov2024Lipschitz}{{84}{2024}{{Khromov and Singh}}{{}}}
+\bibcite{kingma2018glow}{{85}{2018}{{Kingma and Dhariwal}}{{}}}
+\bibcite{Kingma_2019}{{86}{2019}{{Kingma and Welling}}{{}}}
+\bibcite{kingma2013auto}{{87}{2022}{{Kingma and Welling}}{{}}}
+\bibcite{kobyzev2021nfsreview}{{88}{2021}{{Kobyzev et~al.}}{{Kobyzev, Prince, and Brubaker}}}
+\bibcite{kong2025compositeflowmatchingreinforcement}{{89}{2025}{{Kong et~al.}}{{Kong, Wang, Wang, Xiong, and Tambe}}}
+\bibcite{kruse2021hint}{{90}{2021}{{Kruse et~al.}}{{Kruse, Detommaso, Köthe, and Scheichl}}}
+\bibcite{Kucharsk2025}{{91}{2025}{{Kucharský and Bürkner}}{{}}}
+\bibcite{kl1951}{{92}{1951}{{Kullback and Leibler}}{{}}}
+\bibcite{Lee2023ImprovingPM}{{93}{2023}{{Lee and Diwan}}{{}}}
+\bibcite{li2020scalable}{{94}{2020}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
+\bibcite{li2025DIC}{{95}{2025}{{Li et~al.}}{{Li, Mallick, Wang, Yu, and Zeng}}}
+\bibcite{lin2024ssm}{{96}{2024}{{Lin and Michailidis}}{{}}}
+\bibcite{lin2025}{{97}{2025}{{Lin et~al.}}{{Lin, Li, Yin, Maroñas, and Thiéry}}}
+\bibcite{lind2025normalizingflowscapablevisuomotor}{{98}{2025}{{Lind et~al.}}{{Lind, Li, Stenmark, and Krüger}}}
+\bibcite{lipman2023flowmatching}{{99}{2023}{{Lipman et~al.}}{{Lipman, Chen, Ben-Hamu, Nickel, and Le}}}
+\bibcite{lu2020finitelayer}{{100}{2020}{{Lu et~al.}}{{Lu, Zhong, Li, and Dong}}}
+\bibcite{lv2025flowbasedpolicy}{{101}{2025}{{Lv et~al.}}{{Lv, Li, Luo, Sun, Kong, Xu, and Ma}}}
+\bibcite{ma2020normalizingflowpolicy}{{102}{2020}{{Ma et~al.}}{{Ma, Gupta, and Kochenderfer}}}
+\bibcite{MacKay1992}{{103}{1995}{{MacKay}}{{}}}
+\bibcite{margossian2024amortized}{{104}{2024}{{Margossian and Blei}}{{}}}
+\bibcite{martínezpalomera2020pelsvae}{{105}{2020}{{Martínez-Palomera et~al.}}{{Martínez-Palomera, Bloom, and Abrahams}}}
+\bibcite{offpolicy2020}{{106}{2020}{{Mazoure et~al.}}{{Mazoure, Doan, Durand, Pineau, and Hjelm}}}
+\bibcite{mcallister2025flowmatchingpolicygradients}{{107}{2025}{{McAllister et~al.}}{{McAllister, Ge, Yi, Kim, Weber, Choi, Feng, and Kanazawa}}}
+\bibcite{mccarthy2020cvae}{{108}{2020}{{McCarthy et~al.}}{{McCarthy, Li, Gu, and Dong}}}
+\bibcite{Merkatas2023_sm}{{109}{2023}{{Merkatas and S{\"a}rkk{\"a}}}{{}}}
+\bibcite{smpc2016}{{110}{2016}{{Mesbah}}{{}}}
+\bibcite{Metropolis}{{111}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
+\bibcite{Mienye2025}{{112}{2025}{{Mienye and Swart}}{{}}}
+\bibcite{mbrl2020}{{113}{2022}{{Moerland et~al.}}{{Moerland, Broekens, Plaat, and Jonker}}}
+\bibcite{pml1Book}{{114}{2022}{{Murphy}}{{}}}
+\bibcite{pml2Book}{{115}{2023}{{Murphy}}{{}}}
+\bibcite{müller2024transbi}{{116}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
+\bibcite{vae_sbi}{{117}{2024}{{Nautiyal et~al.}}{{Nautiyal, Shternshis, Hellander, and Singh}}}
+\bibcite{Neal1996}{{118}{1996}{{Neal}}{{}}}
+\bibcite{oksendal1985}{{119}{1985}{{{\O }ksendal}}{{}}}
+\bibcite{PANIAGUA2024200344}{{120}{2024}{{Paniagua and López}}{{}}}
+\bibcite{papamakarios2018maf}{{121}{2018}{{Papamakarios et~al.}}{{Papamakarios, Pavlakou, and Murray}}}
+\bibcite{papamakarios2021nf}{{122}{2021}{{Papamakarios et~al.}}{{Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan}}}
+\bibcite{dgp2018park}{{123}{2018}{{Park et~al.}}{{Park, Tagade, and Choi}}}
+\bibcite{pasmans2025ekfl}{{124}{2025}{{Pasmans et~al.}}{{Pasmans, Chen, Finn, Bocquet, and Carrassi}}}
+\bibcite{BayesSysId1981}{{125}{1981}{{Peterka}}{{}}}
+\bibcite{pivezhandi2025fm}{{126}{2025}{{Pivezhandi and Saifullah}}{{}}}
+\bibcite{power2022variationalinferencempcusing}{{127}{2022}{{Power and Berenson}}{{}}}
+\bibcite{mdp2014}{{128}{1994}{{Puterman}}{{}}}
+\bibcite{radev2021diss}{{129}{2021}{{Radev}}{{}}}
+\bibcite{radev2020bayesflow}{{130}{2020}{{Radev et~al.}}{{Radev, Mertens, Voss, Ardizzone, and Köthe}}}
+\bibcite{Rahmandad2025_uh}{{131}{2025}{{Rahmandad et~al.}}{{Rahmandad, Akhavan, and Jalali}}}
+\bibcite{RAIMONDO20095}{{132}{2009}{{Raimondo et~al.}}{{Raimondo, Limon, Lazar, Magni, and {ndez Camacho}}}}
+\bibcite{Rasmussen_Williams_2008}{{133}{2008}{{Rasmussen and Williams}}{{}}}
+\bibcite{mpcbook2020}{{134}{2020}{{Rawlings et~al.}}{{Rawlings, Mayne, and Diehl}}}
+\bibcite{rezende2016}{{135}{2016}{{Rezende and Mohamed}}{{}}}
+\bibcite{awesomenfs}{{136}{2023}{{Riebesell et~al.}}{{Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}}}}
+\bibcite{rietz2024constrained}{{137}{2024}{{Rietz et~al.}}{{Rietz, Schaffernicht, Heinrich, and Stork}}}
+\bibcite{roeder2019abi}{{138}{2019}{{Roeder et~al.}}{{Roeder, Grant, Phillips, Dalchau, and Meeds}}}
+\bibcite{rouxel2025extremumflowmatchingoffline}{{139}{2025}{{Rouxel et~al.}}{{Rouxel, Donoso, Chen, Ivaldi, and Mouret}}}
+\bibcite{ruthotto2018deep}{{140}{2018}{{Ruthotto and Haber}}{{}}}
+\bibcite{changeofvariables}{{141}{1954}{{Schwartz}}{{}}}
+\bibcite{Schwenzer2021}{{142}{2021}{{Schwenzer et~al.}}{{Schwenzer, Ay, Bergs, and Abel}}}
+\bibcite{shridhar2019bcnn}{{143}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
+\bibcite{silvestro2020prior}{{144}{2020}{{Silvestro and Andermann}}{{}}}
+\bibcite{simon2006optimal}{{145}{2006}{{Simon}}{{}}}
+\bibcite{Skilling1989}{{146}{1989}{{Skilling}}{{}}}
+\bibcite{sohn2015cvae}{{147}{2015}{{Sohn et~al.}}{{Sohn, Lee, and Yan}}}
+\bibcite{somvanshi2025s4mamba}{{148}{2025}{{Somvanshi et~al.}}{{Somvanshi, Islam, Mimi, Polock, Chhetri, and Das}}}
+\bibcite{Spiegelhalter2002}{{149}{2002}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and Van Der~Linde}}}
+\bibcite{Spiegelhalter2014}{{150}{2014}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and van~der Linde}}}
+\bibcite{Sun_2025}{{151}{2025}{{Sun et~al.}}{{Sun, Wang, and He}}}
+\bibcite{sutton1990}{{152}{1990}{{Sutton}}{{}}}
+\bibcite{sarkka2019gp}{{153}{2019}{{Särkkä}}{{}}}
+\bibcite{tarasov2025vla}{{154}{2025}{{Tarasov et~al.}}{{Tarasov, Nikulin, Zisman, Klepach, Lyubaykin, Polubarov, Derevyagin, and Kurenkov}}}
+\bibcite{TUNE2025179}{{155}{2025}{{Tune et~al.}}{{Tune, Kooiker, Davis, Daniel, and Moussavi-Harami}}}
+\bibcite{imitationflow2020}{{156}{2020}{{Urain et~al.}}{{Urain, Ginesi, Tateo, and Peters}}}
+\bibcite{Wainwright2008}{{157}{2008}{{Wainwright and Jordan}}{{}}}
+\bibcite{ukf2000}{{158}{2000}{{Wan and Van Der~Merwe}}{{}}}
+\bibcite{wan2025fmirlflowmatchingrewardmodeling}{{159}{2025}{{Wan et~al.}}{{Wan, Wu, Yu, Zhang, Lei, An, and Tsang}}}
+\bibcite{wang2025flow}{{160}{2025}{{Wang et~al.}}{{Wang, Guan, Guo, and Wu}}}
+\bibcite{wang2023vae}{{161}{2023}{{Wang et~al.}}{{Wang, Blei, and Cunningham}}}
+\bibcite{ward2019sacnf}{{162}{2019}{{Ward et~al.}}{{Ward, Smofsky, and Bose}}}
+\bibcite{wen2025diffusionvla}{{163}{2025}{{Wen et~al.}}{{Wen, Zhu, Zhu, Tang, Li, Zhou, Li, Liu, Peng, Shen, and Feng}}}
+\bibcite{winkler2023cnf}{{164}{2023}{{Winkler et~al.}}{{Winkler, Worrall, Hoogeboom, and Welling}}}
+\bibcite{xu2024uncertaintyaware}{{165}{2024}{{Xu and Liu}}{{}}}
+\bibcite{Yamamoto_2020rse}{{166}{2020}{{Yamamoto and Tanaka}}{{}}}
+\bibcite{yan2024brnn}{{167}{2024}{{Yan et~al.}}{{Yan, Liang, Zheng, Fan, Wang, and Wang}}}
+\bibcite{YANG2021109913}{{168}{2021}{{Yang et~al.}}{{Yang, Meng, and Karniadakis}}}
+\bibcite{Consensus2022}{{169}{2022}{{Yin et~al.}}{{Yin, Verginis, and Kragic}}}
+\bibcite{Zeng2023}{{170}{2023}{{Zeng et~al.}}{{Zeng, Todd, and Hu}}}
+\bibcite{2025flowpolicy}{{171}{2025{a}}{{Zhang et~al.}}{{Zhang, Liu, Fan, Liu, Zeng, and Liu}}}
+\bibcite{zhang2025energyweightedflowmatchingoffline}{{172}{2025{b}}{{Zhang et~al.}}{{Zhang, Zhang, and Gu}}}
+\bibcite{zhang2025reinflowfinetuningflowmatching}{{173}{2025{c}}{{Zhang et~al.}}{{Zhang, Yu, Su, and Wang}}}
+\bibcite{zhang2025sacflow}{{174}{2025{d}}{{Zhang et~al.}}{{Zhang, Yu, Zhang, Guang, Hui, Long, Wang, Yu, and Ding}}}
+\bibcite{ZHANG2023106424}{{175}{2023}{{Zhang et~al.}}{{Zhang, Zhu, Zhang, and Gao}}}
+\bibcite{zhdanov2022gisaxs}{{176}{2022}{{Zhdanov et~al.}}{{Zhdanov, Randolph, Kluge, Nakatsutsumi, Gutt, Ganeva, and Hoffmann}}}
+\bibcite{zhong2025flowcriticbridgingvalueestimation}{{177}{2025}{{Zhong et~al.}}{{Zhong, Ding, Diao, Wang, Teh, and Peng}}}
+\bibcite{zhu2025diffusion}{{178}{2025}{{Zhu et~al.}}{{Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue}}}
+\bibcite{zhu2024diffusion}{{179}{2024}{{Zhu et~al.}}{{Zhu, Zhao, He, Zhong, Zhang, Guo, Chen, and Zhang}}}
+\@writefile{toc}{\contentsline {chapter}{Appendix}{85}{section*.80}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{87}{section*.80}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{89}{section*.80}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{91}{Item.12}\protected@file@percent }
+\gdef \@abspage@last{112}

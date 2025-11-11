@@ -86,6 +86,93 @@ Another viewpoint of probabilistic time series modeling is to consider it as lea
 Although several works have demonstrated the potential of normalizing flows for modeling stochastic processes, their application to system dynamics modeling and state estimation remains limited. Key challenges include high computational cost, difficulty handling control inputs and initial‑value problems, and risks of overfitting or vanishing diffusion. Addressing these issues represents a promising direction for our research.
 
 \section{Deep Generative Models as Control Policy}
-Moreover, deep generative approaches for capturing input-output relationships are well-suited for integration into model-free \ac{RL} frameworks. The modeled uncertainty plays a crucial role in enabling robust decision-making. A survey \citep{zhu2024diffusion} provides a comprehensive overview of recent research efforts focused on the application of diffusion models within the domain of reinforcement learning. Especially, \citeauthor{ghugare2025nf} \citeyearpar{ghugare2025nf} brought up that the probabilistic modeling and inference capability of \acp{NF} suits better for \ac{RL} framework in comparison to diffusion models, including acting as a policy, as a Q-function or value model, and for modeling state densities. 
+Moreover, deep generative approaches for capturing input-output relationships are well-suited for integration into model-free \ac{RL} frameworks. The modeled uncertainty plays a crucial role in enabling robust decision-making. A survey \citep{zhu2024diffusion} provides a comprehensive overview of recent research efforts focused on the application of diffusion models within the domain of reinforcement learning. Diffusion models demonstrate significant flexibility and capacity as general-purpose tools for planning, policy generation, and data synthesis. The recent convergence with powerful Large Language Models (LLMs) has significantly enhanced this capability. This integration unlocks the multi-modal strength of diffusion models, enabling them to tackle diverse and complex tasks in robotics \citep{wen2025diffusionvla}. 
 
-In the following, we summarize different control policies with \ac{NF} and \ac{FM} [not finished yet].
+However, in specific single-task scenarios, \acp{NF} may prove more suitable. \acp{NF} often offer a superior balance between computational cost and the strength of accurate density estimation. This is particularly required in domains like physics-based modeling, where the underlying noise distribution is often less complex than in general image/language generation tasks. Especially, \citeauthor{ghugare2025nf} \citeyearpar{ghugare2025nf} brought up that the probabilistic modeling and inference capability of \acp{NF} suits better for \ac{RL} framework in comparison to diffusion models, including acting as a policy, as a Q-function or value model, and for modeling state densities. 
+
+In the following, we summarize different \ac{RL}-methods equipped with \ac{NF} or \ac{FM}. 
+\begin{xltabular}{\linewidth}{p{3.5cm} p{3.5cm} X}
+\caption{\textbf{Normalizing Flows in Reinforcement Learning}}
+\label{tab:nf_rl} \\
+\toprule
+\textbf{Flow Model} & \textbf{Role in RL} & \textbf{Main Contribution} \\
+\midrule
+\endfirsthead % Marks the end of the header that repeats on every new page
+
+% 2. RUNNING CAPTION (FOR SUBSEQUENT PAGES)
+\multicolumn{3}{@{}l}{\textbf{Table \thetable:} Normalizing Flows in RL (Continuation)} \\
+\toprule
+\textbf{Flow Model} & \textbf{Role in RL} & \textbf{Main Contribution} \\
+\midrule
+\endhead % <-- Use \endhead for the header that repeats on subsequent pages
+
+% Footer to indicate continuation
+\multicolumn{3}{r}{\footnotesize\textit{Continued on next page...}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+% --- Table Content Starts Here ---
+\hline
+Discrete NF \citep{ward2019sacnf,offpolicy2020} & Policy of SAC & Improved expressiveness of the policy distribution and efficient exploration of sparse reward. \\
+\hline
+Neural Spline Flow \citep{lind2025normalizingflowscapablevisuomotor} & Visuomotor Policy & Comparable performance to Diffusion Policy and improved sample efficiency in training while up 30x faster in inference. \\
+\hline
+Neural Spline Flow \citep{chang2022ilflowimitationlearningobservation} & Expert policy of inverse RL & Achieving good recovery of the true reward signal and imitation from observation. \\
+\hline
+Causal NF \citep{cho2024outofdistributionadaptationofflinerl} & Learning transition dynamics and reward function in offline policy training & Improved generalization in sequential decision-making tasks, revealing a high potential for OoD adaptation in offline RL. \\
+\hline
+Coupling Flow \citep{stableflow2021, Consensus2022} & Diffeomorphic transfomration from state to action (policy) & Application in complex continuous control tasks while ensuring stability. \\
+\hline
+Coupling Flow \citep{rietz2024constrained} & Constrained policy of SAC & Ensuring constraints satisfactory over reward engineering while offering enhanced interpretability. \\
+\hline
+Coupling Flow \citep{tarasov2025vla} & Policy in VLA models & Comparable performance to Diffusion Policy and improved parameter efficiency while faster in inference. \\
+\hline
+RealNVP \citep{NEURIPS2023_3fd9fe8e} & Policy of DDPG & Significant reduction of constraint violations. \\
+\hline
+RealNVP \citep{power2022variationalinferencempcusing} & Learning control policy in MPC & FlowMPPI with projection outperforms state-of-the-art MPC baselines on both in-distribution and OoD environments. \\
+\hline
+RealNVP \citep{damian2021} & Policy of DAC & Enabling imitation of complex continuous control policies. \\
+\hline
+Autoregressive Flow \citep{agarwal2022imitativeplanning} & Motion planner in IL & Achieving good performance in real-world autonomous driving tasks. \\
+\hline
+RealNVP \citep{ma2020normalizingflowpolicy} & Policy representation & Capturing multi-modal action distributions. \\
+\hline
+RealNVP \citep{Lee2023ImprovingPM} & Policy gradient in model-based RL & Capturing multi-modal action distributions. \\
+\hline
+MAF and Glow \citep{imitationflow2020} & Learning dynamics model & Improved representation of stochastic dynamics while ensuring stability. \\
+\hline
+MAF \citep{coupledflowimitation2023} & Distribution matching in IL & Better capturing state-action distribution. \\
+\hline
+FM \citep{pivezhandi2025fm} & Augmenting data & Achieving stable convergence in model-based RL.\\
+\hline
+FM \citep{xu2024uncertaintyaware} & Generating trajectories& Outperforming other baselines in continuous
+and discrete environments with stochastic dynamics. \\
+\hline
+FM \citep{lv2025flowbasedpolicy} & Optimal-behavior constrained policy in online RL & Regularization of learned policy through implicit guidance mechanism; achieving stable training and improved sample efficiency. \\ 
+\hline
+FM \citep{zhang2025sacflow} & Policy of SAC & Improved performance and sample efficiency in continuous control tasks. \\
+\hline
+FM \citep{kong2025compositeflowmatchingreinforcement} & Estimating dynamics gap & Improved generalization for learning online dynamics; Outperforming SotA-RL baselines with shifted dynamics.\\
+\hline
+FM \citep{2025flowpolicy} & Policy in IL & Fast policy generation based on 3D vision; Achieving improved success rates and faster inference time for robotic manipulation.\\
+\hline
+FM \citep{rouxel2025extremumflowmatchingoffline} & Goal conditioned policy & Estimating distributional bounds. \\
+\hline
+FM \citep{mcallister2025flowmatchingpolicygradients} &Policy in PGRL& Capturing multimodal action distributions in continuous control tasks.\\
+\hline
+FM \citep{wan2025fmirlflowmatchingrewardmodeling} & Student \& teacher policy in IL & Improved generalization of
+learned policy and the robustness against sub-optimal expert data.\\
+\hline
+FM \citep{zhong2025flowcriticbridgingvalueestimation} &Modeling value distribution (Critic) & Reduction of gradient variance. \\
+\hline
+Energy-based NF \citep{NEURIPS2024_661c37f3} & Policy of Maximum Entropy RL & Integration of the policy evaluation steps with the policy improvement steps, resulting in a single objective training process. \\
+\hline
+Energy-guided FM \citep{alles2025flowqenergyguidedflowpolicies} & Policy for offline RL & Competitive performance and constant training time in flow sampling steps. \\
+\hline
+Energy-guided FM \citep{zhang2025energyweightedflowmatchingoffline} & Policy in offline RL& Faster inference time.\\
+\hline
+Rectified Flow (FM) \citep{zhang2025reinflowfinetuningflowmatching} & Policy in online RL & Surpassing diffusion policy in continuous robotic control.\\
+\hline
+\hline
+\end{xltabular}

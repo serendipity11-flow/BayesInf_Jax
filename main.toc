@@ -55,25 +55,25 @@
 \contentsline {subsection}{\numberline {3.1}Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{45}{subsection.2.3.1}%
 \contentsline {subsection}{\numberline {3.2}Normalizing Flows and Stochastic Processes}{46}{subsection.2.3.2}%
 \contentsline {section}{\numberline {4}Deep Generative Models as Control Policy}{47}{section.2.4}%
-\contentsline {chapter}{\numberline {III}Methodologies}{49}{chapter.3}%
-\contentsline {section}{\numberline {1}Parameter Identification}{49}{section.3.1}%
-\contentsline {section}{\numberline {2}State Estimation}{50}{section.3.2}%
-\contentsline {section}{\numberline {3}Optimal Control}{51}{section.3.3}%
-\contentsline {chapter}{\numberline {IV}Experiments and Results}{53}{chapter.4}%
-\contentsline {section}{\numberline {1}Overview}{53}{section.4.1}%
-\contentsline {section}{\numberline {2}Parameter Identification}{53}{section.4.2}%
-\contentsline {section}{\numberline {3}State Estimation}{53}{section.4.3}%
-\contentsline {section}{\numberline {4}Optimal Control}{53}{section.4.4}%
-\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{55}{chapter.5}%
-\contentsline {chapter}{Abstract}{57}{chapter.5}%
-\contentsline {chapter}{Zusammenfassung}{59}{chapter.5}%
-\contentsline {chapter}{Bibliography}{60}{section*.79}%
-\contentsline {chapter}{Own Contributions and Publications}{61}{section*.79}%
-\contentsline {section}{Own share in data acquisition and data analysis}{61}{section*.80}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{61}{section*.80}%
-\contentsline {paragraph}{Own share in Data Analysis.}{61}{section*.80}%
-\contentsline {section}{Own Publications}{61}{section*.80}%
-\contentsline {chapter}{Appendix}{79}{section*.80}%
-\contentsline {chapter}{Acknowledgement}{81}{section*.80}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{83}{section*.80}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{85}{Item.12}%
+\contentsline {chapter}{\numberline {III}Methodologies}{51}{chapter.3}%
+\contentsline {section}{\numberline {1}Parameter Identification}{51}{section.3.1}%
+\contentsline {section}{\numberline {2}State Estimation}{52}{section.3.2}%
+\contentsline {section}{\numberline {3}Optimal Control}{53}{section.3.3}%
+\contentsline {chapter}{\numberline {IV}Experiments and Results}{55}{chapter.4}%
+\contentsline {section}{\numberline {1}Overview}{55}{section.4.1}%
+\contentsline {section}{\numberline {2}Parameter Identification}{55}{section.4.2}%
+\contentsline {section}{\numberline {3}State Estimation}{55}{section.4.3}%
+\contentsline {section}{\numberline {4}Optimal Control}{55}{section.4.4}%
+\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{57}{chapter.5}%
+\contentsline {chapter}{Abstract}{59}{chapter.5}%
+\contentsline {chapter}{Zusammenfassung}{61}{chapter.5}%
+\contentsline {chapter}{Bibliography}{62}{section*.79}%
+\contentsline {chapter}{Own Contributions and Publications}{63}{section*.79}%
+\contentsline {section}{Own share in data acquisition and data analysis}{63}{section*.80}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{63}{section*.80}%
+\contentsline {paragraph}{Own share in Data Analysis.}{63}{section*.80}%
+\contentsline {section}{Own Publications}{63}{section*.80}%
+\contentsline {chapter}{Appendix}{85}{section*.80}%
+\contentsline {chapter}{Acknowledgement}{87}{section*.80}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{89}{section*.80}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{91}{Item.12}%

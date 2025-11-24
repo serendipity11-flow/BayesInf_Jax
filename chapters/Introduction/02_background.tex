@@ -12,10 +12,10 @@ This section introduces the necessary foundational concepts and methodologies fo
 
 To maintain clarity throughout this document, we adopt the following notation:
 
-\begin{table}[htbp]
+\begin{table}[htbp!]
 \centering
 \renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\textwidth}{>{\bfseries}l X}
+\begin{tabularx}{0.9\textwidth}{>{\bfseries}l X}
 \toprule
 Category & Description \\
 \midrule
@@ -202,7 +202,7 @@ where the expectation is taken with respect to the distributions of all other gr
 The assumption of the mean-field \ac{VI} simplifies the optimization problem, and thus makes it scalable for large dimensional variables and also enables parallelizable computation. However, it may also limit the expressiveness of the variational distribution, especially when the posterior correlations are crucial, leading to suboptimal approximations of the true posterior. Summarizing, \ac{VI} is generally faster than \ac{MCMC} and scales better to large datasets, but it may provide less accurate approximations of the posterior distribution \citep{Blei_2017}. 
 
 \subsection{Deep Probabilistic Methods}
-Deep probabilistic methods combine the representational power of deep learning with the principled uncertainty modeling of Bayesian inference methods. This integration aims to provide both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic methods: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder. The former two methods are direct extensions of classical Bayesian inference with deep architectures, while the last one is a fundamental deep generative model that leverages variational inference.
+The classical methods, \ac{MCMC} and \ac{VI}, although provide general solution for Bayesian inference, they are limited by their "approximation-per-point" behavior. Deep probabilistic methods, on the contrary, enable amortized Bayesian inference and unlock both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic methods: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder. The former two methods are direct extensions of classical Bayesian inference with deep architectures, while the last one is a fundamental deep generative model that leverages variational inference.
 
 \subsubsection{Deep Gaussian Process}
 A Gaussian process can be interpreted as an infinite-dimensional Gaussian distribution, where at each time point the random variables follow normal distributions. For an $N$-dimensional random variable $\boldsymbol{x}=[x_1,\dots,x_N]^T$, a Gaussian process $\it{X}(t)$ is fully specified by its mean function $\mu(\cdot)$ and covariance function $k(\cdot, \cdot)$:
@@ -458,6 +458,7 @@ A further enhancement of \ac{RealNVP} is Glow \citep{kingma2018glow}, which inse
 Such coupling flows and autoregressive flows build step-wise invertible transformations between distributions, enabling tractable Jacobian calculation and density estimation. A notable drawback lies in the strict architectural constraint on coupling blocks. To release this limitation, residual flows \citep{behrmann2019ires, chen2020resflow} introduce invertible mapping through specified residual blocks. A residual block \citep{he2015residual} takes the form $f(x)=x+F(x)$, where $F$ is a neural network. When $F$ is constrained to be Lipschitz continuous and the Lipschitz constant is smaller than 1 (explained in \ref{sec:cnf}), the function $f(x)$ is invertible. The residual block can be seen as an Euler discretization of an \ac{ODE} \citep{lu2020finitelayer, ruthotto2018deep, haber2017stable}, which is the foundation of continuous \acp{NF}. 
 
 \subsubsection{Continuous Flows}
+When the transformation from latent space to data space is modeled by a continuous dynamical system, the \ac{NF} is called a continuous \ac{NF}. The continuous dynamical system can be formulated by a Neural \ac{ODE}, which is introduced as follows.
 \label{sec:cnf}
 \paragraph{Neural \acp{ODE}}
 For a dynamical system with states $\boldsymbol{h}$, an \ac{ODE} is:

@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Train Parameter Identification",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "C:/Users/zhangyi/PythonProjects/BayesInf_Jax/bayesinf/models/train_parameter_identification_model.py",
+        "args": [
+          "--train",
+          "--test",
+          "--flow_type", "MALA",
+          "--dt0", "0.01",
+          "--t1", "1.0"
+        ],
+        "python": "C:/Users/zhangyi/PythonProjects/venv_jax12/Scripts/python.exe",
+        "console": "integratedTerminal"
+      }
+    ]
+  }

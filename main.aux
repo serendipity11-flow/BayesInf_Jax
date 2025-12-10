@@ -14,6 +14,7 @@
 \newacro{NF}[\AC@hyperlink{NF}{NF}]{Normalizing Flow}
 \newacro{CNF}[\AC@hyperlink{CNF}{CNF}]{Conditional Normalizing Flow}
 \newacro{FM}[\AC@hyperlink{FM}{FM}]{Flow Matching}
+\newacro{DDPM}[\AC@hyperlink{DDPM}{DDPM}]{Denoising Diffusion Probabilistic Models}
 \newacro{BNN}[\AC@hyperlink{BNN}{BNN}]{Bayesian Neural Network}
 \newacro{RNN}[\AC@hyperlink{RNN}{RNN}]{Recurrent Neural Network}
 \newacro{LSTM}[\AC@hyperlink{LSTM}{LSTM}]{Long Short-Term Memory}
@@ -90,12 +91,12 @@
 \newlabel{chap:introduction}{{I}{1}{Introduction}{chapter.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Motivation}{1}{section.1.1}\protected@file@percent }
 \newlabel{sec:introduction:motivation}{{1}{1}{Motivation}{section.1.1}{}}
-\newlabel{eq:bayes_sim}{{1}{1}{Motivation}{section.1.1}{}}
 \citation{pml1Book}
 \citation{pml2Book}
 \citation{Kingma_2019}
 \citation{rezende2016}
 \citation{ho2020ddpm}
+\newlabel{eq:bayes_sim}{{1}{2}{Motivation}{section.1.1}{}}
 \AC@undonewlabel{acro:DGM}
 \newlabel{acro:DGM}{{1}{2}{Motivation}{section*.4}{}}
 \acronymused{DGM}
@@ -199,10 +200,10 @@
 \acronymused{SDE}
 \newlabel{eq:langevin}{{I.11}{9}{\acf {MALA}}{equation.1.11}{}}
 \acronymused{MH}
-\acronymused{MALA}
 \citation{duane1987hybrid}
 \citation{Jordan1998,Wainwright2008}
 \citation{kl1951}
+\acronymused{MALA}
 \acronymused{MH}
 \acronymused{MALA}
 \acronymused{MCMC}
@@ -235,10 +236,10 @@
 \acronymused{KL}
 \acronymused{ELBO}
 \newlabel{eq:vi_opt}{{I.22}{11}{Variational Inference}{equation.1.22}{}}
-\acronymused{ELBO}
 \citation{bishop2006}
 \citation{Blei_2017}
 \citation{Rasmussen_Williams_2008}
+\acronymused{ELBO}
 \AC@undonewlabel{acro:CAVI}
 \newlabel{acro:CAVI}{{2.2.3}{12}{Variational Inference}{section*.23}{}}
 \acronymused{CAVI}
@@ -246,14 +247,15 @@
 \acronymused{VI}
 \acronymused{MCMC}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Deep Probabilistic Methods}{12}{subsection.1.2.3}\protected@file@percent }
+\newlabel{sec:introduction:background:deep_probabilistic_methods}{{2.3}{12}{Deep Probabilistic Methods}{subsection.1.2.3}{}}
 \acronymused{MCMC}
 \acronymused{VI}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Deep Gaussian Process}{12}{subsubsection.1.2.3.1}\protected@file@percent }
 \AC@undonewlabel{acro:GPR}
 \newlabel{acro:GPR}{{2.3.1}{12}{Deep Gaussian Process}{section*.24}{}}
 \acronymused{GPR}
-\acronymused{GPR}
 \citation{damianou2013dgp}
+\acronymused{GPR}
 \newlabel{eq:simgp}{{I.26}{13}{Deep Gaussian Process}{equation.1.26}{}}
 \AC@undonewlabel{acro:i.i.d.}
 \newlabel{acro:i.i.d.}{{2.3.1}{13}{Deep Gaussian Process}{section*.25}{}}
@@ -267,11 +269,11 @@
 \acronymused{GPR}
 \acronymused{GPR}
 \acronymused{DGP}
-\acronymused{DGP}
 \citation{Neal1996}
 \citation{Neal1996,MacKay1992}
 \citation{kingma2013auto}
 \citation{bottou1999sgd}
+\acronymused{DGP}
 \acronymused{DGP}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Bayesian Neural Network}{14}{subsubsection.1.2.3.2}\protected@file@percent }
 \acronymused{BNN}
@@ -513,7 +515,7 @@
 \newlabel{fig:bayesflow}{{I.4}{27}{BayesFlow Architecture}{figure.caption.44}{}}
 \acronymused{cINN}
 \citation{BayesSysId1981}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}From Inference to Control}{28}{subsection.1.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}From Bayesian Inference to Control}{28}{subsection.1.2.5}\protected@file@percent }
 \acronymused{MPC}
 \acronymused{RL}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.1}Bayesian System Identification}{28}{subsubsection.1.2.5.1}\protected@file@percent }
@@ -935,46 +937,91 @@
 \acronymused{FM}
 \@writefile{lot}{\contentsline {table}{\numberline {II.1}{\ignorespaces \textbf  {Normalizing Flows in Reinforcement Learning}}}{47}{table.2.1}\protected@file@percent }
 \newlabel{tab:nf_rl}{{II.1}{47}{\textbf {Normalizing Flows in Reinforcement Learning}}{table.2.1}{}}
+\citation{radev2020bayesflow}
+\citation{radev2020bayesflow}
+\citation{radev2020bayesflow}
 \@writefile{toc}{\contentsline {chapter}{\numberline {III}Methodologies}{51}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{chap:methods}{{III}{51}{Methodologies}{chapter.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{51}{section.3.1}\protected@file@percent }
 \newlabel{sec:methods:parameter_identification}{{1}{51}{Parameter Identification}{section.3.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}State Estimation}{52}{section.3.2}\protected@file@percent }
-\newlabel{sec:methods:state_estimation}{{2}{52}{State Estimation}{section.3.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Optimal Control}{53}{section.3.3}\protected@file@percent }
-\newlabel{sec:methods:control}{{3}{53}{Optimal Control}{section.3.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {IV}Experiments and Results}{55}{chapter.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{51}{subsection.3.1.1}\protected@file@percent }
+\AC@undonewlabel{acro:VAE}
+\newlabel{acro:VAE}{{1.1}{51}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.79}{}}
+\acronymused{VAE}
+\AC@undonewlabel{acro:FM}
+\newlabel{acro:FM}{{1.1}{51}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.80}{}}
+\acronymused{FM}
+\AC@undonewlabel{acro:DGM}
+\newlabel{acro:DGM}{{1.1}{51}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.81}{}}
+\acronymused{DGM}
+\acronymused{DGM}
+\acronymused{DGM}
+\AC@undonewlabel{acro:BNN}
+\newlabel{acro:BNN}{{1.1}{51}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.82}{}}
+\acronymused{BNN}
+\acronymused{DGM}
+\@writefile{lof}{\contentsline {figure}{\numberline {III.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{52}{figure.caption.83}\protected@file@percent }
+\acronymused{DGM}
+\acronymused{VAE}
+\AC@undonewlabel{acro:NF}
+\newlabel{acro:NF}{{III.1}{52}{Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}{section*.84}{}}
+\acronymused{NF}
+\AC@undonewlabel{acro:ELBO}
+\newlabel{acro:ELBO}{{III.1}{52}{Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}{section*.85}{}}
+\acronymused{ELBO}
+\acronymused{FM}
+\AC@undonewlabel{acro:DDPM}
+\newlabel{acro:DDPM}{{III.1}{52}{Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}{section*.86}{}}
+\acronymused{DDPM}
+\newlabel{fig:universal_framework}{{III.1}{52}{Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}{figure.caption.83}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces DGM-ABI Training \& Inference}}{52}{figure.caption.83}\protected@file@percent }
+\newlabel{alg:dgm_abi}{{1}{52}{DGM-ABI Training \& Inference}{figure.caption.83}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Normalizing Flows for Parameter Identification}{52}{subsection.3.1.2}\protected@file@percent }
+\acronymused{NF}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Stochastic Normalizing Flows}{53}{subsection.3.1.3}\protected@file@percent }
+\AC@undonewlabel{acro:MCMC}
+\newlabel{acro:MCMC}{{1.3}{53}{Stochastic Normalizing Flows}{section*.87}{}}
+\acronymused{MCMC}
+\acronymused{DDPM}
+\acronymused{NF}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.4}Relationship Between Sensitivity Analysis}{53}{subsection.3.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.5}When Does the Framework Fail?}{53}{subsection.3.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}State Estimation}{54}{section.3.2}\protected@file@percent }
+\newlabel{sec:methods:state_estimation}{{2}{54}{State Estimation}{section.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Optimal Control}{55}{section.3.3}\protected@file@percent }
+\newlabel{sec:methods:control}{{3}{55}{Optimal Control}{section.3.3}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {IV}Experiments and Results}{57}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:experiments}{{IV}{55}{Experiments and Results}{chapter.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{55}{section.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{55}{section.4.2}\protected@file@percent }
-\newlabel{sec:experiments:parameter_identification}{{2}{55}{Parameter Identification}{section.4.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{55}{section.4.3}\protected@file@percent }
-\newlabel{sec:experiments:state_estimation}{{3}{55}{State Estimation}{section.4.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Optimal Control}{55}{section.4.4}\protected@file@percent }
-\newlabel{sec:experiments:mpc}{{4}{55}{Optimal Control}{section.4.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{57}{chapter.5}\protected@file@percent }
+\newlabel{chap:experiments}{{IV}{57}{Experiments and Results}{chapter.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{57}{section.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{57}{section.4.2}\protected@file@percent }
+\newlabel{sec:experiments:parameter_identification}{{2}{57}{Parameter Identification}{section.4.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{57}{section.4.3}\protected@file@percent }
+\newlabel{sec:experiments:state_estimation}{{3}{57}{State Estimation}{section.4.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Optimal Control}{57}{section.4.4}\protected@file@percent }
+\newlabel{sec:experiments:mpc}{{4}{57}{Optimal Control}{section.4.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{59}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{V}{57}{Discussion and Conclusion}{chapter.5}{}}
-\@writefile{toc}{\contentsline {chapter}{Abstract}{59}{chapter.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Zusammenfassung}{61}{chapter.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Bibliography}{62}{section*.79}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{63}{section*.79}\protected@file@percent }
-\newlabel{chap:contributions}{{V}{63}{Discussion and Conclusion}{section*.79}{}}
-\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{63}{section*.80}\protected@file@percent }
-\newlabel{sec:own-data-acquisition}{{V}{63}{}{section*.80}{}}
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{63}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{63}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Own Publications}{63}{section*.80}\protected@file@percent }
-\newlabel{sec:own-publications}{{V}{63}{}{section*.80}{}}
-\newlabel{sec:publications:peer_reviewed_journal_first}{{V}{63}{}{section*.80}{}}
-\newlabel{sec:publications:peer_reviewed_conf_first}{{V}{63}{}{section*.80}{}}
+\newlabel{chap:conclusion}{{V}{59}{Discussion and Conclusion}{chapter.5}{}}
+\@writefile{toc}{\contentsline {chapter}{Abstract}{61}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Zusammenfassung}{63}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Bibliography}{64}{section*.88}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{65}{section*.88}\protected@file@percent }
+\newlabel{chap:contributions}{{V}{65}{Discussion and Conclusion}{section*.88}{}}
+\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{65}{section*.89}\protected@file@percent }
+\newlabel{sec:own-data-acquisition}{{V}{65}{}{section*.89}{}}
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{65}{section*.89}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{65}{section*.89}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Own Publications}{65}{section*.89}\protected@file@percent }
+\newlabel{sec:own-publications}{{V}{65}{}{section*.89}{}}
+\newlabel{sec:publications:peer_reviewed_journal_first}{{V}{65}{}{section*.89}{}}
+\newlabel{sec:publications:peer_reviewed_conf_first}{{V}{65}{}{section*.89}{}}
 \bibdata{refs}
-\newlabel{sec:publications:other_co}{{V}{64}{}{section*.80}{}}
+\newlabel{sec:publications:other_co}{{V}{66}{}{section*.89}{}}
 \bibcite{abraham2023deepgp}{{1}{2023}{{Abraham and Deo}}{{}}}
 \bibcite{adams2018adams}{{2}{2018}{{Adams et~al.}}{{Adams, Pennington, Johnson, Smith, Ovadia, Patton, and Saunderson}}}
 \bibcite{agarwal2022imitativeplanning}{{3}{2022}{{Agarwal et~al.}}{{Agarwal, Sikchi, Gulino, Wilkinson, and Gautam}}}
@@ -1154,8 +1201,8 @@
 \bibcite{zhong2025flowcriticbridgingvalueestimation}{{177}{2025}{{Zhong et~al.}}{{Zhong, Ding, Diao, Wang, Teh, and Peng}}}
 \bibcite{zhu2025diffusion}{{178}{2025}{{Zhu et~al.}}{{Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue}}}
 \bibcite{zhu2024diffusion}{{179}{2024}{{Zhu et~al.}}{{Zhu, Zhao, He, Zhong, Zhang, Guo, Chen, and Zhang}}}
-\@writefile{toc}{\contentsline {chapter}{Appendix}{85}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{87}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{89}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{91}{Item.12}\protected@file@percent }
-\gdef \@abspage@last{112}
+\@writefile{toc}{\contentsline {chapter}{Appendix}{87}{section*.89}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{89}{section*.89}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{91}{section*.89}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{93}{Item.12}\protected@file@percent }
+\gdef \@abspage@last{114}

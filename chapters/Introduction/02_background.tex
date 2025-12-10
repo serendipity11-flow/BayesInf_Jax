@@ -202,6 +202,7 @@ where the expectation is taken with respect to the distributions of all other gr
 The assumption of the mean-field \ac{VI} simplifies the optimization problem, and thus makes it scalable for large dimensional variables and also enables parallelizable computation. However, it may also limit the expressiveness of the variational distribution, especially when the posterior correlations are crucial, leading to suboptimal approximations of the true posterior. Summarizing, \ac{VI} is generally faster than \ac{MCMC} and scales better to large datasets, but it may provide less accurate approximations of the posterior distribution \citep{Blei_2017}. 
 
 \subsection{Deep Probabilistic Methods}
+\label{sec:introduction:background:deep_probabilistic_methods}
 The classical methods, \ac{MCMC} and \ac{VI}, although provide general solution for Bayesian inference, they are limited by their "approximation-per-point" behavior. Deep probabilistic methods, on the contrary, enable amortized Bayesian inference and unlock both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic methods: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder. The former two methods are direct extensions of classical Bayesian inference with deep architectures, while the last one is a fundamental deep generative model that leverages variational inference.
 
 \subsubsection{Deep Gaussian Process}
@@ -577,13 +578,13 @@ where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\theta}$ and $h$ is the
 
 \begin{figure}[htp!]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/bayesFlow.pdf}
+    \includegraphics[width=0.85\textwidth]{figures/BayesFlow.pdf}
     \caption[BayesFlow Architecture]{ The architecture of BayesFlow. The blue arrows indicate the forward direction for training BayesFlow, while the yellow arrows indicate the reverse direction for inference. The summary network extracts informative representations from the observations, which are then fed into the \ac{cINN} alongside the target variables.}
     \label{fig:bayesflow}
 \end{figure}
 The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, system dynamics modeling, and state estimation.
 
-\subsection{From Inference to Control}
+\subsection{From Bayesian Inference to Control}
 This section bridges the Bayesian inference methodologies discussed above to their practical applications in control systems. We first review how Bayesian approaches are employed for system identification and state estimation. Next, we introduce \acf{MPC}, which is a widely used model-based control technique for optimal decision-making based on the system identification results. Finally, we discuss \acf{RL} as a data-driven control paradigm, highlighting its ability to learn control policies directly from interactions with the environment without requiring explicit system models. Together, these approaches illustrate the synergy between Bayesian inference and modern control strategies, enabling robust and adaptive solutions for complex dynamical systems.
 
 \subsubsection{Bayesian System Identification}

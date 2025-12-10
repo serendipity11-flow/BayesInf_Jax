@@ -45,6 +45,9 @@
 \usepackage{enumerate}
 \usepackage{enumitem}
 \usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[export]{adjustbox}
 % For comments
 \usepackage{verbatim}
 \usepackage[labelfont=bf]{caption}

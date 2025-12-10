@@ -1,8 +1,71 @@
 \section{Parameter Identification}
 \label{sec:methods:parameter_identification}
 
-BayesFlow
+As we have introduced in Section \ref{sec:introduction:background:deep_probabilistic_methods}, different deep probabilistic methods are proposed for Bayesian parameter identification. In real applications, it is usually desired to identify the system parameters from multimodal observations. We start to introduce a universal framework with deep generative models for amortized Bayesian inference. This framework can be seen as a generalization of the BayesFlow \citep{radev2020bayesflow}.
 
-Stochastic BayesFlow
+\subsection{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}
+\citeauthor{radev2020bayesflow} \citeyearpar{radev2020bayesflow} proposed BayesFlow as an amortized Bayesian inference approach with normalizing flows. BayesFlow consists of a summary network for extracting information from the observations, and a conditional normalizing flow for learning the posterior distribution of parameters conditioned on the extracted information. This framework can be generalized to other deep generative models, such as \ac{VAE}, \ac{FM}, and diffusion models. Figure \ref{fig:universal_framework} illustrates the framework. We call the summary network here "condition network" to emphasize that the embeddings of observations function as condition in the \acp{DGM}. The major advantages of applying deep generative models as the Bayesian inference backbone are threefold:
+\begin{itemize}
+    \item \acp{DGM} consider the parameter identification as posterior inference, which provides naturally trustworthiness of the estimates;
+    \item \acp{DGM} seek to model the posterior distribution on a large dataset, which is suitable for amortized Bayesian inference;
+    \item compared with other architectures, like \acp{BNN}, \acp{DGM} achieve preciser posterior inference because of the separate inference and generation procedures.
+\end{itemize}
 
-BayesFlow for differently identifiable parameters
+In many generative tasks, such as text, image, and video generation, the condition is assumed to be simple. In contrast, for solving inverse problems, such as parameter identification, the generative model is supposed to "generate" variables under some complexer conditions. Thus, a well-designed condition network is essential to extract most informative features from the observations. This universal framework automatically encourages the condition network to deliver desirable embeddings to the deep generative model. Besides, each observation is only required to processed once while sampling the trained generative model for multiple times, which is computationally efficient. 
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth, valign=t]{figures/DGM_ABI.pdf}
+        \caption[Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference]{\small Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference. The corresponding algorithm is shown on the right side (Algorithm \ref{alg:dgm_abi}). Training paradigms differ significantly across \acp{DGM}. While \acp{VAE} and \acp{NF} maximize the \ac{ELBO} and log-likelihood respectively, flow-based and diffusion models typically minimize a matching cost—regressing either a vector field (\acp{FM}), a score function, or added noise (\ac{DDPM}). Consequently, Bayesian inference is performed either via a direct deterministic mapping or by numerically integrating a differential equation (ODE or SDE).}
+        \label{fig:universal_framework}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \vspace{0pt}
+        \begin{algorithm}[H]
+            \caption{DGM-ABI Training \& Inference}
+            \label{alg:dgm_abi}
+            \begin{algorithmic}[1]
+            \footnotesize % Reduce font size slightly to fit better
+            \REQUIRE Dataset $\mathcal{D} = \{(x^{(i)}, y^{(i)})\}_{i=1}^M$
+            \REQUIRE Prior $p(z)$, Condition network $C_\psi$
+            \REQUIRE Generator $p_\theta(x \mid z, \tilde{y})$, (Optional: Inference $q_\phi(z \mid x, \tilde{y})$)
+            
+            \vspace{0.1cm}
+            \STATE \textbf{Stage 1: Amortized Learning}
+            \WHILE{not converged}
+                \STATE Sample batch $\{(x, y)\} \sim \mathcal{D}$
+                \STATE Compute embeddings: $\tilde{y} \leftarrow C_\psi(y)$
+                \STATE Sample latent: $z \sim p(z)$
+                \STATE Compute objective gradient:
+                \STATE $g \leftarrow \nabla_{\theta,\psi,\phi} \, \mathcal{L}$
+                \STATE Update parameters: $(\theta, \psi, \phi) \leftarrow (\theta, \psi, \phi) - \eta \cdot g$
+            \ENDWHILE
+
+            \STATE \textbf{Stage 2: Bayesian Inference}
+            \STATE Given observed condition $y_{\text{obs}}$:
+            \STATE $\tilde{y}_{\text{obs}} \leftarrow C_\psi(y_{\text{obs}})$
+            \FOR{$k=1$ to $K$}
+                \STATE Sample $z^{(k)} \sim p(z)$
+                \STATE Generate $x^{(k)} \sim p_\theta(x \mid z^{(k)}, \tilde{y}_{\text{obs}})$
+            \ENDFOR
+            \RETURN Posterior samples $\{x^{(k)}\}_{k=1}^K$
+            \end{algorithmic}
+        \end{algorithm}
+    \end{minipage}
+\end{figure}
+
+\subsection{Normalizing Flows for Parameter Identification}
+Why are \acp{NF} more suitable for parameter identification tasks given time series observations? In this section, we will answer this question in terms of (1) inference accuracy and precision (2) reliability, i.e., whether the ground truth lies in the posterior, (3) speed including training convergence time and computational time, (4) complexity, i.e., handling multimodal distributions, (5) correlation, i.e., identifying linearly correlated parameters, (6) sample efficiency, i.e., posterior contraction while increasing data amount.
+
+\subsection{Stochastic Normalizing Flows}
+Normalizing flows, including flow matching, are deterministic by design. When the amount of data is limited in practice, these models are prone to overfitting. To mitigate this issue, we introduce stochastic elements into the architecture. The simplest approach is to apply random dropout in the neural networks. Alternatively, we can insert \ac{MCMC} layers between normalizing flow blocks to introduce stochasticity. Another strategy is to combine \ac{DDPM} and \ac{NF} together, leveraging the stochastic nature of diffusion models to regularize the deterministic flow.
+
+\subsection{Relationship Between Sensitivity Analysis}
+The parameter identification from time series observations is consistent with global sensitivity analysis. 
+
+\subsection{When Does the Framework Fail?}
+The framework of amortized Bayesian inference using generative models is highly dependent on the embedded information extracted by the condition network. When the time series are noisy, dynamic, or stochastic. The information can not be well extracted. 
+

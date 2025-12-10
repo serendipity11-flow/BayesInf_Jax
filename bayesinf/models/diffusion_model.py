@@ -141,13 +141,14 @@ class ConditionalDDPM(eqx.Module):
     
     n_steps: int = eqx.field(static=True)
     param_dim: int = eqx.field(static=True)
-    t_cond_start: float = eqx.field(static=True)
+    prediction_type: 'str'
 
-    def __init__(self, feature_dim, param_dim, feature_latent_dim, hidden_dim_rnn, hidden_dim_time, hidden_sizes_noise, n_steps=1000, *, key, t_cond_start):
+    def __init__(self, feature_dim, param_dim, feature_latent_dim, hidden_dim_rnn, hidden_dim_time, hidden_sizes_noise, 
+                 n_steps=1000, *, key, prediction_type='sample'):
         key_enc, key_net = jr.split(key)
         self.n_steps = n_steps
         self.param_dim = param_dim
-        self.t_cond_start = t_cond_start
+        self.prediction_type = prediction_type
 
         self.encoder = TimeSeriesEncoder(feature_dim, hidden_dim_rnn, feature_latent_dim, key_enc)
         self.time_emb = SinusoidalPosEmb(dim=hidden_dim_time)
@@ -165,7 +166,7 @@ class ConditionalDDPM(eqx.Module):
 
     def loss(self, x_ts, theta_target, key):
         batch_size = theta_target.shape[0]
-        key_t, key_eps = jr.split(key)
+        key_t, key_eps, key_drop = jr.split(key, 3)
         
         t = jr.randint(key_t, (batch_size,), minval=0, maxval=self.n_steps)
         eps = jr.normal(key_eps, theta_target.shape)
@@ -176,11 +177,15 @@ class ConditionalDDPM(eqx.Module):
         z_t = sqrt_alpha_bar * theta_target + sqrt_one_minus_alpha_bar * eps
         
         cond = self.encoder(x_ts)
+        mask = jr.bernoulli(key_drop, p=0.1, shape=(batch_size, 1))
+        cond_input = jnp.where(mask, jnp.zeros_like(cond), cond)
         
         t_emb = self.time_emb(t)
 
-        gate = (t <= self.t_cond_start * self.n_steps).astype(jnp.float32)[:, None]
-        cond_input = cond * gate
+        if self.prediction_type == 'epsilon':
+            target = eps
+        elif self.prediction_type == 'sample':
+            target = theta_target
 
         eps_pred = jax.vmap(self.net)(z_t, t_emb, cond_input)
         return jnp.mean((eps - eps_pred) ** 2)
@@ -204,22 +209,34 @@ class ConditionalDDPM(eqx.Module):
             t_batch = jnp.full((total_num,), t_idx, dtype=jnp.int32)
             t_emb = self.time_emb(t_batch)
             
-            cond_input = jax.lax.cond(t_idx < self.t_cond_start * self.n_steps, 
-            lambda _: cond_rep, lambda _: jnp.zeros_like(cond_rep), operand=None)
-            eps_pred = jax.vmap(self.net)(z, t_emb, cond_input)
+            model_out = jax.vmap(self.net)(z, t_emb, cond_rep)
             
             beta = self.betas[t_idx]
             alpha = self.alphas[t_idx]
             alpha_bar = self.alphas_cumprod[t_idx]
+            alpha_bar_prev = self.alphas_cumprod[t_idx - 1] if t_idx > 0 else jnp.array(1.0)
             
             # DDPM Update
-            mean = (1 / jnp.sqrt(alpha)) * (z - (beta / jnp.sqrt(1 - alpha_bar)) * eps_pred)
+            if self.prediction_type == 'sample':
+                x_start = jnp.clip(model_out, -3, 3)
+            else:
+                x_start = (1 / jnp.sqrt(alpha)) * (z - (beta / jnp.sqrt(1 - alpha_bar)) * model_out)
             
+            # Formula for posterior mean mu_t(x_t, x_0)
+            model_mean = (
+                jnp.sqrt(alpha_bar_prev) * beta / (1 - alpha_bar) * x_start +
+                jnp.sqrt(alpha) * (1 - alpha_bar_prev) / (1 - alpha_bar) * z
+            )
+            
+            # 4. Add Noise
             key, k_noise = jr.split(key)
             noise = jr.normal(k_noise, z.shape)
-            sigma = jnp.sqrt(beta)
             
-            z_next = mean + jnp.where(t_idx > 0, sigma * noise, 0.0)
+            # Posterior variance
+            posterior_variance = beta * (1 - alpha_bar_prev) / (1 - alpha_bar)
+            log_var = jnp.log(jnp.maximum(posterior_variance, 1e-20))
+            
+            z_next = model_mean + jnp.where(t_idx > 0, jnp.exp(0.5 * log_var) * noise, 0.0)
             return (z_next, key), None # Scan requires return (carrier, output)
 
         # Use Scan for faster compilation loop

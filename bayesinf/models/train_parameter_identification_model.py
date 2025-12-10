@@ -157,7 +157,7 @@ elif flow_type.upper() == 'VAE':
 elif flow_type.upper() == 'DDPM':
     from diffusion_model import ConditionalDDPM, make_step
     model = ConditionalDDPM(feature_dim, param_dim, feature_latent_dim, hidden_dim_rnn, hidden_dim_time,
-                            hidden_sizes, key=model_key, t_cond_start=0.25)
+                            hidden_sizes, key=model_key, prediction_type='sample')
 elif flow_type.upper() == 'SBM':
     from diffusion_model import ConditionalScoreModel, make_step
     model = ConditionalScoreModel(feature_dim, param_dim, feature_latent_dim, hidden_dim_rnn, hidden_dim_time,

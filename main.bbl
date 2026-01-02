@@ -1,4 +1,4 @@
-\begin{thebibliography}{179}
+\begin{thebibliography}{181}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -438,6 +438,14 @@ Eldad Haber and Lars Ruthotto.
 \newblock ISSN 1361-6420.
 \newblock \doi{10.1088/1361-6420/aa9a90}.
 \newblock URL \url{http://dx.doi.org/10.1088/1361-6420/aa9a90}.
+
+\bibitem[Hagemann et~al.(2022)Hagemann, Hertrich, and Steidl]{Hagemann_2022}
+Paul Hagemann, Johannes Hertrich, and Gabriele Steidl.
+\newblock Stochastic normalizing flows for inverse problems: A markov chains viewpoint.
+\newblock \emph{SIAM/ASA Journal on Uncertainty Quantification}, 10\penalty0 (3):\penalty0 1162–1190, September 2022.
+\newblock ISSN 2166-2525.
+\newblock \doi{10.1137/21m1450604}.
+\newblock URL \url{http://dx.doi.org/10.1137/21M1450604}.
 
 \bibitem[Haitsiukevich et~al.(2024)Haitsiukevich, Poyraz, Marttinen, and Ilin]{haitsiukevich2024}
 Katsiaryna Haitsiukevich, Onur Poyraz, Pekka Marttinen, and Alexander Ilin.
@@ -1000,6 +1008,11 @@ Junjie Wen, Minjie Zhu, Yichen Zhu, Zhibin Tang, Jinming Li, Zhongyi Zhou, Cheng
 Christina Winkler, Daniel Worrall, Emiel Hoogeboom, and Max Welling.
 \newblock Learning likelihoods with conditional normalizing flows, 2023.
 \newblock URL \url{https://arxiv.org/abs/1912.00042}.
+
+\bibitem[Wu et~al.(2020)Wu, Köhler, and Noé]{wu2020stochasticnormalizingflows}
+Hao Wu, Jonas Köhler, and Frank Noé.
+\newblock Stochastic normalizing flows, 2020.
+\newblock URL \url{https://arxiv.org/abs/2002.06707}.
 
 \bibitem[Xu and Liu(2024)]{xu2024uncertaintyaware}
 Sheng Xu and Guiliang Liu.

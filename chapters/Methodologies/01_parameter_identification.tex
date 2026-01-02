@@ -61,7 +61,46 @@ In many generative tasks, such as text, image, and video generation, the conditi
 Why are \acp{NF} more suitable for parameter identification tasks given time series observations? In this section, we will answer this question in terms of (1) inference accuracy and precision (2) reliability, i.e., whether the ground truth lies in the posterior, (3) speed including training convergence time and computational time, (4) complexity, i.e., handling multimodal distributions, (5) correlation, i.e., identifying linearly correlated parameters, (6) sample efficiency, i.e., posterior contraction while increasing data amount.
 
 \subsection{Stochastic Normalizing Flows}
-Normalizing flows, including flow matching, are deterministic by design. When the amount of data is limited in practice, these models are prone to overfitting. To mitigate this issue, we introduce stochastic elements into the architecture. The simplest approach is to apply random dropout in the neural networks. Alternatively, we can insert \ac{MCMC} layers between normalizing flow blocks to introduce stochasticity. Another strategy is to combine \ac{DDPM} and \ac{NF} together, leveraging the stochastic nature of diffusion models to regularize the deterministic flow.
+Normalizing flows, including flow matching, are deterministic by design, which enables precise and efficient density estimation. However, in practice this deterministic structure can limit their ability to fully capture complex, highly multimodal target distributions, especially when model capacity or data are limited. One way to alleviate this limitation is to combine normalizing flows with \ac{MCMC} methods. In such hybrid approaches, the normalizing flow serves as an expressive proposal or initialization mechanism, while \ac{MCMC} refines the samples by enforcing consistency with the true posterior through its accept–reject mechanism or transition kernel. The stochastic exploration of \ac{MCMC} improves mode coverage and helps the overall system discover and accurately represent multiple modes that might be underrepresented by the deterministic flow alone. Moreover, by repeatedly evaluating the forward dynamics within the \ac{MCMC} procedure, the method can better discriminate between parameter configurations that produce similar noisy observations, thereby improving parameter identifiability under measurement noise.
+
+\citeauthor{wu2020stochasticnormalizingflows} \citeyearpar{wu2020stochasticnormalizingflows} proposed to construct \acp{SNF} by alternating a sequence of deterministic \acp{INN} and stochastic \ac{MCMC} sampling layers (INN - MCMC - $\cdots$ - INN - MCMC). \citeauthor{Hagemann_2022} \citeyearpar{Hagemann_2022} provided theoretical foundation for stochastic normalizing flows and proved their consistency to \acp{CNF} for solving inverse problems. An \ac{SNF} is a pair of Markov chains of random variables $((U_0, \ldots, U_T), (V_T, \ldots, V_0))$. The transformation between two adjacent variables is either a deterministic \ac{INN} block or a stochastic \ac{MCMC} sampling layer. Denoting the process $(U_t)_{t=0}^T$ as the forward process, $U_0$ represents the data and $U_T$ is trained to follow a standard normal distribution. Conversely, in the inverse process $(V_t)_{t=0}^T$, $V_T$ is sampled from the standard normal distribution and $V_0$ follows the target density. Because both processes are Markov chains, the transformations can be written as conditional distributions, where each state depends only on its immediate predecessor. We denote the transformations in the forward process by $\mathcal{T}_t = P(U_t \mid U_{t-1})$ and those in the inverse process by $\mathcal{T}_t^{-1} = P(V_{t-1} \mid V_t)$. An illustration of such an \ac{SNF} architecture is shown in Figure \ref{fig:snf}.
+\begin{figure}[htp!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/SNF.pdf}
+    \caption[SNF Architecture]{ The architecture of an SNF.}
+    \label{fig:snf}
+\end{figure}
+
+Unlike \acp{CNF}, for which the objective function is minimizing the KL-divergence between the learnt and target density, the objective function for training an \ac{SNF} is to minimize the difference of the joint probabilities between the forward and inverse processes. We define the joint probability of forward process as $p_\theta(u_{0:T})=p_X(u_0)\Pi_{t=1}^{T}p_\theta(u_t|u_{t-1})$, while the inverse process as $q_\theta(v_{0:T})=p_Z(v_T)\Pi_{t=1}^{T}q_\theta(v_{t-1}|v_{t})$. Same as \acp{CNF}, the objective function is trained in the forward direction.
+\begin{multline}
+\mathcal{L}_{SNF}(\theta)=D_{\text{KL}}(p_\theta(u_{0:T})||q_\theta(v_{0:T}))=\mathbb{E}_{u_{0:T}\sim p_\theta}[\log p_\theta(u_{0:T})-\log q_\theta(v_{0:T})]\\
+=\mathbb{E}_{u_{0:T}\sim p_\theta}[-\log p_Z(u_T)+\log p_X(u_0)+\sum_{t=1}^{T}\log \frac{p_\theta(u_{t}|u_{t-1})}{q_\theta(u_{t-1}|u_{t})}].
+\end{multline}
+The critical point is the calculation of the term $\left[p_\theta(u_{t}|u_{t-1})/q_\theta(u_{t-1}|u_{t})\right]$.
+\begin{itemize}
+    \item For a deterministic transformation, the term is equivalent to the change of variable, which is given by:
+    \begin{equation}
+        \frac{p_\theta(u_{t}|u_{t-1})}{q_\theta(u_{t-1}|u_{t})} = \frac{du_{t-1}}{du_{t}} = -\log \det \left|J_f(u_{t-1})\right|.
+    \end{equation}
+    \item For a stochastic transformation, the term is the KL-divergence, measuring how well the backward kernel inverts the forward one at each step. The stochastic transformation is supposed to be invertible and has to fulfill the detailed balance condition with respect to some density $p_t$, which is given by:
+    \begin{equation}
+        p_t(u_t)q_\theta(u_{t-1}|u_t) = p_{t}(u_{t-1})p_\theta(u_t|u_{t-1}).
+    \end{equation}
+    The density $p_t$ is the target density of the stochastic layer at the $t$-th step. It is chosen to be an interpolation between $p_Z$ and $p_X$, which is given by:
+    \begin{equation}
+        p_t = c \cdot p_Z^{t/T} \cdot p_X^{(T-t)/T}.
+    \end{equation}
+    The parameter $c$ is a normalizing constant.
+
+    For computational efficiency, the stochastic transformation is chosen to be an \ac{MALA} (See in Section\ref{sec:MALA}) kernel. Then, the term $\left[p_\theta(u_{t}|u_{t-1})/q_\theta(u_{t-1}|u_{t})\right]$ is given by:
+    \begin{equation}
+        \frac{p_\theta(u_{t}|u_{t-1})}{q_\theta(u_{t-1}|u_{t})} = \frac{p_t(u_{t})}{p_t(u_{t-1})} = \exp\left(-\frac{1}{2\tau}(\left\|\eta_t\right\|^2_2-\left\|\tilde{\eta}_t\right\|^2_2)\right).
+    \end{equation}
+    where 
+    \begin{equation}
+        \eta_t = u_t-u_{t-1}+\frac{\sqrt{\tau}}{2}\nabla E_t(u_{t-1}), \quad \tilde{\eta}_t = u_{t-1} -u_t+\frac{\sqrt{\tau}}{2}\nabla E_t(u_{t}).
+    \end{equation}
+\end{itemize}
 
 \subsection{Relationship Between Sensitivity Analysis}
 The parameter identification from time series observations is consistent with global sensitivity analysis. 

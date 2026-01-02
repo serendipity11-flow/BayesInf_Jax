@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  5 DEC 2025 15:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.8.28)  2 JAN 2026 12:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1235,7 +1235,7 @@ l.38 ...ictive Control}{34}{subsubsection.1.2.5.3}
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.72 ...}Discussion and Conclusion}{59}{chapter.5}
+l.72 ...}Discussion and Conclusion}{61}{chapter.5}
                                                   % [8])
 \tf@toc=\write5
 \openout5 = `main.toc'.
@@ -1267,27 +1267,27 @@ l.28     \cleardoublepage
 pdfTeX warning (ext4): destination with the same identifier (name{DGP}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.37      \acro{DGP}{Deep Gaussian Process}
+l.38      \acro{DGP}{Deep Gaussian Process}
                                            
 pdfTeX warning (ext4): destination with the same identifier (name{RNN}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.43      \acro{RNN}{Recurrent Neural Network}
+l.44      \acro{RNN}{Recurrent Neural Network}
                                               
 
 [3]
 pdfTeX warning (ext4): destination with the same identifier (name{MPC}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.54      \acro{MPC}{Model Predictive Control}
+l.55      \acro{MPC}{Model Predictive Control}
                                               
+
+[4]
 pdfTeX warning (ext4): destination with the same identifier (name{SDE}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.68 ...cro{SDE}{Stochastic Differential Equation}
-                                                  
-
-[4])
+l.69 ...cro{SDE}{Stochastic Differential Equation}
+                                                  )
 
 [5]
 
@@ -1367,7 +1367,7 @@ Package acronym Info: Label `acro:MPC' overridden on input line 39.
 
 
 [4]) (./chapters/Introduction/02_background.tex
-<figures/Mindmap.pdf, id=767, 779.11076pt x 322.00299pt>
+<figures/Mindmap.pdf, id=773, 779.11076pt x 322.00299pt>
 File: figures/Mindmap.pdf Graphic file (type pdf)
 <use figures/Mindmap.pdf>
 Package pdftex.def Info: figures/Mindmap.pdf  used on input line 5.
@@ -1442,7 +1442,7 @@ Package acronym Info: Label `acro:BbB' newly defined as it shall be overridden
 although it is yet undefined on input line 261.
 Package acronym Info: Label `acro:CNN' newly defined as it shall be overridden
 although it is yet undefined on input line 263.
-<figures/VAE.pdf, id=1088, 546.12032pt x 317.26529pt>
+<figures/VAE.pdf, id=1095, 546.12032pt x 317.26529pt>
 File: figures/VAE.pdf Graphic file (type pdf)
 <use figures/VAE.pdf>
 Package pdftex.def Info: figures/VAE.pdf  used on input line 271.
@@ -1466,7 +1466,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 [18]
 
 [19]
-<figures/NICE.pdf, id=1237, 166.7028pt x 106.4778pt>
+<figures/NICE.pdf, id=1244, 166.7028pt x 106.4778pt>
 File: figures/NICE.pdf Graphic file (type pdf)
 <use figures/NICE.pdf>
 Package pdftex.def Info: figures/NICE.pdf  used on input line 405.
@@ -1477,14 +1477,14 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 406.
 Package acronym Info: Label `acro:NICE' newly defined as it shall be overridden
 although it is yet undefined on input line 406.
-<figures/RealNVP.pdf, id=1240, 197.7789pt x 106.4778pt>
+<figures/RealNVP.pdf, id=1247, 197.7789pt x 106.4778pt>
 File: figures/RealNVP.pdf Graphic file (type pdf)
 <use figures/RealNVP.pdf>
 Package pdftex.def Info: figures/RealNVP.pdf  used on input line 411.
 (pdftex.def)             Requested size: 197.77841pt x 106.47752pt.
 Package acronym Info: Label `acro:RealNVP' newly defined as it shall be overridden
 although it is yet undefined on input line 412.
-<figures/INN.pdf, id=1243, 397.485pt x 106.4778pt>
+<figures/INN.pdf, id=1250, 397.485pt x 106.4778pt>
 File: figures/INN.pdf Graphic file (type pdf)
 <use figures/INN.pdf>
 Package pdftex.def Info: figures/INN.pdf  used on input line 416.
@@ -1527,7 +1527,7 @@ although it is yet undefined on input line 569.
 
 
 [26]
-<figures/BayesFlow.pdf, id=1469, 536.0025pt x 150.5625pt>
+<figures/BayesFlow.pdf, id=1477, 536.0025pt x 150.5625pt>
 File: figures/BayesFlow.pdf Graphic file (type pdf)
 <use figures/BayesFlow.pdf>
 Package pdftex.def Info: figures/BayesFlow.pdf  used on input line 581.
@@ -1576,12 +1576,12 @@ although it is yet undefined on input line 708.
 
 
 [33]
-<figures/MPC.pdf, id=1629, 419.64778pt x 211.7511pt>
+<figures/MPC.pdf, id=1637, 419.64778pt x 211.7511pt>
 File: figures/MPC.pdf Graphic file (type pdf)
 <use figures/MPC.pdf>
 Package pdftex.def Info: figures/MPC.pdf  used on input line 744.
 (pdftex.def)             Requested size: 264.60854pt x 133.52344pt.
-<figures/RL.pdf, id=1636, 207.65579pt x 197.7789pt>
+<figures/RL.pdf, id=1644, 207.65579pt x 197.7789pt>
 File: figures/RL.pdf Graphic file (type pdf)
 <use figures/RL.pdf>
 Package pdftex.def Info: figures/RL.pdf  used on input line 751.
@@ -1785,7 +1785,7 @@ Package acronym Info: Label `acro:BNN' overridden on input line 11.
 
 
 [51]
-<figures/DGM_ABI.pdf, id=2346, 409.53pt x 204.765pt>
+<figures/DGM_ABI.pdf, id=2355, 409.53pt x 204.765pt>
 File: figures/DGM_ABI.pdf Graphic file (type pdf)
 <use figures/DGM_ABI.pdf>
 Package pdftex.def Info: figures/DGM_ABI.pdf  used on input line 20.
@@ -1806,43 +1806,62 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.caption
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.65 
-      <./figures/DGM_ABI.pdf>])
+      <./figures/DGM_ABI.pdf>]
+Package acronym Info: Label `acro:SNF' newly defined as it shall be overridden
+although it is yet undefined on input line 66.
+Package acronym Info: Label `acro:INN' overridden on input line 66.
+Package acronym Info: Label `acro:CNF' overridden on input line 66.
+<figures/SNF.pdf, id=2428, 513.83968pt x 93.4692pt>
+File: figures/SNF.pdf Graphic file (type pdf)
+<use figures/SNF.pdf>
+Package pdftex.def Info: figures/SNF.pdf  used on input line 69.
+(pdftex.def)             Requested size: 384.10959pt x 69.87352pt.
 
-[53] (./chapters/Methodologies/02_state_estimation.tex)
 
-[54] (./chapters/Methodologies/03_optimal_control.tex)) (./chapters/Experiments_Results/00.tex
+[53 <./figures/SNF.pdf>]
+Package acronym Info: Label `acro:MALA' overridden on input line 95.
 
-[55]
+Underfull \vbox (badness 7168) has occurred while \output is active []
 
-[56
 
-]
-Chapter IV.
-(./chapters/Experiments_Results/01_parameter_identification.tex) (./chapters/Experiments_Results/02_state_estimation.tex) (./chapters/Experiments_Results/03_optimal_control.tex)) (./chapters/Discussion_Conclusion.tex
+
+[54])
+
+[55] (./chapters/Methodologies/02_state_estimation.tex)
+
+[56] (./chapters/Methodologies/03_optimal_control.tex)) (./chapters/Experiments_Results/00.tex
 
 [57]
 
 [58
 
 ]
-Chapter V.
-) (./chapters/Abstract.tex
+Chapter IV.
+(./chapters/Experiments_Results/01_parameter_identification.tex) (./chapters/Experiments_Results/02_state_estimation.tex) (./chapters/Experiments_Results/03_optimal_control.tex)) (./chapters/Discussion_Conclusion.tex
 
 [59]
 
 [60
 
-]) (./chapters/Zusammenfassung.tex
+]
+Chapter V.
+) (./chapters/Abstract.tex
 
 [61]
 
 [62
 
-])
+]) (./chapters/Zusammenfassung.tex
 
-[63] (./chapters/Own_Publications.tex
+[63]
 
 [64
+
+])
+
+[65] (./chapters/Own_Publications.tex
+
+[66
 
 
 ]
@@ -1860,17 +1879,13 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             See the microtype manual for details.
 
 
-[65]) (./main.bbl
-
-[66]
-
-[67
-
-]
+[67]) (./main.bbl
 
 [68]
 
-[69]
+[69
+
+]
 
 [70]
 
@@ -1900,58 +1915,62 @@ Package microtype Info: Loading generic protrusion settings for font family
 
 [83]
 
-[84]) (./chapters/Appendix.tex
+[84]
 
 [85]
 
-[86
-
-]) (./chapters/Acknowledgement.tex
+[86]) (./chapters/Appendix.tex
 
 [87]
 
 [88
 
-]) (./chapters/Eidestattliche_Erklärung.tex
+]) (./chapters/Acknowledgement.tex
 
 [89]
 
 [90
 
-]) (./chapters/Angabe_KI.tex
+]) (./chapters/Eidestattliche_Erklärung.tex
 
 [91]
 
 [92
 
+]) (./chapters/Angabe_KI.tex
+
+[93]
+
+[94
+
 ]
 
-[93])
+[95])
 
-[94] (./main.aux)
+[96] (./main.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 88034F5F5B75AD4A47676FC4E248577E;12686.
+(rerunfilecheck)             Checksum: CAC353CD1B5BC4931975E5565A38A6F5;12686.
  ) 
 Here is how much of TeX's memory you used:
- 40226 strings out of 469679
- 758236 string characters out of 5477725
- 1275071 words of memory out of 5000000
- 66706 multiletter control sequences out of 15000+600000
- 813091 words of font info for 382 fonts, out of 8000000 for 9000
+ 40265 strings out of 469679
+ 758914 string characters out of 5477725
+ 1275420 words of memory out of 5000000
+ 66727 multiletter control sequences out of 15000+600000
+ 813174 words of font info for 383 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 113i,21n,145p,1699b,1055s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 113i,21n,145p,1699b,1057s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 pdfTeX warning (dest): name{Hfootnote.1} has been referenced but does not exist, replaced by a fixed one
 
 <c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbsy7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbx9.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmbxi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmex10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmi9.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmib10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmmib7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmr9.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmri9.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy6.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmsy9.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/bookman/ubkl8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/zhangyi/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on main.pdf (114 pages, 1099436 bytes).
+Output written on main.pdf (116 pages, 1123236 bytes).
 PDF statistics:
- 3106 PDF objects out of 3580 (max. 8388607)
- 2717 compressed objects within 28 object streams
- 638 named destinations out of 1000 (max. 500000)
- 117330 words of extra memory for PDF output out of 128383 (max. 10000000)
+ 3163 PDF objects out of 3580 (max. 8388607)
+ 2771 compressed objects within 28 object streams
+ 654 named destinations out of 1000 (max. 500000)
+ 117335 words of extra memory for PDF output out of 128383 (max. 10000000)
 

@@ -107,7 +107,7 @@ From the sequence of samples, we can construct a Monte Carlo estimator:
 \end{equation}
 Although this procedure allows flexible approximation of complex posterior distribution, it suffers from slow convergence rate due to its random exploration nature. Thus, gradient-based \ac{MCMC} methods are proposed to incorporate the structure of the target density, leading to faster sampling.
 
-\paragraph{\acf{MALA}}
+\paragraph{\acf{MALA}}\label{sec:MALA}
 The \ac{MALA} \citep{besag2004markov} combines the \ac{MH} algorithm with Langevin diffusion, whose stationary distribution is the target density. In general, for a stochastic process $\Theta(t)$, the Langevin diffusion is described by the following \ac{SDE}:
 \begin{equation}
 d\Theta(t)=\nabla \log p(\Theta(t))dt + \sqrt{2} dW(t),

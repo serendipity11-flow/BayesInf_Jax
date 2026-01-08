@@ -1,4 +1,4 @@
-\begin{thebibliography}{181}
+\begin{thebibliography}{182}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -303,6 +303,11 @@ J.~Durbin and Siem~Jan Koopman.
 \newblock \emph{Time series analysis by state space methods}.
 \newblock Oxford statistical science series; 38. Oxford University Press, Oxford, 2nd ed edition, 2012.
 \newblock ISBN 9780199641178; 019964117X.
+
+\bibitem[Durkan et~al.(2019)Durkan, Bekasov, Murray, and Papamakarios]{durkan2019neuralsplineflows}
+Conor Durkan, Artur Bekasov, Iain Murray, and George Papamakarios.
+\newblock Neural spline flows, 2019.
+\newblock URL \url{https://arxiv.org/abs/1906.04032}.
 
 \bibitem[Durrett(1996)]{DU04}
 Richard Durrett.

@@ -58,8 +58,74 @@ In many generative tasks, such as text, image, and video generation, the conditi
 \end{figure}
 
 \subsection{Normalizing Flows for Parameter Identification}
-Why are \acp{NF} more suitable for parameter identification tasks given time series observations? In this section, we will answer this question in terms of (1) inference accuracy and precision (2) reliability, i.e., whether the ground truth lies in the posterior, (3) speed including training convergence time and computational time, (4) complexity, i.e., handling multimodal distributions, (5) correlation, i.e., identifying linearly correlated parameters, (6) sample efficiency, i.e., posterior contraction while increasing data amount.
+Why are \acp{NF} more suitable for parameter identification tasks given time series observations? In this section, we will answer this question in terms of (1) inference accuracy and precision (2) reliability, i.e., whether the ground truth lies in the posterior, (3) speed including training convergence time and computational time, (4) sample efficiency, i.e., posterior contraction while increasing data amount, (5) correlation, i.e., identifying linearly correlated parameters, (6) complexity, i.e., handling multimodal distributions.
 
+In this section, we apply a classic mass-spring-damper system, which has 3 parameters including mass $m$, spring constant $k$, and damping coefficient $c$. As observations, we take the position and velocity trajectories. For evaluation of (1) - (4), an external force is introduced. The \ac{ODE} is:
+\begin{equation}
+    \dot x = v,\; \dot v = \frac{1}{m}(F_t-kx-cv),\; F_t = 10\cdot sin(3t).
+\end{equation}
+
+For the (5) linear correlation case, the external force is removed, and the parameter $m$ and $k$ are correlated, i.e., $k=10\cdot m$. To investigate the (6) multimodal case, the system is extended into "Wall -- $k_1$ -- $m$ -- $k_2$ -- $m$ -- $k_3$ -- Wall". When the parameters $m$, $k_2$, and $c$ are fixed as constant, and we take the middle points of the positions and velocities of the two masses as observations, the value of $k_1$ and $k_3$ can not be uniquely distinguished. The \ac{ODE} becomes
+\begin{align}
+    \dot x_1 &= v_1,\;\dot v_1=\frac{1}{m}(-k_1x_1+k_2(x_2-x_1)-cv_1);\\
+    \dot x_2 &= v_2,\;\dot v_2=\frac{1}{m}(-k_3x_2-k_2(x_2-x_1)-cv_2).
+\end{align}
+
+We compare two normalizing flow architectures \ac{RealNVP}, and \ac{NSF} with \ac{FM}, \ac{DDPM}, and the score-based diffusion model, as well as \ac{VAE} and \ac{BNN}. As the condition network, we use an \ac{LSTM} layer followed by two linear layers with \ac{ELU} activations. For a group of estimated $\{ \widehat{x}^{(m)}\}_{m=1}^{M}$ and true parameters $ \{ x^{(m)}\}_{m=1}^{M}$ with the mean of the true parameters $\overline{x}$, the following evaluation metrics are applied:
+\begin{itemize}
+    \item Accuracy: \ac{RMSE} and R² score:
+    \begin{equation}
+        RMSE = \sqrt{\frac{1}{M}\sum_{m=1}^M (x^{(m)} - \widehat{x}^{(m)})^2}\;,
+    \end{equation}
+    \begin{equation}
+        R^2 = 1 - \sum_{m=1}^{M}\frac{(x^{(m)}-\widehat{x}^{(m)})^2}{(x^{(m)}-\overline{x})^2}\;.
+    \end{equation}
+
+    \item Precision: \ac{MCIW}. For the $m$-th parameter by sampling it $L$ times, the standard deviation is $\sigma_{\widehat{x}^{(m)}}$, and we have:
+    \begin{equation}
+        CI^{(m)}(95\%)= [L_{m}, U_{m}] = \widehat{x}^{(m)}\pm 1.96\frac{\sigma_{\widehat{x}^{(m)}}}{\sqrt{L}}.
+    \end{equation}
+    Then the MCIW can be obtained by:
+    \begin{equation}
+        MCIW = \frac{1}{M}\sum_{m=1}^{M}(U_m - L_m).
+    \end{equation}
+    \item Reliability: \ac{CICP}. The larger \ac{CICP} indicates higher reliability of estimation.
+    \begin{equation}
+        CICP = \frac{1}{M}\sum_{m=1}^{M}c_m, \:
+        c_m  = \begin{cases}
+                0 & \text{ if } x ^{(m)} \notin [L_{m}, U_{m}], \\ 
+                1 & \text{ otherwise. } 
+              \end{cases}
+    \end{equation}
+\end{itemize}
+
+% table with RMSE, R², MCIW, 1-CICP, spider chart
+% sample efficiency with curve chart
+
+When parameters are linearly correlated, the observations only constrain their ratio, rendering the individual parameters non-identifiable. While deep Bayesian methods are capable of capturing these dependencies, the task is computationally harder than identifiable ones. The ill-posedness manifests as a manifold of equivalent solutions, making it difficult for optimization algorithms to distinguish between physically distinct systems that produce identical observations. When the correlation between $m$ and $k$ are fixed to be $k=10\cdot m$, the damping coefficient should also be proportional to the mass, i.e., $c\propto m$. The damping coefficient $c$ is related to the damping ratio $\zeta$ (which determines if the system is under-damped, critically damped, or over-damped) by the formula:
+\begin{equation}
+    c=2\zeta\sqrt{mk}.
+\end{equation} 
+Therefore, the following relation holds:
+\begin{equation}
+    c/m = 2\sqrt{10}\zeta.
+\end{equation}
+Figure \ref{fig:lc_comp} shows two identification examples of linear correlated parameters.
+\begin{figure}[htp!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/model_comparison_grid_linear.pdf}
+    \caption[Linear Correlation Comparison]{.}
+    \label{fig:lc_comp}
+\end{figure}
+
+The ability to capture multimodal distributions is a key advantage of applying \acp{DGM} for Bayesian inference. Different \acp{DGM} exhibit different characteristics in this regard, with some methods better suited to discovering and representing multiple modes than others. Figure \ref{fig:mm_comp} illustrates these differences. As examples, we consider two cases: one where the values of $k_1$ and $k_3$ are far apart (sample 0 and 49), and another where they are close to each other (sample 99 and 199).
+\begin{figure}[htp!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/model_comparison_grid_multi_modal.pdf}
+    \caption[Multimodal Comparison]{.}
+    \label{fig:mm_comp}
+\end{figure}
+ 
 \subsection{Stochastic Normalizing Flows}
 Normalizing flows, including flow matching, are deterministic by design, which enables precise and efficient density estimation. However, in practice this deterministic structure can limit their ability to fully capture complex, highly multimodal target distributions, especially when model capacity or data are limited. One way to alleviate this limitation is to combine normalizing flows with \ac{MCMC} methods. In such hybrid approaches, the normalizing flow serves as an expressive proposal or initialization mechanism, while \ac{MCMC} refines the samples by enforcing consistency with the true posterior through its accept–reject mechanism or transition kernel. The stochastic exploration of \ac{MCMC} improves mode coverage and helps the overall system discover and accurately represent multiple modes that might be underrepresented by the deterministic flow alone. Moreover, by repeatedly evaluating the forward dynamics within the \ac{MCMC} procedure, the method can better discriminate between parameter configurations that produce similar noisy observations, thereby improving parameter identifiability under measurement noise.
 

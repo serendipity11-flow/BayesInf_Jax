@@ -3,11 +3,13 @@
 \contentsline {figure}{\numberline {I.1}{\ignorespaces Knowledge Map}}{6}{figure.caption.12}%
 \contentsline {figure}{\numberline {I.2}{\ignorespaces Variational Autoencoder Architecture}}{16}{figure.caption.31}%
 \contentsline {figure}{\numberline {I.3}{\ignorespaces Coupling Flow Architecture}}{21}{figure.caption.34}%
-\contentsline {figure}{\numberline {I.4}{\ignorespaces BayesFlow Architecture}}{27}{figure.caption.44}%
-\contentsline {figure}{\numberline {I.5}{\ignorespaces \ac {MPC} and \ac {RL}.}}{34}{figure.caption.53}%
+\contentsline {figure}{\numberline {I.4}{\ignorespaces BayesFlow Architecture}}{27}{figure.caption.45}%
+\contentsline {figure}{\numberline {I.5}{\ignorespaces \ac {MPC} and \ac {RL}.}}{34}{figure.caption.54}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {III.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{52}{figure.caption.83}%
-\contentsline {figure}{\numberline {III.2}{\ignorespaces SNF Architecture}}{53}{figure.caption.91}%
+\contentsline {figure}{\numberline {III.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{52}{figure.caption.84}%
+\contentsline {figure}{\numberline {III.2}{\ignorespaces Linear Correlation Comparison}}{55}{figure.caption.96}%
+\contentsline {figure}{\numberline {III.3}{\ignorespaces Multimodal Comparison}}{55}{figure.caption.97}%
+\contentsline {figure}{\numberline {III.4}{\ignorespaces SNF Architecture}}{56}{figure.caption.102}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

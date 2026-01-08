@@ -36,7 +36,7 @@
 \contentsline {paragraph}{State-Space Models}{32}{equation.1.84c}%
 \contentsline {paragraph}{Stochastic Differential Equations}{33}{equation.1.87}%
 \contentsline {subsubsection}{\numberline {2.5.3}Model Predictive Control}{34}{subsubsection.1.2.5.3}%
-\contentsline {paragraph}{Nominal Model Predictive Control}{35}{figure.caption.53}%
+\contentsline {paragraph}{Nominal Model Predictive Control}{35}{figure.caption.54}%
 \contentsline {paragraph}{Stochastic Model Predictive Control}{36}{equation.1.90e}%
 \contentsline {subsubsection}{\numberline {2.5.4}Reinforcement Learning for Control}{36}{subsubsection.1.2.5.4}%
 \contentsline {section}{\numberline {3}Objectives and Contributions}{38}{section.1.3}%
@@ -59,26 +59,26 @@
 \contentsline {section}{\numberline {1}Parameter Identification}{51}{section.3.1}%
 \contentsline {subsection}{\numberline {1.1}Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{51}{subsection.3.1.1}%
 \contentsline {subsection}{\numberline {1.2}Normalizing Flows for Parameter Identification}{52}{subsection.3.1.2}%
-\contentsline {subsection}{\numberline {1.3}Stochastic Normalizing Flows}{53}{subsection.3.1.3}%
-\contentsline {subsection}{\numberline {1.4}Relationship Between Sensitivity Analysis}{55}{subsection.3.1.4}%
-\contentsline {subsection}{\numberline {1.5}When Does the Framework Fail?}{55}{subsection.3.1.5}%
-\contentsline {section}{\numberline {2}State Estimation}{56}{section.3.2}%
-\contentsline {section}{\numberline {3}Optimal Control}{57}{section.3.3}%
-\contentsline {chapter}{\numberline {IV}Experiments and Results}{59}{chapter.4}%
-\contentsline {section}{\numberline {1}Overview}{59}{section.4.1}%
-\contentsline {section}{\numberline {2}Parameter Identification}{59}{section.4.2}%
-\contentsline {section}{\numberline {3}State Estimation}{59}{section.4.3}%
-\contentsline {section}{\numberline {4}Optimal Control}{59}{section.4.4}%
-\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{61}{chapter.5}%
-\contentsline {chapter}{Abstract}{63}{chapter.5}%
-\contentsline {chapter}{Zusammenfassung}{65}{chapter.5}%
-\contentsline {chapter}{Bibliography}{66}{section*.93}%
-\contentsline {chapter}{Own Contributions and Publications}{67}{section*.93}%
-\contentsline {section}{Own share in data acquisition and data analysis}{67}{section*.94}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{67}{section*.94}%
-\contentsline {paragraph}{Own share in Data Analysis.}{67}{section*.94}%
-\contentsline {section}{Own Publications}{67}{section*.94}%
-\contentsline {chapter}{Appendix}{89}{section*.94}%
-\contentsline {chapter}{Acknowledgement}{91}{section*.94}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{93}{section*.94}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{95}{Item.12}%
+\contentsline {subsection}{\numberline {1.3}Stochastic Normalizing Flows}{54}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {1.4}Relationship Between Sensitivity Analysis}{58}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {1.5}When Does the Framework Fail?}{58}{subsection.3.1.5}%
+\contentsline {section}{\numberline {2}State Estimation}{59}{section.3.2}%
+\contentsline {section}{\numberline {3}Optimal Control}{60}{section.3.3}%
+\contentsline {chapter}{\numberline {IV}Experiments and Results}{61}{chapter.4}%
+\contentsline {section}{\numberline {1}Overview}{61}{section.4.1}%
+\contentsline {section}{\numberline {2}Parameter Identification}{61}{section.4.2}%
+\contentsline {section}{\numberline {3}State Estimation}{61}{section.4.3}%
+\contentsline {section}{\numberline {4}Optimal Control}{61}{section.4.4}%
+\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{63}{chapter.5}%
+\contentsline {chapter}{Abstract}{65}{chapter.5}%
+\contentsline {chapter}{Zusammenfassung}{67}{chapter.5}%
+\contentsline {chapter}{Bibliography}{68}{section*.104}%
+\contentsline {chapter}{Own Contributions and Publications}{69}{section*.104}%
+\contentsline {section}{Own share in data acquisition and data analysis}{69}{section*.105}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{69}{section*.105}%
+\contentsline {paragraph}{Own share in Data Analysis.}{69}{section*.105}%
+\contentsline {section}{Own Publications}{69}{section*.105}%
+\contentsline {chapter}{Appendix}{91}{section*.105}%
+\contentsline {chapter}{Acknowledgement}{93}{section*.105}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{95}{section*.105}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{97}{Item.12}%

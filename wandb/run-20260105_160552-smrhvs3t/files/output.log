@@ -1,0 +1,43 @@
+Starting MALA Training...Max. Epochs: 10000
+step:   0%|                      | 0/10000 [00:01<?, ?it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\__init__.py", line 1, in <module>
+    from . import (
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\train_parameter_identification_model.py", line 271, in <module>
+    model, opt_state, loss = make_step(model, batch_D, batch_theta_p, train_key, opt_state, optimizer)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\venv_jax12\Lib\site-packages\equinox\_jit.py", line 209, in __call__
+    return _call(self, False, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\venv_jax12\Lib\site-packages\equinox\_jit.py", line 263, in _call
+    marker, _, _ = out = jit_wrapper._cached(
+                         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\MCMC_Flow.py", line 417, in make_step
+    loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\MCMC_Flow.py", line 416, in <lambda>
+    loss_fn = lambda m: snf_loss(m, y, true_params, key)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\MCMC_Flow.py", line 409, in snf_loss
+    ml_loss = model.log_prob(true_params, y, key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\venv_jax12\Lib\site-packages\equinox\_module\_prebuilt.py", line 33, in __call__
+    return self.__func__(self.__self__, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\MCMC_Flow.py", line 388, in log_prob
+    z, logdet = self(x, cond, key)
+                ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\MCMC_Flow.py", line 379, in __call__
+    z, logdet = self.__flow_call__(x, cond, cond_emb, key, reverse=False)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\MCMC_Flow.py", line 367, in __flow_call__
+    x, ldj = t(x, cond, keys[key_id])
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\BayesInf_Jax\bayesinf\models\MCMC_Flow.py", line 286, in __call__
+    return x_out, log_det
+           ^^^^^
+NameError: name 'x_out' is not defined
+--------------------
+For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.

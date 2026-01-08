@@ -1,0 +1,28 @@
+2026-01-05 16:26:39,352 INFO    MainThread:19380 [wandb_init.py:setup_run_log_directory():647] Logging user logs to C:\Users\zhangyi\PythonProjects\BayesInf_Jax\wandb\run-20260105_162639-336sa3d9\logs\debug.log
+2026-01-05 16:26:39,352 INFO    MainThread:19380 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to C:\Users\zhangyi\PythonProjects\BayesInf_Jax\wandb\run-20260105_162639-336sa3d9\logs\debug-internal.log
+2026-01-05 16:26:39,352 INFO    MainThread:19380 [wandb_init.py:init():761] calling init triggers
+2026-01-05 16:26:39,352 INFO    MainThread:19380 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'_wandb': {}}
+2026-01-05 16:26:39,352 INFO    MainThread:19380 [wandb_init.py:init():776] wandb.init() called while a run is active
+2026-01-05 16:27:39,671 WARNING MsgRouterThr:19380 [router.py:message_loop():77] message_loop has been closed
+Traceback (most recent call last):
+  File "C:\Users\zhangyi\PythonProjects\venv_jax12\Lib\site-packages\wandb\sdk\interface\router_sock.py", line 28, in _read_message
+    resp = self._sock_client.read_server_response(timeout=1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\venv_jax12\Lib\site-packages\wandb\sdk\lib\sock_client.py", line 285, in read_server_response
+    data = self._read_packet_bytes(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\venv_jax12\Lib\site-packages\wandb\sdk\lib\sock_client.py", line 270, in _read_packet_bytes
+    raise SockClientClosedError
+wandb.sdk.lib.sock_client.SockClientClosedError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\zhangyi\PythonProjects\venv_jax12\Lib\site-packages\wandb\sdk\interface\router.py", line 70, in message_loop
+    msg = self._read_message()
+          ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\zhangyi\PythonProjects\venv_jax12\Lib\site-packages\wandb\sdk\interface\router_sock.py", line 30, in _read_message
+    raise MessageRouterClosedError from e
+wandb.sdk.interface.router.MessageRouterClosedError
+2026-01-05 16:27:39,676 INFO    MsgRouterThr:19380 [mailbox.py:close():115] Closing mailbox, abandoning 1 handles.

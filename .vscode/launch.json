@@ -11,7 +11,9 @@
           "--test",
           "--flow_type", "MALA",
           "--dt0", "0.01",
-          "--t1", "1.0"
+          "--t1", "1.0",
+          "--force",
+          "--max_epochs", "1500"
         ],
         "python": "C:/Users/zhangyi/PythonProjects/venv_jax12/Scripts/python.exe",
         "console": "integratedTerminal"

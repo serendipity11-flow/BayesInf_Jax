@@ -1,0 +1,15 @@
+{"time":"2026-01-05T15:39:22.8393623+01:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"C:\\Users\\zhangyi\\PythonProjects\\BayesInf_Jax\\wandb\\run-20260105_153922-ehxaadf2\\logs\\debug-core.log"}
+{"time":"2026-01-05T15:39:22.9581467+01:00","level":"INFO","msg":"created new stream","id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:22.9587553+01:00","level":"INFO","msg":"stream: started","id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:22.9587553+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:22.9587553+01:00","level":"INFO","msg":"handler: started","stream_id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:22.9587553+01:00","level":"INFO","msg":"sender: started","stream_id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:23.511934+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-01-05T15:39:57.307427+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-01-05T15:39:57.307427+01:00","level":"INFO","msg":"stream: closing","id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:57.3090175+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-01-05T15:39:58.0565503+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-01-05T15:39:58.4015842+01:00","level":"INFO","msg":"handler: closed","stream_id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:58.4015842+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:58.4076962+01:00","level":"INFO","msg":"sender: closed","stream_id":"ehxaadf2"}
+{"time":"2026-01-05T15:39:58.4076962+01:00","level":"INFO","msg":"stream: closed","id":"ehxaadf2"}

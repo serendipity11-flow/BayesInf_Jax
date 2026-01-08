@@ -1,0 +1,15 @@
+{"time":"2026-01-05T16:05:52.3514662+01:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"C:\\Users\\zhangyi\\PythonProjects\\BayesInf_Jax\\wandb\\run-20260105_160552-smrhvs3t\\logs\\debug-core.log"}
+{"time":"2026-01-05T16:05:52.4658955+01:00","level":"INFO","msg":"created new stream","id":"smrhvs3t"}
+{"time":"2026-01-05T16:05:52.4658955+01:00","level":"INFO","msg":"stream: started","id":"smrhvs3t"}
+{"time":"2026-01-05T16:05:52.4658955+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"smrhvs3t"}
+{"time":"2026-01-05T16:05:52.4658955+01:00","level":"INFO","msg":"handler: started","stream_id":"smrhvs3t"}
+{"time":"2026-01-05T16:05:52.4664919+01:00","level":"INFO","msg":"sender: started","stream_id":"smrhvs3t"}
+{"time":"2026-01-05T16:05:52.9921539+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-01-05T16:06:00.4001234+01:00","level":"INFO","msg":"stream: closing","id":"smrhvs3t"}
+{"time":"2026-01-05T16:06:00.4001234+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-01-05T16:06:00.4011569+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-01-05T16:06:01.476186+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-01-05T16:06:01.871018+01:00","level":"INFO","msg":"handler: closed","stream_id":"smrhvs3t"}
+{"time":"2026-01-05T16:06:01.871018+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"smrhvs3t"}
+{"time":"2026-01-05T16:06:01.871018+01:00","level":"INFO","msg":"sender: closed","stream_id":"smrhvs3t"}
+{"time":"2026-01-05T16:06:01.871018+01:00","level":"INFO","msg":"stream: closed","id":"smrhvs3t"}

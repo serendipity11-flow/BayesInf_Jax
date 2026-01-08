@@ -10,10 +10,9 @@ import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
 import optax
-from typing import Any, Optional, List, Tuple
+from typing import Any, List, Tuple
 from functools import partial
-from networks import TimeSeriesEncoder
-
+from bayesinf.models.networks import TimeSeriesEncoder
 
 class ActNorm(eqx.Module):
     bias: jnp.ndarray
@@ -170,7 +169,6 @@ class AffineCoupling(eqx.Module):
 
         return jax.vmap(_step)(x, cond)
 
-
 class MaskedLinear(eqx.nn.Linear):
     mask: jnp.ndarray
 
@@ -193,6 +191,7 @@ class MADE(eqx.Module):
     hidden_sizes: List[int] = eqx.field(static=True)
     cond_dim: int = eqx.field(static=True)
     natural_ordering: bool = eqx.field(static=True)
+    indices: List[int]
     net: List[MaskedLinear]
 
     def __init__(self, input_dim, hidden_sizes, cond_dim, natural_ordering, key):
@@ -223,6 +222,7 @@ class MADE(eqx.Module):
             degrees_x = jnp.arange(1, D + 1)
         else:
             degrees_x = jax.random.randint(k1, (D,), 1, D + 1)
+        self.indices = jnp.argsort(degrees_x).tolist()
 
         # 2. Degrees for Condition (ALWAYS 0)
         # This ensures Hidden Units (deg >= 1) can ALWAYS see Condition (deg 0)
@@ -276,16 +276,11 @@ class MADE(eqx.Module):
             if i < len(self.net) - 1:
                 h = jax.nn.relu(h)
         
-        mu, unconstrained_scale = jnp.split(h, 2, axis=-1)
-        
-        # Stability Fix: Use Softplus instead of exp for scale
-        # This prevents exploding/vanishing gradients
-        scale = jax.nn.softplus(unconstrained_scale) + 1e-4
-        
-        return mu, scale
+        mu, log_scale = jnp.split(h, 2, axis=-1)
+        return mu, log_scale
 
 
-class MaskedAutoregressiveTransform(eqx.Module):
+class MAFLayer(eqx.Module):
     dim: int = eqx.field(static=True)
     net: MADE
 
@@ -296,75 +291,34 @@ class MaskedAutoregressiveTransform(eqx.Module):
     def __call__(self, x, cond=None, reverse=False):
         if not reverse:
             # Forward: x -> z
-            mu, scale = self.net(x, cond)
-            
+            mu, log_scale = self.net(x, cond)
+            log_scale = jnp.tanh(log_scale)
             # MAF Transformation: z = (x - mu) / scale
-            z = (x - mu) / scale
+            z = (x - mu) * jnp.exp(-log_scale)
             
             # Log Det Jacobian = -sum(log(scale))
-            ldj = -jnp.sum(jnp.log(scale), axis=-1)
+            ldj = -jnp.sum(log_scale, axis=-1)
             return z, ldj
         else:
             # Inverse: z -> x (Sequential)
             # z is the input here
             def _inverse_single(z_inp, c_inp):
                 x_rec = jnp.zeros_like(z_inp)
-                
+                ldj = 0
                 # We use a python loop because the dimension (3) is tiny.
                 # Ideally use jax.lax.scan for large dimensions.
-                def body_fun(i, x_current):
-                    mu, scale = self.net(x_current, c_inp)
-                    # We can use the i-th output because MADE masks ensure 
+                def body_fun(val, idx):
+                    x_current, ldj = val
+                    mu, log_scale = self.net(x_current, c_inp)
+                    log_scale = jnp.tanh(log_scale)
                     # it only depends on x_current[<i]
-                    x_i = z_inp[i] * scale[i] + mu[i]
-                    return x_current.at[i].set(x_i)
+                    x_i = z_inp[idx] * jnp.exp(log_scale[idx]) + mu[idx]
+                    ldj += log_scale[idx]
+                    return (x_current.at[idx].set(x_i), ldj), None
 
-                for i in range(self.dim):
-                    x_rec = body_fun(i, x_rec)
+                (x_rec, ldj), _ = jax.lax.scan(body_fun, (x_rec, ldj), jnp.array(self.net.indices))
                     
-                return x_rec, jnp.zeros(()) # LDJ not needed for sampling usually
-
-            return jax.vmap(_inverse_single)(x, cond)
-
-
-class MaskedAutoregressiveTransform(eqx.Module):
-    dim: int = eqx.field(static=True)
-    net: MADE
-
-    def __init__(self, input_dim, hidden_sizes, cond_dim, natural_ordering, key):
-        self.dim = input_dim
-        self.net = MADE(input_dim, hidden_sizes, cond_dim, natural_ordering, key)
-
-    def __call__(self, x, cond=None, reverse=False):
-        if not reverse:
-            mu, alpha = self.net(x, cond)
-            z = (x - mu) * jnp.exp(-alpha)
-            ldj = -jnp.sum(alpha, axis=-1)
-            return z, ldj
-        else:
-            # Inverse is sequential
-            def _inverse_single(x_inp, c_inp):
-                z = x_inp # The input is actually z in the inverse pass
-                x_rec = jnp.zeros_like(z)
-                
-                # Since we cannot easily mutate x_rec inside a scan for autoregression 
-                # dependent on ALL previous inputs in a general way with MADE (which expects full input),
-                # we use a python loop. Dimensions are usually small.
-                # Ideally, we use jax.lax.scan carrying the state x_rec.
-                
-                def body_fun(i, val):
-                    x_curr, ldj_curr = val
-                    mu, alpha = self.net(x_curr, c_inp)
-                    mu_i = mu[i]
-                    alpha_i = alpha[i]
-                    
-                    new_val = z[i] * jnp.exp(alpha_i) + mu_i
-                    x_curr = x_curr.at[i].set(new_val)
-                    ldj_curr = ldj_curr + alpha_i
-                    return (x_curr, ldj_curr)
-
-                x_final, ldj_final = jax.lax.fori_loop(0, self.dim, body_fun, (x_rec, 0.0))
-                return x_final, ldj_final
+                return x_rec, ldj # LDJ not needed for sampling usually
 
             return jax.vmap(_inverse_single)(x, cond)
 
@@ -633,13 +587,8 @@ class CondNormFlow(eqx.Module):
                 )
             elif flow_type == 'maf':
                 self.transforms.append(
-                    MaskedAutoregressiveTransform(dim, [hidden_nf]*num_hidden_nf, encoded_latent_dim,
-                    True, key=k_layer1)
+                    MAFLayer(dim, [hidden_nf]*num_hidden_nf, encoded_latent_dim, False, key=k_layer1)
                 )
-                # self.transforms.append(
-                #     MaskedAutoregressiveTransform(dim, [hidden_nf]*num_hidden_nf, encoded_latent_dim,
-                #     True, key=k_layer2)
-                # )
             else:
                 # RealNVP
                 self.transforms.append(
@@ -700,16 +649,16 @@ class CondNormFlow(eqx.Module):
         return samples
 
 
-def cnf_loss(model, x: jnp.ndarray, true_params: jnp.ndarray):
-    ml_loss = model.log_prob(true_params, x)
+def cnf_loss(model, y: jnp.ndarray, true_params: jnp.ndarray):
+    ml_loss = model.log_prob(true_params, y)
     loss = - ml_loss.mean()
     return loss
 
 
 @eqx.filter_jit
-def make_step(model, x: jnp.ndarray, true_params: jnp.ndarray, key, opt_state: Any, optimizer: optax.GradientTransformation):
-    """Training step for parameter identification CVAE."""
-    loss_fn = lambda m: cnf_loss(m, x, true_params)
+def make_step(model, y: jnp.ndarray, true_params: jnp.ndarray, key, opt_state: Any, optimizer: optax.GradientTransformation):
+    """Training step for parameter identification CNF."""
+    loss_fn = lambda m: cnf_loss(m, y, true_params)
     loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
     updates, opt_state = optimizer.update(grads, opt_state, model)
     model = eqx.apply_updates(model, updates)

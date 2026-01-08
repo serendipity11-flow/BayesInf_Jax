@@ -22,8 +22,8 @@ from tqdm import tqdm
 import numpy as np
 import jax.numpy as jnp
 
-from utils.plot_results import plot_parameter_regression_comparison
-from utils.generate_data import normalize_data, denormalize_data
+from bayesinf.utils.plot_results import plot_parameter_regression_comparison
+from bayesinf.utils.generate_data import normalize_data, denormalize_data
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--train", action="store_true")
@@ -40,6 +40,7 @@ parser.add_argument("--max_epochs", type=int, default=10000)
 parser.add_argument("--force", action="store_true")
 parser.add_argument("--linear", action="store_true")
 parser.add_argument("--multi_modal", action="store_true")
+parser.add_argument("--limit", action="store_true")
 args = parser.parse_args()
 
 train = args.train
@@ -61,29 +62,37 @@ if linear:
     data_set += '_linear'
 if multi_modal:
     data_set += '_multi_modal'
+if args.limit:
+    data_set += '_limit'
 
 if not test:
     import wandb
     wandb.init(project='Deep_Bayesian_Inference', name=f'{flow_type}_{data_set}')
 
 if multi_modal:
-    from utils.generate_data import (generate_mass_spring_data2, mass_spring_ode2)
+    from bayesinf.utils.generate_data import (generate_mass_spring_data2, mass_spring_ode2)
     generate_data_jit = partial(jax.jit, static_argnames=['n_samples', 'dt0', 't1', 'noise_std'])(
                                      generate_mass_spring_data2)
 else:
     if linear:
-        from utils.generate_data import (generate_mass_spring_data_l, mass_spring_ode_l)
+        from bayesinf.utils.generate_data import (generate_mass_spring_data_l, mass_spring_ode_l)
         generate_data_jit = partial(jax.jit, static_argnames=['n_samples', 'dt0', 't1', 'noise_std'])(
                                          generate_mass_spring_data_l)
     else:
         if force:
-            from utils.generate_data import (generate_mass_spring_data_f, mass_spring_ode_f)
+            from bayesinf.utils.generate_data import (generate_mass_spring_data_f, mass_spring_ode_f)
             generate_data_jit = partial(jax.jit, static_argnames=['n_samples', 'dt0', 't1', 'noise_std'])(
                                          generate_mass_spring_data_f)
         else:
-            from utils.generate_data import (generate_mass_spring_data, mass_spring_ode)
+            from bayesinf.utils.generate_data import (generate_mass_spring_data, mass_spring_ode)
             generate_data_jit = partial(jax.jit, static_argnames=['n_samples', 'dt0', 't1', 'noise_std'])(
                                             generate_mass_spring_data)
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(current_dir))  
+results_dir = os.path.join(project_root, 'results')
+save_path_pt = os.path.join(results_dir, f"{flow_type}_{data_set}.pt")
+save_path_png = os.path.join(results_dir, f"{flow_type}_{data_set}.png")
 
 feature_dim = 2 
 hidden_dim_rnn = 64  # GRU hidden size
@@ -95,6 +104,13 @@ param_names = [r'$k_1$', r'$k_3$'] if multi_modal else [r'$m$', r'$k$', r'$c$']
 batch_size = 256  # batch_size of synthetic training data points
 
 train_key = jr.PRNGKey(5)
+if args.limit:
+    train_size = batch_size
+    train_D, train_theta_p = generate_data_jit(train_key, dt0=dt0, t1=t1, n_samples=train_size, noise_std=noise_std)
+    @jax.jit
+    def shuffle_batch(x, y, key):
+        perm = jax.random.permutation(key, x.shape[0])
+        return x[perm], y[perm]
 
 test_key = jr.PRNGKey(0)
 test_key, sample_key = jr.split(test_key, 2)
@@ -113,6 +129,7 @@ if multi_modal:
         theta = denormalize_data(theta, jnp.squeeze(mean_theta), jnp.squeeze(std_theta))
         sol = dfx.diffeqsolve(dfx.ODETerm(mass_spring_ode2), dfx.Dopri5(), t0=0.0, t1=t1-dt0, dt0=dt0, 
                               y0=y0, args=(theta,), saveat=dfx.SaveAt(ts=ts)).ys
+        sol = jax.lax.stop_gradient(sol)
         state = jnp.stack([sol[:, 0] + sol[:, 2], sol[:, 1] + sol[:, 3]], axis=-1)
         state = normalize_data(state, mean[0], std[0])
         return state
@@ -122,7 +139,7 @@ else:
         def dynamics_fn(t, state_norm, theta_norm):
             state = denormalize_data(state_norm, jnp.squeeze(mean), jnp.squeeze(std))
             theta = denormalize_data(theta_norm, jnp.squeeze(mean_theta), jnp.squeeze(std_theta))
-            deriv = mass_spring_ode_l(t, state, (theta,))
+            deriv = jax.vmap(lambda _t, _s: mass_spring_ode_l(_t, _s, (theta,)))(t, state)
             deriv_norm = normalize_data(deriv, jnp.squeeze(mean), jnp.squeeze(std))
             return deriv_norm
     else:
@@ -130,14 +147,14 @@ else:
             def dynamics_fn(t, state_norm, theta_norm):
                 state = denormalize_data(state_norm, jnp.squeeze(mean), jnp.squeeze(std))
                 theta = denormalize_data(theta_norm, jnp.squeeze(mean_theta), jnp.squeeze(std_theta))
-                deriv = mass_spring_ode_f(t, state, (theta,))
+                deriv = jax.vmap(lambda _t, _s: mass_spring_ode_f(_t, _s, (theta,)))(t, state)
                 deriv_norm = normalize_data(deriv, jnp.squeeze(mean), jnp.squeeze(std))
                 return deriv_norm
         else:
             def dynamics_fn(t, state_norm, theta_norm):
                 state = denormalize_data(state_norm, jnp.squeeze(mean), jnp.squeeze(std))
                 theta = denormalize_data(theta_norm, jnp.squeeze(mean_theta), jnp.squeeze(std_theta))
-                deriv = mass_spring_ode(t, state, (theta,))
+                deriv = jax.vmap(lambda _t, _s: mass_spring_ode(_t, _s, (theta,)))(t, state)
                 deriv_norm = normalize_data(deriv, jnp.squeeze(mean), jnp.squeeze(std))
                 return deriv_norm
 
@@ -145,43 +162,67 @@ model_key = jr.PRNGKey(42)
 
 # Initialize Model
 if flow_type.upper() == 'BNN':
-    from bayesian_neural_network import BNNPosteriorEstimator, make_kl_annealing_schedule, make_step
+    from bayesinf.models.bayesian_neural_network import BNNPosteriorEstimator, make_kl_annealing_schedule, make_step
     kl_weight = 1e-3
     kl_weight_scheduler = make_kl_annealing_schedule(0, 50, kl_weight)
     model = BNNPosteriorEstimator(feature_dim, param_dim, feature_latent_dim, hidden_sizes, hidden_dim_rnn,
                                   key=model_key)
 elif flow_type.upper() == 'VAE':
-    from variational_autoencoder import cVAE, make_step
+    from bayesinf.models.variational_autoencoder import cVAE, make_step
     model = cVAE(feature_dim, param_dim, feature_latent_dim, hidden_sizes, hidden_dim_rnn,
                  key=model_key)
 elif flow_type.upper() == 'DDPM':
-    from diffusion_model import ConditionalDDPM, make_step
+    from bayesinf.models.denoising_diffusion_model import ConditionalDDPM, make_step
     model = ConditionalDDPM(feature_dim, param_dim, feature_latent_dim, hidden_dim_rnn, hidden_dim_time,
-                            hidden_sizes, key=model_key, prediction_type='sample')
+                            hidden_sizes, key=model_key)
 elif flow_type.upper() == 'SBM':
-    from diffusion_model import ConditionalScoreModel, make_step
+    from bayesinf.models.score_based_diffusion_model import ConditionalScoreModel, make_step
     model = ConditionalScoreModel(feature_dim, param_dim, feature_latent_dim, hidden_dim_rnn, hidden_dim_time,
                                   hidden_sizes, key=model_key)
 elif flow_type.upper() == 'FM':
-    from flow_matching import ConditionalFlowMatching, make_step
+    from bayesinf.models.flow_matching import ConditionalFlowMatching, make_step
     model = ConditionalFlowMatching(feature_dim, param_dim, feature_latent_dim, hidden_sizes, hidden_dim_rnn,
                                     key=model_key)
 elif flow_type.upper() == 'MALA':
-    from MCMC_Flow import StochasticCondNormFlow, make_step
-    model = StochasticCondNormFlow(feature_dim, param_dim, key=model_key, n_coupling=8, 
-                                   hidden_sizes_nf=hidden_sizes[0], num_hidden_nf=len(hidden_sizes),
-                                   encoded_latent_dim=feature_latent_dim, hidden_rnn=hidden_dim_rnn, 
-                                   flow_type='realnvp', rnn_type='lstm', mcmc_step_size=1e-3)
-elif flow_type.upper() == 'DNF':
-    from diffusion_normalizing_flow import DiffusionNormalizingFlow, make_step
-    model = DiffusionNormalizingFlow(feature_dim, param_dim,
-                                     feature_latent_dim=feature_latent_dim, hidden_dim_rnn=hidden_dim_rnn,
-                                     hidden_dim_time=hidden_dim_time, hidden_sizes_ddpm=hidden_sizes,
-                                     hidden_sizes_nf=hidden_sizes[0], num_hidden_nf=len(hidden_sizes), 
-                                     n_coupling=8, flow_type='realnvp',
-                                     key=model_key, t_transition=0.25)
+    from bayesinf.models.MCMC_Flow import CondSNF, make_step
+    def log_posterior_fn(x, y):
+        num_steps = int(t1/dt0)
+        ts = jnp.linspace(0, t1-dt0, num_steps)
+        if x.ndim > 1:
+            states = y[:, 1:] - y[:, :-1]
+        else:
+            states = y[1:] - y[:-1]
+        if multi_modal:
+            if x.ndim > 1:
+                y0 = jnp.stack([y[:, 0, 0]/2, jnp.zeros((y.shape[0],)), y[:, 0, 0]/2, jnp.zeros((y.shape[0],))], axis=-1)
+                pred = jax.vmap(dynamics_fn, in_axes=(0, 0, None))(y0, x, ts)
+            else:
+                y0 = jnp.array([y[0, 0]/2, 0, y[0, 0]/2, 0])
+                pred = dynamics_fn(y0, x, ts)
+            residual = pred - states
+        else:
+            states_deriv = states / dt0
+            if x.ndim > 1:
+                pred_deriv = jax.vmap(dynamics_fn, in_axes=(None, 0, 0))(ts, states, x)
+            else:
+                pred_deriv = dynamics_fn(ts, states, x)
+            residual = pred_deriv - states_deriv
+        std = max(0.01, noise_std)
+        if x.ndim > 1:
+            log_likelihood = -0.5 * jnp.sum(residual ** 2, axis=(1, 2)) / (num_steps * std ** 2)
+            log_prior = -0.5 * jnp.sum(x**2, axis=-1)
+        else:
+            log_likelihood = -0.5 * jnp.sum(residual ** 2) / (num_steps * std ** 2)
+            log_prior = -0.5 * jnp.sum(x ** 2)
+        return log_likelihood + log_prior
+
+    model = CondSNF(param_dim, feature_dim, log_posterior_fn, key=model_key, n_coupling=8, 
+                    hidden_nf=hidden_sizes[0], num_hidden_nf=len(hidden_sizes),
+                    encoded_latent_dim=feature_latent_dim, hidden_rnn=hidden_dim_rnn, 
+                    rnn_type='lstm', flow_type='realnvp', metr_steps_per_block=3,
+                    lang_steps=1, stepsize=5e-3)          
 else:
-    from normalizing_flow import CondNormFlow, make_step
+    from bayesinf.models.normalizing_flow import CondNormFlow, make_step
     model = CondNormFlow(param_dim, feature_dim, key=model_key, n_coupling=8, 
                          hidden_nf=hidden_sizes[0], num_hidden_nf=len(hidden_sizes),
                          encoded_latent_dim=feature_latent_dim, hidden_rnn=hidden_dim_rnn, 
@@ -216,35 +257,29 @@ if train:
     patience_counter = 0
 
     # Training Loop
-    print(f"Starting {flow_type} Training...")
+    print(f"Starting {flow_type} Training...Max. Epochs: {num_epochs}")
 
     with tqdm(range(num_epochs), desc='step: ') as pstep:
         for i in pstep:
             data_key, train_key = jr.split(train_key)
-            batch_D, batch_theta_p = generate_data_jit(data_key, dt0=dt0, t1=t1, n_samples=batch_size, noise_std=noise_std)
-            # batch_D = D_shuffled[i*batch_size:(i+1)*batch_size]
-            # batch_theta_p = theta_p_shuffled[i*batch_size:(i+1)*batch_size]
+            if not args.limit:
+                batch_D, batch_theta_p = generate_data_jit(data_key, dt0=dt0, t1=t1, n_samples=batch_size, noise_std=noise_std)
+            else:
+                batch_D, batch_theta_p = shuffle_batch(train_D, train_theta_p, data_key)
             batch_D = normalize_data(batch_D, mean, std)
             batch_theta_p = normalize_data(batch_theta_p, mean_theta, std_theta)
-            if flow_type.upper() == 'MALA':
-                model, opt_state, loss = make_step(model, batch_D, batch_theta_p, dynamics_fn, dt0, t1, 
-                train_key, opt_state, optimizer, multi_modal=multi_modal)
-            else:
-                model, opt_state, loss = make_step(model, batch_D, batch_theta_p, train_key, opt_state, optimizer)
+            model, opt_state, loss = make_step(model, batch_D, batch_theta_p, train_key, opt_state, optimizer)
             if loss < best_val_loss:
                 best_val_loss = loss
                 best_model = model
-                eqx.tree_serialise_leaves(f'../../results/{flow_type}_{data_set}.pt', best_model)
+                eqx.tree_serialise_leaves(save_path_pt, best_model)
                 inference_model = eqx.nn.inference_mode(model)
-                if flow_type.upper() == 'MALA':
-                    test_theta_samples = inference_model.sample(test_D, n_samples, dynamics_fn, dt0, t1, sample_key, multi_modal=multi_modal)
-                else:
-                    test_theta_samples = inference_model.sample(test_D, sample_key, n_samples)
+                test_theta_samples = inference_model.sample(test_D, sample_key, n_samples)
                 test_theta_samples = denormalize_data(test_theta_samples, mean_theta[None], std_theta[None])
 
                 plot_parameter_regression_comparison(test_theta_p, test_theta_samples, param_names, 
                                                      n_rows=1 if force else 3, n_cols=2 if multi_modal else 3,
-                                                     filename=f'../../results/{flow_type}_{data_set}.png' if test else None, 
+                                                     filename=save_path_png if test else None, 
                                                      correlated= None if force or multi_modal else [[0, 1], [0, 2]],
                                                      indices=[0, 49, 99, 199] if multi_modal else (None if force else [0, 199]),
                                                      wandb_log=not test)
@@ -259,17 +294,14 @@ if train:
                 print(f"\nEarly stopping triggered at epoch {i}")
                 break
 else:
-    model = eqx.tree_deserialise_leaves(f'../../results/{flow_type}_{data_set}.pt', model)
+    model = eqx.tree_deserialise_leaves(save_path_pt, model)
     inference_model = eqx.nn.inference_mode(model)
-    if flow_type.upper() == 'MALA':
-        test_theta_samples = inference_model.sample(test_D, n_samples, dynamics_fn, dt0, t1, sample_key, multi_modal=multi_modal)
-    else:
-        test_theta_samples = inference_model.sample(test_D, sample_key, n_samples)
+    test_theta_samples = inference_model.sample(test_D, sample_key, n_samples)
     test_theta_samples = denormalize_data(test_theta_samples, mean_theta[None], std_theta[None])
 
     plot_parameter_regression_comparison(test_theta_p, test_theta_samples, param_names, 
                                          n_rows=1 if force else 3, n_cols=2 if multi_modal else 3,
-                                         filename=f'../../results/{flow_type}_{data_set}.png', 
+                                         filename=save_path_png, 
                                          correlated= None if force or multi_modal else [[0, 1], [0, 2]],
                                          indices=[0, 49, 99, 199] if multi_modal else (None if force else [0, 199]),
                                          wandb_log=False)

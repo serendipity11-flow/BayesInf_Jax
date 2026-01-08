@@ -11,12 +11,8 @@ import jax.random as jr
 import equinox as eqx
 import optax
 from typing import Any, Literal, List
-import sys
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.join(current_dir, '..')
-sys.path.append(project_root)
-from utils.common import gaussian_kl_divergence, reparameterize
-from networks import TimeSeriesEncoder
+from bayesinf.utils.common import gaussian_kl_divergence, reparameterize
+from bayesinf.models.networks import TimeSeriesEncoder
 
 
 class cVAE(eqx.Module):

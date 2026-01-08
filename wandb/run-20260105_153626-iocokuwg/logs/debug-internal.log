@@ -1,0 +1,15 @@
+{"time":"2026-01-05T15:36:26.2368891+01:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"C:\\Users\\zhangyi\\PythonProjects\\BayesInf_Jax\\wandb\\run-20260105_153626-iocokuwg\\logs\\debug-core.log"}
+{"time":"2026-01-05T15:36:26.3590764+01:00","level":"INFO","msg":"created new stream","id":"iocokuwg"}
+{"time":"2026-01-05T15:36:26.3590764+01:00","level":"INFO","msg":"stream: started","id":"iocokuwg"}
+{"time":"2026-01-05T15:36:26.3590764+01:00","level":"INFO","msg":"handler: started","stream_id":"iocokuwg"}
+{"time":"2026-01-05T15:36:26.3590764+01:00","level":"INFO","msg":"sender: started","stream_id":"iocokuwg"}
+{"time":"2026-01-05T15:36:26.3590764+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"iocokuwg"}
+{"time":"2026-01-05T15:36:26.8092877+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-01-05T15:38:27.4313538+01:00","level":"INFO","msg":"stream: closing","id":"iocokuwg"}
+{"time":"2026-01-05T15:38:27.4823613+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-01-05T15:38:27.4952218+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-01-05T15:38:28.507441+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-01-05T15:38:28.8285653+01:00","level":"INFO","msg":"handler: closed","stream_id":"iocokuwg"}
+{"time":"2026-01-05T15:38:28.8285653+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"iocokuwg"}
+{"time":"2026-01-05T15:38:28.8290877+01:00","level":"INFO","msg":"sender: closed","stream_id":"iocokuwg"}
+{"time":"2026-01-05T15:38:28.8306942+01:00","level":"INFO","msg":"stream: closed","id":"iocokuwg"}

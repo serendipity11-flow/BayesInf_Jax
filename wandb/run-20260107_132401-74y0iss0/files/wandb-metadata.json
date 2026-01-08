@@ -1,0 +1,40 @@
+{
+  "os":  "Windows-11-10.0.26100-SP0",
+  "python":  "CPython 3.12.6",
+  "startedAt":  "2026-01-07T12:24:01.167297Z",
+  "program":  "<python with no main file>",
+  "git":  {
+    "remote":  "https://github.com/serendipity11-flow/BayesInf_Jax.git",
+    "commit":  "3bc2bda835bdada8f95323d0767ea05ba9bfb31b"
+  },
+  "email":  "zhangyi1353173@gmail.com",
+  "root":  "C:\\Users\\zhangyi\\PythonProjects\\BayesInf_Jax",
+  "host":  "imech134",
+  "executable":  "C:\\Users\\zhangyi\\PythonProjects\\venv_jax12\\Scripts\\python.exe",
+  "cpu_count":  6,
+  "cpu_count_logical":  12,
+  "gpu":  "Quadro T1000",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "252841029632",
+      "used":  "233436143616"
+    }
+  },
+  "memory":  {
+    "total":  "8329191424"
+  },
+  "cpu":  {
+    "count":  6,
+    "countLogical":  12
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "Quadro T1000",
+      "memoryTotal":  "4294967296",
+      "cudaCores":  896,
+      "architecture":  "Turing"
+    }
+  ],
+  "cudaVersion":  "12.2"
+}

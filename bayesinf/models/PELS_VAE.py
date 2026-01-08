@@ -4,24 +4,26 @@ import equinox as eqx
 import jax.random as jr
 from typing import List
 
-# Helper for the linear block pattern: Linear -> BN -> ReLU -> Dropout
+# linear block pattern: Linear -> BN -> ReLU -> Dropout
 class LinearBlock(eqx.Module):
     linear: eqx.nn.Linear
+    bn: eqx.nn.BatchNorm
     dropout: eqx.nn.Dropout
     use_dropout: bool
 
     def __init__(self, in_features, out_features, dropout_rate, key):
-        k1, k2 = jr.split(key)
-        self.linear = eqx.nn.Linear(in_features, out_features, key=k1)
+        self.linear = eqx.nn.Linear(in_features, out_features, key=key)
+        self.bn = eqx.nn.BatchNorm(out_features, axis_name='batch')
         self.dropout = eqx.nn.Dropout(p=dropout_rate)
         self.use_dropout = dropout_rate > 0
 
-    def __call__(self, x, key=None, inference=False):
+    def __call__(self, x, state, key=None, inference=False):
         x = self.linear(x)
+        x, state = self.bn(x, state, inference=inference)
         x = jax.nn.relu(x)
         if self.use_dropout and key is not None:
             x = self.dropout(x, key=key, inference=inference)
-        return x
+        return x, state
 
 class Encoder(eqx.Module):
     lstm_cell: eqx.nn.LSTMCell
@@ -34,13 +36,10 @@ class Encoder(eqx.Module):
     theta_dim: int
     dropout_rate: float
 
-    def __init__(self, latent_dim_z, n_time_series, lstm_hidden_dim, linear_hidden_dim,
-                 n_lstm_layers=1, n_linear_layers=4, theta_dim=0, dropout=0.0, key=None):
+    def __init__(self, latent_dim_z, n_time_series, lstm_hidden_dim, linear_hidden_dim, n_linear_layers=4, theta_dim=0, dropout=0.0, key=None):
         super().__init__()
         keys = jr.split(key, 5 + n_linear_layers)
-        
-        # NOTE: For simplicity, this implementation assumes a single layer LSTM as per common JAX patterns.
-        # Multi-layer LSTMs in JAX require stacking cells manually in the scan loop.
+
         self.lstm_cell = eqx.nn.LSTMCell(n_time_series, lstm_hidden_dim, key=keys[0])
         
         self.linear_layers = []
@@ -247,15 +246,16 @@ class PELS_VAE(eqx.Module):
 # Example of how to initialize and use
 if __name__ == '__main__':
     # Mock config variables
-    THETA_DIM = 5
-    LATENT_DIM_Z = 10
-    SEQ_LEN = 50
-    N_TIME_SERIES = 3
-    LSTM_HIDDEN = 64
-    LINEAR_HIDDEN = 128
+    theta_dim = 5
+    latent_dim_z = 10
+    seq_len = 50
+    n_time_series = 3
+    lstm_hidden = 64
+    linear_hidden = 128
     
     key = jr.PRNGKey(0)
-    model = PELS_VAE(THETA_DIM, LATENT_DIM_Z, SEQ_LEN, N_TIME_SERIES, LSTM_HIDDEN, LINEAR_HIDDEN, key=key)
+    model = PELS_VAE(theta_dim, latent_dim_z, seq_len, n_time_series, lstm_hidden, 
+                     linear_hidden, key=key)
     
     # Initialize State (required for BatchNorm)
     # Equinox < 0.10 style managed state manually, but eqx.nn.BatchNorm uses eqx.nn.State.
@@ -263,8 +263,8 @@ if __name__ == '__main__':
     state = eqx.nn.State(model)
 
     # Dummy Data (Batch size 32)
-    x_batch = jnp.zeros((32, SEQ_LEN, N_TIME_SERIES))
-    theta_batch = jnp.zeros((32, THETA_DIM))
+    x_batch = jnp.zeros((32, seq_len, n_time_series))
+    theta_batch = jnp.zeros((32, theta_dim))
     
     # Forward Pass with VMAP
     # We vmap over the batch dimension (axis 0). 

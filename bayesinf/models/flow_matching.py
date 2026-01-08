@@ -9,11 +9,7 @@ else:
 import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
-import optax
-from functools import partial
-from tqdm import tqdm
-from networks import TimeSeriesEncoder
-import numpy as np
+from bayesinf.models.networks import TimeSeriesEncoder
 
 
 class VectorField(eqx.Module):

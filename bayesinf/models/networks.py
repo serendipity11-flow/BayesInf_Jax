@@ -11,6 +11,7 @@ else:
 import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
+from typing import Union, Sequence
 
 class TimeSeriesEncoder(eqx.Module):
     """Encodes a time series into a single feature vector."""

@@ -1,0 +1,15 @@
+{"time":"2026-01-05T15:26:49.499824+01:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"C:\\Users\\zhangyi\\PythonProjects\\BayesInf_Jax\\wandb\\run-20260105_152649-gx6xvf25\\logs\\debug-core.log"}
+{"time":"2026-01-05T15:26:49.6242684+01:00","level":"INFO","msg":"created new stream","id":"gx6xvf25"}
+{"time":"2026-01-05T15:26:49.6247869+01:00","level":"INFO","msg":"sender: started","stream_id":"gx6xvf25"}
+{"time":"2026-01-05T15:26:49.6247869+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"gx6xvf25"}
+{"time":"2026-01-05T15:26:49.6247869+01:00","level":"INFO","msg":"stream: started","id":"gx6xvf25"}
+{"time":"2026-01-05T15:26:49.6247869+01:00","level":"INFO","msg":"handler: started","stream_id":"gx6xvf25"}
+{"time":"2026-01-05T15:26:50.1647561+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-01-05T15:27:26.8058177+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-01-05T15:27:26.8058177+01:00","level":"INFO","msg":"stream: closing","id":"gx6xvf25"}
+{"time":"2026-01-05T15:27:26.8071696+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-01-05T15:27:27.7981757+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-01-05T15:27:28.5036555+01:00","level":"INFO","msg":"handler: closed","stream_id":"gx6xvf25"}
+{"time":"2026-01-05T15:27:28.5036555+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"gx6xvf25"}
+{"time":"2026-01-05T15:27:28.504164+01:00","level":"INFO","msg":"sender: closed","stream_id":"gx6xvf25"}
+{"time":"2026-01-05T15:27:28.504164+01:00","level":"INFO","msg":"stream: closed","id":"gx6xvf25"}

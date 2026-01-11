@@ -58,10 +58,10 @@ In many generative tasks, such as text, image, and video generation, the conditi
 \end{figure}
 
 \subsection{Normalizing Flows for Parameter Identification}
-Why are \acp{NF} more suitable for parameter identification tasks given time series observations? In this section, we will answer this question in terms of (1) inference accuracy and precision (2) reliability, i.e., whether the ground truth lies in the posterior, (3) speed including training convergence time and computational time, (4) sample efficiency, i.e., posterior contraction while increasing data amount, (5) correlation, i.e., identifying linearly correlated parameters, (6) complexity, i.e., handling multimodal distributions.
+Why are \acp{NF} more suitable for parameter identification tasks given time series observations? In this section, we will answer this question in terms of (1) inference accuracy and precision (2) reliability, i.e., whether the ground truth lies in the posterior, (3) speed, i.e., inference computational time, (4) sample efficiency, i.e., posterior contraction while increasing data amount, (5) correlation, i.e., identifying linearly correlated parameters, (6) complexity, i.e., handling multimodal distributions.
 
 \paragraph{Overall Settings}
-In this section, we take a classic mass-spring-damper system as an example, which has 3 parameters including mass $m$, spring constant $k$, and damping coefficient $c$. As observations, we take the position and velocity trajectories. For evaluation of (1) - (4), an external force is introduced. The \ac{ODE} is:
+In this section, we take a classic mass-spring-damper system as an example, which has three parameters including mass $m$, spring constant $k$, and damping coefficient $c$. As observations, we take the position and velocity trajectories. For evaluation of (1) - (4), an external force is introduced. The \ac{ODE} is:
 \begin{equation}
     \dot x = v,\; \dot v = \frac{1}{m}(F_t-kx-cv),\; F_t = 10\cdot sin(3t).
 \end{equation}
@@ -100,8 +100,76 @@ We compare two normalizing flow architectures \ac{RealNVP}, and \ac{NSF} with \a
     \end{equation}
 \end{itemize}
 
-% table with RMSE, R², MCIW, 1-CICP, spider chart
-% sample efficiency with curve chart
+\paragraph{Pperformance Comparison}
+\begin{table}[ht]
+    \centering
+    \caption[Performance Benchmarking of Deep Bayesian Inference Methods]{Performance Benchmarking of Deep Bayesian Inference Methods on the Mass-Spring-Damper System. All metrics represent averages across the three system parameters. Predictive accuracy is assessed via RMSE (lower is better) and R² (higher is better). Uncertainty quantification is evaluated through the CICP and MCIW together. Ideal performance is characterized by a CICP near the 95\% calibration target; significantly lower values indicate overconfidence, while excessively high MCIW values indicate model imprecision. Inference time denotes the total computational time for a single test scenario based on 100 posterior samples.}
+    \label{tab:metrics_005}
+    \small
+    \begin{tabular}{lccccc}
+        \toprule
+        \textbf{Model} & \textbf{RMSE} $\downarrow$ & \textbf{$R^2$} $\uparrow$ & \textbf{CICP} $\uparrow$ & \textbf{MCIW} $\downarrow$ & \textbf{Inference Time (s)} $\downarrow$ \\ 
+        \midrule
+        BNN     & 0.0393 & 0.9965 & 0.9900 & 0.1874 & 0.0209 \\
+        VAE     & 0.0287 & \textbf{0.9987} & 0.7250 & \textbf{0.0497} & \textbf{0.0018} \\
+        DDPM    & 0.0915 & 0.9852 & 0.9883 & 0.5338 & 0.2310 \\
+        SBM     & 0.0699 & 0.9909 & 0.9700 & 0.3289 & 0.0534 \\
+        FM      & 0.0547 & 0.9938 & \textbf{0.9933} & 0.3730 & 0.0050 \\
+        RealNVP & \textbf{0.0278} & 0.9986 & 0.9917 & 0.1223 & 0.0043 \\
+        NSF     & 0.0401 & 0.9966 & 0.9917 & 0.1845 & 0.0069 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htp!]
+    \begin{minipage}{0.7\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/metrics_0.05_spider_chart.pdf}
+      \end{minipage}
+      \hfill
+    \begin{minipage}{0.28\textwidth}
+    \caption[Detailed Comparison of Deep Bayesian Inference Methods]{Detailed Comparison of Deep Bayesian Inference Methods on the Mass-Spring-Damper System. The values are the same as those in Table \ref{tab:metrics_005}. "1-CICP" is shown for the sake of consistency of comparison, meaning that all metrics shown in the spider chart are "lower is better". The center of the radar plot represents optimal performance.}
+    \label{fig:metrics_005_spider}
+    \end{minipage}
+\end{figure}
+
+In Table \ref{tab:metrics_005} the evaluation of different models is shown. The observed time series are from $0\,s$ to $1\,s$ with the time step of $0.05\,s$, and no noises are added onto them. In terms of accuracy, \ac{RealNVP} (RMSE: 0.0278) and VAE (RMSE: 0.0287) are the most accurate models. Their highest R² scores indicate that they explain almost all the variance in the Mass-Spring-Damper system. \ac{DDPM} (RMSE: 0.0915) has the highest error in this group. While an R² of 0.985 is still objectively good, it is significantly less precise than the \acp{NF} (\ac{RealNVP}, \ac{NSF}) for this specific physical task. Overall, the flow-based methods (\ac{RealNVP}, \ac{NSF}, and \ac{FM}) achieve higher accuracy than diffusion-based methods (\ac{DDPM} and \ac{SBM}). The \ac{BNN} is comparable with the \acp{NF}.
+
+In terms of uncertainty quantification, almost all models (except VAE) show CICP values near 1.0. Theoretically, the ideal CICP with 95\% confidence intervals should also be 0.95. Higher CICPs mean that they are conservative and under-confident, whereas the lower CICPs indicate overfitting. Besides, in an ideal noise-free scenario, the posterior distribution for the mass-spring-damper parameters should approach a Dirac delta function. However, in practice of solving inverse problems, the interval should never be zero. Because different parameters might produce very similar trajectories. Moreover, the models themselves have uncertainty due to limited data. Therefore, the CICPs higher than 0.95 mean that the inference models prioritize the reliability over precision.  Consequently, the MCIW should be considered together with CICP. \ac{VAE} (CICP: 0.7250 and MCIW: 0.0497) is overconfident. Its intervals are so narrow that the truth falls outside of them 27.5\% of the cases. \ac{DDPM} (CICP: 0.9883 and MCIW: 0.5338) is unprecise. It achieves high coverage simply by producing very wide intervals. 
+
+In terms of computational efficiency, \ac{VAE} exhibits the highest inference speed. Flow-based methods demonstrate comparable performance to one another, though they are approximately $5\times$ slower than the \ac{VAE} baseline. \ac{BNN} follows, showing higher latency than the flow-based models but maintaining a clear advantage over \ac{SBM}. Finally, \ac{DDPM} is identified as the most computationally intensive approach, recording the slowest inference times.
+
+With \ac{VAE} and \ac{DDPM} excluded due to miscalibration and computational overhead respectively, Figure \ref{fig:metrics_005_spider} visualizes the performance trade-offs of the remaining five architectures. \ac{RealNVP} exhibits the most optimal profile, represented by the smallest polygon area; it successfully minimizes \ac{RMSE} and \ac{MCIW} while maintaining near-perfect coverage. \ac{NSF} and \ac{FM} show comparable speed and accuracy but yield less precise (wider) credible intervals. The \ac{BNN} maintains high reliability (low 1-CICP) but suffers from increased inference time. Finally, \ac{SBM} shows the least favorable performance, characterized by the largest predictive error, the widest uncertainty bounds, and the longest computational time, indicating a difficulty in parameter identification compared to flow-based alternatives. 
+
+\paragraph{Sample Efficiency}
+\begin{figure}[htp!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/curve_chart_sample.pdf}
+    \caption[Performance Comparison w.r.t. Sample Efficiency]{Performance Benchmarking of Deep Bayesian Inference Methods under Varying Observation Densities. The left panel illustrates the predictive accuracy (RMSE) across time step $dt_0=[0.5, 0.1, 0.05, 0.01]$ plotted on a logarithmic scale where smaller $dt_0$ represents higher sampling density. The right panel provides a hybrid uncertainty analysis: the grouped bars indicate the NMCIW (uncertainty precision), while the superimposed dashed lines represent the CICP (calibration reliability). The horizontal dotted line denotes the 95\% coverage target.}
+    \label{fig:se_comp}
+\end{figure}
+
+The results in Figure \ref{fig:se_comp} characterize how the density of temporal observations impacts the posterior estimation. As the time step $dt_0$ decreases from $0.5\,s$ to $0.05\,s$, thereby increasing the total number of observations, all models show a consistent improvement in predictive accuracy, which can be attributed to the improved identifiability of the system dynamics. But the accuracy degrades at $dt_0=0.01\,s$ probably due to the inappropriate information extraction by the encoder, which is not designed for long time series. For a simple Mass-Spring-Damper system, $dt_0=0.05\,s$ already provides more than enough information to identify the parameters perfectly. Adding more points adds redundancy but no new constraints. This redundancy can lead to over-fitting in the latent space, where the model interprets numerical rounding errors or minor architectural biases as significant physical features. 
+
+The accuracy of \ac{BNN}, \ac{RealNVP}, and \ac{VAE} is less sensitive to the sample efficiency. The higher RMSE at $dt_0=0.5\,s$ demonstrates that diffusion-based methods and \ac{NSF} requires more data than the other architectures. While almost all models reach accuracy peak at $dt_0=0.05\,s$, \ac{FM} prefers lower resolution of observation could result from that the vector field learning requires more differences in data samples. 
+
+About uncertainty quantification demonstrated on the right panel in Figure \ref{fig:se_comp}, \ac{VAE} is overfitted with a very narrow confidence interval and inadequate coverage probability. In accordance with Bayesian theory, as the number of observations increases, the posterior distribution shrinks. In the regime of increasing data density from $dt_0=0.5\,s$ to $0.05\,s$, the models exhibit divergent uncertainty behaviors:
+\begin{itemize}
+    \item Consistent Posterior Shrinkage: \ac{DDPM} and \ac{RealNVP} demonstrate a clear shrinkage effect, where the MCIW drops consistently. This aligns with Bayesian expectations: as the number of observations increases, the likelihood becomes more peaked, forcing the posterior distribution to contract around the true parameters.
+    \item Architectural Volatility: Other architectures show more complex trends. The MCIW of the \ac{BNN} initially increases before dropping, while \ac{NSF} exhibits a "decrease-then-rise" pattern. Most notably, \ac{FM} and \ac{SBM} show a paradoxical increase in MCIW (uncertainty width) as data density increases. This suggests that for these models, the increase in sequence length introduces numerical complexity or "perceived" contradictions in the latent space that temporarily outweigh the additional information provided by the higher sampling rate.
+\end{itemize}
+   
+    
+In terms of the reliability requirement, defined as a \ac{CICP} $\ge 0.95$, proves difficult to satisfy under sparse sampling. At $dt_0=0.5\,s$, only \ac{RealNVP} and \ac{FM} are successfully calibrated. This highlights the robustness of both architectures when dealing with sparse temporal trajectories. As data density improves to $dt_0=0.1\,s$, \ac{FM} temporarily drops out of the reliable regime, likely due to the aforementioned rise in its \ac{MCIW} not being perfectly aligned with its predictive accuracy. The performance peak occurs at $dt_0=0.05\,s$, where every model successfully satisfies the reliability requirement. This suggests that $0.05\,s$ is the optimal resolution for this system—providing sufficient information to identify the ODE parameters without reaching the point of numerical saturation. 
+
+As sampling reaches the highest density $dt_0=0.01\,s$, the models encounter a breakdown in both accuracy and calibration:
+\begin{itemize}
+\item Divergent Uncertainty Trends: In this over-sampled regime, \ac{DDPM} and \ac{BNN} continue to shrink their MCIW further. However, for \ac{BNN}, this leads to a drop in CICP, indicating that the model is becoming overconfident. Its intervals are shrinking faster than its error, causing it to miss the ground truth.
+\item Posterior Expansion: Conversely, \ac{SBM}, \ac{RealNVP}, and \ac{NSF} exhibit an increase in MCIW. This change in the posterior width is a defensive mechanism; as the models' RMSE increases due to the numerical difficulty of processing extremely high-frequency noise-free data, the models broaden their uncertainty bounds to maintain coverage.
+\item Flow Matching Recovery: \ac{FM} reverses its previous trend and begins to drop in MCIW, suggesting it eventually finds a more stable numerical representation of the high-density data than the other flow variants.
+\end{itemize}
+
+The evaluation suggests that more observations do not always lead to better performance. \ac{RealNVP} is the most precise under sparse data, when ruling out the \ac{VAE}. \ac{BNN} is the most consistent at shrinking its bounds, suggesting that its variance measures the mathematical convergence of the weights, but not necessarily the "correctness" of the physical parameters. Notably, A pivot point in model reliability is observed at $dt_0=0.1\,s$, where \ac{SBM} and \ac{NSF} achieve perfect calibration, meeting the CICP target of exactly 0.95. Their paths to this threshold, however, are distinct: \ac{SBM} reaches the reliable regime through a corrective expansion of its posterior variance (increasing MCIW), while \ac{NSF} reaches it through efficient shrinkage, utilizing the increased temporal information to narrow its credible intervals while remaining perfectly on-target. At this mid-range resolution, these two models define the boundary of the reliable regime, whereas architectures like the \ac{BNN} and \ac{DDPM} remain under-calibrated despite the increased data density.
 
 \paragraph{Linear Correlation}
 When parameters are linearly correlated, the observations only constrain their ratio, rendering the individual parameters non-identifiable. While \acp{DGM} are capable of capturing these dependencies, the task is computationally harder than identifiable ones. The ill-posedness manifests as a manifold of equivalent solutions, making it difficult for optimization algorithms to distinguish between physically distinct systems that produce identical observations. When the correlation between $m$ and $k$ are fixed to be $k=10\cdot m$, the damping coefficient should also be proportional to the mass, i.e., $c\propto m$. The damping coefficient $c$ is related to the damping ratio $\zeta$ (which determines if the system is under-damped, critically damped, or over-damped) by the formula:
@@ -110,7 +178,7 @@ When parameters are linearly correlated, the observations only constrain their r
 \end{equation} 
 Therefore, the following relation holds:
 \begin{equation}
-    c/m = 2\sqrt{10}\zeta.
+    c/m = 2\sqrt{10}\;\zeta.
 \end{equation}
 Figure \ref{fig:lc_comp} shows two identification examples of linear correlated parameters.
 \begin{figure}[htp!]
@@ -122,14 +190,14 @@ Figure \ref{fig:lc_comp} shows two identification examples of linear correlated 
 
 As illustrated in Figure \ref{fig:lc_comp}, the \ac{BNN} and \ac{DDPM} fail to capture the underlying dependencies, resulting in wide, uninformative posterior clouds that lack alignment with the physical constraints. While the \ac{VAE} recovers the $k/m$ correlation, it fails significantly on $c/m$, where the posterior mass is biased and poorly aligned with the diagonal line. In contrast, the remaining four methods demonstrate higher fidelity. 
 
-Among the successful models, \ac{SBM} and the normalizing flow architectures (\ac{RealNVP} and \ac{NSF}) show their superior capability in identifying and enforcing linear parameter correlations. Their $k/m$ estimates are tightly aligned with the theoretical diagonal, and their $c/m$ estimates manifest as narrow ellipses centered on the ground truth. On the other hand, \ac{FM} successfully captures the linear trend, but it exhibits noticeably higher variance compared to \ac{SBM}, \ac{RealNVP}, and \ac{NSF}, particularly in the $c/m$ correlations. This suggests that while \ac{FM} identifies the correlation, it is less precise in enforcing the constraint than other architectures.
+Among the successful models, \ac{SBM} and the \ac{NF} architectures (\ac{RealNVP} and \ac{NSF}) show their superior capability in identifying and enforcing linear parameter correlations. Their $k/m$ estimates are tightly aligned with the theoretical diagonal, and their $c/m$ estimates manifest as narrow ellipses centered on the ground truth. On the other hand, \ac{FM} successfully captures the linear trend, but it exhibits noticeably higher variance compared to \ac{SBM}, \ac{RealNVP}, and \ac{NSF}, particularly in the $c/m$ correlations. This suggests that while \ac{FM} identifies the correlation, it is less precise in enforcing the constraint than other architectures.
 
 Linear correlations represent a low-dimensional manifold within the parameter space. Figure \ref{fig:lc_comp} demonstrates that \acp{NF} (\ac{RealNVP}/\ac{NSF}) and \ac{SBM} are superior at manifold learning by effectively collapsing the posterior mass onto a line, whereas \ac{BNN} and \ac{DDPM} struggle to resolve such sharp constraints. Besides, the \ac{VAE}’s failure in the $c/m$ correlation is a classic symptom of posterior collapse or architectural under-fitting for specific parameter dimensions. 
 
 The performance gap between the two diffusion models is particularly striking: \ac{SBM} exhibits a far greater capability for recovering precise physical constraints than \ac{DDPM}. Despite \ac{DDPM}'s established success in generating high-dimensional complex data, it fails to resolve the specific linear parameter correlations in this task.
 Similarly, despite their theoretical proximity, \ac{FM} appears more dispersed than \ac{SBM}. This is primarily because \ac{FM} is a deterministic transport method that is more sensitive to cumulative approximation errors along the integration path, whereas the stochastic nature of \ac{SBM} provides a corrective mechanism through noise-driven sampling.
 
-Within the \ac{NF} architectures, a notable distinction exists between \ac{RealNVP} and \ac{NSF}. While both successfully identify the correlation, \ac{RealNVP} produces thinner, almost line-like distributions. This may indicate a tendency toward manifold collapse caused by the limited expressiveness of its affine coupling layers. In contrast, \ac{NSF} utilizes more flexible monotonic rational-quadratic splines, allowing it to maintain precise alignment with the ground-truth diagonal, while providing a more robust and better-scaled estimation of the posterior density. 
+Within the \ac{NF} architectures, a notable distinction exists between \ac{RealNVP} and \ac{NSF} when we zoom in the $c/m$ figures. While both successfully identify the correlation, \ac{RealNVP} exhibits a higher degree of centralization along the diagonal correlation axes. While this leads to a narrower, line-like distribution with high precision, it also places the ground-truth (yellow star) at the extreme periphery of the high-density core. In contrast, \ac{NSF} estimates the density with higher variance, which is less desired in this case. 
 
 \paragraph{Multimodal Distribution}
 The ability to capture multimodal distributions is a key advantage of applying \acp{DGM} for Bayesian inference. Different \acp{DGM} exhibit different characteristics. Figure \ref{fig:mm_comp} illustrates these differences. As test scenarios, we consider two cases: one where the values of $k_1$ and $k_3$ are far apart (the first two samples), and another where they are close to each other (the last two samples).
@@ -189,8 +257,9 @@ The critical point is the calculation of the term $\left[p_\theta(u_{t}|u_{t-1})
     \end{equation}
 \end{itemize}
 
-\subsection{Relationship Between Sensitivity Analysis}
-The parameter identification from time series observations is consistent with global sensitivity analysis. 
+\subsection{Relationship Between Parameter Identification and Sensitivity Analysis}
+From the pervious experiments, especially about the linearly correlated and the multimodal parameters, we can conclude that, the Bayesian inference methods for parameter identification from time series observations is consistent with global sensitivity analysis. 
+
 
 \subsection{When Does the Framework Fail?}
 The framework of amortized Bayesian inference using generative models is highly dependent on the embedded information extracted by the condition network. When the time series are noisy, dynamic, or stochastic. The information can not be well extracted. 

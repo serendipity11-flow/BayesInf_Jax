@@ -8,8 +8,10 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {III.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{52}{figure.caption.84}%
-\contentsline {figure}{\numberline {III.2}{\ignorespaces Linear Correlation Comparison}}{55}{figure.caption.97}%
-\contentsline {figure}{\numberline {III.3}{\ignorespaces Multimodal Comparison}}{57}{figure.caption.98}%
-\contentsline {figure}{\numberline {III.4}{\ignorespaces SNF Architecture}}{58}{figure.caption.103}%
+\contentsline {figure}{\numberline {III.2}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{55}{figure.caption.98}%
+\contentsline {figure}{\numberline {III.3}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{56}{figure.caption.99}%
+\contentsline {figure}{\numberline {III.4}{\ignorespaces Linear Correlation Comparison}}{59}{figure.caption.100}%
+\contentsline {figure}{\numberline {III.5}{\ignorespaces Multimodal Comparison}}{61}{figure.caption.101}%
+\contentsline {figure}{\numberline {III.6}{\ignorespaces SNF Architecture}}{63}{figure.caption.106}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

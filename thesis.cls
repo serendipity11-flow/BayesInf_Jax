@@ -2,6 +2,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{thesis}[]
 \usepackage[english]{babel}
+\usepackage{textcomp}
 \usepackage{wrapfig}
 \usepackage{mathtools}
 \usepackage{makecell}

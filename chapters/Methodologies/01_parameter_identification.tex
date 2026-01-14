@@ -145,7 +145,7 @@ With \ac{VAE} and \ac{DDPM} excluded due to miscalibration and computational ove
 \begin{figure}[htp!]
     \centering
     \includegraphics[width=\textwidth]{figures/curve_chart_sample.pdf}
-    \caption[Performance Comparison w.r.t. Sample Efficiency]{Performance Benchmarking of Deep Bayesian Inference Methods under Varying Observation Densities. The left panel illustrates the predictive accuracy (RMSE) across time step $dt_0=[0.5, 0.1, 0.05, 0.01]$ plotted on a logarithmic scale where smaller $dt_0$ represents higher sampling density. The right panel provides a hybrid uncertainty analysis: the grouped bars indicate the NMCIW (uncertainty precision), while the superimposed dashed lines represent the CICP (calibration reliability). The horizontal dotted line denotes the 95\% coverage target.}
+    \caption[Performance Comparison w.r.t. Sample Efficiency]{Performance Benchmarking of Deep Bayesian Inference Methods under Varying Observation Densities. The left panel illustrates the predictive accuracy (RMSE) across time step $dt_0=[0.5, 0.1, 0.05, 0.01]$ plotted on a logarithmic scale where smaller $dt_0$ represents higher sampling density. The right panel provides a hybrid uncertainty analysis: the grouped bars indicate the MCIW (uncertainty precision), while the superimposed dashed lines represent the CICP (calibration reliability). The horizontal dotted line denotes the 95\% coverage target.}
     \label{fig:se_comp}
 \end{figure}
 
@@ -215,6 +215,88 @@ In contrast, \ac{SBM}, \ac{FM}, and \ac{NSF} demonstrate superior multimodal rec
 
 There is a clear phase transition in model behavior between Row 2 and Row 3. All successful models transition from disjoint bimodal to continuous unimodal as the parameter modes move closer together. This shows that the models are not just memorizing two points, but are actually learning the underlying likelihood surface. Comparing \ac{SBM} and \ac{FM} reveals that while both use related ODE/SDE-based sampling, \ac{SBM} produces a much crisper, tighter posterior. \ac{FM} appears more noisy and diffused, suggesting that for high-precision physical parameter identification, score-based objectives might offer better convergence to the true posterior manifold than standard flow-matching. The \ac{NSF} appears to be the most balanced architecture. It avoids the extreme thinness of \ac{RealNVP} while maintaining the high precision and multimodal resolution.
 
+\subsection{Relationship Between Bayesian Inference and Sensitivity Analysis}
+Previous experiments applying mass-spring-damper models demonstrate that Bayesian inference is intrinsically linked to parameter identifiability. Our findings indicate that spring constants converge rapidly during training, which will be further elucidated through sensitivity analysis. Conversely, linearly correlated parameters lack unique identification, and in symmetric coupled models, individual spring constants become indistinguishable. These varying levels of identifiability can be rigorously analyzed through \ac{SA}, which studies how uncertainty in the output of a mathematical model can be partitioned and allocated to different sources of uncertainty in its inputs. This framework aligns naturally with the objectives of amortized Bayesian inference. For purely data-driven methods, \ac{SA} provides essential insights into the physical model and practical training suggestions: weakly identifiable or correlated parameters that require additional observational data for resolution.
+
+Unlike local \ac{SA}, which examines instantaneous changes in output relative to specific parameter perturbations, our research focuses on total trajectories, necessitating a global \ac{SA}. A common approach for global \ac{SA} is the Sobol' index, which is a variance-based method that decomposes the total output variance into contributions from individual parameters and their interactions. For a model $f$ with inputs $X_1, \ldots, X_d$ and the output $Y$, the total variance of the model output is:
+\begin{equation}
+    Var(Y) = \sum_i V_i + \sum_{i<j} V_{ij} + \cdots + V_{1,2,\ldots,d}.
+\end{equation}
+The first-order Sobol' index $S^1_i$ measures the contribution of a single parameter $X_i$ to the output variance, which can be regarded as the main effect. It is given by:
+\begin{equation}
+    S^1_i = \frac{V_i}{Var(Y)}\quad V_i=Var_{X_i}[E_{\boldsymbol{X}_{\sim i}}(Y|X_i)].
+\end{equation}
+The total Sobol' index accounts for the total contribution of a parameter to the output variance, including both its main effect and all higher-order interactions with other parameters. The total Sobol' index of $X_i$ is
+\begin{equation}
+    S^T_i = \frac{Var_{\boldsymbol{X}_{\sim i}}[E_{X_i}(Y|\boldsymbol{X}_{\sim i})]}{Var(Y)}.
+\end{equation}
+
+Another key issue of using variance-based \ac{SA} is to sample the parameter space efficiently. The standard random sampling often creates clusters or gaps in the parameter space. Instead, Sobol' sequences are applied, which are low-discrepancy sequences. For the sake of stability, a larger number of samples should be set.
+
+By comparing these two indices, we can diagnose the structural complexity of the mass-spring-damper system. For instance, a parameter with a high total Sobol' index but a low first-order Sobol' index indicates that while the parameter is influential, its effect is primarily driven by interactions with other components of the model. The linear correlation and multimodality cases are supposed to have zero first-order Sobol' indices and one total Sobol' indices. 
+If a parameter exhibits a total Sobol' index near zero, it suggests that the model output is insensitive to that parameter across its entire prior range. Such parameters are unidentifiable under the provided observed data. 
+
+Ultimately, integrating global \ac{SA} into the amortized Bayesian workflow allows us to preventively identify "blind spots" in the model. By detecting parameters with low sensitivity or high correlation, we can strategically focus on data collection efforts or reparameterize the model to ensure that the posterior distributions are well-defined and physically meaningful. When parameters exhibit significantly different levels of identifiability, a sensitivity-guided iterative identification strategy is recommended. In such cases, strongly identifiable parameters (those with high $S^1_i$ values, like the primary spring constants) should be identified first to stabilize the model. Once these dominant parameters are constrained, the remaining weakly identifiable or highly correlated parameters can be addressed in subsequent stages by adaptation of observational data or by refining the prior distributions. This hierarchical approach prevents the variance of dominant parameters from obscuring the signals of secondary parameters, ensuring a more robust and physically meaningful calibration of the complex system.
+
+The sensitivity of parameters also reflects the convergence speed of training deep Bayesian inference models as well. Taking a closer look at the mass-spring-damper model with external force, we get very close first-order and total-order indices, i.e., $S^1_m=0.07, S^1_k=0.88, S^1_c=0.03$ and $S^T_m=0.07, S^T_k=0.89, S^T_c=0.05$. It suggests for the single-degree-of-freedom system under external excitation, the stiffness parameter $k$ dominates the system response and there is hardly no parametric interaction. This means the model is effectively additive in the chosen parameter ranges. From an identifiability perspective, the $k$ should be much easier to estimate than the other two parameters. 
+\begin{figure}[htbp]
+    \centering
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/RealNVP_mass_spring_damper_0.05_1.0_force_29.pdf}
+        \caption{Epoch=29}
+        \label{fig:sa_01}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/RealNVP_mass_spring_damper_0.05_1.0_force_258.pdf}
+        \caption{Epoch=258}
+        \label{fig:sa_02}
+    \end{subfigure}
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/RealNVP_mass_spring_damper_0.05_1.0_force_393.pdf}
+        \caption{Epoch=393}
+        \label{fig:sa_03}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/RealNVP_mass_spring_damper_0.05_1.0_force_951.pdf}
+        \caption{Epoch=951}
+        \label{fig:sa_04}
+    \end{subfigure}
+
+    \caption[Convergence Speed \& Sensitivity Analysis]{Parameter identification results of \ac{RealNVP} at the early training stages. The figures show the estimation results of parameters $m,k,c$. The horizontal axis represents the ground truth, while the vertical shows the estimated values. The perfect convergence is demonstrated by the diagonal dashed line.}
+    \label{fig:sa_speed}
+\end{figure}
+
+Figure \ref{fig:sa_speed} illustrates the convergence behavior of the three parameters during the early stages of training. By the 29th epoch, the stiffness $k$ begins to converge toward the diagonal parity line, whereas the other two parameters remain unresolved, centered at the mean of their respective ranges. At the 258th epoch, $c$ begins to show a slight tendency toward convergence, while $k$ is further refined; however, $m$ shows no significant improvement. By the 393rd epoch, $m$ also begins to converge. Finally, at the 951st epoch, $m$ and $c$ reach a similar level of accuracy, while the estimate for $k$ continues to improve. This development reflects the sensitivity of parameters. It is worth to note that faster convergence of $c$ than $m$ results from the larger data range of $c$. And the convergence speed of both parameters synchronizes at the last. 
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/sensitivity_analysis_linear_coupled.pdf}
+    \caption[Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models]{Global \ac{SA} comparison in free-vibration and symmetric coupled mass-spring-damper systems. The bar charts display the first-order ($S^1$) and total-order ($S^T$) Sobol’ indices, with error bars representing the 95\% confidence interval. (Left) In the free-vibration case, the parameters $m,k,c$ are highly differently sensitive. (Right) In the symmetric coupled two-mass system, $k_1$ and $k_3$ exhibit nearly identical sensitivity.}
+    \label{fig:sa_l_c}
+\end{figure}
+
+Figure \ref{fig:sa_l_c} compares the sensitivity analysis of the free and coupled mass-spring-models. In the free-vibration case, the external force is removed. The behavior of the mass-spring-model is heavily influenced by how fast the energy loses, which is caused by the damping $c$. The global \ac{SA} of the free-vibration system reveals a clear hierarchy of parameter identifiability. The damping coefficient  $c$ dominates the output variance ($S^T_c=0.767$), followed by the stiffness $k$ ($S^T_k=0.232$), and the mass $m$ exhibits negligible sensitivity ($S^T_m=0.008$). Furthermore, the near-equality of $S^1$ and $S^T$ across all parameters indicates a lack of higher-order interactions. This suggests $m$ is weakly identifiable, whereas the other two parameters can be identified independently. 
+
+The global \ac{SA} of the symmetric coupled two-mass system reveals a perfect parity between the boundary stiffness parameters. Both $k_1$ and $k_3$ exhibit nearly identical first-order ($S^1\approx 0.496$) and total-order ($S^T\approx 0.503$) indices. The near-unity sum of their first-order indices ($S_{k_1}+S_{k_3}\approx 1$) suggests that these two parameters account for almost the entire variance of the system's dynamic response, with negligible higher-order interactions ($S^T-S^1<0.01$). From an identifiability perspective, this symmetry presents a unique challenge for Bayesian inference. While the high sensitivity ensures that the parameters will converge quickly away from the prior mean, the identical nature of their influence results in a bimodal posterior distribution. This confirms the indistinguishability and multimodality: the amortized inference model can identify the required stiffness levels but cannot uniquely assign them to $k_1$ or $k_3$ without additional asymmetric constraints or localized observations.
+
+\subsection{When Does the Framework Fail?}
+From the previous sections, we have known the framework frequently struggles with posterior identifiability; specifically, when the system exhibits multimodality, generative models may fail to resolve disjoint parameter regimes. Apart from identifiability, the efficacy of amortized Bayesian inference via deep generative models is intrinsically tied to the fidelity of the latent representations extracted by the condition network. This framework encounters significant bottlenecks under three primary conditions. First, in the presence of high-dimensional, noisy, or highly stochastic time-series data, the condition network often fails to distill sufficient summary statistics, leading to information loss. Second, the framework is susceptible to model misspecification. When a discrepancy exists between the training simulator and real-world dynamics (the 'sim-to-real gap'), the amortized posterior yields biased and poorly calibrated estimates. Third, the framework fails to generalize to parameter ranges outsized its training boundaries, even if the underlying physics remain the same. 
+
+We evaluate the robustness of \acp{NF} (including \ac{FM}, \ac{RealNVP}, and \ac{NSF}) by subjecting the framework to the following stress-test scenarios:
+\begin{itemize}
+\item Information Extraction Bottlenecks: Increasing observational noise to assess the limits of the condition network's feature extraction.
+\item Structural Misspecification: Evaluating models trained on linear dynamics against data generated from non-linear physical systems.
+\item \ac{OOD} Generalization: Testing the framework on parameter ranges that lie outside the support of the training prior.
+\end{itemize}
+
 \subsection{Stochastic Normalizing Flows}
 Normalizing flows, including flow matching, are deterministic by design, which enables precise and efficient density estimation. However, in practice this deterministic structure can limit their ability to fully capture complex, highly multimodal target distributions, especially when model capacity or data are limited. One way to alleviate this limitation is to combine normalizing flows with \ac{MCMC} methods. In such hybrid approaches, the normalizing flow serves as an expressive proposal or initialization mechanism, while \ac{MCMC} refines the samples by enforcing consistency with the true posterior through its accept–reject mechanism or transition kernel. The stochastic exploration of \ac{MCMC} improves mode coverage and helps the overall system discover and accurately represent multiple modes that might be underrepresented by the deterministic flow alone. Moreover, by repeatedly evaluating the forward dynamics within the \ac{MCMC} procedure, the method can better discriminate between parameter configurations that produce similar noisy observations, thereby improving parameter identifiability under measurement noise.
 
@@ -249,7 +331,7 @@ The critical point is the calculation of the term $\left[p_\theta(u_{t}|u_{t-1})
 
     For computational efficiency, the stochastic transformation is chosen to be an \ac{MALA} (See in Section\ref{sec:MALA}) kernel. Then, the term $\left[p_\theta(u_{t}|u_{t-1})/q_\theta(u_{t-1}|u_{t})\right]$ is given by:
     \begin{equation}
-        \frac{p_\theta(u_{t}|u_{t-1})}{q_\theta(u_{t-1}|u_{t})} = \frac{p_t(u_{t})}{p_t(u_{t-1})} = \exp\left(-\frac{1}{2\tau}(\left\|\eta_t\right\|^2_2-\left\|\tilde{\eta}_t\right\|^2_2)\right).
+        \frac{p_\theta(u_{t}|u_{t-1})}{q_\theta(u_{t-1}|u_{t})} = \frac{p_t(u_{t})}{p_t(u_{t-1})} = \exp\left(-\frac{1}{2\tau}(\left\|\eta_t\right\|^2_2-\left\|\tilde{\eta}_t\right\|^2_2)\right),
     \end{equation}
     where 
     \begin{equation}
@@ -257,10 +339,8 @@ The critical point is the calculation of the term $\left[p_\theta(u_{t}|u_{t-1})
     \end{equation}
 \end{itemize}
 
-\subsection{Relationship Between Parameter Identification and Sensitivity Analysis}
-From the pervious experiments, especially about the linearly correlated and the multimodal parameters, we can conclude that, the Bayesian inference methods for parameter identification from time series observations is consistent with global sensitivity analysis. 
+% MALA different places
+% multimodal
+% noisy case
 
-
-\subsection{When Does the Framework Fail?}
-The framework of amortized Bayesian inference using generative models is highly dependent on the embedded information extracted by the condition network. When the time series are noisy, dynamic, or stochastic. The information can not be well extracted. 
 

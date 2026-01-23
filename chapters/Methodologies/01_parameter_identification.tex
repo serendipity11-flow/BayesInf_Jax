@@ -4,7 +4,7 @@
 As we have introduced in Section \ref{sec:introduction:background:deep_probabilistic_methods}, different deep probabilistic methods are proposed for Bayesian parameter identification. In real applications, it is usually desired to identify the system parameters from multimodal observations. We start to introduce a universal framework with deep generative models for amortized Bayesian inference. This framework can be seen as a generalization of the BayesFlow \citep{radev2020bayesflow}.
 
 \subsection{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}
-\citeauthor{radev2020bayesflow} \citeyearpar{radev2020bayesflow} proposed BayesFlow as an amortized Bayesian inference approach with normalizing flows. BayesFlow consists of a summary network for extracting information from the observations, and a conditional normalizing flow for learning the posterior distribution of parameters conditioned on the extracted information. This framework can be generalized to other deep generative models, such as \ac{VAE}, \ac{FM}, and diffusion models. Figure \ref{fig:universal_framework} illustrates the framework. We call the summary network here "condition network" to emphasize that the embeddings of observations function as condition in the \acp{DGM}. The major advantages of applying deep generative models as the Bayesian inference backbone are threefold:
+\citeauthor{radev2020bayesflow} \citeyearpar{radev2020bayesflow} proposed BayesFlow as an amortized Bayesian inference approach with normalizing flows. BayesFlow consists of a summary network for extracting information from the observations, and a conditional normalizing flow for learning the posterior distribution of parameters conditioned on the extracted information. This framework can be generalized to other deep generative models, such as \ac{VAE}, \ac{FM}, and diffusion models. Figure~\ref{fig:universal_framework} illustrates the framework. We call the summary network here "condition network" to emphasize that the embeddings of observations function as condition in the \acp{DGM}. The major advantages of applying deep generative models as the Bayesian inference backbone are threefold:
 \begin{itemize}
     \item \acp{DGM} consider the parameter identification as posterior inference, which provides naturally trustworthiness of the estimates;
     \item \acp{DGM} seek to model the posterior distribution on a large dataset, which is suitable for amortized Bayesian inference;
@@ -18,7 +18,7 @@ In many generative tasks, such as text, image, and video generation, the conditi
     \begin{minipage}[t]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth, valign=t]{figures/DGM_ABI.pdf}
-        \caption[Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference]{\small Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference. The corresponding algorithm is shown on the right side (Algorithm \ref{alg:dgm_abi}). Training paradigms differ significantly across \acp{DGM}. While \acp{VAE} and \acp{NF} maximize the \ac{ELBO} and log-likelihood respectively, flow-based and diffusion models typically minimize a matching cost—regressing either a vector field (\acp{FM}), a score function, or added noise (\ac{DDPM}). Consequently, Bayesian inference is performed either via a direct deterministic mapping or by numerically integrating a differential equation (ODE or SDE).}
+        \caption[Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference]{\small Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference. The corresponding algorithm is shown on the right side (Algorithm \ref{alg:dgm_abi}). Training paradigms differ significantly across \acp{DGM}. While \acp{VAE} and \acp{NF} maximize the \ac{ELBO} and log-likelih\ac{OOD}respectively, flow-based and diffusion models typically minimize a matching cost—regressing either a vector field (\acp{FM}), a score function, or added noise (\ac{DDPM}). Consequently, Bayesian inference is performed either via a direct deterministic mapping or by numerically integrating a differential equation (ODE or SDE).}
         \label{fig:universal_framework}
     \end{minipage}
     \hfill
@@ -128,18 +128,18 @@ We compare two normalizing flow architectures \ac{RealNVP}, and \ac{NSF} with \a
       \end{minipage}
       \hfill
     \begin{minipage}{0.28\textwidth}
-    \caption[Detailed Comparison of Deep Bayesian Inference Methods]{Detailed Comparison of Deep Bayesian Inference Methods on the Mass-Spring-Damper System. The values are the same as those in Table \ref{tab:metrics_005}. "1-CICP" is shown for the sake of consistency of comparison, meaning that all metrics shown in the spider chart are "lower is better". The center of the radar plot represents optimal performance.}
+    \caption[Detailed Comparison of Deep Bayesian Inference Methods]{Detailed Comparison of Deep Bayesian Inference Methods on the Mass-Spring-Damper System. The values are the same as those in Table~\ref{tab:metrics_005}. "1-CICP" is shown for the sake of consistency of comparison, meaning that all metrics shown in the spider chart are "lower is better". The center of the radar plot represents optimal performance.}
     \label{fig:metrics_005_spider}
     \end{minipage}
 \end{figure}
 
-In Table \ref{tab:metrics_005} the evaluation of different models is shown. The observed time series are from $0\,s$ to $1\,s$ with the time step of $0.05\,s$, and no noises are added onto them. In terms of accuracy, \ac{RealNVP} (RMSE: 0.0278) and VAE (RMSE: 0.0287) are the most accurate models. Their highest R² scores indicate that they explain almost all the variance in the Mass-Spring-Damper system. \ac{DDPM} (RMSE: 0.0915) has the highest error in this group. While an R² of 0.985 is still objectively good, it is significantly less precise than the \acp{NF} (\ac{RealNVP}, \ac{NSF}) for this specific physical task. Overall, the flow-based methods (\ac{RealNVP}, \ac{NSF}, and \ac{FM}) achieve higher accuracy than diffusion-based methods (\ac{DDPM} and \ac{SBM}). The \ac{BNN} is comparable with the \acp{NF}.
+In Table~\ref{tab:metrics_005} the evaluation of different models is shown. The observed time series are from $0\,s$ to $1\,s$ with the time step of $0.05\,s$, and no noises are added onto them. In terms of accuracy, \ac{RealNVP} (RMSE: 0.0278) and VAE (RMSE: 0.0287) are the most accurate models. Their highest R² scores indicate that they explain almost all the variance in the Mass-Spring-Damper system. \ac{DDPM} (RMSE: 0.0915) has the highest error in this group. While an R² of 0.985 is still objectively good, it is significantly less precise than the \acp{NF} (\ac{RealNVP}, \ac{NSF}) for this specific physical task. Overall, the flow-based methods (\ac{RealNVP}, \ac{NSF}, and \ac{FM}) achieve higher accuracy than diffusion-based methods (\ac{DDPM} and \ac{SBM}). The \ac{BNN} is comparable with the \acp{NF}.
 
 In terms of uncertainty quantification, almost all models (except VAE) show CICP values near 1.0. Theoretically, the ideal CICP with 95\% confidence intervals should also be 0.95. Higher CICPs mean that they are conservative and under-confident, whereas the lower CICPs indicate overfitting. Besides, in an ideal noise-free scenario, the posterior distribution for the mass-spring-damper parameters should approach a Dirac delta function. However, in practice of solving inverse problems, the interval should never be zero. Because different parameters might produce very similar trajectories. Moreover, the models themselves have uncertainty due to limited data. Therefore, the CICPs higher than 0.95 mean that the inference models prioritize the reliability over precision.  Consequently, the MCIW should be considered together with CICP. \ac{VAE} (CICP: 0.7250 and MCIW: 0.0497) is overconfident. Its intervals are so narrow that the truth falls outside of them 27.5\% of the cases. \ac{DDPM} (CICP: 0.9883 and MCIW: 0.5338) is unprecise. It achieves high coverage simply by producing very wide intervals. 
 
 In terms of computational efficiency, \ac{VAE} exhibits the highest inference speed. Flow-based methods demonstrate comparable performance to one another, though they are approximately $5\times$ slower than the \ac{VAE} baseline. \ac{BNN} follows, showing higher latency than the flow-based models but maintaining a clear advantage over \ac{SBM}. Finally, \ac{DDPM} is identified as the most computationally intensive approach, recording the slowest inference times.
 
-With \ac{VAE} and \ac{DDPM} excluded due to miscalibration and computational overhead respectively, Figure \ref{fig:metrics_005_spider} visualizes the performance trade-offs of the remaining five architectures. \ac{RealNVP} exhibits the most optimal profile, represented by the smallest polygon area; it successfully minimizes \ac{RMSE} and \ac{MCIW} while maintaining near-perfect coverage. \ac{NSF} and \ac{FM} show comparable speed and accuracy but yield less precise (wider) credible intervals. The \ac{BNN} maintains high reliability (low 1-CICP) but suffers from increased inference time. Finally, \ac{SBM} shows the least favorable performance, characterized by the largest predictive error, the widest uncertainty bounds, and the longest computational time, indicating a difficulty in parameter identification compared to flow-based alternatives. 
+With \ac{VAE} and \ac{DDPM} excluded due to miscalibration and computational overhead respectively, Figure~\ref{fig:metrics_005_spider} visualizes the performance trade-offs of the remaining five architectures. \ac{RealNVP} exhibits the most optimal profile, represented by the smallest polygon area; it successfully minimizes \ac{RMSE} and \ac{MCIW} while maintaining near-perfect coverage. \ac{NSF} and \ac{FM} show comparable speed and accuracy but yield less precise (wider) credible intervals. The \ac{BNN} maintains high reliability (low 1-CICP) but suffers from increased inference time. Finally, \ac{SBM} shows the least favorable performance, characterized by the largest predictive error, the widest uncertainty bounds, and the longest computational time, indicating a difficulty in parameter identification compared to flow-based alternatives. 
 
 \paragraph{Sample Efficiency}
 \begin{figure}[htp!]
@@ -149,13 +149,13 @@ With \ac{VAE} and \ac{DDPM} excluded due to miscalibration and computational ove
     \label{fig:se_comp}
 \end{figure}
 
-The results in Figure \ref{fig:se_comp} characterize how the density of temporal observations impacts the posterior estimation. As the time step $dt_0$ decreases from $0.5\,s$ to $0.05\,s$, thereby increasing the total number of observations, all models show a consistent improvement in predictive accuracy, which can be attributed to the improved identifiability of the system dynamics. But the accuracy degrades at $dt_0=0.01\,s$ probably due to the inappropriate information extraction by the encoder, which is not designed for long time series. For a simple Mass-Spring-Damper system, $dt_0=0.05\,s$ already provides more than enough information to identify the parameters perfectly. Adding more points adds redundancy but no new constraints. This redundancy can lead to over-fitting in the latent space, where the model interprets numerical rounding errors or minor architectural biases as significant physical features. 
+The results in Figure~\ref{fig:se_comp} characterize how the density of temporal observations impacts the posterior estimation. As the time step $dt_0$ decreases from $0.5\,s$ to $0.05\,s$, thereby increasing the total number of observations, all models show a consistent improvement in predictive accuracy, which can be attributed to the improved identifiability of the system dynamics. But the accuracy degrades at $dt_0=0.01\,s$ probably due to the inappropriate information extraction by the encoder, which is not designed for long time series. For a simple Mass-Spring-Damper system, $dt_0=0.05\,s$ already provides more than enough information to identify the parameters perfectly. Adding more points adds redundancy but no new constraints. This redundancy can lead to over-fitting in the latent space, where the model interprets numerical rounding errors or minor architectural biases as significant physical features. 
 
 The accuracy of \ac{BNN}, \ac{RealNVP}, and \ac{VAE} is less sensitive to the sample efficiency. The higher RMSE at $dt_0=0.5\,s$ demonstrates that diffusion-based methods and \ac{NSF} requires more data than the other architectures. While almost all models reach accuracy peak at $dt_0=0.05\,s$, \ac{FM} prefers lower resolution of observation could result from that the vector field learning requires more differences in data samples. 
 
-About uncertainty quantification demonstrated on the right panel in Figure \ref{fig:se_comp}, \ac{VAE} is overfitted with a very narrow confidence interval and inadequate coverage probability. In accordance with Bayesian theory, as the number of observations increases, the posterior distribution shrinks. In the regime of increasing data density from $dt_0=0.5\,s$ to $0.05\,s$, the models exhibit divergent uncertainty behaviors:
+About uncertainty quantification demonstrated on the right panel in Figure~\ref{fig:se_comp}, \ac{VAE} is overfitted with a very narrow confidence interval and inadequate coverage probability. In accordance with Bayesian theory, as the number of observations increases, the posterior distribution shrinks. In the regime of increasing data density from $dt_0=0.5\,s$ to $0.05\,s$, the models exhibit divergent uncertainty behaviors:
 \begin{itemize}
-    \item Consistent Posterior Shrinkage: \ac{DDPM} and \ac{RealNVP} demonstrate a clear shrinkage effect, where the MCIW drops consistently. This aligns with Bayesian expectations: as the number of observations increases, the likelihood becomes more peaked, forcing the posterior distribution to contract around the true parameters.
+    \item Consistent Posterior Shrinkage: \ac{DDPM} and \ac{RealNVP} demonstrate a clear shrinkage effect, where the MCIW drops consistently. This aligns with Bayesian expectations: as the number of observations increases, the likelih\ac{OOD}becomes more peaked, forcing the posterior distribution to contract around the true parameters.
     \item Architectural Volatility: Other architectures show more complex trends. The MCIW of the \ac{BNN} initially increases before dropping, while \ac{NSF} exhibits a "decrease-then-rise" pattern. Most notably, \ac{FM} and \ac{SBM} show a paradoxical increase in MCIW (uncertainty width) as data density increases. This suggests that for these models, the increase in sequence length introduces numerical complexity or "perceived" contradictions in the latent space that temporarily outweigh the additional information provided by the higher sampling rate.
 \end{itemize}
    
@@ -180,7 +180,7 @@ Therefore, the following relation holds:
 \begin{equation}
     c/m = 2\sqrt{10}\;\zeta.
 \end{equation}
-Figure \ref{fig:lc_comp} shows two identification examples of linear correlated parameters.
+Figure~\ref{fig:lc_comp} shows two identification examples of linear correlated parameters.
 \begin{figure}[htp!]
     \centering
     \includegraphics[width=\textwidth]{figures/model_comparison_grid_linear.pdf}
@@ -188,11 +188,11 @@ Figure \ref{fig:lc_comp} shows two identification examples of linear correlated 
     \label{fig:lc_comp}
 \end{figure}
 
-As illustrated in Figure \ref{fig:lc_comp}, the \ac{BNN} and \ac{DDPM} fail to capture the underlying dependencies, resulting in wide, uninformative posterior clouds that lack alignment with the physical constraints. While the \ac{VAE} recovers the $k/m$ correlation, it fails significantly on $c/m$, where the posterior mass is biased and poorly aligned with the diagonal line. In contrast, the remaining four methods demonstrate higher fidelity. 
+As illustrated in Figure~\ref{fig:lc_comp}, the \ac{BNN} and \ac{DDPM} fail to capture the underlying dependencies, resulting in wide, uninformative posterior clouds that lack alignment with the physical constraints. While the \ac{VAE} recovers the $k/m$ correlation, it fails significantly on $c/m$, where the posterior mass is biased and poorly aligned with the diagonal line. In contrast, the remaining four methods demonstrate higher fidelity. 
 
 Among the successful models, \ac{SBM} and the \ac{NF} architectures (\ac{RealNVP} and \ac{NSF}) show their superior capability in identifying and enforcing linear parameter correlations. Their $k/m$ estimates are tightly aligned with the theoretical diagonal, and their $c/m$ estimates manifest as narrow ellipses centered on the ground truth. On the other hand, \ac{FM} successfully captures the linear trend, but it exhibits noticeably higher variance compared to \ac{SBM}, \ac{RealNVP}, and \ac{NSF}, particularly in the $c/m$ correlations. This suggests that while \ac{FM} identifies the correlation, it is less precise in enforcing the constraint than other architectures.
 
-Linear correlations represent a low-dimensional manifold within the parameter space. Figure \ref{fig:lc_comp} demonstrates that \acp{NF} (\ac{RealNVP}/\ac{NSF}) and \ac{SBM} are superior at manifold learning by effectively collapsing the posterior mass onto a line, whereas \ac{BNN} and \ac{DDPM} struggle to resolve such sharp constraints. Besides, the \ac{VAE}’s failure in the $c/m$ correlation is a classic symptom of posterior collapse or architectural under-fitting for specific parameter dimensions. 
+Linear correlations represent a low-dimensional manifold within the parameter space. Figure~\ref{fig:lc_comp} demonstrates that \acp{NF} (\ac{RealNVP}/\ac{NSF}) and \ac{SBM} are superior at manifold learning by effectively collapsing the posterior mass onto a line, whereas \ac{BNN} and \ac{DDPM} struggle to resolve such sharp constraints. Besides, the \ac{VAE}’s failure in the $c/m$ correlation is a classic symptom of posterior collapse or architectural under-fitting for specific parameter dimensions. 
 
 The performance gap between the two diffusion models is particularly striking: \ac{SBM} exhibits a far greater capability for recovering precise physical constraints than \ac{DDPM}. Despite \ac{DDPM}'s established success in generating high-dimensional complex data, it fails to resolve the specific linear parameter correlations in this task.
 Similarly, despite their theoretical proximity, \ac{FM} appears more dispersed than \ac{SBM}. This is primarily because \ac{FM} is a deterministic transport method that is more sensitive to cumulative approximation errors along the integration path, whereas the stochastic nature of \ac{SBM} provides a corrective mechanism through noise-driven sampling.
@@ -200,7 +200,7 @@ Similarly, despite their theoretical proximity, \ac{FM} appears more dispersed t
 Within the \ac{NF} architectures, a notable distinction exists between \ac{RealNVP} and \ac{NSF} when we zoom in the $c/m$ figures. While both successfully identify the correlation, \ac{RealNVP} exhibits a higher degree of centralization along the diagonal correlation axes. While this leads to a narrower, line-like distribution with high precision, it also places the ground-truth (yellow star) at the extreme periphery of the high-density core. In contrast, \ac{NSF} estimates the density with higher variance, which is less desired in this case. 
 
 \paragraph{Multimodal Distribution}
-The ability to capture multimodal distributions is a key advantage of applying \acp{DGM} for Bayesian inference. Different \acp{DGM} exhibit different characteristics. Figure \ref{fig:mm_comp} illustrates these differences. As test scenarios, we consider two cases: one where the values of $k_1$ and $k_3$ are far apart (the first two samples), and another where they are close to each other (the last two samples).
+The ability to capture multimodal distributions is a key advantage of applying \acp{DGM} for Bayesian inference. Different \acp{DGM} exhibit different characteristics. Figure~\ref{fig:mm_comp} illustrates these differences. As test scenarios, we consider two cases: one where the values of $k_1$ and $k_3$ are far apart (the first two samples), and another where they are close to each other (the last two samples).
 \begin{figure}[htp!]
     \centering
     \includegraphics[width=\textwidth]{figures/model_comparison_grid_multi_modal.pdf}
@@ -208,12 +208,10 @@ The ability to capture multimodal distributions is a key advantage of applying \
     \label{fig:mm_comp}
 \end{figure}
  
-As demonstrated in Figure \ref{fig:mm_comp}, there is a clear performance consistent with the linear correlation results. \ac{SBM}, \ac{FM}, \ac{NSF}, and \ac{RealNVP} significantly outperform \ac{BNN}, \ac{VAE}, and \ac{DDPM} in resolving the symmetric multimodal structure.
+As demonstrated in Figure~\ref{fig:mm_comp}, there is a clear performance consistent with the linear correlation results. \ac{SBM}, \ac{FM}, \ac{NSF}, and \ac{RealNVP} significantly outperform \ac{BNN}, \ac{VAE}, and \ac{DDPM} in resolving the symmetric multimodal structure.
 The \ac{BNN} produces broad, uninformative posterior clouds that fail to recognize any specific multimodal topology. The \ac{VAE} exhibits over-concentration onto narrow, biased ridges; in all these four scenarios, the ground truth and its symmetric counterpart lie entirely outside the high-density regions, indicating again, the posterior collapse. \ac{DDPM} successfully resolves the two distinct modes only in the first scenario (Row 1), but degrades into a single diffuse, biased cluster in the remaining test cases.
 
-In contrast, \ac{SBM}, \ac{FM}, and \ac{NSF} demonstrate superior multimodal recovery. In the well-separated scenarios (top two rows), they clearly resolve two distinct high-probability peaks. As the modes become proximal (bottom two rows), these models transition to a single elongated density region that embraces both ground truth points. While \ac{RealNVP} successfully identifies both modes, it produces extremely thin, line-like distributions with collapsed variance. This suggests that the \ac{RealNVP} has failed to capture the full uncertainty of the posterior due to its limited expressiveness. Instead, it collapses onto a lower-dimensional manifold.
-
-There is a clear phase transition in model behavior between Row 2 and Row 3. All successful models transition from disjoint bimodal to continuous unimodal as the parameter modes move closer together. This shows that the models are not just memorizing two points, but are actually learning the underlying likelihood surface. Comparing \ac{SBM} and \ac{FM} reveals that while both use related ODE/SDE-based sampling, \ac{SBM} produces a much crisper, tighter posterior. \ac{FM} appears more noisy and diffused, suggesting that for high-precision physical parameter identification, score-based objectives might offer better convergence to the true posterior manifold than standard flow-matching. The \ac{NSF} appears to be the most balanced architecture. It avoids the extreme thinness of \ac{RealNVP} while maintaining the high precision and multimodal resolution.
+In contrast, \ac{SBM} and the three \ac{NF} architectures demonstrate a superior capacity for multimodal recovery. In well-separated scenarios (top two rows), all architectures successfully resolve two distinct high-probability modes. Notably, however, \ac{RealNVP} exhibits a slight bias, failing to precisely align its right posterior mode with the ground truth. As the modes become proximal (bottom two rows), the identification task becomes increasingly ill-posed, with models struggling to decouple the two ground-truth points and producing a higher density of samples in the interstitial region. While \ac{NSF} maintains high fidelity by successfully resolving both modes and accurately centering the posterior on the ground-truth coordinates, the remaining three models exhibit varying degrees of dislocation. This suggests that while most architectures can handle discrete multimodality, only \ac{NSF} remains robust in proximal scenarios where structural symmetry leads to significant parametric overlap.
 
 \subsection{Relationship Between Bayesian Inference and Sensitivity Analysis}
 Previous experiments applying mass-spring-damper models demonstrate that Bayesian inference is intrinsically linked to parameter identifiability. Our findings indicate that spring constants converge rapidly during training, which will be further elucidated through sensitivity analysis. Conversely, linearly correlated parameters lack unique identification, and in symmetric coupled models, individual spring constants become indistinguishable. These varying levels of identifiability can be rigorously analyzed through \ac{SA}, which studies how uncertainty in the output of a mathematical model can be partitioned and allocated to different sources of uncertainty in its inputs. This framework aligns naturally with the objectives of amortized Bayesian inference. For purely data-driven methods, \ac{SA} provides essential insights into the physical model and practical training suggestions: weakly identifiable or correlated parameters that require additional observational data for resolution.
@@ -274,7 +272,7 @@ The sensitivity of parameters also reflects the convergence speed of training de
     \label{fig:sa_speed}
 \end{figure}
 
-Figure \ref{fig:sa_speed} illustrates the convergence behavior of the three parameters during the early stages of training. By the 29th epoch, the stiffness $k$ begins to converge toward the diagonal parity line, whereas the other two parameters remain unresolved, centered at the mean of their respective ranges. At the 258th epoch, $c$ begins to show a slight tendency toward convergence, while $k$ is further refined; however, $m$ shows no significant improvement. By the 393rd epoch, $m$ also begins to converge. Finally, at the 951st epoch, $m$ and $c$ reach a similar level of accuracy, while the estimate for $k$ continues to improve. This development reflects the sensitivity of parameters. It is worth to note that faster convergence of $c$ than $m$ results from the larger data range of $c$. And the convergence speed of both parameters synchronizes at the last. 
+Figure~\ref{fig:sa_speed} illustrates the convergence behavior of the three parameters during the early stages of training. By the 29th epoch, the stiffness $k$ begins to converge toward the diagonal parity line, whereas the other two parameters remain unresolved, centered at the mean of their respective ranges. At the 258th epoch, $c$ begins to show a slight tendency toward convergence, while $k$ is further refined; however, $m$ shows no significant improvement. By the 393rd epoch, $m$ also begins to converge. Finally, at the 951st epoch, $m$ and $c$ reach a similar level of accuracy, while the estimate for $k$ continues to improve. This development reflects the sensitivity of parameters. It is worth to note that faster convergence of $c$ than $m$ results from the larger data range of $c$. And the convergence speed of both parameters synchronizes at the last. 
 
 \begin{figure}[htbp]
     \centering
@@ -283,7 +281,7 @@ Figure \ref{fig:sa_speed} illustrates the convergence behavior of the three para
     \label{fig:sa_l_c}
 \end{figure}
 
-Figure \ref{fig:sa_l_c} compares the sensitivity analysis of the free and coupled mass-spring-models. In the free-vibration case, the external force is removed. The behavior of the mass-spring-model is heavily influenced by how fast the energy loses, which is caused by the damping $c$. The global \ac{SA} of the free-vibration system reveals a clear hierarchy of parameter identifiability. The damping coefficient  $c$ dominates the output variance ($S^T_c=0.767$), followed by the stiffness $k$ ($S^T_k=0.232$), and the mass $m$ exhibits negligible sensitivity ($S^T_m=0.008$). Furthermore, the near-equality of $S^1$ and $S^T$ across all parameters indicates a lack of higher-order interactions. This suggests $m$ is weakly identifiable, whereas the other two parameters can be identified independently. 
+Figure~\ref{fig:sa_l_c} compares the sensitivity analysis of the free and coupled mass-spring-models. In the free-vibration case, the external force is removed. The behavior of the mass-spring-model is heavily influenced by how fast the energy loses, which is caused by the damping $c$. The global \ac{SA} of the free-vibration system reveals a clear hierarchy of parameter identifiability. The damping coefficient  $c$ dominates the output variance ($S^T_c=0.767$), followed by the stiffness $k$ ($S^T_k=0.232$), and the mass $m$ exhibits negligible sensitivity ($S^T_m=0.008$). Furthermore, the near-equality of $S^1$ and $S^T$ across all parameters indicates a lack of higher-order interactions. This suggests $m$ is weakly identifiable, whereas the other two parameters can be identified independently. 
 
 The global \ac{SA} of the symmetric coupled two-mass system reveals a perfect parity between the boundary stiffness parameters. Both $k_1$ and $k_3$ exhibit nearly identical first-order ($S^1\approx 0.496$) and total-order ($S^T\approx 0.503$) indices. The near-unity sum of their first-order indices ($S_{k_1}+S_{k_3}\approx 1$) suggests that these two parameters account for almost the entire variance of the system's dynamic response, with negligible higher-order interactions ($S^T-S^1<0.01$). From an identifiability perspective, this symmetry presents a unique challenge for Bayesian inference. While the high sensitivity ensures that the parameters will converge quickly away from the prior mean, the identical nature of their influence results in a bimodal posterior distribution. This confirms the indistinguishability and multimodality: the amortized inference model can identify the required stiffness levels but cannot uniquely assign them to $k_1$ or $k_3$ without additional asymmetric constraints or localized observations.
 
@@ -297,45 +295,122 @@ We evaluate the robustness of \acp{NF} (including \ac{FM}, \ac{RealNVP}, and \ac
 \item \ac{OOD} Generalization: Testing the framework on parameter ranges that lie outside the support of the training prior.
 \end{itemize}
 
-\subsection{Stochastic Normalizing Flows}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/stress_test_noise.pdf}
+    \caption[Stress Test of Normalizing Flows under Noise]{Stress test of Normalizing Flow architectures under increasing additive Gaussian noise. The panels illustrate the evolution of predictive accuracy (RMSE), uncertainty quantification (MCIW), and posterior calibration (CICP) for \ac{RealNVP}, \ac{NSF}, and \ac{FM} as the noise intensity $\sigma$ changes. Logarithmic scaling is applied to both the noise level and the corresponding RMSE and MCIW metrics to highlight performance degradation across several orders of magnitude.}
+    \label{fig:st_noise}
+\end{figure}
+
+Figure~\ref{fig:st_noise} illustrates the performance of the three \ac{NF} architectures under varying levels of additive Gaussian noise $\sigma$. At the low-noise level ($\sigma=0.01$), all models exhibit a sharp decline in coverage probability, particularly the \ac{FM} and \ac{NSF} variants. This indicates a calibration failure where the condition network fails to fully distinguish observational stochasticity from parameter variance, leading to overly confident (narrow) posteriors. As noise intensity increases beyond $\sigma=0.05$, the models show a monotonic degradation in accuracy (RMSE) accompanied by a proportional expansion of uncertainty (MCIW). In the high-noise range ($\sigma\ge0.05$), the models converge in behavior, successfully broadening their posterior estimates to maintain a stable, albeit lower, coverage floor of approximately 0.92.
+
+In such cases, the condition network encounters a representational bottleneck; it fails to extract sufficient summary statistics, preventing the observational variance from being accurately mapped to the parameter sensitivity. To mitigate this, an \ac{MCMC} algorithm can be employed to correct the estimates, using the amortized posterior as an informative proposal distribution. Alternatively, a more computationally efficient approach involves \ac{SNF}, which integrates the simulator directly into the latent transformation as a log-posterior diagnostic, as detailed in Section \ref{sec:snf}.
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/misspecification_metrics.pdf}
+        \caption{Misspecification}
+        \label{fig:miss_metrics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.50\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/ood_metrics.pdf}
+        \caption{OOD}
+        \label{fig:ood_metrics}
+    \end{subfigure}
+
+    \caption[Evaluation of Stress Test under Misspecification and OOD]{Evaluation of model performance under structural misspecification and \ac{OOD} stress tests. Rows from top to bottom display inference accuracy (RMSE), uncertainty estimation (MCIW), and coverage probability (CICP). The dashed line in CICP subfigure shows 0.95 coverage probability. Metric values are averaged across 200 test scenarios and three mechanical parameters ($m,k,c$). The grouped bar plots illustrate performance at varying stress levels $0.5, 1, 2$. For structural misspecification, the level corresponds to the magnitude of the nonlinear factor $\beta$ introduced into the system dynamics: $\dot v = (F_t - kx + \beta x^3 - cv+\beta v |v|)/m$. For \ac{OOD} testing, the level denotes the shift $\Delta$ of the test data range relative to the original training set, where $\Delta=(+0.1\alpha, +\alpha, +0.5\alpha)$. At each level, colors indicate the training state: the original baseline under stress, and the improved results after retraining either the condition network or the entire network. Bar patterns represent the normalizing flow architecture (RealNVP, NSF, and FM).}
+    \label{fig:metrics}
+\end{figure}
+
+\begin{figure}[htp!]
+    \begin{minipage}{0.65\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/misspecification_distribution.pdf}
+      \end{minipage}
+      \hfill
+    \begin{minipage}{0.32\textwidth}
+    \caption[Micro View of Distribution under Misspecification]{Micro View of posterior distributions under misspecification for a single test scenario. The 3×3 grid illustrates the joint posterior distributions of parameters $m$ and $c$ across three architectures (RealNVP, NSF, and FM) and three misspecification levels ($\beta=0.5, 1, 2$). Colors represent the model state: the baseline under stress ("Original"), the improved result after retraining the condition network ("retrain-cn"), and the result after full-network retraining ("retrain"). The ground truth is marked by a red cross (+). }
+    \label{fig:miss_distribution}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[htp!]
+    \begin{minipage}{0.65\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/ood_residual.pdf}
+      \end{minipage}
+      \hfill
+    \begin{minipage}{0.32\textwidth}
+    \caption[Global Residual Analysis under OOD]{Global residual analysis under \ac{OOD} for 200 test scenarios. The 3×3 grid illustrates a global residual analysis of the joint distributions for mass $\Delta m=\hat{m}-m$ and damping $\Delta c=\hat{c}-c$ across three architectures (RealNVP, NSF, and FM) and three \ac{OOD} levels ($\alpha=0.5, 1, 2$). Colors represent the model state: the baseline under stress ("Original"), the improved result after retraining the condition network ("retrain-cn"), and the result after full-network retraining ("retrain"). The perfect match (zero error) is marked by a red cross (+).}
+    \label{fig:ood_distribution}
+    \end{minipage}
+\end{figure}
+
+The structural misspecification and \ac{OOD} generalization problems can be solved by active learning, i.e., retraining the architectures with new data. Figure \ref{fig:metrics} shows the improvement through model adaptation of misspecification and \ac{OOD} generalization, respectively. In the both cases, comparing different retraining methods (different colors), updating only the condition network effectively centers the distribution, significantly reducing RMSE and bringing CICP back toward the 0.95 target. While retraining the whole networks produces the most improvement in terms of minimizing error and tightening confidence intervals, it carries the highest risk of overfitting the posterior. Comparing different flow architecture (different patterns), RealNVP and NSF achieve the highest lowest RMSE and narrowest MCIW after retraining. However, they are highly sensitive to the misspecification or \ac{OOD} stress. In contrast, FM shows higher inference error and wider uncertainty than others but maintains higher coverage probability. It is less prone to overfitting and resilient against the stress. 
+
+Figure \ref{fig:miss_distribution} is a micro view of the joint distributions between $m, c$ in a test scenario. As the stress level increases, a clear divergence from the ground truth is observed in the baseline models. While FM exhibits a larger posterior variance compared to the other architectures, it demonstrates superior robustness. Retraining the condition network successfully shifts the posteriors back toward the ground truth. However, full-network retraining for RealNVP and NSF leads to overconfidence; while point accuracy increases, the distributions shrink excessively, causing a drop in coverage. In contrast, FM retraining further constrains the distribution without inducing this overfitting effect, maintaining better calibration than the condition-network adaptation.
+
+Figure \ref{fig:ood_distribution} represents a global residual analysis under OOD. By centering the ground truth of each scenario at $(0,0)$. The subplots reveal the systematic bias and uncertainty induced by increasing \ac{OOD} shifts. As the shift increases from 0.5 to 2.0, the "Original" baseline distributions exhibit both a significant expansion in variance and a pronounced negative systematic bias, particularly in the NSF and RealNVP architectures. NSF displays the highest sensitivity to \ac{OOD}, showing the largest displacement from the origin and the most irregular posterior shapes. In contrast, FM demonstrates superior baseline robustness; even at Level 2.0, its original distribution remains more symmetric and better centered than the other architectures. Consequently, while retraining the conditional network and the full network significantly reduces error for RealNVP and NSF by "recentering" the distributions on the ground truth, FM shows a smaller marginal improvement. 
+
+\subsection{Stochastic Normalizing Flows}\label{sec:snf}
 Normalizing flows, including flow matching, are deterministic by design, which enables precise and efficient density estimation. However, in practice this deterministic structure can limit their ability to fully capture complex, highly multimodal target distributions, especially when model capacity or data are limited. One way to alleviate this limitation is to combine normalizing flows with \ac{MCMC} methods. In such hybrid approaches, the normalizing flow serves as an expressive proposal or initialization mechanism, while \ac{MCMC} refines the samples by enforcing consistency with the true posterior through its accept–reject mechanism or transition kernel. The stochastic exploration of \ac{MCMC} improves mode coverage and helps the overall system discover and accurately represent multiple modes that might be underrepresented by the deterministic flow alone. Moreover, by repeatedly evaluating the forward dynamics within the \ac{MCMC} procedure, the method can better discriminate between parameter configurations that produce similar noisy observations, thereby improving parameter identifiability under measurement noise.
 
-\citeauthor{wu2020stochasticnormalizingflows} \citeyearpar{wu2020stochasticnormalizingflows} proposed to construct \acp{SNF} by alternating a sequence of deterministic \acp{INN} and stochastic \ac{MCMC} sampling layers (INN - MCMC - $\cdots$ - INN - MCMC). \citeauthor{Hagemann_2022} \citeyearpar{Hagemann_2022} provided theoretical foundation for stochastic normalizing flows and proved their consistency to \acp{CNF} for solving inverse problems. An \ac{SNF} is a pair of Markov chains of random variables $((U_0, \ldots, U_T), (V_T, \ldots, V_0))$. The transformation between two adjacent variables is either a deterministic \ac{INN} block or a stochastic \ac{MCMC} sampling layer. Denoting the process $(U_t)_{t=0}^T$ as the forward process, $U_0$ represents the data and $U_T$ is trained to follow a standard normal distribution. Conversely, in the inverse process $(V_t)_{t=0}^T$, $V_T$ is sampled from the standard normal distribution and $V_0$ follows the target density. Because both processes are Markov chains, the transformations can be written as conditional distributions, where each state depends only on its immediate predecessor. We denote the transformations in the forward process by $\mathcal{T}_t = P(U_t \mid U_{t-1})$ and those in the inverse process by $\mathcal{T}_t^{-1} = P(V_{t-1} \mid V_t)$. An illustration of such an \ac{SNF} architecture is shown in Figure \ref{fig:snf}.
+\citeauthor{wu2020stochasticnormalizingflows} \citeyearpar{wu2020stochasticnormalizingflows} proposed to construct \acp{SNF} by alternating a sequence of deterministic \acp{INN} and stochastic \ac{MCMC} sampling layers (INN - MCMC - $\cdots$ - INN - MCMC). \citeauthor{Hagemann_2022} \citeyearpar{Hagemann_2022} provided theoretical foundation for stochastic normalizing flows and proved their consistency to \acp{CNF} for solving inverse problems. An \ac{SNF} is a pair of Markov chains of random variables $((U_0, \ldots, U_T), (V_T, \ldots, V_0))$. The transformation between two adjacent variables is either a deterministic \ac{INN} block or a stochastic \ac{MCMC} sampling layer. The process $(U_t)_{t=0}^T$ is denoted as the process from data to latent space, whereas the process $(V_t)_{t=0}^T$ is the conversed process from latent to data space. $V_T$ represents the latent variable, which follows a standard normal distribution and $U_0$ represents the data distribution. Since both processes are Markov chains, the transformations can be written as conditional distributions, where each state depends only on its immediate predecessor. We denote the transformation in the forward process (from data to latent) by $\mathcal{T}_t = P_{U_t \mid U_{t-1}}$ and that in the inverse process (from latent to data space) by $\mathcal{T}_t^{-1} = P_{V_{t-1} \mid V_t}$. An illustration of such an \ac{SNF} architecture is shown in Figure~\ref{fig:snf}.
 \begin{figure}[htp!]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/SNF.pdf}
-    \caption[SNF Architecture]{ The architecture of an SNF.}
+    \caption[SNF Architecture]{The architecture of an \ac{SNF} with Markov chains $((U_0, \ldots, U_T), (V_T, \ldots, V_0))$. To be consistent with \ac{NF} as shown in Figure~\ref{fig:bayesflow}, the left side of the figure is the data distribution, while the right side is the latent distribution. The upper row illustrates the forward direction from data to latent space, whereas the bottom row shows the inverse direction from latent to data space.}
     \label{fig:snf}
 \end{figure}
 
-Unlike \acp{CNF}, for which the objective function is minimizing the KL-divergence between the learnt and target density, the objective function for training an \ac{SNF} is to minimize the difference of the joint probabilities between the forward and inverse processes. We define the joint probability of forward process as $p_\theta(u_{0:T})=p_X(u_0)\Pi_{t=1}^{T}p_\theta(u_t|u_{t-1})$, while the inverse process as $q_\theta(v_{0:T})=p_Z(v_T)\Pi_{t=1}^{T}q_\theta(v_{t-1}|v_{t})$. Same as \acp{CNF}, the objective function is trained in the forward direction.
-\begin{multline}
-\mathcal{L}_{SNF}(\theta)=D_{\text{KL}}(p_\theta(u_{0:T})||q_\theta(v_{0:T}))=\mathbb{E}_{u_{0:T}\sim p_\theta}[\log p_\theta(u_{0:T})-\log q_\theta(v_{0:T})]\\
-=\mathbb{E}_{u_{0:T}\sim p_\theta}[-\log p_Z(u_T)+\log p_X(u_0)+\sum_{t=1}^{T}\log \frac{p_\theta(u_{t}|u_{t-1})}{q_\theta(u_{t-1}|u_{t})}].
-\end{multline}
-The critical point is the calculation of the term $\left[p_\theta(u_{t}|u_{t-1})/q_\theta(u_{t-1}|u_{t})\right]$.
+Unlike \acp{CNF}, for which the objective function is minimizing the KL-divergence between the learnt and target density, the objective function for training an \ac{SNF} is to minimize the difference of the joint distributions between the forward and inverse processes. We define the joint distribution of the forward process as $P_{U_{0:T}}=P_{U_0\sim p_X}\Pi_{t=1}^{T}P_{U_{t}|U_{t-1}}$, and the inverse process as $P_{V_{0:T}}=P_{V_T\sim p_Z}\Pi_{t=1}^{T}P_{V_{t-1}|V_t}$. Then, the objective taking the forward process as training variables is:
+\begin{equation}
+    \mathcal{L}_{SNF}(\theta)=D_{\text{KL}}(P_{V_{0:T}}||P_{U_{0:T}})=\mathbb{E}_{u_{0:T}\sim P_{V_{0:T}}}\log \frac{dP_{V_{0:T}}}{dP_{U_{0:T}}}.
+\end{equation}
+Similar to \acp{CNF}, the objective function of an \ac{SNF} is trained from data to the latent space. The derivative term can be expanded as:
+\begin{equation}
+    \frac{dP_{V_{0:T}}}{dP_{U_{0:T}}} = \frac{p_{V_0}(u_0)}{p_{U_0}(u_0)}\prod_{t=1}^{T}\frac{p_{V_t|V_{t-1}}(u_t|u_{t-1})}{p_{U_t|U_{t-1}}(u_t|u_{t-1})}=\frac{p_{V_T}(u_T)}{p_{U_T}(u_T)}\prod_{t=1}^{T}\frac{p_{V_{t-1}|V_t}(u_{t-1}|u_t)}{p_{U_{t-1}|U_t}(u_{t-1}|u_t)}.
+\end{equation}
+Because $V_T\equiv Z$ and $U_0\equiv X$ and the SNF is trained from $U_0$ to $U_T$, the term can be rewritten as:
+\begin{equation}
+    \frac{dP_{V_{0:T}}}{dP_{U_{0:T}}} = \frac{p_{V_T}(u_T)}{p_{U_0}(u_0)}\prod_{t=1}^{T}f_t(u_{t-1}, u_t)\frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)}, \quad f_t(u_{t-1}, u_t)=\frac{p_{V_t|V_{t-1}}(u_t|u_{t-1})}{p_{U_t|U_{t-1}}(u_t|u_{t-1})}.
+\end{equation}
+Then, the objective is:
+\begin{equation}
+    \mathcal{L}_{SNF}(\theta) = \mathbb{E}_{u_{0:T}\sim P_{V_{0:T}}}[\log p_{V_T}(u_T) - \log p_{U_0}(u_0) + \sum_{t=1}^{T} \log f_t(u_{t-1}, u_t)\frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)}]
+\end{equation}
+The term $f_t(u_{t-1}, u_t)p_{V_{t-1}}(u_{t-1})/p_{V_t}(u_t)$ is different in deterministic or stochastic layers. 
 \begin{itemize}
-    \item For a deterministic transformation, the term is equivalent to the change of variable, which is given by:
+    \item For a deterministic transformation, $f_t(u_{t-1}, u_t)=1$ and $p_{V_{t-1}}(u_{t-1})/p_{V_t}(u_t)$ is equivalent to the change of variable, which is given by:
     \begin{equation}
-        \frac{p_\theta(u_{t}|u_{t-1})}{q_\theta(u_{t-1}|u_{t})} = \frac{du_{t-1}}{du_{t}} = -\log \det \left|J_f(u_{t-1})\right|.
+        \frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)} = \det \left|J_{\mathcal{T}_t}(u_{t-1})\right|.
     \end{equation}
-    \item For a stochastic transformation, the term is the KL-divergence, measuring how well the backward kernel inverts the forward one at each step. The stochastic transformation is supposed to be invertible and has to fulfill the detailed balance condition with respect to some density $p_t$, which is given by:
+    \item For a stochastic transformation, the term measures how well the backward kernel inverts the forward one at each step, because it can be reformulated as:
     \begin{equation}
-        p_t(u_t)q_\theta(u_{t-1}|u_t) = p_{t}(u_{t-1})p_\theta(u_t|u_{t-1}).
+        f_t(u_{t-1}, u_t)\frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)} = \frac{p_{V_{t-1}|V_t}(u_{t-1}|u_t)}{p_{U_t|U_{t-1}}(u_t|u_{t-1})}.
     \end{equation}
-    The density $p_t$ is the target density of the stochastic layer at the $t$-th step. It is chosen to be an interpolation between $p_Z$ and $p_X$, which is given by:
+    The stochastic transformation is supposed to be invertible and has to fulfill the detailed balance condition with respect to some density $\pi_t$, which is given by:
     \begin{equation}
-        p_t = c \cdot p_Z^{t/T} \cdot p_X^{(T-t)/T}.
+        \pi_t(u_t)p_{V_{t-1}|V_t}(u_{t-1}|u_t) = \pi_{t}(u_{t-1})p_{U_t|U_{t-1}}(u_t|u_{t-1}).
     \end{equation}
-    The parameter $c$ is a normalizing constant.
+    The density $\pi_t$ is the target density of the stochastic layer at the $t$-th step. It is chosen to be an interpolation between $p_Z$ and $p_X$, which is given by:
+    \begin{equation}
+        \pi_t = c \cdot p_Z^{t/T} \cdot p_X^{(T-t)/T}.
+    \end{equation}
+    The parameter $c$ is a normalizing constant. Then the energy function of the density is $E_t(u)=-\log(\pi_t(u))$.
 
-    For computational efficiency, the stochastic transformation is chosen to be an \ac{MALA} (See in Section\ref{sec:MALA}) kernel. Then, the term $\left[p_\theta(u_{t}|u_{t-1})/q_\theta(u_{t-1}|u_{t})\right]$ is given by:
+    For computational efficiency, the stochastic transformation is chosen to be an \ac{MALA} (See in Section\ref{sec:MALA}) kernel. Then, the term $f_t(u_{t-1}, u_t)p_{V_{t-1}}(u_{t-1})/p_{V_t}(u_t)$ is given by:
     \begin{equation}
-        \frac{p_\theta(u_{t}|u_{t-1})}{q_\theta(u_{t-1}|u_{t})} = \frac{p_t(u_{t})}{p_t(u_{t-1})} = \exp\left(-\frac{1}{2\tau}(\left\|\eta_t\right\|^2_2-\left\|\tilde{\eta}_t\right\|^2_2)\right),
+        \frac{p_{V_{t-1}|V_t}(u_{t-1}|u_t)}{p_{U_t|U_{t-1}}(u_t|u_{t-1})} = \frac{\pi_t(u_{t-1})}{\pi_t(u_{t})} = \exp\left(\frac{1}{2}(\left\|\tilde{\eta}_t\right\|^2_2-\left\|\eta_t\right\|^2_2)\right),
     \end{equation}
-    where 
+    where $\eta_t$ and $\tilde{\eta}_t$ represent the Gaussian noise vectors that generate the forward ($u_{t-1}\rightarrow u_{t}$) and backward ($u_{t}\rightarrow u_{t-1}$) steps respectively:
     \begin{equation}
-        \eta_t = u_t-u_{t-1}+\frac{\sqrt{\tau}}{2}\nabla E_t(u_{t-1}), \quad \tilde{\eta}_t = u_{t-1} -u_t+\frac{\sqrt{\tau}}{2}\nabla E_t(u_{t}).
+        \eta_t := \frac{1}{\sqrt{\tau}} \left( u_{t-1} - u_t - \frac{\tau}{2} \nabla E_t(u_{t-1}) \right), \quad \tilde{\eta}_t := \frac{1}{\sqrt{\tau}} \left( u_{t-1} - u_t + \frac{\tau}{2} \nabla E_t(u_t) \right).
     \end{equation}
 \end{itemize}
 

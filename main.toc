@@ -61,29 +61,29 @@
 \contentsline {subsection}{\numberline {1.2}Normalizing Flows for Parameter Identification}{52}{subsection.3.1.2}%
 \contentsline {paragraph}{Overall Settings}{53}{subsection.3.1.2}%
 \contentsline {paragraph}{Pperformance Comparison}{54}{equation.3.8}%
-\contentsline {paragraph}{Sample Efficiency}{56}{figure.caption.98}%
-\contentsline {paragraph}{Linear Correlation}{58}{figure.caption.99}%
-\contentsline {paragraph}{Multimodal Distribution}{60}{figure.caption.100}%
+\contentsline {paragraph}{Sample Efficiency}{56}{figure.caption.99}%
+\contentsline {paragraph}{Linear Correlation}{58}{figure.caption.100}%
+\contentsline {paragraph}{Multimodal Distribution}{60}{figure.caption.101}%
 \contentsline {subsection}{\numberline {1.3}Relationship Between Bayesian Inference and Sensitivity Analysis}{62}{subsection.3.1.3}%
-\contentsline {subsection}{\numberline {1.4}When Does the Framework Fail?}{66}{subsection.3.1.4}%
-\contentsline {subsection}{\numberline {1.5}Stochastic Normalizing Flows}{66}{subsection.3.1.5}%
-\contentsline {section}{\numberline {2}State Estimation}{69}{section.3.2}%
-\contentsline {section}{\numberline {3}Optimal Control}{70}{section.3.3}%
-\contentsline {chapter}{\numberline {IV}Experiments and Results}{71}{chapter.4}%
-\contentsline {section}{\numberline {1}Overview}{71}{section.4.1}%
-\contentsline {section}{\numberline {2}Parameter Identification}{71}{section.4.2}%
-\contentsline {section}{\numberline {3}State Estimation}{71}{section.4.3}%
-\contentsline {section}{\numberline {4}Optimal Control}{71}{section.4.4}%
-\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{73}{chapter.5}%
-\contentsline {chapter}{Abstract}{75}{chapter.5}%
-\contentsline {chapter}{Zusammenfassung}{77}{chapter.5}%
-\contentsline {chapter}{Bibliography}{78}{section*.112}%
-\contentsline {chapter}{Own Contributions and Publications}{79}{section*.112}%
-\contentsline {section}{Own share in data acquisition and data analysis}{79}{section*.113}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{79}{section*.113}%
-\contentsline {paragraph}{Own share in Data Analysis.}{79}{section*.113}%
-\contentsline {section}{Own Publications}{79}{section*.113}%
-\contentsline {chapter}{Appendix}{101}{section*.113}%
-\contentsline {chapter}{Acknowledgement}{103}{section*.113}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{105}{section*.113}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{107}{Item.12}%
+\contentsline {subsection}{\numberline {1.4}When Does the Framework Fail?}{65}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {1.5}Stochastic Normalizing Flows}{70}{subsection.3.1.5}%
+\contentsline {section}{\numberline {2}State Estimation}{73}{section.3.2}%
+\contentsline {section}{\numberline {3}Optimal Control}{74}{section.3.3}%
+\contentsline {chapter}{\numberline {IV}Experiments and Results}{75}{chapter.4}%
+\contentsline {section}{\numberline {1}Overview}{75}{section.4.1}%
+\contentsline {section}{\numberline {2}Parameter Identification}{75}{section.4.2}%
+\contentsline {section}{\numberline {3}State Estimation}{75}{section.4.3}%
+\contentsline {section}{\numberline {4}Optimal Control}{75}{section.4.4}%
+\contentsline {chapter}{\numberline {V}Discussion and Conclusion}{77}{chapter.5}%
+\contentsline {chapter}{Abstract}{79}{chapter.5}%
+\contentsline {chapter}{Zusammenfassung}{81}{chapter.5}%
+\contentsline {chapter}{Bibliography}{82}{section*.116}%
+\contentsline {chapter}{Own Contributions and Publications}{83}{section*.116}%
+\contentsline {section}{Own share in data acquisition and data analysis}{83}{section*.117}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{83}{section*.117}%
+\contentsline {paragraph}{Own share in Data Analysis.}{83}{section*.117}%
+\contentsline {section}{Own Publications}{83}{section*.117}%
+\contentsline {chapter}{Appendix}{105}{section*.117}%
+\contentsline {chapter}{Acknowledgement}{107}{section*.117}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{109}{section*.117}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{111}{Item.12}%

@@ -9,10 +9,11 @@ else:
 import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
-import optax
-from typing import Any, Literal, List
+from typing import Optional, Literal, List
 from bayesinf.utils.common import gaussian_kl_divergence, reparameterize
 from bayesinf.models.networks import TimeSeriesEncoder
+from bayesinf.models.MCMC_Flow import MALALayer, RMALALayer, MCMCLayer, BMCMCLayer
+STOCHASTIC_LAYERS = (MALALayer, RMALALayer, MCMCLayer, BMCMCLayer)
 
 
 class cVAE(eqx.Module):
@@ -30,9 +31,11 @@ class cVAE(eqx.Module):
     l_logvar: eqx.nn.Linear
     p_decoder: eqx.Module
     latent_dim: int
+    refinement: Optional[eqx.Module]
 
     def __init__(self, feature_dim: int, param_dim: int, latent_dim: int = 16, hidden_sizes: List[int] = [64]*2,
-                 hidden_dim_rnn: int = 64, rnn_type: Literal["lstm", "gru"] = "lstm", *, key):
+                 hidden_dim_rnn: int = 64, rnn_type: Literal["lstm", "gru"] = "lstm", *, key, log_posterior_fn=None,
+                 mcmc_type='MALA', num_mh_steps: int = 1, mcmc_step_size: float = 1e-3, noise_std=0.01):
         """
         Initialize parameter identification CVAE.
 
@@ -53,6 +56,30 @@ class cVAE(eqx.Module):
         self.l_mu = eqx.nn.Linear(latent_dim, latent_dim, key=l_mu)
         self.l_logvar = eqx.nn.Linear(latent_dim, latent_dim, key=l_logvar)
         self.p_decoder = eqx.nn.MLP(latent_dim * 2, param_dim, hidden_sizes[0], depth=len(hidden_sizes), key=dec_key)
+        if log_posterior_fn is not None:
+            if mcmc_type.upper() == 'MALA':
+                self.refinement = MALALayer(log_posterior_fn, 
+                        lambd=1.0, num_langevin_steps=1, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                        apply_gradient_schedule=False
+                        )                       
+            elif mcmc_type.upper() == 'RMALA':
+                self.refinement = RMALALayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                    apply_gradient_schedule=False
+                    )
+            elif mcmc_type.upper() == 'BMCMC':
+                self.refinement = BMCMCLayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                    apply_gradient_schedule=False
+                    )
+            else:
+                self.refinement = MCMCLayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, noise_std=noise_std, 
+                    apply_gradient_schedule=False
+                    )
+        else:
+            self.refinement = None
+
 
     def __vae_call__(self, emb: jnp.ndarray, p: jnp.ndarray, key):
         enc = self.p_encoder(jnp.concatenate([p, emb], axis=-1))
@@ -80,6 +107,22 @@ class cVAE(eqx.Module):
         samples = jnp.swapaxes(samples, 0, 1)
         return samples
 
+    def sample_with_MCMC(self, x: jnp.ndarray, key: jax.random.PRNGKey, num_samples: int = 100):
+        enc_ts = self.ts_encoder(x)
+        batch_size = x.shape[0]
+        total_num = batch_size * num_samples
+        ts_rep = jnp.repeat(x, num_samples, axis=0)
+        enc_ts_rep = jnp.repeat(enc_ts, num_samples, axis=0)
+
+        z = jr.normal(key, (total_num, self.latent_dim,))
+        params_recon = jax.vmap(self.p_decoder)(jnp.concatenate([z, enc_ts_rep], axis=-1))
+        if self.refinement:
+            s_key = jr.split(key, 2)[1]
+            params_recon = self.refinement(params_recon, ts_rep, s_key, enc_ts_rep)[0]
+        samples = params_recon.reshape(batch_size, num_samples, -1)
+        samples = jnp.swapaxes(samples, 0, 1)
+        return samples
+
 
 def cvae_loss(model, x: jnp.ndarray, true_params: jnp.ndarray, key: jax.random.PRNGKey, beta: float = 1.0):
     params_recon, mean, logvar = model(x, true_params, key)
@@ -96,11 +139,19 @@ def cvae_loss(model, x: jnp.ndarray, true_params: jnp.ndarray, key: jax.random.P
 
 
 @eqx.filter_jit
-def make_step(model, x: jnp.ndarray, true_params: jnp.ndarray, key: jax.random.PRNGKey, opt_state: Any,
-              optimizer: optax.GradientTransformation, beta: float = 1.0):
-    """Training step for parameter identification CVAE."""
-    loss_fn = lambda m: cvae_loss(m, x, true_params, key, beta)
-    loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
-    updates, opt_state = optimizer.update(grads, opt_state, model)
-    model = eqx.apply_updates(model, updates)
+def make_step(model, y: jnp.ndarray, true_params: jnp.ndarray, key, opt_state, optimizer, filter_fn=None, beta=1.0):
+    if filter_fn is not None:
+        diff_model, static_model = eqx.partition(model, filter_fn)
+        def loss_fn(diff_m):
+            full_model = eqx.combine(diff_m, static_model)
+            return cvae_loss(full_model, y, true_params, key, beta)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(diff_model)
+        updates, opt_state = optimizer.update(grads, opt_state, diff_model)
+        diff_model = eqx.apply_updates(diff_model, updates)
+        model = eqx.combine(diff_model, static_model)
+    else:
+        loss_fn = lambda m: cvae_loss(m, y, true_params, key, beta)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
+        updates, opt_state = optimizer.update(grads, opt_state, model)
+        model = eqx.apply_updates(model, updates)
     return model, opt_state, loss

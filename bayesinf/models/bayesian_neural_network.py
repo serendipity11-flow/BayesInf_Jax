@@ -13,6 +13,9 @@ import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
 from bayesinf.models.networks import TimeSeriesEncoder
+from typing import Optional
+from bayesinf.models.MCMC_Flow import MALALayer, RMALALayer, MCMCLayer, BMCMCLayer
+STOCHASTIC_LAYERS = (MALALayer, RMALALayer, MCMCLayer, BMCMCLayer)
 
 
 class VariationalLinear(eqx.Module):
@@ -95,9 +98,10 @@ class BNNPosteriorEstimator(eqx.Module):
 
     # Static info about physical parameters (theta_p)
     param_dim: int = eqx.field(static=True)
+    refinement: Optional[eqx.Module]
 
     def __init__(self, feature_dim: int, param_dim: int, latent_dim: int, hidden_sizes: List[int], hidden_size_rnn: int, 
-    key: jr.PRNGKey):
+                 key: jr.PRNGKey, log_posterior_fn=None, mcmc_type='MALA', num_mh_steps: int = 1, mcmc_step_size: float = 1e-3, noise_std=0.01):
 
         key_enc, key = jr.split(key)
         self.encoder = TimeSeriesEncoder(feature_dim, hidden_size_rnn, latent_dim, key_enc)
@@ -108,6 +112,29 @@ class BNNPosteriorEstimator(eqx.Module):
             self.bnn_layers += [VariationalLinear(latent_dim, hidden_sizes[i], key=keys[i]),
                                 eqx.nn.Lambda(jax.nn.gelu)]
         self.bnn_layers.append(VariationalLinear(hidden_sizes[-1], 2 * param_dim, key=keys[-1]))
+        if log_posterior_fn is not None:
+            if mcmc_type.upper() == 'MALA':
+                self.refinement = MALALayer(log_posterior_fn, 
+                        lambd=1.0, num_langevin_steps=1, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                        apply_gradient_schedule=False
+                        )                       
+            elif mcmc_type.upper() == 'RMALA':
+                self.refinement = RMALALayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                    apply_gradient_schedule=False
+                    )
+            elif mcmc_type.upper() == 'BMCMC':
+                self.refinement = BMCMCLayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                    apply_gradient_schedule=False
+                    )
+            else:
+                self.refinement = MCMCLayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, noise_std=noise_std, 
+                    apply_gradient_schedule=False
+                    )
+        else:
+            self.refinement = None
 
     def __bnn_call__(self, emb: jax.Array, model_key: jr.PRNGKey):
         """
@@ -158,8 +185,34 @@ class BNNPosteriorEstimator(eqx.Module):
             mus, log_sigmas = jax.vmap(sample_fn, axis_name="batch")(emb_D, jr.split(k1, D.shape[0]))
             sigmas = jnp.exp(log_sigmas)
             eps = jr.normal(nk, sigmas.shape)
-            return (k, nk), mus + sigmas * eps
+            sample = mus + sigmas * eps
+
+            return (k, nk), sample
         _, samples = jax.lax.scan(batched_sample_fn, (key, noise_key), length=n_samples)
+
+        return samples
+
+    def sample_with_MCMC(self, D: jax.Array, key, n_samples: int):
+        key, noise_key = jr.split(key)
+        # each weight should be sampled individually
+        # D: batch_size, time_length, D_in
+        # return: num_samples * batch_size * num_theta
+        emb_D = self.encoder(D)
+        sample_fn = lambda d, k: self.__bnn_call__(d, k)
+        def batched_sample_fn(k_carry, _):
+            k, nk = k_carry
+            k, k1 = jr.split(k)
+            nk, _ = jr.split(nk)
+            mus, log_sigmas = jax.vmap(sample_fn, axis_name="batch")(emb_D, jr.split(k1, D.shape[0]))
+            sigmas = jnp.exp(log_sigmas)
+            eps = jr.normal(nk, sigmas.shape)
+            sample = mus + sigmas * eps
+            if self.refinement:
+                sk, _ = jr.split(key)
+                sample = self.refinement(sample, D, sk, emb_D)[0]
+            return (k, nk), sample
+        _, samples = jax.lax.scan(batched_sample_fn, (key, noise_key), length=n_samples)
+
         return samples
 
 
@@ -239,16 +292,19 @@ def make_kl_annealing_schedule(
     return sigmoid_fn
 
 @eqx.filter_jit
-def make_step(model, D_batch, theta_p_true_batch, key, opt_state, optimizer, kl_weight=1e-3):
-    """Performs one step of ELBO minimization (gradient descent) with a batch."""
-
-    # Use filter_value_and_grad on the batched_elbo_loss
-    loss, grads = eqx.filter_value_and_grad(batched_elbo_loss)(
-        model, D_batch, theta_p_true_batch, key, kl_weight=kl_weight
-    )
-
-    # Update the model and optimizer state
-    updates, opt_state = optimizer.update(grads, opt_state, model)
-    model = eqx.apply_updates(model, updates)
-
+def make_step(model, y: jnp.ndarray, true_params: jnp.ndarray, key, opt_state, optimizer, filter_fn=None, kl_weight=1e-3):
+    if filter_fn is not None:
+        diff_model, static_model = eqx.partition(model, filter_fn)
+        def loss_fn(diff_m):
+            full_model = eqx.combine(diff_m, static_model)
+            return batched_elbo_loss(full_model, y, true_params, key, kl_weight=kl_weight)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(diff_model)
+        updates, opt_state = optimizer.update(grads, opt_state, diff_model)
+        diff_model = eqx.apply_updates(diff_model, updates)
+        model = eqx.combine(diff_model, static_model)
+    else:
+        loss_fn = lambda m: batched_elbo_loss(m, y, true_params, key, kl_weight=kl_weight)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
+        updates, opt_state = optimizer.update(grads, opt_state, model)
+        model = eqx.apply_updates(model, updates)
     return model, opt_state, loss

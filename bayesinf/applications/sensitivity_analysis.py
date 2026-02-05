@@ -1,366 +1,351 @@
-import jax
 import jax.numpy as jnp
-from jax import vmap, jit, pmap
-from functools import partial
+from jax import jit, vmap, lax
+import jax.random as jr
+import matplotlib.pyplot as plt
+from SALib.sample import saltelli
+from SALib.analyze import sobol
+import matplotlib.ticker as ticker
 import numpy as np
-from typing import List, Tuple, Dict, Optional
-import os
-
-
-# Enable memory preallocation and optimize for TPU/GPU
-jax.config.update('jax_enable_x64', False)  # Use float32 for speed
-os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
-
-
-def saltelli_sample(problem: Dict, n_samples: int, seed: int = 42) -> jnp.ndarray:
-    """
-    Optimized Saltelli sampling with vectorized operations.
-    
-    Args:
-        problem: Dictionary with 'num_vars', 'names', 'bounds'
-        n_samples: Base sample size (total samples will be N*(2*D+2))
-        seed: Random seed
-        
-    Returns:
-        Parameter samples of shape (N*(2*D+2), num_vars)
-    """
-    key = jax.random.PRNGKey(seed)
-    num_vars = problem['num_vars']
-    bounds = jnp.array(problem['bounds'], dtype=jnp.float32)
-    
-    key_a, key_b = jax.random.split(key)
-    
-    # Generate samples with float32 for efficiency
-    a_samples = jax.random.uniform(key_a, (n_samples, num_vars), dtype=jnp.float32)
-    b_samples = jax.random.uniform(key_b, (n_samples, num_vars), dtype=jnp.float32)
-    
-    # Vectorized scaling
-    scale = bounds[:, 1] - bounds[:, 0]
-    offset = bounds[:, 0]
-    a_samples = offset + a_samples * scale
-    b_samples = offset + b_samples * scale
-    
-    # Preallocate full array instead of concatenating
-    total_samples = n_samples * (2 + num_vars)
-    samples = jnp.empty((total_samples, num_vars), dtype=jnp.float32)
-    
-    # Fill samples efficiently
-    samples = samples.at[:n_samples].set(a_samples)
-    samples = samples.at[n_samples:2*n_samples].set(b_samples)
-    
-    # Vectorized C matrix creation
-    for i in range(num_vars):
-        c_i = a_samples.at[:, i].set(b_samples[:, i])
-        start_idx = 2*n_samples + i*n_samples
-        samples = samples.at[start_idx:start_idx+n_samples].set(c_i)
-    
-    return samples
-
-
-@partial(jit, static_argnames=('time_steps',))
-def placeholder_simulation(params: jnp.ndarray, time_steps: int = 100) -> jnp.ndarray:
-    """
-    Placeholder simulation function - replace with your actual model.
-    Optimized with fused operations.
-    
-    Args:
-        params: Parameter vector of shape (num_params,)
-        time_steps: Number of time steps to simulate
-        
-    Returns:
-        Simulated sensor data of shape (time_steps, num_sensors)
-    """
-    t = jnp.linspace(0, 10, time_steps, dtype=jnp.float32)
-    
-    # Fuse operations to reduce memory bandwidth
-    # All sensors computed in one pass
-    exp_term = jnp.exp(-params[1] * t)
-    sin_term = jnp.sin(params[3] * t)
-    cos_term = jnp.cos(params[3] * t)
-    
-    sensor_1 = params[0] * exp_term
-    sensor_2 = params[2] * sin_term
-    sensor_3 = params[0] * t + params[1] * (t * t)  # Fuse multiplication
-    sensor_4 = params[0] * params[2] * cos_term + params[1]
-    
-    return jnp.stack([sensor_1, sensor_2, sensor_3, sensor_4], axis=1)
-
-
-def get_chunk_size(total_samples: int, available_memory_gb: float = 4.0) -> int:
-    """
-    Calculate optimal chunk size based on available memory.
-    
-    Args:
-        total_samples: Total number of samples to process
-        available_memory_gb: Available GPU/memory in GB
-        
-    Returns:
-        Optimal chunk size
-    """
-    # Estimate: each sample with 100 timesteps and 4 sensors ≈ 1.6KB in float32
-    bytes_per_sample = 100 * 4 * 4  # timesteps * sensors * bytes(float32)
-    max_samples = int((available_memory_gb * 1e9) / bytes_per_sample * 0.5)  # Use 50% of memory
-    chunk_size = min(max_samples, total_samples)
-    return max(chunk_size, 32)  # Minimum chunk size of 32
-
-
-@partial(jit, static_argnums=(1,))
-def batch_simulate(params_batch: jnp.ndarray, time_steps: int) -> jnp.ndarray:
-    """
-    Vectorized simulation over parameter batch with optimized vmapping.
-    
-    Args:
-        params_batch: Parameter matrix of shape (n_samples, num_params)
-        time_steps: Number of time steps
-        
-    Returns:
-        Simulation results of shape (n_samples, time_steps, num_sensors)
-    """
-    return vmap(lambda p: placeholder_simulation(p, time_steps))(params_batch)
-
-
-def batch_simulate_chunked(
-    params: jnp.ndarray, 
-    time_steps: int, 
-    chunk_size: Optional[int] = None
-) -> jnp.ndarray:
-    """
-    Process simulations in chunks to avoid memory overflow.
-    
-    Args:
-        params: All parameter samples
-        time_steps: Number of time steps
-        chunk_size: Size of each chunk (auto-calculated if None)
-        
-    Returns:
-        All simulation results concatenated
-    """
-    n_samples = params.shape[0]
-    
-    if chunk_size is None:
-        chunk_size = get_chunk_size(n_samples)
-    
-    n_chunks = (n_samples + chunk_size - 1) // chunk_size
-    
-    results = []
-    for i in range(n_chunks):
-        start_idx = i * chunk_size
-        end_idx = min((i + 1) * chunk_size, n_samples)
-        chunk = params[start_idx:end_idx]
-        
-        # Process chunk
-        chunk_result = batch_simulate(chunk, time_steps)
-        results.append(chunk_result)
-    
-    return jnp.concatenate(results, axis=0)
-
-
-def calculate_sobol_indices(
-    problem: Dict,
-    param_values: jnp.ndarray,
-    outputs: jnp.ndarray
-) -> Tuple[jnp.ndarray, jnp.ndarray]:
-    """
-    Optimized calculation of first-order (S1) and total-order (ST) Sobol indices.
-    Uses einsum for efficient tensor operations.
-    
-    Args:
-        problem: Dictionary with sensitivity analysis problem definition
-        param_values: Saltelli samples of shape (N*(2*D+2), num_vars)
-        outputs: Model outputs of shape (N*(2*D+2), time_steps, num_sensors)
-        
-    Returns:
-        S1: First-order indices of shape (time_steps, num_sensors, num_vars)
-        ST: Total-order indices of shape (time_steps, num_sensors, num_vars)
-    """
-    num_vars = problem['num_vars']
-    n_samples = param_values.shape[0] // (2 * num_vars + 2)
-    
-    # Reshape outputs efficiently
-    y_a = outputs[:n_samples]
-    y_b = outputs[n_samples:2*n_samples]
-    
-    # Stack C matrices in one operation
-    y_c_list = [outputs[2*n_samples + i*n_samples:2*n_samples + (i+1)*n_samples] 
-                for i in range(num_vars)]
-    y_c = jnp.stack(y_c_list, axis=-1)  # (N, T, S, D)
-    
-    # Precompute variance once
-    y_combined = jnp.concatenate([y_a, y_b], axis=0)
-    var_y = jnp.var(y_combined, axis=0, keepdims=True)  # (1, T, S)
-    
-    # First-order indices with einsum for efficiency
-    # S1 = Var[E(Y|Xi)] / Var(Y)
-    diff_c_a = y_c - y_a[:, :, :, None]  # (N, T, S, D)
-    s1_numerator = jnp.mean(y_b[:, :, :, None] * diff_c_a, axis=0)  # (T, S, D)
-    s1 = s1_numerator / (var_y[0, :, :, None] + 1e-10)
-    
-    # Total-order indices with optimized computation
-    # ST = E[Var(Y|X~i)] / Var(Y) = 0.5 * E[(f(A) - f(Ci))^2] / Var(Y)
-    squared_diff = jnp.square(y_a[:, :, :, None] - y_c)
-    st_numerator = 0.5 * jnp.mean(squared_diff, axis=0)  # (T, S, D)
-    st = st_numerator / (var_y[0, :, :, None] + 1e-10)
-    
-    # Clip negative values to zero
-    s1 = jnp.maximum(s1, 0.0)
-    st = jnp.maximum(st, 0.0)
-    
-    return s1, st
+from functools import partial
+from sklearn.feature_selection import mutual_info_regression
 
 
 @jit
-def calculate_mean_sensitivity(s1: jnp.ndarray, st: jnp.ndarray) -> Tuple[jnp.ndarray, jnp.ndarray]:
+def mass_spring_ode_f(t, state, args):
     """
-    Calculate mean sensitivity across time and sensors with single pass.
+    The first-order ODE for the mass-spring system with external force.
+    state = (x, v)
+    args = (params,), where params = (m, k, c)
+    """
+    x, v = state
+    params, = args
+    m, k, c = params
+    F_t = 10.0 * jnp.sin(3.0 * t)
+
+    dx_dt = v
+    dv_dt = F_t / m- (k / m) * x - (c / m) * v
+
+    return jnp.array([dx_dt, dv_dt])
+
+@jit
+def mass_spring_ode_l(t, state, args):
+    """
+    The first-order ODE for the mass-spring system.
+    state = (x, v)
+    args = (params,), where params = (m, k, c)
+    """
+    x, v = state
+    params, = args
+    m, k, c = params
+
+    dx_dt = v
+    dv_dt = - (k / m) * x - (c / m) * v
+
+    return jnp.array([dx_dt, dv_dt])
+
+@jit
+def mass_spring_ode2(t, state, args):
+    """
+    System: Wall -- k1 -- m -- k2 -- m -- k3 -- Wall
+    We assume m1 = m2 = m.
+    k2 is the coupling spring (known).
+    k1 and k3 are the unknown parameters we want to infer.
+    """
+    m=1.0
+    k2=2.0
+    c=0.1
+    x1, v1, x2, v2 = state
+    params,  = args
+    k1, k3 = params
+    # Equations of motion
+    # m*a1 = -k1*x1 + k2*(x2 - x1) - c*v1
+    # m*a2 = -k3*x2 - k2*(x2 - x1) - c*v2
     
-    Args:
-        s1: First-order indices (time_steps, num_sensors, num_vars)
-        st: Total-order indices (time_steps, num_sensors, num_vars)
+    dx1dt = v1
+    dv1dt = (-k1 * x1 + k2 * (x2 - x1) - c * v1) / m
+    
+    dx2dt = v2
+    dv2dt = (-k3 * x2 - k2 * (x2 - x1) - c * v2) / m
+    
+    return jnp.array([dx1dt, dv1dt, dx2dt, dv2dt])
+
+@partial(jit, static_argnums=(0,))
+def rk4_step(ode_func, state, params, t, dt):
+    k1 = ode_func(t, state, (params,))
+    k2 = ode_func(t + 0.5 * dt, state + 0.5 * dt * k1, (params,))
+    k3 = ode_func(t + 0.5 * dt, state + 0.5 * dt * k2, (params,))
+    k4 = ode_func(t + dt, state + dt * k3, (params,))
+    return state + (dt / 6.0) * (k1 + 2*k2 + 2*k3 + k4)
+
+@partial(jit, static_argnums=(0, 3))
+def simulate_jax(ode_func, params, y0, obs_func=None):
+    dt = 0.05
+    steps = 21
+    
+    # We use lax.scan instead of a python loop for maximum speed
+    def step_fn(carry, i):
+        state, t = carry
+        next_state = rk4_step(ode_func, state, params, t, dt)
+        return (next_state, t + dt), next_state
+
+    init_state = (y0, 0.0)
+    _, traj = lax.scan(step_fn, init_state, jnp.arange(steps))
+    if obs_func is not None:
+        traj = obs_func(traj)
+    return jnp.sqrt(jnp.mean(jnp.square(traj)))
+
+vmap_sim = vmap(simulate_jax, in_axes=(None, 0, None, None))
+
+def run_comparative_analysis(ode_func, problem, noise_levels, N=1024):
+    names = problem['names']
+    # Saltelli generates N * (2D + 2) samples
+    param_values = saltelli.sample(problem, N)
+    j_params = jnp.array(param_values)
+    
+    # 1. Generate Clean Simulations
+    print(f"Running {len(param_values)} simulations...")
+    y0 = jnp.array([1.0, 0.0])
+    Y_clean = vmap_sim(ode_func, j_params, y0, None) 
+    
+    sobol_results = {name: [] for name in names}
+    mi_results = {name: [] for name in names}
+
+    for sigma in noise_levels:
+        print(f"Analyzing Noise Level: σ = {sigma}")
         
-    Returns:
-        Mean S1 and ST across time and sensors
-    """
-    s1_mean = jnp.mean(s1, axis=(0, 1))
-    st_mean = jnp.mean(st, axis=(0, 1))
-    return s1_mean, st_mean
+        # 2. Add Noise to the summary statistic (or trajectory)
+        noise_key = jr.PRNGKey(int(sigma * 100))
+        Y_noisy = Y_clean + jr.normal(noise_key, Y_clean.shape) * sigma
+        Y_np = np.array(Y_noisy)
+        
+        # 3. Compute Sobol Indices
+        Si = sobol.analyze(problem, Y_np, print_to_console=False)
+        st_indices = np.array(Si['ST'])
+        
+        # --- MATHEMATICAL RESCALING ---
+        # We find the maximum value in the current set of results.
+        # If the estimator has "overshot" 1.0 due to noise, we rescale the whole set.
+        max_val = np.max(st_indices)
+        
+        if max_val > 1.0:
+            # Scale everything down so the maximum is exactly 1.0
+            # This preserves the ratios (e.g., if k was 3x more sensitive than m, it stays 3x)
+            st_indices = st_indices / max_val
+        
+        # Ensure we also don't have negative values (another common numerical artifact)
+        st_indices = np.maximum(st_indices, 0.0)
+        for i, name in enumerate(names):
+            sobol_results[name].append(st_indices[i]) # Using Total Index ST
+            
+        # 4. Compute Mutual Information
+        for i, name in enumerate(names):
+            # We use a subset for MI to speed up if N is very large, 
+            # but for 1024 * (2*3+2) = 8192, it's fine.
+            score = mutual_info_regression(
+                param_values[:, i:i+1], 
+                Y_np, 
+                discrete_features=False, 
+                n_neighbors=5
+            )
+            mi_results[name].append(score[0])
+
+    return sobol_results, mi_results
+
+# mass-spring-damper model with external force and noise
+problem = {
+    'num_vars': 3, # m, k, c
+    'names': [r'$m$', r'$k$', r'$c$'],
+    'bounds': [[0.8, 1.2], [5.0, 10.0], [0.5, 3]] 
+}
+
+N = 1024  
+noise_levels = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
+
+sobol_res, mi_res = run_comparative_analysis(mass_spring_ode_f, problem, noise_levels, N=1024)
+
+def plot_mi_st_comparison(sobol_res, mi_res, problem):
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 7), sharex=True)
+    FS_LABEL = 18
+    FS_TITLE = 18
+    FS_TICK = 18
+    FS_LEGEND = 18
 
 
-def run_sensitivity_analysis(
-    problem: Dict,
-    n_samples: int = 64,
-    time_steps: int = 100,
-    seed: int = 42
-) -> Dict:
-    """
-    Complete sensitivity analysis workflow.
-    
-    Args:
-        problem: Dictionary with 'num_vars', 'names', 'bounds'
-        n_samples: Number of base samples for Saltelli sampling
-        time_steps: Number of simulation time steps
-        seed: Random seed
-        
-    Returns:
-        Dictionary containing S1, ST indices and simulation results
-    """
-    print(f"Generating Saltelli samples for {problem['num_vars']} parameters...")
-    param_values = saltelli_sample(problem, n_samples, seed)
-    print(f"Total samples: {param_values.shape[0]}")
-    
-    print("Running simulations...")
-    outputs = batch_simulate(param_values, time_steps)
-    print(f"Output shape: {outputs.shape}")
-    
-    print("Calculating Sobol indices...")
-    s1, st = calculate_sobol_indices(problem, param_values, outputs)
-    
-    # Calculate mean sensitivity across time and sensors
-    s1_mean = jnp.mean(s1, axis=(0, 1))
-    st_mean = jnp.mean(st, axis=(0, 1))
-    
-    print("\nFirst-order indices (averaged):")
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+    markers = ['o', 's', '^']
+
     for i, name in enumerate(problem['names']):
-        print(f"  {name}: {s1_mean[i]:.4f}")
-    
-    print("\nTotal-order indices (averaged):")
-    for i, name in enumerate(problem['names']):
-        print(f"  {name}: {st_mean[i]:.4f}")
-    
-    return {
-        'S1': s1,
-        'ST': st,
-        'S1_mean': s1_mean,
-        'ST_mean': st_mean,
-        'param_values': param_values,
-        'outputs': outputs,
-        'problem': problem
-    }
+        # Sobol Plot
+        ax1.plot(noise_levels, sobol_res[name], label=name, 
+                color=colors[i], marker=markers[i], linewidth=2, markersize=8)
+        # MI Plot
+        ax2.plot(noise_levels, mi_res[name], label=name, 
+                color=colors[i], marker=markers[i], linewidth=2, markersize=8)
+
+    # Format Left Plot (Sobol)
+    ax1.set_xscale('log')
+    ax1.set_xticks(noise_levels)
+        
+    # Use ScalarFormatter so 0.5 shows as "0.5" instead of "5x10^-1"
+    ax1.get_xaxis().set_major_formatter(ticker.ScalarFormatter())
+
+    # Clean up formatting so it doesn't use scientific notation for small decimals
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%g'))
+
+    # Grid: both major and minor for log-scale context
+    ax1.grid(True, which="major", ls="-", alpha=0.4, color='gray')
+    ax1.grid(True, which="minor", ls="--", alpha=0.1, color='gray')
+
+    # Titles and Labels
+    ax1.set_title('Variance-Based Sensitivity', fontsize=FS_TITLE, pad=25, fontweight='bold')
+    ax1.set_xlabel(r'Noise Standard Deviation ($\sigma$)', fontsize=FS_LABEL, labelpad=15)
+    ax1.set_ylabel('Total-Order Sobol\' Index', fontsize=FS_LABEL, labelpad=15)
+
+    # Tick parameters
+    ax1.tick_params(axis='both', which='major', labelsize=FS_TICK, length=10, width=1.5)
+    ax1.tick_params(axis='x', which='minor', length=5, width=1)
+    ax1.legend(fontsize=FS_LEGEND)
+    # Format Right Plot (MI)
+    ax2.set_xscale('log')
+    ax2.set_xticks(noise_levels)
+        
+    # Use ScalarFormatter so 0.5 shows as "0.5" instead of "5x10^-1"
+    ax2.get_xaxis().set_major_formatter(ticker.ScalarFormatter())
+
+    # Clean up formatting so it doesn't use scientific notation for small decimals
+    ax2.xaxis.set_major_formatter(ticker.FormatStrFormatter('%g'))
+
+    # Grid: both major and minor for log-scale context
+    ax2.grid(True, which="major", ls="-", alpha=0.4, color='gray')
+    ax2.grid(True, which="minor", ls="--", alpha=0.1, color='gray')
+    ax2.set_ylabel('Mutual Information', fontsize=FS_LABEL, labelpad=15)
+    ax2.set_xlabel(r'Noise Standard Deviation ($\sigma$)', fontsize=FS_LABEL, labelpad=15)
+    ax2.set_title('Information-Theoretic Identifiability', fontsize=FS_TITLE, pad=25, fontweight='bold')
+    # Tick parameters
+    ax2.tick_params(axis='both', which='major', labelsize=FS_TICK, length=10, width=1.5)
+    ax2.tick_params(axis='x', which='minor', length=5, width=1)
+    ax2.legend(fontsize=FS_LEGEND)
+
+    plt.tight_layout()
+    plt.savefig('sensitivity_identifiability.pdf')
+
+# # mass-spring-damper with external force
+# problem = {
+#     'num_vars': 3,
+#     'names': [r'$m$', r'$k$', r'$c$'],
+#     'bounds': [[0.8, 1.2], [5.0, 10.0], [0.5, 3]]
+# }
+
+# N = 1024  
+# # Generate Low-Discrepancy Saltelli Samples
+# param_values = saltelli.sample(problem, N)
+# # Convert to JAX array
+# j_param_values = jnp.array(param_values)
+
+# print(f"Running {len(param_values)} simulations on JAX...")
+# start = time.time()
+
+# Y_jax = vmap_sim(mass_spring_ode_f, j_param_values, jnp.array([1.0, 0.0]), None)
+
+# Y_jax.block_until_ready()
+# print(f"JAX Time: {time.time() - start:.4f} seconds")
+
+# Si = sobol.analyze(problem, np.array(Y_jax), print_to_console=True)
+
+# # mass-spring-damper with linear correlation
+# N = 1024  
+# # Generate Low-Discrepancy Saltelli Samples
+# param_values = saltelli.sample(problem, N)
+# j_param_values = jnp.array(param_values)
+
+# print(f"Running {len(param_values)} simulations on JAX...")
+# start = time.time()
+
+# Y_jax = vmap_sim(mass_spring_ode_l, j_param_values, jnp.array([1.0, 0.0]), None)
+
+# # Block until finished (JAX is asynchronous)
+# Y_jax.block_until_ready()
+# print(f"JAX Time: {time.time() - start:.4f} seconds")
+
+# Sil = sobol.analyze(problem, np.array(Y_jax), print_to_console=True)
+
+# # Coupled mass-spring-damper 
+# problem2 = {
+#     'num_vars': 2,
+#     'names': [r'$k_1$', r'$k_3$'],
+#     'bounds': [[1.0, 10.0], [1.0, 10.0]]
+# }
+# N = 1024  
+# # Generate Low-Discrepancy Saltelli Samples
+# param_values = saltelli.sample(problem2, N)
+# j_param_values = jnp.array(param_values)
+
+# print(f"Running {len(param_values)} simulations on JAX...")
+# start = time.time()
+
+# def obs_func(y):
+#     return jnp.stack([y[..., 0]+y[..., 2], y[..., 1]+y[..., 3]], axis=-1)
+
+# Y_jax = vmap_sim(mass_spring_ode2, j_param_values, jnp.array([1.0, 0.0, 1.0, 0.0]), obs_func)
 
 
-def rank_parameters(sobol_indices: jnp.ndarray, problem: Dict) -> List[Tuple[str, float]]:
+# # Block until finished (JAX is asynchronous)
+# Y_jax.block_until_ready()
+# print(f"JAX Time: {time.time() - start:.4f} seconds")
+
+# Si2 = sobol.analyze(problem2, np.array(Y_jax), print_to_console=True)
+
+def plot_sensitivity_comparison(Si_linear, Si_coupled, names_linear, names_coupled):
     """
-    Rank parameters by their sensitivity indices.
+    Generates a (1,2) subplot comparing Global Sensitivity Analysis results.
     
     Args:
-        sobol_indices: Mean sensitivity indices of shape (num_vars,)
-        problem: Problem dictionary with parameter names
-        
-    Returns:
-        List of (parameter_name, index_value) tuples sorted by importance
+        Si_linear: SALib result dictionary for the Linear (External Force) case.
+        Si_coupled: SALib result dictionary for the Coupled Two-Mass case.
+        names_linear: List of strings (e.g., ['m', 'k', 'c'])
+        names_coupled: List of strings (e.g., ['k1', 'k2', 'k3', 'c1', 'c2'])
     """
-    indices = np.array(sobol_indices)
-    sorted_idx = np.argsort(indices)[::-1]
+    plt.rcParams.update({'font.size': 24}) 
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
+    width = 0.35
     
-    ranking = [(problem['names'][i], indices[i]) for i in sorted_idx]
-    return ranking
+    # --- SUBPLOT 1: LINEAR CASE ---
+    x1 = np.arange(len(names_linear))
+    rects1_s1 = ax1.bar(x1 - width/2, Si_linear['S1'], width, yerr=Si_linear['S1_conf'], 
+                        label='First Order ($S_1$)', color='#3498db', capsize=5)
+    rects1_st = ax1.bar(x1 + width/2, Si_linear['ST'], width, yerr=Si_linear['ST_conf'], 
+                        label='Total Order ($S_T$)', color='#3498db', alpha=0.4, capsize=5)
+    
+    ax1.set_title('Linear Case (Mass-Spring-Damper)', fontsize=24, pad=20)
+    ax1.set_xticks(x1)
+    ax1.set_xticklabels(names_linear, fontsize=24)
+    ax1.set_ylabel('Sensitivity Index', fontsize=24)
+    ax1.set_ylim(0, 1.2) # Extra space for labels
+    ax1.legend(fontsize=24)
+    ax1.grid(axis='y', linestyle='--', alpha=0.6)
 
+    # Add labels on top of bars for Plot 1
+    ax1.bar_label(rects1_s1, fmt='%.3f', padding=5, fontsize=20, fontweight='bold')
+    ax1.bar_label(rects1_st, fmt='%.3f', padding=5, fontsize=20, fontweight='bold')
 
-# Example usage with performance comparison
-if __name__ == "__main__":
-    import time
+    # --- SUBPLOT 2: COUPLED CASE ---
+    x2 = np.arange(len(names_coupled))
+    rects2_s1 = ax2.bar(x2 - width/2, Si_coupled['S1'], width, yerr=Si_coupled['S1_conf'], 
+                        label='First Order ($S_1$)', color='#e74c3c', capsize=5)
+    rects2_st = ax2.bar(x2 + width/2, Si_coupled['ST'], width, yerr=Si_coupled['ST_conf'], 
+                        label='Total Order ($S_T$)', color='#e74c3c', alpha=0.4, capsize=5)
     
-    # Define the sensitivity analysis problem
-    problem = {
-        'num_vars': 4,
-        'names': ['param_0', 'param_1', 'param_2', 'param_3'],
-        'bounds': [[0.5, 2.0], [0.1, 1.0], [0.0, 5.0], [0.5, 3.0]]
-    }
-    
-    print("="*70)
-    print("JAX OPTIMIZED SENSITIVITY ANALYSIS")
-    print("="*70)
-    print(f"JAX backend: {jax.default_backend()}")
-    print(f"Available devices: {jax.devices()}")
-    print()
-    
-    # Run sensitivity analysis with timing
-    total_start = time.time()
-    results = run_sensitivity_analysis(
-        problem=problem,
-        n_samples=64,
-        time_steps=100,
-        seed=42
-    )
-    total_time = time.time() - total_start
-    
-    print(f"\nTotal execution time: {total_time:.3f}s")
-    
-    # Rank parameters by first-order indices
-    print("\n" + "="*70)
-    print("Parameter Ranking (First-order):")
-    print("="*70)
-    ranking_s1 = rank_parameters(results['S1_mean'], problem)
-    for rank, (name, value) in enumerate(ranking_s1, 1):
-        print(f"{rank}. {name}: {value:.4f}")
-    
-    print("\n" + "="*70)
-    print("Parameter Ranking (Total-order):")
-    print("="*70)
-    ranking_st = rank_parameters(results['ST_mean'], problem)
-    for rank, (name, value) in enumerate(ranking_st, 1):
-        print(f"{rank}. {name}: {value:.4f}")
-    
-    # Performance test with larger problem
-    print("\n" + "="*70)
-    print("PERFORMANCE TEST: Larger Problem")
-    print("="*70)
-    
-    large_problem = {
-        'num_vars': 8,
-        'names': [f'param_{i}' for i in range(8)],
-        'bounds': [[0.0, 1.0] for _ in range(8)]
-    }
-    
-    start = time.time()
-    large_results = run_sensitivity_analysis(
-        problem=large_problem,
-        n_samples=128,
-        time_steps=200,
-        seed=123
-    )
-    large_time = time.time() - start
-    
-    total_evals = 128 * (2 * 8 + 2) * 200  # n_samples * (2*D+2) * time_steps
-    print(f"\nTotal model evaluations: {total_evals:,}")
-    print(f"Evaluations per second: {total_evals/large_time:,.0f}")
-    print(f"Time per 1000 evaluations: {1000*large_time/total_evals:.4f}s")
+    ax2.set_title('Coupled Case (Symmetric Two-Mass)', fontsize=24, pad=20)
+    ax2.set_xticks(x2)
+    ax2.set_xticklabels(names_coupled, fontsize=24)
+    ax2.set_ylim(0, 1.2) # Extra space for labels
+    ax2.legend(fontsize=24)
+    ax2.grid(axis='y', linestyle='--', alpha=0.6)
+
+    # Add labels on top of bars for Plot 2
+    ax2.bar_label(rects2_s1, fmt='%.3f', padding=5, fontsize=20, fontweight='bold')
+    ax2.bar_label(rects2_st, fmt='%.3f', padding=5, fontsize=20, fontweight='bold')
+
+    plt.tight_layout()
+    plt.show()

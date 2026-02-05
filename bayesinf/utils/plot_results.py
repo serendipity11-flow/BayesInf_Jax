@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
 import seaborn as sns
 import matplotlib.colors as mcolors
+from sklearn.mixture import GaussianMixture
 
 
 def has_content(ax):
@@ -87,6 +88,58 @@ def plot_single_parameter_comparison(ax, gt_i, mean_i, ci_i, ci_color, gt_color,
         bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', boxstyle='round,pad=0.5')
     )
 
+def plot_single_parameter_comparison_lite(ax, gt_i, mean_i, ci_i, ci_color, gt_color, main_color, confidence_level, param_name_i):
+    # Determine plot limits based on min/max of both GT and mean estimates
+    min_val = min(gt_i.min(), mean_i.min())
+    max_val = max(gt_i.max(), mean_i.max())
+    plot_range = max_val - min_val
+    padding = plot_range * 0.1
+    plot_min = min_val - padding
+    plot_max = max_val + padding
+
+    # --- Scatter of All Estimates (Optional, can be messy, often omitted for clarity) ---
+    # Instead, we focus on mean and CI. If we plot all, the shape is (N_samples * N_estimates)
+    # We can flatten the estimates for a general scatter plot:
+    # flat_estimates = estimated_params[:, :, i].flatten()
+    # flat_gt = np.repeat(gt_i, estimated_params.shape[1])
+    # ax.scatter(flat_gt, flat_estimates, color='grey', alpha=0.1, label='All Estimates')
+
+    # --- Confidence Intervals (Error Bars) ---
+    ax.errorbar(
+        gt_i,
+        mean_i,
+        yerr=ci_i,
+        fmt='o',
+        color=ci_color,
+        alpha=0.6,
+        capsize=3,
+        label=fr'Mean $\pm$ {confidence_level * 100:.0f}% CI'
+    )
+
+    # --- Mean Comparison (Scatter) ---
+    # Plot the mean values (on top of the error bars for better visibility)
+    ax.scatter(gt_i, mean_i, color=main_color, marker='o', s=30, zorder=3, label='Mean Estimates')
+
+    # --- Ground Truth Line (Y=X line) ---
+    ax.plot(
+        [plot_min, plot_max],
+        [plot_min, plot_max],
+        '--',
+        color=gt_color,
+        alpha=0.7,
+        label='Ground Truth (Y=X)'
+    )
+
+    # --- Set Axes and Labels ---
+    ax.set_title(f'{param_name_i}', fontsize=32)
+    ax.set_xlim(plot_min, plot_max)
+    ax.set_ylim(plot_min, plot_max)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_aspect('equal', adjustable='box')  # Enforce square aspect ratio
+    ax.grid(True, linestyle=':', alpha=0.6)
+
+
 def plot_correlated_parameters(ax, gt_x, gt_y, est_x, est_y, name_x, name_y):
     ax.scatter(gt_x, gt_y, color="black", alpha=0.6, label="Ground Truth")
     ax.scatter(est_x, est_y, color="skyblue", alpha=0.7, label="Mean Estimates")
@@ -156,7 +209,8 @@ def plot_parameter_regression_comparison(
         filename=None,
         correlated=None,
         indices=None,
-        wandb_log=False
+        wandb_log=False,
+        lite=False
 ):
     if wandb_log:
         import matplotlib
@@ -206,8 +260,10 @@ def plot_parameter_regression_comparison(
         mean_i = param_means[:, i]
         ci_i = ci_margin[:, i]
 
-        plot_single_parameter_comparison(ax, gt_i, mean_i, ci_i, 
-        ci_color, gt_color, main_color, confidence_level, param_names[i])
+        if lite:
+            plot_single_parameter_comparison_lite(ax, gt_i, mean_i, ci_i, ci_color, gt_color, main_color, confidence_level, param_names[i])
+        else:
+            plot_single_parameter_comparison(ax, gt_i, mean_i, ci_i, ci_color, gt_color, main_color, confidence_level, param_names[i])
 
     
     if correlated is not None:

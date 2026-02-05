@@ -12,7 +12,9 @@ import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
 from bayesinf.models.networks import TimeSeriesEncoder
-import math
+from typing import Optional
+from bayesinf.models.MCMC_Flow import MALALayer, RMALALayer, MCMCLayer, BMCMCLayer
+STOCHASTIC_LAYERS = (MALALayer, RMALALayer, MCMCLayer, BMCMCLayer)
 
 
 class SinusoidalPosEmb(eqx.Module):
@@ -150,6 +152,7 @@ class ConditionalDDPM(eqx.Module):
 
     n_steps: int = eqx.field(static=True)
     param_dim: int = eqx.field(static=True)
+    refinement: Optional[eqx.Module]
 
     def __init__(
         self,
@@ -161,7 +164,12 @@ class ConditionalDDPM(eqx.Module):
         hidden_sizes_noise,
         n_steps: int = 1000,
         *,
-        key
+        key,
+        log_posterior_fn=None,
+        mcmc_type='MALA', 
+        num_mh_steps: int = 1, 
+        mcmc_step_size: float = 1e-3, 
+        noise_std=0.01
     ):
         key_enc, key_net = jr.split(key, 2)
         self.n_steps = int(n_steps)
@@ -188,6 +196,30 @@ class ConditionalDDPM(eqx.Module):
         self.alphas_cumprod = jnp.cumprod(self.alphas, axis=0)
         self.sqrt_alphas_cumprod = jnp.sqrt(self.alphas_cumprod)
         self.sqrt_one_minus_alphas_cumprod = jnp.sqrt(1.0 - self.alphas_cumprod)
+
+        if log_posterior_fn is not None:
+            if mcmc_type.upper() == 'MALA':
+                self.refinement = MALALayer(log_posterior_fn, 
+                        lambd=1.0, num_langevin_steps=1, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                        apply_gradient_schedule=False
+                        )                       
+            elif mcmc_type.upper() == 'RMALA':
+                self.refinement = RMALALayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                    apply_gradient_schedule=False
+                    )
+            elif mcmc_type.upper() == 'BMCMC':
+                self.refinement = BMCMCLayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                    apply_gradient_schedule=False
+                    )
+            else:
+                self.refinement = MCMCLayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, noise_std=noise_std, 
+                    apply_gradient_schedule=False
+                    )
+        else:
+            self.refinement = None
 
     def loss(self, x_ts, theta_target, key):
         """
@@ -325,11 +357,121 @@ class ConditionalDDPM(eqx.Module):
         samples = z_final.reshape(batch_size, num_samples, self.param_dim)
         return jnp.swapaxes(samples, 0, 1)
 
+    @eqx.filter_jit
+    def sample_with_MCMC(self, x_ts, key, num_samples: int = 1, guidance_scale=2.0):
+        """
+        x_ts: (batch, ...), encoder input
+        returns: samples shaped (batch, num_samples, param_dim)
+        """
+
+        batch_size = x_ts.shape[0]
+        cond_emb = self.encoder(x_ts)
+        cond_emb_uncond = jnp.zeros_like(cond_emb)
+        # repeat condition for num_samples
+        cond_rep = jnp.repeat(x_ts, num_samples, axis=0)
+        cond_emb_rep = jnp.repeat(cond_emb, num_samples, axis=0)
+        uncond_emb_rep = jnp.repeat(cond_emb_uncond, num_samples, axis=0)
+        total_num = batch_size * num_samples
+
+        # initial noise (z_T)
+        key, key_init, key_noise = jr.split(key, 3)
+        z = jr.normal(key_init, (total_num, self.param_dim))
+
+        # pre-sample all noise needed for reverse chain (for t > 0)
+        # shape: (n_steps, total_num, param_dim)
+        noise_stack = jr.normal(key_noise, (self.n_steps, total_num, self.param_dim))
+
+        # prepare reversed timestep indices and reversed noise sequence
+        t_seq = jnp.arange(self.n_steps - 1, -1, -1, dtype=jnp.int32)  # length n_steps
+        noise_seq = noise_stack[t_seq]  # (n_steps, total_num, param_dim)
+
+        # prepare t_emb for every step: (n_steps, time_dim) - using float timesteps
+        t_emb_seq = self.time_emb(t_seq.astype(jnp.float32))  # (n_steps, time_dim)
+        # replicate t_emb for the whole batch when in scan: we'll broadcast inside step
+
+        def step_fn(z_carry, elems):
+            """
+            z_carry: (total_num, param_dim)
+            elems: tuple (t_idx_scalar, noise_for_all_samples, t_emb_for_step)
+                - t_idx_scalar is an int scalar (but we pass t_emb directly instead)
+            """
+            noise_t = elems[0]   # (total_num, param_dim)
+            t_emb_step = elems[1]  # (time_dim,)
+
+            # Broadcast t_emb to batch
+            t_emb_batched = jnp.broadcast_to(t_emb_step[None, :], (total_num, t_emb_step.shape[-1]))
+
+            # predict noise
+            eps_cond = jax.vmap(self.net)(z_carry, t_emb_batched, cond_emb_rep)
+
+            def compute_guided(eps_c):
+                eps_uncond = jax.vmap(self.net)(z_carry, t_emb_batched, uncond_emb_rep)
+                return eps_uncond + guidance_scale * (eps_c - eps_uncond)
+
+            # 3. Use lax.cond to skip computation if scale == 1.0
+            eps_pred = jax.lax.cond(
+                guidance_scale != 1.0,
+                compute_guided,
+                lambda x: x, # Identity function if scale == 1.0
+                eps_cond
+            )
+            
+            t_idx = elems[2]  # scalar int (we will pass it)
+            t_idx_int = t_idx
+
+            # read schedule scalars for this timestep
+            alpha = self.alphas[t_idx_int]
+            alpha_bar = self.alphas_cumprod[t_idx_int]
+            beta = self.betas[t_idx_int]
+
+            sqrt_one_minus_alpha_bar = jnp.sqrt(1.0 - alpha_bar)
+            pred_x0 = (z_carry - sqrt_one_minus_alpha_bar * eps_pred) / jnp.sqrt(alpha_bar)
+
+            # compute posterior terms (vectorized constants)
+            def body_when_tpos():
+                alpha_bar_prev = self.alphas_cumprod[t_idx_int - 1]
+                coef1 = beta * jnp.sqrt(alpha_bar_prev) / (1.0 - alpha_bar)
+                coef2 = (1.0 - alpha_bar_prev) * jnp.sqrt(alpha) / (1.0 - alpha_bar)
+                mean = coef1 * pred_x0 + coef2 * z_carry
+                variance = beta * (1.0 - alpha_bar_prev) / (1.0 - alpha_bar)
+                z_next = mean + jnp.sqrt(variance) * noise_t
+                return z_next
+
+            def body_when_t0():
+                return pred_x0
+
+            z_next = jax.lax.cond(t_idx_int > 0, body_when_tpos, body_when_t0)
+            return z_next, None
+
+        # Build elems tuple array: (noise_seq[i], t_emb_seq[i], t_seq[i]) for each step
+        # For scan it's convenient to pass a tuple where each element has leading dimension n_steps
+        elems = (noise_seq, t_emb_seq, t_seq)
+
+        # run scan
+        z_final, _ = jax.lax.scan(step_fn, z, elems)
+        if self.refinement:
+            s_key = jr.split(key, 2)[1]
+            z_final = self.refinement(z_final, cond_rep, s_key, cond_emb_rep)[0]
+
+        # z_final is the carry after all steps
+        samples = z_final.reshape(batch_size, num_samples, self.param_dim)
+        return jnp.swapaxes(samples, 0, 1)
+
 
 @eqx.filter_jit
-def make_step(model, x_ts, theta, key, opt_state, optimizer):
-    loss_fn = lambda m: m.loss(x_ts, theta, key)
-    loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
-    updates, opt_state = optimizer.update(grads, opt_state, model)
-    model = eqx.apply_updates(model, updates)
+def make_step(model, y: jnp.ndarray, true_params: jnp.ndarray, key, opt_state, optimizer, filter_fn=None):
+    if filter_fn is not None:
+        diff_model, static_model = eqx.partition(model, filter_fn)
+        def loss_fn(diff_m):
+            full_model = eqx.combine(diff_m, static_model)
+            return full_model.loss(y, true_params, key)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(diff_model)
+        updates, opt_state = optimizer.update(grads, opt_state, diff_model)
+        diff_model = eqx.apply_updates(diff_model, updates)
+        model = eqx.combine(diff_model, static_model)
+    else:
+        loss_fn = lambda m: m.loss(y, true_params, key)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
+        updates, opt_state = optimizer.update(grads, opt_state, model)
+        model = eqx.apply_updates(model, updates)
     return model, opt_state, loss

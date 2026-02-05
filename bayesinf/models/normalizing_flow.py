@@ -10,9 +10,11 @@ import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
 import optax
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Optional
 from functools import partial
 from bayesinf.models.networks import TimeSeriesEncoder
+from bayesinf.models.MCMC_Flow import MALALayer, RMALALayer, MCMCLayer, BMCMCLayer
+STOCHASTIC_LAYERS = (MALALayer, RMALALayer, MCMCLayer, BMCMCLayer)
 
 class ActNorm(eqx.Module):
     bias: jnp.ndarray
@@ -536,6 +538,7 @@ class CondNormFlow(eqx.Module):
     transforms: List[eqx.Module]
     prior_mean: jnp.ndarray
     prior_cov: jnp.ndarray
+    refinement: Optional[eqx.Module] 
 
     def __init__(
         self, 
@@ -548,7 +551,9 @@ class CondNormFlow(eqx.Module):
         encoded_latent_dim: int = 16, 
         hidden_rnn: int = 128,
         rnn_type: str = "lstm",
-        flow_type: str = 'realnvp'
+        flow_type: str = 'realnvp',
+        log_posterior_fn=None,
+        mcmc_type='MALA', num_mh_steps: int = 1, mcmc_step_size: float = 1e-3, noise_std=0.01
     ):
         self.dim = dim
         self.cond_dim = cond_dim
@@ -602,6 +607,30 @@ class CondNormFlow(eqx.Module):
 
         # Final ActNorm
         self.transforms.append(ActNorm(dim))
+        
+        if log_posterior_fn is not None:
+            if mcmc_type.upper() == 'MALA':
+                self.refinement = MALALayer(log_posterior_fn, 
+                        lambd=1.0, num_langevin_steps=1, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                        apply_gradient_schedule=False
+                        )                       
+            elif mcmc_type.upper() == 'RMALA':
+                self.refinement = RMALALayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                    apply_gradient_schedule=False
+                    )
+            elif mcmc_type.upper() == 'BMCMC':
+                self.refinement = BMCMCLayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, step_size=mcmc_step_size, 
+                    apply_gradient_schedule=False
+                    )
+            else:
+                self.refinement = MCMCLayer(log_posterior_fn, 
+                    lambd=1.0, num_mh_steps=num_mh_steps, noise_std=noise_std, 
+                    apply_gradient_schedule=False
+                    )
+        else:
+            self.refinement = None
 
     def __flow_call__(self, z: jnp.ndarray, cond_emb:jnp.ndarray, reverse=False) -> Tuple[jnp.ndarray, jnp.ndarray]:
         logdet = jnp.zeros(z.shape[:-1])
@@ -648,6 +677,22 @@ class CondNormFlow(eqx.Module):
         samples = jnp.swapaxes(samples, 0, 1)
         return samples
 
+    def sample_with_MCMC(self, cond: jnp.ndarray, key: jax.Array, num_samples: int) -> jnp.ndarray:
+        cond_emb = self.encoder(cond)
+        batch_size = cond.shape[0]
+        total_num = num_samples * batch_size
+        cond_emb_rep = jnp.repeat(cond_emb, num_samples, axis=0)
+        cond_rep = jnp.repeat(cond, num_samples, axis=0)
+
+        z = jr.normal(key, (total_num, self.dim))
+        samples = self.__flow_call__(z, cond_emb_rep, reverse=True)[0]
+        if self.refinement:
+            s_key = jr.split(key, 2)[1]
+            samples = self.refinement(samples, cond_rep, s_key, cond_emb_rep)[0]
+        samples = samples.reshape(batch_size, num_samples, -1)
+        samples = jnp.swapaxes(samples, 0, 1)
+        return samples
+
 
 def cnf_loss(model, y: jnp.ndarray, true_params: jnp.ndarray):
     ml_loss = model.log_prob(true_params, y)
@@ -656,12 +701,21 @@ def cnf_loss(model, y: jnp.ndarray, true_params: jnp.ndarray):
 
 
 @eqx.filter_jit
-def make_step(model, y: jnp.ndarray, true_params: jnp.ndarray, key, opt_state: Any, optimizer: optax.GradientTransformation):
-    """Training step for parameter identification CNF."""
-    loss_fn = lambda m: cnf_loss(m, y, true_params)
-    loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
-    updates, opt_state = optimizer.update(grads, opt_state, model)
-    model = eqx.apply_updates(model, updates)
+def make_step(model, y: jnp.ndarray, true_params: jnp.ndarray, key, opt_state: Any, optimizer: optax.GradientTransformation, filter_fn=None):
+    if filter_fn is not None:
+        diff_model, static_model = eqx.partition(model, filter_fn)
+        def loss_fn(diff_m):
+            full_model = eqx.combine(diff_m, static_model)
+            return cnf_loss(full_model, y, true_params)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(diff_model)
+        updates, opt_state = optimizer.update(grads, opt_state, diff_model)
+        diff_model = eqx.apply_updates(diff_model, updates)
+        model = eqx.combine(diff_model, static_model)
+    else:
+        loss_fn = lambda m: cnf_loss(m, y, true_params)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
+        updates, opt_state = optimizer.update(grads, opt_state, model)
+        model = eqx.apply_updates(model, updates)
     return model, opt_state, loss
 
 

@@ -1,9 +1,0 @@
-Starting MALA Training...Max. Epochs: 10000
-step:   1%|            | 101/10000 [00:17<28:37,  5.76it/s]
-
-Early stopping triggered at epoch 101
-<frozen runpy>:128: RuntimeWarning: 'bayesinf.models.train_parameter_identification_model' found in sys.modules after import of package 'bayesinf.models', but prior to execution of 'bayesinf.models.train_parameter_identification_model'; this may result in unpredictable behaviour
-Starting MALA Training...Max. Epochs: 10000
-step:   1%|            | 101/10000 [00:12<20:16,  8.14it/s]
-
-Early stopping triggered at epoch 101

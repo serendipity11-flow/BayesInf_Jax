@@ -82,7 +82,7 @@ def generate_mass_spring_data(key: jax.Array,
 
     return data, params
 
-def mass_spring_ode_f(t, state, args):
+def mass_spring_ode_f(t, state, args, beta=0.0, alpha=0.0):
         """
         The first-order ODE for the mass-spring system with external force.
         state = (x, v)
@@ -93,8 +93,17 @@ def mass_spring_ode_f(t, state, args):
         m, k, c = params
         F_t = 10.0 * jnp.sin(3.0 * t)
 
+        if beta > 0:
+           f_spring = - (k * x + beta * jnp.power(x, 3))
+        else:
+            f_spring = - k * x
+        if alpha > 0:
+            f_damping = - (c * v + alpha * v * jnp.abs(v))
+        else:
+            f_damping = - c * v
+
         dx_dt = v
-        dv_dt = F_t / m- (k / m) * x - (c / m) * v
+        dv_dt = (F_t + f_spring + f_damping) / m
 
         return jnp.array([dx_dt, dv_dt])
 
@@ -103,7 +112,7 @@ def generate_mass_spring_data_f(key: jax.Array,
                               dt0: float = 0.05,
                               t1: float = 5.0,
                               noise_std: float = 0.05,
-                              saveat='all'):
+                              saveat='all', beta=0, alpha=0, shift=[0, 0, 0]):
 
     key_y0, key_p, key_n = jr.split(key, 3)
 
@@ -115,7 +124,7 @@ def generate_mass_spring_data_f(key: jax.Array,
 
     # Sample physical parameters (m, k, c)
     key_m, key_k, key_c = jr.split(key_p, 3)
-    boundary = jnp.array([[0.8, 1.2], [5.0, 10.0], [0.5, 3]])
+    boundary = jnp.array([[0.8+shift[0], 1.2+shift[0]], [5.0+shift[1], 10.0+shift[1]], [0.5+shift[2], 3+shift[2]]])
     m_batch = jr.uniform(key_m, (n_samples, 1), minval=boundary[0, 0], maxval=boundary[0, 1])  # Mass around 1.0
     k_batch = jr.uniform(key_k, (n_samples, 1), minval=boundary[1, 0], maxval=boundary[1, 1])  # Stiffness
     c_batch = jr.uniform(key_c, (n_samples, 1), minval=boundary[2, 0], maxval=boundary[2, 1])  # damping
@@ -123,7 +132,7 @@ def generate_mass_spring_data_f(key: jax.Array,
     # Params stack: (m, k, c) - Shape: (n_samples, 3)
     params = jnp.concatenate([m_batch, k_batch, c_batch], axis=-1)
 
-    term = dfx.ODETerm(mass_spring_ode_f)
+    term = dfx.ODETerm(lambda t, state, args: mass_spring_ode_f(t, state, args, beta=beta, alpha=alpha))
     solver = dfx.Dopri5()
 
     # Solves from t=0 to t=t1, saving only the final point
@@ -289,6 +298,32 @@ def generate_mass_spring_data2(key: jax.Array,
         data = data + noise
 
     return jnp.stack([data[..., 0]+data[..., 2], data[..., 1]+data[..., 3]], axis=-1), params
+
+
+def mass_spring_ode_nf(t, state, args):
+    """
+    Non-linear Mass-Spring-Damper (Duffing + Quadratic Damping)
+    """
+    x, v = state
+    params, = args
+    # m: mass, k: linear stiffness, c: linear damping, 
+    # beta: non-linear stiffness, alpha: non-linear damping
+    m, k, c = params 
+    
+    F_t = 10.0 * jnp.sin(3.0 * t)
+
+    dx_dt = v
+    
+    # Physics: F = ma -> a = (F_ext + F_spring + F_damping) / m
+    beta = 0.1
+    alpha = 0.1
+    f_spring = - (k * x + beta * jnp.power(x, 3))
+    f_damping = - (c * v + alpha * v * jnp.abs(v))
+    
+    dv_dt = (F_t + f_spring + f_damping) / m
+
+    return jnp.array([dx_dt, dv_dt])
+
 
 def normalize_data(data, mean=None, std=None):
     if mean is None:

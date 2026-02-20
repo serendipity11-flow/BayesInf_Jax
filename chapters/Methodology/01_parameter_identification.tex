@@ -216,17 +216,20 @@ In contrast, \ac{SBM} and the three \ac{NF} architectures demonstrate a superior
 \subsection{Relationship Between Bayesian Inference and Sensitivity Analysis}
 Previous experiments applying mass-spring-damper models demonstrate that Bayesian inference is intrinsically linked to parameter identifiability. Our findings indicate that spring constants converge rapidly during training, which will be further elucidated through sensitivity analysis. Conversely, linearly correlated parameters lack unique identification, and in symmetric coupled models, individual spring constants become indistinguishable. These varying levels of identifiability can be rigorously analyzed through \ac{SA}, which studies how uncertainty in the output of a mathematical model can be partitioned and allocated to different sources of uncertainty in its inputs. This framework aligns naturally with the objectives of amortized Bayesian inference. For purely data-driven methods, \ac{SA} provides essential insights into the physical model and practical training suggestions: weakly identifiable or correlated parameters that require additional observational data for resolution.
 
-Unlike local \ac{SA}, which examines instantaneous changes in output relative to specific parameter perturbations, our research focuses on total trajectories, necessitating a global \ac{SA}. A common approach for global \ac{SA} is the Sobol' index, which is a variance-based method that decomposes the total output variance into contributions from individual parameters and their interactions. For a model $f$ with inputs $X_1, \ldots, X_d$ and the output $Y$, the total variance of the model output is:
+Unlike local \ac{SA}, which examines instantaneous changes in output relative to specific parameter perturbations, our research focuses on total trajectories, necessitating a global \ac{SA}. 
+
+\subsubsection{Sobol' index}
+A common approach for global \ac{SA} is the Sobol' index, which is a variance-based method that decomposes the total output variance into contributions from individual parameters and their interactions. For a model $f$ with inputs $X_1, \ldots, X_d$ and the output $Y$, the total variance of the model output is:
 \begin{equation}
     Var(Y) = \sum_i V_i + \sum_{i<j} V_{ij} + \cdots + V_{1,2,\ldots,d}.
 \end{equation}
 The first-order Sobol' index $S^1_i$ measures the contribution of a single parameter $X_i$ to the output variance, which can be regarded as the main effect. It is given by:
 \begin{equation}
-    S^1_i = \frac{V_i}{Var(Y)}\quad V_i=Var_{X_i}[E_{\boldsymbol{X}_{\sim i}}(Y|X_i)].
+    S^1_i = \frac{V_i}{Var(Y)},\quad V_i=Var_{X_i}[E_{\boldsymbol{X}_{\backslash i}}(Y|X_i)].
 \end{equation}
 The total Sobol' index accounts for the total contribution of a parameter to the output variance, including both its main effect and all higher-order interactions with other parameters. The total Sobol' index of $X_i$ is
 \begin{equation}
-    S^T_i = \frac{Var_{\boldsymbol{X}_{\sim i}}[E_{X_i}(Y|\boldsymbol{X}_{\sim i})]}{Var(Y)}.
+    S^T_i = \frac{Var_{\boldsymbol{X}_{\backslash i}}[E_{X_i}(Y|\boldsymbol{X}_{\backslash i})]+\sigma_n^2}{Var(Y)+\sigma_n^2}>\frac{Var_{\boldsymbol{X}_{\backslash i}}[E_{X_i}(Y|\boldsymbol{X}_{\backslash i})]}{Var(Y)} > \frac{Var_{\boldsymbol{X}_{\backslash i}}[E_{X_i}(Y|\boldsymbol{X}_{\backslash i})]}{Var(Y)}.
 \end{equation}
 
 Another key issue of using variance-based \ac{SA} is to sample the parameter space efficiently. The standard random sampling often creates clusters or gaps in the parameter space. Instead, Sobol' sequences are applied, which are low-discrepancy sequences. For the sake of stability, a larger number of samples should be set.
@@ -285,6 +288,26 @@ Figure~\ref{fig:sa_l_c} compares the sensitivity analysis of the free and couple
 
 The global \ac{SA} of the symmetric coupled two-mass system reveals a perfect parity between the boundary stiffness parameters. Both $k_1$ and $k_3$ exhibit nearly identical first-order ($S^1\approx 0.496$) and total-order ($S^T\approx 0.503$) indices. The near-unity sum of their first-order indices ($S_{k_1}+S_{k_3}\approx 1$) suggests that these two parameters account for almost the entire variance of the system's dynamic response, with negligible higher-order interactions ($S^T-S^1<0.01$). From an identifiability perspective, this symmetry presents a unique challenge for Bayesian inference. While the high sensitivity ensures that the parameters will converge quickly away from the prior mean, the identical nature of their influence results in a bimodal posterior distribution. This confirms the indistinguishability and multimodality: the amortized inference model can identify the required stiffness levels but cannot uniquely assign them to $k_1$ or $k_3$ without additional asymmetric constraints or localized observations.
 
+\subsubsection{Mutual Information}
+Global \ac{SA} does not always provide a reliable measure of parameter identifiability, particularly when observations are corrupted by additive noise. Consider a model $f(\boldsymbol{X})$ whose observations contain additive Gaussian noise $\epsilon\sim N(0,\sigma_n^2)$, such that $Y=f(\boldsymbol{X})+\epsilon$. Assuming the noise is independent of the parameters, the total observed variance becomes $Var(Y)=Var(f(\boldsymbol{X}))+\sigma_n^2$. Under this condition, the first-rder and total-order Sobol' indices behave differently:
+\begin{align}
+    S^1_i &= \frac{V_i}{Var(Y)+\sigma^2_n} < \frac{V_i}{Var(Y)};\\ 
+    S^T_i &= \frac{Var_{\boldsymbol{X}_{\backslash i}}[E_{X_i}(Y|\boldsymbol{X}_{\backslash i})]+\sigma_n^2}{Var(Y)+\sigma_n^2}>\frac{Var_{\boldsymbol{X}_{\backslash i}}[E_{X_i}(Y|\boldsymbol{X}_{\backslash i})]}{Var(Y)}.
+\end{align}
+As the noise ratio increases, the first-order Sobol' index decreases because the denominator grows while the numerator remains constant. In contrast, the total-order Sobol index increases by adding the variance of noise in both numerator and denominator. This behavior is highly counter-intuitive: a higher total Sobol' index usually suggests that a parameter is more "influential," yet in this case, the increase is driven entirely by noise, which actually makes the parameter more difficult to identify. Consequently, variance-based metrics can fail to distinguish between true parameter sensitivity and the presence of measurement uncertainty. To address these limitations, \ac{MI} \citep{Bhola2023-ik} offers a robust alternative for evaluating the practical identifiability of parameters. Unlike global \ac{SA}, which only considers the second moment (variance), \ac{MI} is an information-theoretic measure that quantifies the total information gain from the prior to the posterior distribution given the data:
+\begin{equation}
+MI(X_i, y) = H(p(X_i)) - H(p(X_i|y)),
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/sensitivity_identifiability.pdf}
+    \caption[Comparison of Sensitivity and Identifiability Under Noisy Observations]{Comparison of parameter sensitivity and identifiability under varying noise levels. The left panel displays the total-order Sobol' index, while the right panel shows the Mutual Information (MI) for the parameters $m,k,c$ of a forced mass-spring-damper model. Both metrics were estimated using 1,024 samples generated from a low-discrepancy sequence. The horizontal axis represents the noise ratio (scaling a standard normal distribution) on a logarithmic scale.}
+    \label{fig:mi_noise}
+\end{figure}
+
+A comparison between the total-order Sobol' index and \ac{MI} across varying noise levels is shown in Figure \ref{fig:mi_noise}. While $S^T$ suggests a rising sensitivity as $\sigma$ increases, which results from the noise contributing to the total variance, the $MI$ captures the actual degradation of the signal-to-noise ratio. The divergence between these metrics demonstrates that sensitivity can be a misleading proxy for identifiability in noisy environments. Beyond a threshold of $\sigma=0.02$, the sharp drop in $MI$ indicates that the parameters can not be identified as perfectly as the clean observations. Beyond a threshold of $\sigma=0.2$, all parameters are poorly identifiable, meaning the observations no longer provide sufficient information to constrain the prior.
+
 \subsection{When Does the Framework Fail?}
 From the previous sections, we have known the framework frequently struggles with posterior identifiability; specifically, when the system exhibits multimodality, generative models may fail to resolve disjoint parameter regimes. Apart from identifiability, the efficacy of amortized Bayesian inference via deep generative models is intrinsically tied to the fidelity of the latent representations extracted by the condition network. This framework encounters significant bottlenecks under three primary conditions. First, in the presence of high-dimensional, noisy, or highly stochastic time-series data, the condition network often fails to distill sufficient summary statistics, leading to information loss. Second, the framework is susceptible to model misspecification. When a discrepancy exists between the training simulator and real-world dynamics (the 'sim-to-real gap'), the amortized posterior yields biased and poorly calibrated estimates. Third, the framework fails to generalize to parameter ranges outsized its training boundaries, even if the underlying physics remain the same. 
 
@@ -295,7 +318,7 @@ We evaluate the robustness of \acp{NF} (including \ac{FM}, \ac{RealNVP}, and \ac
 \item \ac{OOD} Generalization: Testing the framework on parameter ranges that lie outside the support of the training prior.
 \end{itemize}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figures/stress_test_noise.pdf}
     \caption[Stress Test of Normalizing Flows under Noise]{Stress test of Normalizing Flow architectures under increasing additive Gaussian noise. The panels illustrate the evolution of predictive accuracy (RMSE), uncertainty quantification (MCIW), and posterior calibration (CICP) for \ac{RealNVP}, \ac{NSF}, and \ac{FM} as the noise intensity $\sigma$ changes. Logarithmic scaling is applied to both the noise level and the corresponding RMSE and MCIW metrics to highlight performance degradation across several orders of magnitude.}
@@ -384,29 +407,35 @@ Then, the objective is:
 \begin{equation}
     \mathcal{L}_{SNF}(\theta) = \mathbb{E}_{u_{0:T}\sim P_{V_{0:T}}}[\log p_{V_T}(u_T) - \log p_{U_0}(u_0) + \sum_{t=1}^{T} \log f_t(u_{t-1}, u_t)\frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)}]
 \end{equation}
-The term $f_t(u_{t-1}, u_t)p_{V_{t-1}}(u_{t-1})/p_{V_t}(u_t)$ is different in deterministic or stochastic layers. 
+The term $f_t(u_{t-1}, u_t)p_{V_{t-1}}(u_{t-1})/p_{V_t}(u_t)\overset{\underset{\mathrm{def}}{}}{=}r$ is different in deterministic or stochastic layers. 
 \begin{itemize}
     \item For a deterministic transformation, $f_t(u_{t-1}, u_t)=1$ and $p_{V_{t-1}}(u_{t-1})/p_{V_t}(u_t)$ is equivalent to the change of variable, which is given by:
     \begin{equation}
-        \frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)} = \det \left|J_{\mathcal{T}_t}(u_{t-1})\right|.
+        r = 1\cdot \frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)} = \det \left|J_{\mathcal{T}_t}(u_{t-1})\right|.
     \end{equation}
-    \item For a stochastic transformation, the term measures how well the backward kernel inverts the forward one at each step, because it can be reformulated as:
+    \item For a stochastic transformation, $r$ measures how well the backward kernel inverts the forward one at each step, because it can be reformulated as:
     \begin{equation}
-        f_t(u_{t-1}, u_t)\frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)} = \frac{p_{V_{t-1}|V_t}(u_{t-1}|u_t)}{p_{U_t|U_{t-1}}(u_t|u_{t-1})}.
+        r = \frac{p_{V_t|V_{t-1}}(u_t|u_{t-1})}{p_{U_t|U_{t-1}}(u_t|u_{t-1})}\frac{p_{V_{t-1}}(u_{t-1})}{p_{V_t}(u_t)} = \frac{p_{V_{t-1}|V_t}(u_{t-1}|u_t)}{p_{U_t|U_{t-1}}(u_t|u_{t-1})}.
     \end{equation}
     The stochastic transformation is supposed to be invertible and has to fulfill the detailed balance condition with respect to some density $\pi_t$, which is given by:
     \begin{equation}
+        \label{eq:det_bal}
         \pi_t(u_t)p_{V_{t-1}|V_t}(u_{t-1}|u_t) = \pi_{t}(u_{t-1})p_{U_t|U_{t-1}}(u_t|u_{t-1}).
     \end{equation}
-    The density $\pi_t$ is the target density of the stochastic layer at the $t$-th step. It is chosen to be an interpolation between $p_Z$ and $p_X$, which is given by:
+    The density $\pi_t$ is the target density of the stochastic layer at the $t$-th step. It is designed to be an interpolation between $p_Z$ and $p_X$, which is given by:
     \begin{equation}
         \pi_t = c \cdot p_Z^{t/T} \cdot p_X^{(T-t)/T}.
     \end{equation}
     The parameter $c$ is a normalizing constant. Then the energy function of the density is $E_t(u)=-\log(\pi_t(u))$.
-
-    For computational efficiency, the stochastic transformation is chosen to be an \ac{MALA} (See in Section\ref{sec:MALA}) kernel. Then, the term $f_t(u_{t-1}, u_t)p_{V_{t-1}}(u_{t-1})/p_{V_t}(u_t)$ is given by:
+    
+    Rearranging Equation \ref{eq:det_bal} we get:
     \begin{equation}
-        \frac{p_{V_{t-1}|V_t}(u_{t-1}|u_t)}{p_{U_t|U_{t-1}}(u_t|u_{t-1})} = \frac{\pi_t(u_{t-1})}{\pi_t(u_{t})} = \exp\left(\frac{1}{2}(\left\|\tilde{\eta}_t\right\|^2_2-\left\|\eta_t\right\|^2_2)\right),
+        r=\frac{p_{V_{t-1}|V_t}(u_{t-1}|u_t)}{p_{U_t|U_{t-1}}(u_t|u_{t-1})}=  \frac{\pi_t(u_{t-1})}{\pi_t(u_{t})}.
+    \end{equation}
+    For \ac{MCMC}, the above term can be easily calculated by inserting the samples into the density function $\pi_t$. 
+    For computational efficiency, the stochastic transformation can also be an \ac{MALA} (See in Section\ref{sec:MALA}) kernel. Then, $r$ is given by:
+    \begin{equation}
+        r = \frac{\pi_t(u_{t-1})}{\pi_t(u_{t})} = \exp\left(\frac{1}{2}(\left\|\tilde{\eta}_t\right\|^2_2-\left\|\eta_t\right\|^2_2)\right),
     \end{equation}
     where $\eta_t$ and $\tilde{\eta}_t$ represent the Gaussian noise vectors that generate the forward ($u_{t-1}\rightarrow u_{t}$) and backward ($u_{t}\rightarrow u_{t-1}$) steps respectively:
     \begin{equation}
@@ -414,8 +443,54 @@ The term $f_t(u_{t-1}, u_t)p_{V_{t-1}}(u_{t-1})/p_{V_t}(u_t)$ is different in de
     \end{equation}
 \end{itemize}
 
-% MALA different places
-% multimodal
-% noisy case
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}[t]{0.55\textwidth}
+        % \setlength{\abovecaptionskip}{0pt} 
+        \vspace{0pt}
+        \captionof{figure}[Multimodal Modeling Comparison between NF and SNF]{Comparison of MCMC-RealNVP (left) and RealNVP (right) for multimodal modeling. Experimental settings match Fig.~\ref{fig:mm_comp}.}
+        \label{fig:snf_mm}
+        \vspace{1.5em}
+        \captionof{table}[Multimodal Modeling Comparison]{Comparison of Posterior Estimation Metrics. For RMSE/MCIW, lower is better ($\downarrow$); for CICP, $\approx 0.95$ is ideal. Metrics are mode-aligned with centers identified via $K$-means clustering. The results except the MCMC are corresponding to Figure \ref{fig:mm_comp}. The MCMC stands for an SNF with MCMC and RealNVP. }
+        \label{tab:mm_comparison}
+        \vspace{0.5em}
+        \centering
+        \small
+        \begin{tabular}{l ccc}
+            \toprule
+            \textbf{Model} & \textbf{RMSE} ($\downarrow$) & \textbf{MCIW} ($\downarrow$) & \textbf{CICP} \\
+            \midrule
+            BNN     & 1.611 & 4.581 & 0.843 \\
+            VAE     & 1.375 & 1.527 & 0.460 \\
+            DDPM    & 1.415 & 2.211 & 0.560 \\
+            SBM     & 0.540 & 0.838 & 0.553 \\
+            FM      & 0.300 & 0.830 & 0.873 \\
+            RealNVP & 0.258 & 1.067 & 0.925 \\
+            NSF     & 0.108 & \textbf{0.412} & 0.928 \\
+            MCMC   & \textbf{0.105} & 0.508 & \textbf{0.970} \\
+            \bottomrule
+        \end{tabular}
 
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.43\textwidth}
+        \centering
+        \includegraphics[width=\textwidth, valign=T]{figures/model_comparison_grid_multi_modal_snf.pdf}
+    \end{minipage}
+\end{figure}
 
+To enhance multimodal modeling, we implement a hybrid \ac{SNF} architecture combining \ac{RealNVP} with four intermediate \ac{MCMC} refinement steps (step size is 0.001). In the forward (training) pass, the \ac{MCMC} updates are applied to the latent encoding to improve likelihood estimation; in the inverse (generative) pass, they are applied to the output samples to ensure better alignment with the target data distribution. This stochastic refinement enables the flow to capture disconnected modes, which are challenging for \ac{RealNVP} as a simpler deterministic \ac{NF}. Table \ref{tab:mm_comparison} demonstrates that this approach yields the best-in-class RMSE and a near-ideal coverage probability, outperforming the \ac{NSF} (top performer in our study) in terms of both precision and uncertainty quantification.
+
+In order to improve the parameter identifiability under noisy observations, we apply a \ac{MALA}-refinement after sampling through \ac{NF} architecture. We define the log-likelihood by measuring the residual between the actual observations and the signals generated by the model's governing dynamics using the inferred parameters. For the sake of handling different parameter sensitivity, the \ac{RMALA} refinement leverages the Fisher Information Matrix (or Hessian) to adapt to the local curvature of the log-posterior. While standard \ac{MALA} uses a constant step size in all directions, \ac{RMALA} uses a position-dependent metric tensor. This "preconditioning" allows the flow to take larger steps in directions of low sensitivity and smaller, more precise steps in directions of high sensitivity.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/snf_refine_comparison.pdf}
+    \caption[Improved Parameter Identification Under Noisy Observations with SNF]{Improved Parameter Identification under Noisy Observations using \acp{SNF}. Three \ac{NF} architectures—\ac{RealNVP}, \ac{FM}, and \ac{NSF}—are evaluated across varying noise scales (0.01, 0.02, 0.05, and 0.1). Performance is measured in terms of accuracy (RMSE) and uncertainty quantification (MCIW and CICP). Grouped bars contrast the original baseline results with those obtained via \ac{RMALA}-based refinement. In the CICP subfigure, the dashed red line indicates the ideal coverage probability of 0.95.}
+    \label{fig:snf_refinement}
+\end{figure}
+
+Figure \ref{fig:snf_refinement} shows the comparison of parameter identification under noisy observations between \ac{NF} and \ac{SNF}. The RMSE panel reveals a clear trend where error increases proportionally with observational noise. However, the stochastic refinement consistently outperforms the deterministic base models across all noise scales. At lower noise levels (0.01 and 0.02), the refined models often exhibit a higher MCIW than the base models. It indicates that the base models were producing intervals that were too narrow (overconfident). The \ac{MALA} layers broaden the distribution to accurately reflect the true posterior width. At noise scale (0.1), the MCIW values converge. This suggests that in high-noise regimes, the scale of uncertainty is largely driven by the data likelihood rather than the specific choice of flow architecture. The uncertainty calibration can be proven in the CICP panel as well. Note that at noise scale 0.01, the base \ac{NSF} model (light purple) significantly under-0.95-covers. The refinement step (dark purple) lifts this probability back to the target. While deterministic models start to lose coverage as noise increases (falling below 0.90), the refined models maintain a much more stable coverage probability, remaining close to the target across the entire noise spectrum. The consistent improvement in CICP implies that the stochastic layers are pushing the approximate posterior much closer to the true posterior. 
+
+Surprisingly, the \ac{FM} reaches exact 0.95 CICP at noise scales (0.01, 0.02 and 0.05). Because \ac{FM} learns a continuous vector field rather than a series of discrete couplings, it likely provides a smoother initial density for the stochastic layers. When \ac{RMALA} is applied to this smooth surface, the gradient-based steps can move the samples to the exact posterior boundaries with higher precision than in more rigid architectures like \ac{RealNVP} and \ac{NSF}. This makes the \ac{RMALA}-refined \ac{FM} an exceptionally reliable tool for parameter identification in complex, noisy dynamical systems.
+ 

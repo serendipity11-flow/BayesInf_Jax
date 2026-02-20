@@ -1,4 +1,4 @@
-\begin{thebibliography}{182}
+\begin{thebibliography}{187}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -87,6 +87,11 @@ Naoufal~El Bekri, Lucas Drumetz, and Franck Vermet.
 Julian Besag.
 \newblock Markov chain monte carlo methods for statistical inference.
 \newblock \emph{Department of Statistics University of Washington, Seattle, USA}, 2004.
+
+\bibitem[Bhola and Duraisamy(2023)]{Bhola2023-ik}
+Sahil Bhola and Karthik Duraisamy.
+\newblock Estimating global identifiability using conditional mutual information in a bayesian framework.
+\newblock \emph{Scientific Reports}, 13\penalty0 (1):\penalty0 18336, October 2023.
 
 \bibitem[Bishop(2006)]{bishop2006}
 Christopher~M. Bishop.
@@ -219,6 +224,11 @@ Frank~J. Christophersen.
 \newblock ISBN 978-3-540-72701-9.
 \newblock \doi{10.1007/978-3-540-72701-9_3}.
 \newblock URL \url{https://doi.org/10.1007/978-3-540-72701-9_3}.
+
+\bibitem[Coddington and Levinson(1955)]{coddington1955theory}
+Earl~A Coddington and Norman Levinson.
+\newblock \emph{Theory of ordinary differential equations}.
+\newblock McGraw-Hill New York, 1955.
 
 \bibitem[Damianou and Lawrence(2013)]{damianou2013dgp}
 Andreas~C. Damianou and Neil~D. Lawrence.
@@ -535,10 +545,10 @@ Shahbaz~Abdul Khader, Hang Yin, Pietro Falco, and Danica Kragic.
 \newblock In \emph{2021 IEEE International Conference on Robotics and Automation (ICRA)}, pages 1644--1650, 2021.
 \newblock \doi{10.1109/ICRA48506.2021.9562071}.
 
-\bibitem[Khromov and Singh(2024)]{khromov2024Lipschitz}
-Grigory Khromov and Sidak~Pal Singh.
-\newblock Some fundamental aspects about lipschitz continuity of neural networks, 2024.
-\newblock URL \url{https://arxiv.org/abs/2302.10886}.
+\bibitem[Khalil and Grizzle(2002)]{khalil2002nonlinear}
+Hassan~K Khalil and Jessy~W Grizzle.
+\newblock \emph{Nonlinear systems}, volume~3.
+\newblock Prentice hall Upper Saddle River, NJ, 2002.
 
 \bibitem[Kingma and Dhariwal(2018)]{kingma2018glow}
 Diederik~P. Kingma and Prafulla Dhariwal.
@@ -595,14 +605,19 @@ Mason Lee and Siddharth Diwan.
 \newblock Improving probabilistic model based reinforcement learning control in chaotic environments with conditional normalizing flows, 2023.
 \newblock URL \url{https://api.semanticscholar.org/CorpusID:260067705}.
 
+\bibitem[Li et~al.(2025{\natexlab{a}})Li, Lange-Hegermann, and Raiţă]{li2025gaussianprocessregressioninverse}
+Xin Li, Markus Lange-Hegermann, and Bogdan Raiţă.
+\newblock Gaussian process regression for inverse problems in linear pdes, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2502.04276}.
+
 \bibitem[Li et~al.(2020)Li, Wong, Chen, and Duvenaud]{li2020scalable}
 Xuechen Li, Ting-Kam~Leonard Wong, Ricky T.~Q. Chen, and David Duvenaud.
 \newblock Scalable gradients for stochastic differential equations, 2020.
 
-\bibitem[Li et~al.(2025)Li, Mallick, Wang, Yu, and Zeng]{li2025DIC}
+\bibitem[Li et~al.(2025{\natexlab{b}})Li, Mallick, Wang, Yu, and Zeng]{li2025DIC}
 Yong Li, Sushanta~K. Mallick, Nianling Wang, Jun Yu, and Tao Zeng.
 \newblock Deviance information criterion for bayesian model selection: Theoretical justification and applications.
-\newblock \emph{Journal of Econometrics}, page 105978, 2025.
+\newblock \emph{Journal of Econometrics}, page 105978, 2025{\natexlab{b}}.
 \newblock ISSN 0304-4076.
 \newblock \doi{https://doi.org/10.1016/j.jeconom.2025.105978}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0304407625000326}.
@@ -888,6 +903,14 @@ Kumar Shridhar, Felix Laumann, and Marcus Liwicki.
 \newblock A comprehensive guide to bayesian convolutional neural network with variational inference, 2019.
 \newblock URL \url{https://arxiv.org/abs/1901.02731}.
 
+\bibitem[Shukla et~al.(2016)Shukla, Balasubramanian, and Pavlovi{\'c}]{Shukla2016}
+Satish Shukla, Sriram Balasubramanian, and Mirjana Pavlovi{\'c}.
+\newblock A generalized banach fixed point theorem.
+\newblock \emph{Bulletin of the Malaysian Mathematical Sciences Society}, 39\penalty0 (4):\penalty0 1529--1539, 2016.
+\newblock ISSN 2180-4206.
+\newblock \doi{10.1007/s40840-015-0255-5}.
+\newblock URL \url{https://doi.org/10.1007/s40840-015-0255-5}.
+
 \bibitem[Silvestro and Andermann(2020)]{silvestro2020prior}
 Daniele Silvestro and Tobias Andermann.
 \newblock Prior choice affects ability of bayesian neural networks to identify unknowns, 2020.
@@ -952,6 +975,11 @@ Richard~S. Sutton.
 Simo Särkkä.
 \newblock The use of gaussian processes in system identification, 2019.
 \newblock URL \url{https://arxiv.org/abs/1907.06066}.
+
+\bibitem[Takhtaganov and Müller(2018)]{takhtaganov2018adaptivegaussianprocesssurrogates}
+Timur Takhtaganov and Juliane Müller.
+\newblock Adaptive gaussian process surrogates for bayesian inference, 2018.
+\newblock URL \url{https://arxiv.org/abs/1809.10784}.
 
 \bibitem[Tarasov et~al.(2025)Tarasov, Nikulin, Zisman, Klepach, Lyubaykin, Polubarov, Derevyagin, and Kurenkov]{tarasov2025vla}
 Denis Tarasov, Alexander Nikulin, Ilya Zisman, Albina Klepach, Nikita Lyubaykin, Andrei Polubarov, Alexander Derevyagin, and Vladislav Kurenkov.

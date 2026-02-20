@@ -38,6 +38,8 @@
 \usepackage{changepage}
 \usepackage{pdfpages}
 \usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage[export]{adjustbox}
 \usepackage{longtable}
 \usepackage{xltabular}
 \usepackage{tabularx}
@@ -59,6 +61,9 @@
 \usepackage{etoolbox}
 \preto\chapter\acresetall
 \usepackage[symbol]{footmisc}
+\usepackage{amsthm}
+\usepackage{mdframed}
+\usepackage{tikz}
 
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}%footnote *
 \setcitestyle{authoryear,open={(},close={)}} %Citation-related commands
@@ -98,7 +103,7 @@
 \newcolumntype{a}{>{\columncolor{dkfzgray}}m{0.27\textwidth}}
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}} %table centering
 \newtheorem{definition}{Definition}
-
+\newtheorem{lemma}{Lemma}
 % #################################
 %   CHAPTER
 % #################################

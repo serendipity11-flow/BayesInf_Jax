@@ -1,31 +1,31 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {II.1}{\ignorespaces Knowledge Map}}{9}{figure.caption.12}%
-\contentsline {figure}{\numberline {II.2}{\ignorespaces MH MALA Comparison}}{14}{figure.caption.23}%
-\contentsline {figure}{\numberline {II.3}{\ignorespaces Variational Autoencoder Architecture}}{23}{figure.caption.38}%
-\contentsline {figure}{\numberline {II.4}{\ignorespaces The Clay Volume Analogy for Change of Variables}}{25}{figure.caption.39}%
-\contentsline {figure}{\numberline {II.5}{\ignorespaces Coupling Flow Architecture}}{30}{figure.caption.43}%
-\contentsline {figure}{\numberline {II.6}{\ignorespaces Illustration of three Flows}}{32}{figure.caption.51}%
-\contentsline {figure}{\numberline {II.7}{\ignorespaces BayesFlow Architecture}}{38}{figure.caption.55}%
-\contentsline {figure}{\numberline {II.8}{\ignorespaces \ac {MPC} and \ac {RL}.}}{45}{figure.caption.66}%
-\contentsline {figure}{\numberline {II.9}{\ignorespaces MPC time dependency}}{45}{figure.caption.67}%
+\contentsline {figure}{\numberline {II.1}{\ignorespaces Knowledge Map}}{9}{figure.caption.13}%
+\contentsline {figure}{\numberline {II.2}{\ignorespaces MH MALA Comparison}}{14}{figure.caption.24}%
+\contentsline {figure}{\numberline {II.3}{\ignorespaces Variational Autoencoder Architecture}}{23}{figure.caption.39}%
+\contentsline {figure}{\numberline {II.4}{\ignorespaces The Clay Volume Analogy for Change of Variables}}{25}{figure.caption.40}%
+\contentsline {figure}{\numberline {II.5}{\ignorespaces Coupling Flow Architecture}}{30}{figure.caption.44}%
+\contentsline {figure}{\numberline {II.6}{\ignorespaces Illustration of three Flows}}{32}{figure.caption.52}%
+\contentsline {figure}{\numberline {II.7}{\ignorespaces BayesFlow Architecture}}{38}{figure.caption.56}%
+\contentsline {figure}{\numberline {II.8}{\ignorespaces \ac {MPC} and \ac {RL}.}}{45}{figure.caption.67}%
+\contentsline {figure}{\numberline {II.9}{\ignorespaces MPC time dependency}}{45}{figure.caption.68}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {IV.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{60}{figure.caption.97}%
-\contentsline {figure}{\numberline {IV.2}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{63}{figure.caption.112}%
-\contentsline {figure}{\numberline {IV.3}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{64}{figure.caption.113}%
-\contentsline {figure}{\numberline {IV.4}{\ignorespaces Linear Correlation Comparison}}{67}{figure.caption.114}%
-\contentsline {figure}{\numberline {IV.5}{\ignorespaces Multimodal Comparison}}{69}{figure.caption.115}%
-\contentsline {figure}{\numberline {IV.6}{\ignorespaces Convergence Speed \& Sensitivity Analysis}}{72}{figure.caption.117}%
-\contentsline {figure}{\numberline {IV.7}{\ignorespaces Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models}}{73}{figure.caption.118}%
-\contentsline {figure}{\numberline {IV.8}{\ignorespaces Comparison of Sensitivity and Identifiability Under Noisy Observations}}{75}{figure.caption.120}%
-\contentsline {figure}{\numberline {IV.9}{\ignorespaces Stress Test of Normalizing Flows under Noise}}{76}{figure.caption.121}%
-\contentsline {figure}{\numberline {IV.10}{\ignorespaces Evaluation of Stress Test under Misspecification and OOD}}{78}{figure.caption.124}%
-\contentsline {figure}{\numberline {IV.11}{\ignorespaces Micro View of Distribution under Misspecification}}{79}{figure.caption.125}%
-\contentsline {figure}{\numberline {IV.12}{\ignorespaces Global Residual Analysis under OOD}}{79}{figure.caption.126}%
-\contentsline {figure}{\numberline {IV.13}{\ignorespaces SNF Architecture}}{81}{figure.caption.129}%
-\contentsline {figure}{\numberline {IV.14}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{83}{figure.caption.131}%
-\contentsline {figure}{\numberline {IV.15}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{84}{figure.caption.133}%
+\contentsline {figure}{\numberline {IV.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{60}{figure.caption.98}%
+\contentsline {figure}{\numberline {IV.2}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{63}{figure.caption.111}%
+\contentsline {figure}{\numberline {IV.3}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{64}{figure.caption.112}%
+\contentsline {figure}{\numberline {IV.4}{\ignorespaces Linear Correlation Comparison}}{67}{figure.caption.113}%
+\contentsline {figure}{\numberline {IV.5}{\ignorespaces Multimodal Comparison}}{68}{figure.caption.114}%
+\contentsline {figure}{\numberline {IV.6}{\ignorespaces Convergence Speed \& Sensitivity Analysis}}{71}{figure.caption.116}%
+\contentsline {figure}{\numberline {IV.7}{\ignorespaces Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models}}{72}{figure.caption.117}%
+\contentsline {figure}{\numberline {IV.8}{\ignorespaces Comparison of Sensitivity and Identifiability Under Noisy Observations}}{74}{figure.caption.119}%
+\contentsline {figure}{\numberline {IV.9}{\ignorespaces Stress Test of Normalizing Flows under Noise}}{75}{figure.caption.121}%
+\contentsline {figure}{\numberline {IV.10}{\ignorespaces Evaluation of Stress Test under Misspecification and OOD}}{76}{figure.caption.122}%
+\contentsline {figure}{\numberline {IV.11}{\ignorespaces Micro View of Distribution under Misspecification}}{77}{figure.caption.123}%
+\contentsline {figure}{\numberline {IV.12}{\ignorespaces Global Residual Analysis under OOD}}{77}{figure.caption.124}%
+\contentsline {figure}{\numberline {IV.13}{\ignorespaces SNF Architecture}}{80}{figure.caption.129}%
+\contentsline {figure}{\numberline {IV.14}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{82}{figure.caption.131}%
+\contentsline {figure}{\numberline {IV.15}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{83}{figure.caption.133}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

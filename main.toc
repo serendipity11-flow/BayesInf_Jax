@@ -62,33 +62,35 @@
 \contentsline {section}{\numberline {1}Parameter Identification}{59}{section.4.1}%
 \contentsline {subsection}{\numberline {1.1}Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{59}{subsection.4.1.1}%
 \contentsline {subsection}{\numberline {1.2}Normalizing Flows for Parameter Identification}{60}{subsection.4.1.2}%
-\contentsline {paragraph}{Overall Settings}{61}{subsection.4.1.2}%
-\contentsline {paragraph}{Pperformance Comparison}{62}{equation.4.8}%
-\contentsline {paragraph}{Sample Efficiency}{64}{figure.caption.112}%
-\contentsline {paragraph}{Linear Correlation}{66}{figure.caption.113}%
-\contentsline {paragraph}{Multimodal Distribution}{68}{figure.caption.114}%
-\contentsline {subsection}{\numberline {1.3}Relationship Between Bayesian Inference and Sensitivity Analysis}{70}{subsection.4.1.3}%
+\contentsline {subsubsection}{\numberline {1.2.1}Overall Settings}{61}{subsubsection.4.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Performance Comparison (Winner: RealNVP)}{62}{subsubsection.4.1.2.2}%
+\contentsline {subsubsection}{\numberline {1.2.3}Sample Efficiency (Winner: RealNVP)}{64}{subsubsection.4.1.2.3}%
+\contentsline {subsubsection}{\numberline {1.2.4}Linear Correlation (Winners: SBM, RealNVP, NSF)}{66}{subsubsection.4.1.2.4}%
+\contentsline {subsubsection}{\numberline {1.2.5}Multimodal Distribution (Winner: NSF)}{68}{subsubsection.4.1.2.5}%
+\contentsline {subsection}{\numberline {1.3}Relationship Between Bayesian Inference and Sensitivity Analysis}{69}{subsection.4.1.3}%
 \contentsline {subsubsection}{\numberline {1.3.1}Sobol' index}{70}{subsubsection.4.1.3.1}%
-\contentsline {subsubsection}{\numberline {1.3.2}Mutual Information}{74}{subsubsection.4.1.3.2}%
-\contentsline {subsection}{\numberline {1.4}When Does the Framework Fail?}{75}{subsection.4.1.4}%
-\contentsline {subsection}{\numberline {1.5}Stochastic Normalizing Flows}{80}{subsection.4.1.5}%
-\contentsline {section}{\numberline {2}State Estimation}{86}{section.4.2}%
-\contentsline {section}{\numberline {3}Optimal Control}{87}{section.4.3}%
-\contentsline {chapter}{\numberline {V}Experiments and Results}{89}{chapter.5}%
-\contentsline {section}{\numberline {1}Overview}{89}{section.5.1}%
-\contentsline {section}{\numberline {2}Parameter Identification}{89}{section.5.2}%
-\contentsline {section}{\numberline {3}State Estimation}{89}{section.5.3}%
-\contentsline {section}{\numberline {4}Optimal Control}{89}{section.5.4}%
-\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{91}{chapter.6}%
-\contentsline {chapter}{Abstract}{93}{chapter.6}%
-\contentsline {chapter}{Zusammenfassung}{95}{chapter.6}%
-\contentsline {chapter}{Bibliography}{96}{section*.134}%
-\contentsline {chapter}{Own Contributions and Publications}{97}{section*.134}%
-\contentsline {section}{Own share in data acquisition and data analysis}{97}{section*.135}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{97}{section*.135}%
-\contentsline {paragraph}{Own share in Data Analysis.}{97}{section*.135}%
-\contentsline {section}{Own Publications}{97}{section*.135}%
-\contentsline {chapter}{Appendix}{119}{section*.135}%
-\contentsline {chapter}{Acknowledgement}{121}{section*.135}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{123}{section*.135}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{125}{Item.9}%
+\contentsline {subsubsection}{\numberline {1.3.2}Mutual Information}{73}{subsubsection.4.1.3.2}%
+\contentsline {subsection}{\numberline {1.4}When Does the Framework Fail?}{74}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {1.5}Stochastic Normalizing Flows}{79}{subsection.4.1.5}%
+\contentsline {subsubsection}{\numberline {1.5.1}Theory of Stochastic Normalizing Flows}{79}{subsubsection.4.1.5.1}%
+\contentsline {subsubsection}{\numberline {1.5.2}Experiments on Stochastic Normalizing Flows}{82}{subsubsection.4.1.5.2}%
+\contentsline {section}{\numberline {2}State Estimation}{85}{section.4.2}%
+\contentsline {section}{\numberline {3}Optimal Control}{86}{section.4.3}%
+\contentsline {chapter}{\numberline {V}Experiments and Results}{87}{chapter.5}%
+\contentsline {section}{\numberline {1}Overview}{87}{section.5.1}%
+\contentsline {section}{\numberline {2}Parameter Identification}{87}{section.5.2}%
+\contentsline {section}{\numberline {3}State Estimation}{87}{section.5.3}%
+\contentsline {section}{\numberline {4}Optimal Control}{87}{section.5.4}%
+\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{89}{chapter.6}%
+\contentsline {chapter}{Abstract}{91}{chapter.6}%
+\contentsline {chapter}{Zusammenfassung}{93}{chapter.6}%
+\contentsline {chapter}{Bibliography}{94}{section*.134}%
+\contentsline {chapter}{Own Contributions and Publications}{95}{section*.134}%
+\contentsline {section}{Own share in data acquisition and data analysis}{95}{section*.135}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{95}{section*.135}%
+\contentsline {paragraph}{Own share in Data Analysis.}{95}{section*.135}%
+\contentsline {section}{Own Publications}{95}{section*.135}%
+\contentsline {chapter}{Appendix}{117}{section*.135}%
+\contentsline {chapter}{Acknowledgement}{119}{section*.135}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{121}{section*.135}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{123}{Item.9}%

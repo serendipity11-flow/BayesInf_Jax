@@ -578,7 +578,7 @@ def plot_refinement_bar_chart(rmse_mat, mciw_mat, cicp_mat):
             offset = (j - 1) * width 
 
             # Plot Base (Lighter)
-            ax.bar(x + offset - width/8, data[:, j], bar_width, 
+            ax.bar(x + offset - width/8, data[:, j], bar_width, alpha=0.5,
                    color=colors[j], label=f'{methods[j]}' if i == 0 else "")
             
             # Plot Refined (Darker)

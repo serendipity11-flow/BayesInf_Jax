@@ -1,3 +1,9 @@
+import sys
+import os
+import re
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.join(current_dir, '..')
+sys.path.append(project_root)
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.lines import Line2D

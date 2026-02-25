@@ -1,3 +1,9 @@
+import sys
+import os
+import re
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.join(current_dir, '..')
+sys.path.append(project_root)
 from jax._src.source_info_util import current
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -12,8 +18,8 @@ import os
 from bayesinf.utils.generate_data import normalize_data, denormalize_data
 from cross_evaluation_metrics import cicp_mciw, r2_score
 
-misspecification = True
-ood = False
+misspecification = False
+ood = True
 
 from bayesinf.utils.generate_data import (generate_mass_spring_data_f, mass_spring_ode_f)
 generate_data_jit = partial(jax.jit, static_argnames=['n_samples', 'dt0', 't1', 'noise_std'])(
@@ -114,17 +120,21 @@ def plot_distribution_grid(sample_results, data_dict, idx=0, x_p=0, y_p=2):
                             color=colors[k], linewidths=1.5,
                             levels=[0.1], alpha=0.8)
 
-                        # Draw the Ground Truth vertical line
-            ax.scatter(data_dict[scale]['test_theta_p'][idx, x_p], data_dict[scale]['test_theta_p'][idx, y_p], 
-                       marker='+', s=200, linewidth=2, color='red', label='Ground Truth')
+            # Draw the Ground Truth vertical line
+            gx, gy = data_dict[scale]['test_theta_p'][idx, x_p], data_dict[scale]['test_theta_p'][idx, y_p]
+            ax.scatter(gx, gy, 
+                    marker='+', s=200, linewidth=2, color='red', label='Ground Truth')
+            ax.axhline(gy, color='black', alpha=0.1, linestyle='--')
+            ax.axvline(gx, color='black', alpha=0.1, linestyle='--')
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+            if i == 0: 
+                ax.set_title(f"Level: {scale}", fontsize=20, fontweight='bold')
+            if j == 0: 
+                ax.set_ylabel(f"{flow}\n{param_names[y_p]}", fontsize=20, fontweight='bold')
+            if i == 2: 
+                ax.set_xlabel(f"{param_names[x_p]}", fontsize=20, fontweight='bold')
 
-            if i == 0: ax.set_title(f"Level: {scale}", fontsize=20, fontweight='bold')
-            if j == 0: ax.set_ylabel(f"{flow}\n{param_names[y_p]}", fontsize=20, fontweight='bold')
-            if i == 2: ax.set_xlabel(f"{param_names[x_p]}", fontsize=20, fontweight='bold')
-
-            ax.grid(axis='y', alpha=0.3)
-
-    
     legend_elements = [
         plt.Line2D([0], [0], marker='+', color='red', label='Ground Truth', markersize=20, linestyle='None'),
         mpatches.Patch(color=colors[0], label='Original', alpha=0.5),
@@ -173,13 +183,17 @@ def plot_global_residuals(sample_results, data_dict, idx_x=0, idx_y=2, n_sub=100
                             color=colors[k], levels=3, thresh=0.1)
 
             if i == 0: ax.set_title(f"Level: {scale}", fontsize=20, fontweight='bold')
-            if j == 0: ax.set_ylabel(fr"{flow}\n$\Delta$ {param_names[idx_y]}", fontsize=20, fontweight='bold')
+            if j == 0: ax.set_ylabel(f"{flow}\n$\\Delta$ {param_names[idx_y]}", fontsize=20, fontweight='bold')
             if i == 2: ax.set_xlabel(fr"$\Delta$ {param_names[idx_x]}", fontsize=20, fontweight='bold')
 
+            ax.grid(axis='y', alpha=0.3)
+            TICK_SIZE = 20
+            ax.tick_params(axis='y', labelsize=TICK_SIZE)
+            ax.tick_params(axis='x', labelsize=TICK_SIZE)
 
     # Global Legend
     legend_elements = [
-        plt.Line2D([0], [0], color='red', linestyle='--', linewidth=2, label='Ground Truth'),
+        plt.Line2D([0], [0], marker='+', color='red', label='Ground Truth', markersize=20, linestyle='None'),
         mpatches.Patch(color=colors[0], label='Original', alpha=0.5),
         mpatches.Patch(color=colors[1], label='retrain_cn', alpha=0.5),
         mpatches.Patch(color=colors[2], label='retrain', alpha=0.5)

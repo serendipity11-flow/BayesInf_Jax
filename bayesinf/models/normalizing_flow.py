@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from numba import cuda
 if cuda.is_available():
     import jax
@@ -90,8 +91,8 @@ class RandomPermutation(eqx.Module):
 class AffineCoupling(eqx.Module):
     dim: int = eqx.field(static=True)
     cond_dim: int = eqx.field(static=True)
-    idx_a: jnp.ndarray = eqx.field(static=True)
-    idx_b: jnp.ndarray = eqx.field(static=True)
+    idx_a: Any = eqx.field(static=True)
+    idx_b: Any = eqx.field(static=True)
     net: eqx.nn.MLP
 
     def __init__(
@@ -105,12 +106,12 @@ class AffineCoupling(eqx.Module):
         self.dim = input_dim
         self.cond_dim = cond_dim
 
-        self.idx_a = jnp.where(mask)[0]  # Indices where mask=1 (conditioner input)
-        self.idx_b = jnp.where(1 - mask)[0] # Indices where mask=0 (transformed)
+        self.idx_a = np.array(jnp.where(mask)[0])  # numpy for static field (hashable)
+        self.idx_b = np.array(jnp.where(1 - mask)[0])
 
         in_dim = int(jnp.sum(mask)) + cond_dim
         out_dim = input_dim - int(jnp.sum(mask))
-        
+
         # Equinox MLP
         # We want the final layer initialized to near-zero.
         # Equinox doesn't allow easy custom init per layer in the constructor
@@ -347,81 +348,72 @@ def rational_quadratic_spline(inputs, widths, heights, derivatives, inverse,
     num_bins = widths.shape[-1]
     
     inside_mask = (inputs >= -tail_bound) & (inputs <= tail_bound)
-    # Outside mask handled by jnp.where at the end
+
+    # JAX evaluates BOTH branches of jnp.where before selecting, so out-of-domain
+    # inputs still pass through spline maths and can produce NaN that poisons
+    # gradients even when the output is correctly masked.  Fix: clamp inputs to
+    # the valid domain before all spline computations; the final jnp.where still
+    # applies the identity (linear) tail for truly out-of-domain values.
+    _eps = 1e-6
+    inputs_s = jnp.clip(inputs, -tail_bound + _eps, tail_bound - _eps)
 
     # Normalize params
     widths = jax.nn.softmax(widths, axis=-1)
     widths = min_bin_width + (1 - min_bin_width * num_bins) * widths
-    
+
     cumwidths = jnp.cumsum(widths, axis=-1)
     cumwidths = jnp.pad(cumwidths, ((0,0), (0,0), (1,0)), constant_values=0.0)
     cumwidths = (cumwidths - 0.5) * 2 * tail_bound
     widths = cumwidths[..., 1:] - cumwidths[..., :-1]
-    
+
     heights = jax.nn.softmax(heights, axis=-1)
     heights = min_bin_height + (1 - min_bin_height * num_bins) * heights
-    
+
     cumheights = jnp.cumsum(heights, axis=-1)
     cumheights = jnp.pad(cumheights, ((0,0), (0,0), (1,0)), constant_values=0.0)
     cumheights = (cumheights - 0.5) * 2 * tail_bound
     heights = cumheights[..., 1:] - cumheights[..., :-1]
-    
+
     derivatives = jax.nn.softplus(derivatives) + min_derivative
 
-    # Search sorted
-    # Flatten batch and dim for vmap application inside searchsorted helper or usage
-    # or just align dimensions carefully.
-    
     if inverse:
         bin_locations = cumheights
     else:
         bin_locations = cumwidths
-        
-    # We map over the last dimension (num_bins) logic
-    # inputs: (B, D), locations: (B, D, K+1)
-    # We need to find bin idx for each (b, d)
-    
-    # Helper to gather params based on bin_idx
+
     def _get_bin_params(b_locs, inp):
-        # b_locs: (K+1,)
-        # inp: scalar
         idx = jnp.searchsorted(b_locs, inp, side='right') - 1
         return jnp.clip(idx, 0, num_bins - 1)
 
-    # Vectorize over batch and dim
-    bin_idx = jax.vmap(jax.vmap(_get_bin_params))(bin_locations, inputs) # (B, D)
-    
-    # Gather using take_along_axis
-    # Need to expand bin_idx to (B, D, 1) for take_along_axis
+    # Use clamped inputs for bin search and all spline computations
+    bin_idx = jax.vmap(jax.vmap(_get_bin_params))(bin_locations, inputs_s)  # (B, D)
     idx_expanded = bin_idx[..., None]
-    
-    input_cumwidths = jnp.take_along_axis(cumwidths, idx_expanded, axis=-1).squeeze(-1)
-    input_bin_widths = jnp.take_along_axis(widths, idx_expanded, axis=-1).squeeze(-1)
-    input_cumheights = jnp.take_along_axis(cumheights, idx_expanded, axis=-1).squeeze(-1)
-    input_bin_heights = jnp.take_along_axis(heights, idx_expanded, axis=-1).squeeze(-1)
-    
-    input_delta = input_bin_heights / input_bin_widths
-    
-    input_derivatives = jnp.take_along_axis(derivatives, idx_expanded, axis=-1).squeeze(-1)
+
+    input_cumwidths   = jnp.take_along_axis(cumwidths,   idx_expanded,     axis=-1).squeeze(-1)
+    input_bin_widths  = jnp.take_along_axis(widths,      idx_expanded,     axis=-1).squeeze(-1)
+    input_cumheights  = jnp.take_along_axis(cumheights,  idx_expanded,     axis=-1).squeeze(-1)
+    input_bin_heights = jnp.take_along_axis(heights,     idx_expanded,     axis=-1).squeeze(-1)
+    input_delta       = input_bin_heights / input_bin_widths
+    input_derivatives          = jnp.take_along_axis(derivatives, idx_expanded,     axis=-1).squeeze(-1)
     input_derivatives_plus_one = jnp.take_along_axis(derivatives, idx_expanded + 1, axis=-1).squeeze(-1)
 
-    # Calculations
     if inverse:
-        a = (inputs - input_cumheights) * (
+        a = (inputs_s - input_cumheights) * (
                 input_derivatives + input_derivatives_plus_one - 2 * input_delta
         ) + input_bin_heights * (input_delta - input_derivatives)
-        b = input_bin_heights * input_derivatives - (inputs - input_cumheights) * (
+        b = input_bin_heights * input_derivatives - (inputs_s - input_cumheights) * (
                 input_derivatives + input_derivatives_plus_one - 2 * input_delta
         )
-        c = -input_delta * (inputs - input_cumheights)
-        
-        discriminant = jnp.square(b) - 4 * a * c
-        # Avoid NaN in sqrt if discriminant slightly neg due to float error
-        discriminant = jnp.maximum(discriminant, 0.0) 
-        
-        root = (2 * c) / (-b - jnp.sqrt(discriminant))
+        c = -input_delta * (inputs_s - input_cumheights)
+
+        discriminant = jnp.maximum(jnp.square(b) - 4 * a * c, 0.0)
+        denom_inv = -b - jnp.sqrt(discriminant)
+        # Protect division: denominator is zero only at spline endpoints (theta=0,1)
+        # which cannot occur for clamped interior inputs, but guard anyway.
+        denom_inv = jnp.where(jnp.abs(denom_inv) < 1e-8, 1e-8, denom_inv)
+        root = (2 * c) / denom_inv
         outputs_inner = root * input_bin_widths + input_cumwidths
-        
+
         theta_one_minus_theta = root * (1 - root)
         denominator = input_delta + (
                 (input_derivatives + input_derivatives_plus_one - 2 * input_delta)
@@ -432,12 +424,15 @@ def rational_quadratic_spline(inputs, widths, heights, derivatives, inverse,
                 + 2 * input_delta * theta_one_minus_theta
                 + input_derivatives * jnp.square(1 - root)
         )
-        logabsdet_inner = -jnp.log(derivative_numerator) + 2 * jnp.log(denominator)
+        logabsdet_inner = (
+            -jnp.log(jnp.maximum(derivative_numerator, 1e-8))
+            + 2 * jnp.log(jnp.maximum(jnp.abs(denominator), 1e-8))
+        )
 
     else:
-        theta = (inputs - input_cumwidths) / input_bin_widths
+        theta = (inputs_s - input_cumwidths) / input_bin_widths
         theta_one_minus_theta = theta * (1 - theta)
-        
+
         numerator = input_bin_heights * (
                 input_delta * jnp.square(theta) + input_derivatives * theta_one_minus_theta
         )
@@ -445,17 +440,22 @@ def rational_quadratic_spline(inputs, widths, heights, derivatives, inverse,
                 (input_derivatives + input_derivatives_plus_one - 2 * input_delta)
                 * theta_one_minus_theta
         )
-        outputs_inner = input_cumheights + numerator / denominator
-        
+        # Protect division and log
+        denominator_safe = jnp.maximum(jnp.abs(denominator), 1e-8)
+        outputs_inner = input_cumheights + numerator / denominator_safe
+
         derivative_numerator = jnp.square(input_delta) * (
                 input_derivatives_plus_one * jnp.square(theta)
                 + 2 * input_delta * theta_one_minus_theta
                 + input_derivatives * jnp.square(1 - theta)
         )
-        logabsdet_inner = jnp.log(derivative_numerator) - 2 * jnp.log(denominator)
+        logabsdet_inner = (
+            jnp.log(jnp.maximum(derivative_numerator, 1e-8))
+            - 2 * jnp.log(denominator_safe)
+        )
 
-    # Apply bounds
-    outputs = jnp.where(inside_mask, outputs_inner, inputs)
+    # Apply identity tail for out-of-domain inputs
+    outputs   = jnp.where(inside_mask, outputs_inner,   inputs)
     logabsdet = jnp.where(inside_mask, logabsdet_inner, jnp.zeros_like(inputs))
     
     return outputs, jnp.sum(logabsdet, axis=-1)
@@ -465,8 +465,8 @@ class SplineCoupling(eqx.Module):
     dim: int = eqx.field(static=True)
     cond_dim: int = eqx.field(static=True)
     num_bins: int = eqx.field(static=True)
-    idx_a: jnp.ndarray = eqx.field(static=True)
-    idx_b: jnp.ndarray = eqx.field(static=True)
+    idx_a: Any = eqx.field(static=True)
+    idx_b: Any = eqx.field(static=True)
     net: eqx.nn.Sequential
     tail_bound: float = 3.0
     
@@ -475,8 +475,8 @@ class SplineCoupling(eqx.Module):
         self.cond_dim = cond_dim
         self.num_bins = num_bins
         self.tail_bound = tail_bound
-        self.idx_a = jnp.where(mask)[0]  # Indices where mask=1 (conditioner input)
-        self.idx_b = jnp.where(1 - mask)[0] # Indices where mask=0 (transformed)
+        self.idx_a = np.array(jnp.where(mask)[0])  # numpy for static field (hashable)
+        self.idx_b = np.array(jnp.where(1 - mask)[0])
         
         in_dim = int(jnp.sum(mask)) + cond_dim
         out_dim = input_dim - int(jnp.sum(mask))

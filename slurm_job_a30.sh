@@ -1,7 +1,7 @@
 #!/bin/bash
 # Job name:
 #SBATCH --account=Mitarbeiter
-#SBATCH --job-name=mala
+#SBATCH --job-name=latent_ssm_flow
 #SBATCH --partition=a30
 #SBATCH --mail-type=END,INVALID_DEPEND
 #SBATCH --mail-user=yi.zhang@uni-a.de
@@ -9,7 +9,7 @@
 
 # Request memory per CPU
 #SBATCH --mem-per-cpu=32G
-# Number of GPUs, in the format "gpu:[1-4]" or "gpu:l40s:[1-4]":
+# Number of GPUs, in the format "gpu:[1-4]" or "gpu:a30:[1-4]":
 ##SBATCH --gres=gpu:a30:1
 # Request n CPUs for your task.
 #SBATCH --cpus-per-task=1
@@ -17,11 +17,42 @@
 #SBATCH --qos=a30-cpu
 
 source $HOME/myenv_312/bin/activate
+export PYTHONNOUSERSITE=1
 export PYTHONPATH=/home/zhangyi/bayesinf_jax:$PYTHONPATH
 python3.12 -c "import sys; print(sys.path)"
 
-cd /home/zhangyi/bayesinf_jax/bayesinf/models/
-srun --ntasks=1 --exact python3.12 train_parameter_identification_model.py --train --flow_type='MALA' --n_stochastic=1 --dt0=0.05 --t1=1.0 --noise_std=0.01 --force --learning_rate=0.015 --grad_norm=1.0 --patience=1000
-srun --ntasks=1 --exact python3.12 train_parameter_identification_model.py --train --flow_type='MALA' --n_stochastic=1 --dt0=0.05 --t1=1.0 --noise_std=0.02 --force --learning_rate=0.015 --grad_norm=1.0 --patience=1000
-srun --ntasks=1 --exact python3.12 train_parameter_identification_model.py --train --flow_type='MALA' --n_stochastic=1 --dt0=0.05 --t1=1.0 --noise_std=0.05 --force --learning_rate=0.015 --grad_norm=1.0 --patience=1000
-srun --ntasks=1 --exact python3.12 train_parameter_identification_model.py --train --flow_type='MALA' --n_stochastic=1 --dt0=0.05 --t1=1.0 --noise_std=0.1 --force --learning_rate=0.015 --grad_norm=1.0 --patience=1000
+python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+    --train \
+    --flow_type fm \
+    --encoder_type transformer \
+    --seg_len 5 \
+    --learning_rate 1e-3 \
+    --grad_norm 1.0 \
+    --patience 30 \
+
+python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+    --train \
+    --flow_type fm \
+    --encoder_type transformer \
+    --seg_len 10 \
+    --learning_rate 1e-3 \
+    --grad_norm 1.0 \
+    --patience 30 \
+
+python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+    --train \
+    --flow_type fm \
+    --encoder_type transformer \
+    --seg_len 15 \
+    --learning_rate 1e-3 \
+    --grad_norm 1.0 \
+    --patience 30 \
+
+python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+    --train \
+    --flow_type fm \
+    --encoder_type transformer \
+    --seg_len 20 \
+    --learning_rate 1e-3 \
+    --grad_norm 1.0 \
+    --patience 30 \

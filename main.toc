@@ -75,22 +75,26 @@
 \contentsline {subsubsection}{\numberline {1.5.1}Theory of Stochastic Normalizing Flows}{79}{subsubsection.4.1.5.1}%
 \contentsline {subsubsection}{\numberline {1.5.2}Experiments on Stochastic Normalizing Flows}{82}{subsubsection.4.1.5.2}%
 \contentsline {section}{\numberline {2}State Estimation}{85}{section.4.2}%
-\contentsline {section}{\numberline {3}Optimal Control}{86}{section.4.3}%
-\contentsline {chapter}{\numberline {V}Experiments and Results}{87}{chapter.5}%
-\contentsline {section}{\numberline {1}Overview}{87}{section.5.1}%
-\contentsline {section}{\numberline {2}Parameter Identification}{87}{section.5.2}%
-\contentsline {section}{\numberline {3}State Estimation}{87}{section.5.3}%
-\contentsline {section}{\numberline {4}Optimal Control}{87}{section.5.4}%
-\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{89}{chapter.6}%
-\contentsline {chapter}{Abstract}{91}{chapter.6}%
-\contentsline {chapter}{Zusammenfassung}{93}{chapter.6}%
-\contentsline {chapter}{Bibliography}{94}{section*.134}%
-\contentsline {chapter}{Own Contributions and Publications}{95}{section*.134}%
-\contentsline {section}{Own share in data acquisition and data analysis}{95}{section*.135}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{95}{section*.135}%
-\contentsline {paragraph}{Own share in Data Analysis.}{95}{section*.135}%
-\contentsline {section}{Own Publications}{95}{section*.135}%
-\contentsline {chapter}{Appendix}{117}{section*.135}%
-\contentsline {chapter}{Acknowledgement}{119}{section*.135}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{121}{section*.135}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{123}{Item.9}%
+\contentsline {subsection}{\numberline {2.1}Amortized State Estimation}{85}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {2.2}Latent State Space Model}{86}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {2.3}Stochastic Differential Equation}{86}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {2.4}Stochastic Interpolant}{86}{subsection.4.2.4}%
+\contentsline {section}{\numberline {3}Optimal Control}{87}{section.4.3}%
+\contentsline {chapter}{\numberline {V}Experiments and Results}{89}{chapter.5}%
+\contentsline {section}{\numberline {1}Overview}{89}{section.5.1}%
+\contentsline {section}{\numberline {2}Parameter Identification}{89}{section.5.2}%
+\contentsline {section}{\numberline {3}State Estimation}{89}{section.5.3}%
+\contentsline {section}{\numberline {4}Optimal Control}{89}{section.5.4}%
+\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{91}{chapter.6}%
+\contentsline {chapter}{Abstract}{93}{chapter.6}%
+\contentsline {chapter}{Zusammenfassung}{95}{chapter.6}%
+\contentsline {chapter}{Bibliography}{96}{section*.135}%
+\contentsline {chapter}{Own Contributions and Publications}{97}{section*.135}%
+\contentsline {section}{Own share in data acquisition and data analysis}{97}{section*.136}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{97}{section*.136}%
+\contentsline {paragraph}{Own share in Data Analysis.}{97}{section*.136}%
+\contentsline {section}{Own Publications}{97}{section*.136}%
+\contentsline {chapter}{Appendix}{119}{section*.136}%
+\contentsline {chapter}{Acknowledgement}{121}{section*.136}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{123}{section*.136}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{125}{Item.9}%

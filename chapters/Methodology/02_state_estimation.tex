@@ -1,12 +1,28 @@
 \section{State Estimation}
 \label{sec:methods:state_estimation}
 
-IMFlow ability limited
+Adapting normalizing flow methods from parameter identification to state estimation presents several non-trivial challenges. Unlike parameter identification, which targets a fixed set of unknowns, state estimation requires recovering a full sequential trajectory from partial observations --- that is, computing the posterior $p(x_{1:T} \mid y_{1:T})$ over a multimodal distribution. Standard filtering approaches such as Kalman filters assume known dynamics, whereas the Bayesian setting considered here makes no such assumption: both the state dynamics and the observation model may be nonlinear, and the posterior over states is generally multimodal. A naive approach --- applying the parameter identification method independently at each time step --- fails to capture the temporal dependencies that couple successive states. To address these limitations, this section introduces four methods for state estimation with normalizing flows, ordered by increasing generalisability.
 
-limitation for bayesflow for identifying highly dynamical data
+All four methods are evaluated on the Lorenz-96 system \citep{lorenz1996predictability}, a canonical benchmark for nonlinear data assimilation. The state has dimension $N = 12$, and at each time step only $N/2 = 6$ components are observed, subject to additive Gaussian noise of varying magnitude. The governing equations are
+\begin{equation}
+    \frac{dx_i}{dt} = (x_{i+1} - x_{i-2})\,x_{i-1} - x_i + F, \qquad i = 1, \ldots, N,
+    \label{eq:lorenz96}
+\end{equation}
+with periodic boundary conditions $x_{-1} = x_{N-1}$, $x_0 = x_N$, $x_{N+1} = x_1$, and forcing constant $F = 8$, a regime in which the system exhibits sustained chaotic behaviour.
 
-transformer-bayesian neural network
-better for identification of battery state-of-health
+\subsection{Amortized State Estimation}
+The most straightforward approach is to amortize inference across time by applying a normalizing flow independently to each segment of observations, effectively reducing the sequential estimation problem to a collection of independent inference problems. The key advantage is that all parameter identification methods introduced in the previous section transfer directly with minial modification. However, this simplicity comes at a cost: because each segment is processed just as a group of data points, the approach discards the temporal structure of the state trajectory. Long-range dependencies between states are not modelled, and errors can accumulate across segments without correction. Consequently, amortized state estimation is most appropriate when the underlying dynamics are relatively smooth and temporal correlations are weak; it is less suited to settings with highly nonlinear dynamics or significant observation noise.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figures/state_flow.pdf}
+    \caption{Architecture of amortized state estimation with normalizing flows and latent state space model  .}
+    \label{fig:state_flow}
+\end{figure}
+In order to give the latent variable time dependency, we use a Wiener process as the base distribution for the normalizing flow. This allows us to capture temporal correlations in the latent space, while still maintaining the flexibility of the normalizing flow to model complex distributions over states. The architecture is illustrated in \autoref{fig:state_flow}.
 
-FlowSSM
 
+\subsection{Latent State Space Model}
+
+\subsection{Stochastic Differential Equation}
+
+\subsection{Stochastic Interpolant}

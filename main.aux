@@ -90,7 +90,8 @@
 \newacro{OOD}[\AC@hyperlink{OOD}{OOD}]{Out-of-Distribution}
 \newacro{MI}[\AC@hyperlink{MI}{MI}]{Mutual Information}
 \newacro{MLE}[\AC@hyperlink{MLE}{MLE}]{Maximum Likelihood Estimation}
-\@writefile{toc}{\contentsline {chapter}{List of Figures}{vi}{section*.1}\protected@file@percent }
+\newacro{GAN}[\AC@hyperlink{GAN}{GAN}]{Generative Adversarial Network}
+\@writefile{toc}{\contentsline {chapter}{List of Figures}{vii}{section*.1}\protected@file@percent }
 \AC@undonewlabel{acro:MPC}
 \newlabel{acro:MPC}{{}{vii}{}{section*.2}{}}
 \acronymused{MPC}
@@ -452,7 +453,9 @@
 \acronymused{NF}
 \acronymused{NF}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Coupling Flows}{29}{subsection.2.4.2}\protected@file@percent }
+\newlabel{sec:background:coupling}{{4.2}{29}{Coupling Flows}{subsection.2.4.2}{}}
 \acronymused{NICE}
+\newlabel{eq:background:nice}{{II.57}{29}{Coupling Flows}{equation.2.57}{}}
 \citation{ardizzone2019inn}
 \citation{kingma2018glow}
 \citation{kruse2021hint}
@@ -871,6 +874,7 @@
 \newlabel{acro:DGM}{{1.5}{51}{Conditional Diffusion Models}{section*.82}{}}
 \acronymused{DGM}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Bayesian State Estimation}{51}{section.3.2}\protected@file@percent }
+\newlabel{sec:literature:state_estimation}{{2}{51}{Bayesian State Estimation}{section.3.2}{}}
 \citation{yan2024brnn}
 \citation{yan2024brnn}
 \citation{fraccaro2017kvae}
@@ -1372,48 +1376,71 @@
 \acronymused{NSF}
 \acronymused{RMALA}
 \acronymused{FM}
+\citation{Nemeth_2014}
 \citation{lorenz1996predictability}
 \@writefile{toc}{\contentsline {section}{\numberline {2}State Estimation}{85}{section.4.2}\protected@file@percent }
 \newlabel{sec:methods:state_estimation}{{2}{85}{State Estimation}{section.4.2}{}}
+\acronymused{VAE}
+\AC@undonewlabel{acro:RNN}
+\newlabel{acro:RNN}{{2}{85}{State Estimation}{section*.134}{}}
+\acronymused{RNN}
 \newlabel{eq:lorenz96}{{IV.29}{85}{State Estimation}{equation.4.29}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Amortized State Estimation}{85}{subsection.4.2.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.16}{\ignorespaces Architecture of amortized state estimation with normalizing flows and latent state space model .}}{86}{figure.caption.134}\protected@file@percent }
-\newlabel{fig:state_flow}{{IV.16}{86}{Architecture of amortized state estimation with normalizing flows and latent state space model }{figure.caption.134}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Latent State Space Model}{86}{subsection.4.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Stochastic Differential Equation}{86}{subsection.4.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Stochastic Interpolant}{86}{subsection.4.2.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Optimal Control}{87}{section.4.3}\protected@file@percent }
-\newlabel{sec:methods:control}{{3}{87}{Optimal Control}{section.4.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {V}Experiments and Results}{89}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Amortized State Flow}{85}{subsection.4.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.16}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{86}{figure.caption.135}\protected@file@percent }
+\newlabel{fig:amortized_state_flow}{{IV.16}{86}{Architecture of amortized state estimation with normalizing flows}{figure.caption.135}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Latent State Space Model Flow}{86}{subsection.4.2.2}\protected@file@percent }
+\newlabel{sec:methods:latent_ssm_flow}{{2.2}{86}{Latent State Space Model Flow}{subsection.4.2.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.17}{\ignorespaces Architecture of Latent State Space Model Flow.}}{87}{figure.caption.136}\protected@file@percent }
+\newlabel{fig:latent_ssm_flow}{{IV.17}{87}{Architecture of Latent State Space Model Flow}{figure.caption.136}{}}
+\AC@undonewlabel{acro:MLE}
+\newlabel{acro:MLE}{{2.2}{87}{Latent State Space Model Flow}{section*.137}{}}
+\acronymused{MLE}
+\citation{li2020scalablegradientsstochasticdifferential}
+\citation{kidger2021neuralsdesinfinitedimensionalgans}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}NICE Flow State Space Model}{88}{subsection.4.2.3}\protected@file@percent }
+\AC@undonewlabel{acro:SDE}
+\newlabel{acro:SDE}{{2.3}{88}{NICE Flow State Space Model}{section*.138}{}}
+\acronymused{SDE}
+\AC@undonewlabel{acro:ELBO}
+\newlabel{acro:ELBO}{{2.3}{88}{NICE Flow State Space Model}{section*.139}{}}
+\acronymused{ELBO}
+\AC@undonewlabel{acro:GAN}
+\newlabel{acro:GAN}{{2.3}{88}{NICE Flow State Space Model}{section*.140}{}}
+\acronymused{GAN}
+\newlabel{eq:nice_flow_ssm}{{IV.34}{88}{NICE Flow State Space Model}{equation.4.34}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Stochastic Interpolant}{89}{subsection.4.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Optimal Control}{90}{section.4.3}\protected@file@percent }
+\newlabel{sec:methods:control}{{3}{90}{Optimal Control}{section.4.3}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {V}Experiments and Results}{91}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:experiments}{{V}{89}{Experiments and Results}{chapter.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{89}{section.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{89}{section.5.2}\protected@file@percent }
-\newlabel{sec:experiments:parameter_identification}{{2}{89}{Parameter Identification}{section.5.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{89}{section.5.3}\protected@file@percent }
-\newlabel{sec:experiments:state_estimation}{{3}{89}{State Estimation}{section.5.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Optimal Control}{89}{section.5.4}\protected@file@percent }
-\newlabel{sec:experiments:mpc}{{4}{89}{Optimal Control}{section.5.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{91}{chapter.6}\protected@file@percent }
+\newlabel{chap:experiments}{{V}{91}{Experiments and Results}{chapter.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{91}{section.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{91}{section.5.2}\protected@file@percent }
+\newlabel{sec:experiments:parameter_identification}{{2}{91}{Parameter Identification}{section.5.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{91}{section.5.3}\protected@file@percent }
+\newlabel{sec:experiments:state_estimation}{{3}{91}{State Estimation}{section.5.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Optimal Control}{91}{section.5.4}\protected@file@percent }
+\newlabel{sec:experiments:mpc}{{4}{91}{Optimal Control}{section.5.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{93}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{VI}{91}{Conclusion and Future Work}{chapter.6}{}}
-\@writefile{toc}{\contentsline {chapter}{Abstract}{93}{chapter.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Zusammenfassung}{95}{chapter.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Bibliography}{96}{section*.135}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{97}{section*.135}\protected@file@percent }
-\newlabel{chap:contributions}{{VI}{97}{Conclusion and Future Work}{section*.135}{}}
-\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{97}{section*.136}\protected@file@percent }
-\newlabel{sec:own-data-acquisition}{{VI}{97}{}{section*.136}{}}
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{97}{section*.136}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{97}{section*.136}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Own Publications}{97}{section*.136}\protected@file@percent }
-\newlabel{sec:own-publications}{{VI}{97}{}{section*.136}{}}
-\newlabel{sec:publications:peer_reviewed_journal_first}{{VI}{97}{}{section*.136}{}}
-\newlabel{sec:publications:peer_reviewed_conf_first}{{VI}{97}{}{section*.136}{}}
+\newlabel{chap:conclusion}{{VI}{93}{Conclusion and Future Work}{chapter.6}{}}
+\@writefile{toc}{\contentsline {chapter}{Abstract}{95}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Zusammenfassung}{97}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Bibliography}{98}{section*.141}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{99}{section*.141}\protected@file@percent }
+\newlabel{chap:contributions}{{VI}{99}{Conclusion and Future Work}{section*.141}{}}
+\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{99}{section*.142}\protected@file@percent }
+\newlabel{sec:own-data-acquisition}{{VI}{99}{}{section*.142}{}}
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{99}{section*.142}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{99}{section*.142}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Own Publications}{99}{section*.142}\protected@file@percent }
+\newlabel{sec:own-publications}{{VI}{99}{}{section*.142}{}}
+\newlabel{sec:publications:peer_reviewed_journal_first}{{VI}{99}{}{section*.142}{}}
+\newlabel{sec:publications:peer_reviewed_conf_first}{{VI}{99}{}{section*.142}{}}
 \bibdata{refs}
-\newlabel{sec:publications:other_co}{{VI}{98}{}{section*.136}{}}
+\newlabel{sec:publications:other_co}{{VI}{100}{}{section*.142}{}}
 \bibcite{abraham2023deepgp}{{1}{2023}{{Abraham and Deo}}{{}}}
 \bibcite{adams2018adams}{{2}{2018}{{Adams et~al.}}{{Adams, Pennington, Johnson, Smith, Ovadia, Patton, and Saunderson}}}
 \bibcite{agarwal2022imitativeplanning}{{3}{2022}{{Agarwal et~al.}}{{Agarwal, Sikchi, Gulino, Wilkinson, and Gautam}}}
@@ -1502,108 +1529,111 @@
 \bibcite{kf1960}{{86}{1960}{{Kalman}}{{}}}
 \bibcite{stableflow2021}{{87}{2021}{{Khader et~al.}}{{Khader, Yin, Falco, and Kragic}}}
 \bibcite{khalil2002nonlinear}{{88}{2002}{{Khalil and Grizzle}}{{}}}
-\bibcite{kingma2018glow}{{89}{2018}{{Kingma and Dhariwal}}{{}}}
-\bibcite{Kingma_2019}{{90}{2019}{{Kingma and Welling}}{{}}}
-\bibcite{kingma2013auto}{{91}{2022}{{Kingma and Welling}}{{}}}
-\bibcite{kobyzev2021nfsreview}{{92}{2021}{{Kobyzev et~al.}}{{Kobyzev, Prince, and Brubaker}}}
-\bibcite{kong2025compositeflowmatchingreinforcement}{{93}{2025}{{Kong et~al.}}{{Kong, Wang, Wang, Xiong, and Tambe}}}
-\bibcite{kruse2021hint}{{94}{2021}{{Kruse et~al.}}{{Kruse, Detommaso, Köthe, and Scheichl}}}
-\bibcite{Kucharsk2025}{{95}{2025}{{Kucharský and Bürkner}}{{}}}
-\bibcite{kl1951}{{96}{1951}{{Kullback and Leibler}}{{}}}
-\bibcite{Lee2023ImprovingPM}{{97}{2023}{{Lee and Diwan}}{{}}}
-\bibcite{li2025gaussianprocessregressioninverse}{{98}{2025{a}}{{Li et~al.}}{{Li, Lange-Hegermann, and Raiţă}}}
-\bibcite{li2020scalable}{{99}{2020}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
-\bibcite{li2025DIC}{{100}{2025{b}}{{Li et~al.}}{{Li, Mallick, Wang, Yu, and Zeng}}}
-\bibcite{lin2024ssm}{{101}{2024}{{Lin and Michailidis}}{{}}}
-\bibcite{lin2025}{{102}{2025}{{Lin et~al.}}{{Lin, Li, Yin, Maroñas, and Thiéry}}}
-\bibcite{lind2025normalizingflowscapablevisuomotor}{{103}{2025}{{Lind et~al.}}{{Lind, Li, Stenmark, and Krüger}}}
-\bibcite{lipman2023flowmatching}{{104}{2023}{{Lipman et~al.}}{{Lipman, Chen, Ben-Hamu, Nickel, and Le}}}
-\bibcite{lorenz1996predictability}{{105}{1996}{{Lorenz}}{{}}}
-\bibcite{lu2020finitelayer}{{106}{2020}{{Lu et~al.}}{{Lu, Zhong, Li, and Dong}}}
-\bibcite{lv2025flowbasedpolicy}{{107}{2025}{{Lv et~al.}}{{Lv, Li, Luo, Sun, Kong, Xu, and Ma}}}
-\bibcite{ma2020normalizingflowpolicy}{{108}{2020}{{Ma et~al.}}{{Ma, Gupta, and Kochenderfer}}}
-\bibcite{MacKay1992}{{109}{1995}{{MacKay}}{{}}}
-\bibcite{margossian2024amortized}{{110}{2024}{{Margossian and Blei}}{{}}}
-\bibcite{martínezpalomera2020pelsvae}{{111}{2020}{{Martínez-Palomera et~al.}}{{Martínez-Palomera, Bloom, and Abrahams}}}
-\bibcite{offpolicy2020}{{112}{2020}{{Mazoure et~al.}}{{Mazoure, Doan, Durand, Pineau, and Hjelm}}}
-\bibcite{mcallister2025flowmatchingpolicygradients}{{113}{2025}{{McAllister et~al.}}{{McAllister, Ge, Yi, Kim, Weber, Choi, Feng, and Kanazawa}}}
-\bibcite{mccarthy2020cvae}{{114}{2020}{{McCarthy et~al.}}{{McCarthy, Li, Gu, and Dong}}}
-\bibcite{Merkatas2023_sm}{{115}{2023}{{Merkatas and S{\"a}rkk{\"a}}}{{}}}
-\bibcite{smpc2016}{{116}{2016}{{Mesbah}}{{}}}
-\bibcite{Metropolis}{{117}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
-\bibcite{Mienye2025}{{118}{2025}{{Mienye and Swart}}{{}}}
-\bibcite{mbrl2020}{{119}{2022}{{Moerland et~al.}}{{Moerland, Broekens, Plaat, and Jonker}}}
-\bibcite{pml1Book}{{120}{2022}{{Murphy}}{{}}}
-\bibcite{pml2Book}{{121}{2023}{{Murphy}}{{}}}
-\bibcite{müller2024transbi}{{122}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
-\bibcite{vae_sbi}{{123}{2024}{{Nautiyal et~al.}}{{Nautiyal, Shternshis, Hellander, and Singh}}}
-\bibcite{Neal1996}{{124}{1996}{{Neal}}{{}}}
-\bibcite{oksendal1985}{{125}{1985}{{{\O }ksendal}}{{}}}
-\bibcite{PANIAGUA2024200344}{{126}{2024}{{Paniagua and López}}{{}}}
-\bibcite{papamakarios2018maf}{{127}{2018}{{Papamakarios et~al.}}{{Papamakarios, Pavlakou, and Murray}}}
-\bibcite{papamakarios2021nf}{{128}{2021}{{Papamakarios et~al.}}{{Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan}}}
-\bibcite{dgp2018park}{{129}{2018}{{Park et~al.}}{{Park, Tagade, and Choi}}}
-\bibcite{pasmans2025ekfl}{{130}{2025}{{Pasmans et~al.}}{{Pasmans, Chen, Finn, Bocquet, and Carrassi}}}
-\bibcite{BayesSysId1981}{{131}{1981}{{Peterka}}{{}}}
-\bibcite{pivezhandi2025fm}{{132}{2025}{{Pivezhandi and Saifullah}}{{}}}
-\bibcite{power2022variationalinferencempcusing}{{133}{2022}{{Power and Berenson}}{{}}}
-\bibcite{mdp2014}{{134}{1994}{{Puterman}}{{}}}
-\bibcite{radev2021diss}{{135}{2021}{{Radev}}{{}}}
-\bibcite{radev2020bayesflow}{{136}{2020}{{Radev et~al.}}{{Radev, Mertens, Voss, Ardizzone, and Köthe}}}
-\bibcite{Rahmandad2025_uh}{{137}{2025}{{Rahmandad et~al.}}{{Rahmandad, Akhavan, and Jalali}}}
-\bibcite{RAIMONDO20095}{{138}{2009}{{Raimondo et~al.}}{{Raimondo, Limon, Lazar, Magni, and {ndez Camacho}}}}
-\bibcite{Rasmussen_Williams_2008}{{139}{2008}{{Rasmussen and Williams}}{{}}}
-\bibcite{mpcbook2020}{{140}{2020}{{Rawlings et~al.}}{{Rawlings, Mayne, and Diehl}}}
-\bibcite{rezende2016}{{141}{2016}{{Rezende and Mohamed}}{{}}}
-\bibcite{awesomenfs}{{142}{2023}{{Riebesell et~al.}}{{Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}}}}
-\bibcite{rietz2024constrained}{{143}{2024}{{Rietz et~al.}}{{Rietz, Schaffernicht, Heinrich, and Stork}}}
-\bibcite{roeder2019abi}{{144}{2019}{{Roeder et~al.}}{{Roeder, Grant, Phillips, Dalchau, and Meeds}}}
-\bibcite{rouxel2025extremumflowmatchingoffline}{{145}{2025}{{Rouxel et~al.}}{{Rouxel, Donoso, Chen, Ivaldi, and Mouret}}}
-\bibcite{ruthotto2018deep}{{146}{2018}{{Ruthotto and Haber}}{{}}}
-\bibcite{changeofvariables}{{147}{1954}{{Schwartz}}{{}}}
-\bibcite{Schwenzer2021}{{148}{2021}{{Schwenzer et~al.}}{{Schwenzer, Ay, Bergs, and Abel}}}
-\bibcite{shridhar2019bcnn}{{149}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
-\bibcite{Shukla2016}{{150}{2016}{{Shukla et~al.}}{{Shukla, Balasubramanian, and Pavlovi{\'c}}}}
-\bibcite{silvestro2020prior}{{151}{2020}{{Silvestro and Andermann}}{{}}}
-\bibcite{simon2006optimal}{{152}{2006}{{Simon}}{{}}}
-\bibcite{Skilling1989}{{153}{1989}{{Skilling}}{{}}}
-\bibcite{sohn2015cvae}{{154}{2015}{{Sohn et~al.}}{{Sohn, Lee, and Yan}}}
-\bibcite{somvanshi2025s4mamba}{{155}{2025}{{Somvanshi et~al.}}{{Somvanshi, Islam, Mimi, Polock, Chhetri, and Das}}}
-\bibcite{Spiegelhalter2002}{{156}{2002}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and Van Der~Linde}}}
-\bibcite{Spiegelhalter2014}{{157}{2014}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and van~der Linde}}}
-\bibcite{Sun_2025}{{158}{2025}{{Sun et~al.}}{{Sun, Wang, and He}}}
-\bibcite{sutton1990}{{159}{1990}{{Sutton}}{{}}}
-\bibcite{sarkka2019gp}{{160}{2019}{{Särkkä}}{{}}}
-\bibcite{takhtaganov2018adaptivegaussianprocesssurrogates}{{161}{2018}{{Takhtaganov and Müller}}{{}}}
-\bibcite{tarasov2025vla}{{162}{2025}{{Tarasov et~al.}}{{Tarasov, Nikulin, Zisman, Klepach, Lyubaykin, Polubarov, Derevyagin, and Kurenkov}}}
-\bibcite{TUNE2025179}{{163}{2025}{{Tune et~al.}}{{Tune, Kooiker, Davis, Daniel, and Moussavi-Harami}}}
-\bibcite{imitationflow2020}{{164}{2020}{{Urain et~al.}}{{Urain, Ginesi, Tateo, and Peters}}}
-\bibcite{Wainwright2008}{{165}{2008}{{Wainwright and Jordan}}{{}}}
-\bibcite{ukf2000}{{166}{2000}{{Wan and Van Der~Merwe}}{{}}}
-\bibcite{wan2025fmirlflowmatchingrewardmodeling}{{167}{2025}{{Wan et~al.}}{{Wan, Wu, Yu, Zhang, Lei, An, and Tsang}}}
-\bibcite{wang2025flow}{{168}{2025}{{Wang et~al.}}{{Wang, Guan, Guo, and Wu}}}
-\bibcite{wang2023vae}{{169}{2023}{{Wang et~al.}}{{Wang, Blei, and Cunningham}}}
-\bibcite{ward2019sacnf}{{170}{2019}{{Ward et~al.}}{{Ward, Smofsky, and Bose}}}
-\bibcite{wen2025diffusionvla}{{171}{2025}{{Wen et~al.}}{{Wen, Zhu, Zhu, Tang, Li, Zhou, Li, Liu, Peng, Shen, and Feng}}}
-\bibcite{winkler2023cnf}{{172}{2023}{{Winkler et~al.}}{{Winkler, Worrall, Hoogeboom, and Welling}}}
-\bibcite{wu2020stochasticnormalizingflows}{{173}{2020}{{Wu et~al.}}{{Wu, Köhler, and Noé}}}
-\bibcite{xu2024uncertaintyaware}{{174}{2024}{{Xu and Liu}}{{}}}
-\bibcite{Yamamoto_2020rse}{{175}{2020}{{Yamamoto and Tanaka}}{{}}}
-\bibcite{yan2024brnn}{{176}{2024}{{Yan et~al.}}{{Yan, Liang, Zheng, Fan, Wang, and Wang}}}
-\bibcite{YANG2021109913}{{177}{2021}{{Yang et~al.}}{{Yang, Meng, and Karniadakis}}}
-\bibcite{Consensus2022}{{178}{2022}{{Yin et~al.}}{{Yin, Verginis, and Kragic}}}
-\bibcite{Zeng2023}{{179}{2023}{{Zeng et~al.}}{{Zeng, Todd, and Hu}}}
-\bibcite{2025flowpolicy}{{180}{2025{a}}{{Zhang et~al.}}{{Zhang, Liu, Fan, Liu, Zeng, and Liu}}}
-\bibcite{zhang2025energyweightedflowmatchingoffline}{{181}{2025{b}}{{Zhang et~al.}}{{Zhang, Zhang, and Gu}}}
-\bibcite{zhang2025reinflowfinetuningflowmatching}{{182}{2025{c}}{{Zhang et~al.}}{{Zhang, Yu, Su, and Wang}}}
-\bibcite{zhang2025sacflow}{{183}{2025{d}}{{Zhang et~al.}}{{Zhang, Yu, Zhang, Guang, Hui, Long, Wang, Yu, and Ding}}}
-\bibcite{ZHANG2023106424}{{184}{2023}{{Zhang et~al.}}{{Zhang, Zhu, Zhang, and Gao}}}
-\bibcite{zhdanov2022gisaxs}{{185}{2022}{{Zhdanov et~al.}}{{Zhdanov, Randolph, Kluge, Nakatsutsumi, Gutt, Ganeva, and Hoffmann}}}
-\bibcite{zhong2025flowcriticbridgingvalueestimation}{{186}{2025}{{Zhong et~al.}}{{Zhong, Ding, Diao, Wang, Teh, and Peng}}}
-\bibcite{zhu2025diffusion}{{187}{2025}{{Zhu et~al.}}{{Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue}}}
-\bibcite{zhu2024diffusion}{{188}{2024}{{Zhu et~al.}}{{Zhu, Zhao, He, Zhong, Zhang, Guo, Chen, and Zhang}}}
-\@writefile{toc}{\contentsline {chapter}{Appendix}{119}{section*.136}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{121}{section*.136}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{123}{section*.136}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{125}{Item.9}\protected@file@percent }
-\gdef \@abspage@last{146}
+\bibcite{kidger2021neuralsdesinfinitedimensionalgans}{{89}{2021}{{Kidger et~al.}}{{Kidger, Foster, Li, Oberhauser, and Lyons}}}
+\bibcite{kingma2018glow}{{90}{2018}{{Kingma and Dhariwal}}{{}}}
+\bibcite{Kingma_2019}{{91}{2019}{{Kingma and Welling}}{{}}}
+\bibcite{kingma2013auto}{{92}{2022}{{Kingma and Welling}}{{}}}
+\bibcite{kobyzev2021nfsreview}{{93}{2021}{{Kobyzev et~al.}}{{Kobyzev, Prince, and Brubaker}}}
+\bibcite{kong2025compositeflowmatchingreinforcement}{{94}{2025}{{Kong et~al.}}{{Kong, Wang, Wang, Xiong, and Tambe}}}
+\bibcite{kruse2021hint}{{95}{2021}{{Kruse et~al.}}{{Kruse, Detommaso, Köthe, and Scheichl}}}
+\bibcite{Kucharsk2025}{{96}{2025}{{Kucharský and Bürkner}}{{}}}
+\bibcite{kl1951}{{97}{1951}{{Kullback and Leibler}}{{}}}
+\bibcite{Lee2023ImprovingPM}{{98}{2023}{{Lee and Diwan}}{{}}}
+\bibcite{li2025gaussianprocessregressioninverse}{{99}{2025{a}}{{Li et~al.}}{{Li, Lange-Hegermann, and Raiţă}}}
+\bibcite{li2020scalable}{{100}{2020{a}}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
+\bibcite{li2020scalablegradientsstochasticdifferential}{{101}{2020{b}}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
+\bibcite{li2025DIC}{{102}{2025{b}}{{Li et~al.}}{{Li, Mallick, Wang, Yu, and Zeng}}}
+\bibcite{lin2024ssm}{{103}{2024}{{Lin and Michailidis}}{{}}}
+\bibcite{lin2025}{{104}{2025}{{Lin et~al.}}{{Lin, Li, Yin, Maroñas, and Thiéry}}}
+\bibcite{lind2025normalizingflowscapablevisuomotor}{{105}{2025}{{Lind et~al.}}{{Lind, Li, Stenmark, and Krüger}}}
+\bibcite{lipman2023flowmatching}{{106}{2023}{{Lipman et~al.}}{{Lipman, Chen, Ben-Hamu, Nickel, and Le}}}
+\bibcite{lorenz1996predictability}{{107}{1996}{{Lorenz}}{{}}}
+\bibcite{lu2020finitelayer}{{108}{2020}{{Lu et~al.}}{{Lu, Zhong, Li, and Dong}}}
+\bibcite{lv2025flowbasedpolicy}{{109}{2025}{{Lv et~al.}}{{Lv, Li, Luo, Sun, Kong, Xu, and Ma}}}
+\bibcite{ma2020normalizingflowpolicy}{{110}{2020}{{Ma et~al.}}{{Ma, Gupta, and Kochenderfer}}}
+\bibcite{MacKay1992}{{111}{1995}{{MacKay}}{{}}}
+\bibcite{margossian2024amortized}{{112}{2024}{{Margossian and Blei}}{{}}}
+\bibcite{martínezpalomera2020pelsvae}{{113}{2020}{{Martínez-Palomera et~al.}}{{Martínez-Palomera, Bloom, and Abrahams}}}
+\bibcite{offpolicy2020}{{114}{2020}{{Mazoure et~al.}}{{Mazoure, Doan, Durand, Pineau, and Hjelm}}}
+\bibcite{mcallister2025flowmatchingpolicygradients}{{115}{2025}{{McAllister et~al.}}{{McAllister, Ge, Yi, Kim, Weber, Choi, Feng, and Kanazawa}}}
+\bibcite{mccarthy2020cvae}{{116}{2020}{{McCarthy et~al.}}{{McCarthy, Li, Gu, and Dong}}}
+\bibcite{Merkatas2023_sm}{{117}{2023}{{Merkatas and S{\"a}rkk{\"a}}}{{}}}
+\bibcite{smpc2016}{{118}{2016}{{Mesbah}}{{}}}
+\bibcite{Metropolis}{{119}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
+\bibcite{Mienye2025}{{120}{2025}{{Mienye and Swart}}{{}}}
+\bibcite{mbrl2020}{{121}{2022}{{Moerland et~al.}}{{Moerland, Broekens, Plaat, and Jonker}}}
+\bibcite{pml1Book}{{122}{2022}{{Murphy}}{{}}}
+\bibcite{pml2Book}{{123}{2023}{{Murphy}}{{}}}
+\bibcite{müller2024transbi}{{124}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
+\bibcite{vae_sbi}{{125}{2024}{{Nautiyal et~al.}}{{Nautiyal, Shternshis, Hellander, and Singh}}}
+\bibcite{Neal1996}{{126}{1996}{{Neal}}{{}}}
+\bibcite{Nemeth_2014}{{127}{2014}{{Nemeth et~al.}}{{Nemeth, Fearnhead, and Mihaylova}}}
+\bibcite{oksendal1985}{{128}{1985}{{{\O }ksendal}}{{}}}
+\bibcite{PANIAGUA2024200344}{{129}{2024}{{Paniagua and López}}{{}}}
+\bibcite{papamakarios2018maf}{{130}{2018}{{Papamakarios et~al.}}{{Papamakarios, Pavlakou, and Murray}}}
+\bibcite{papamakarios2021nf}{{131}{2021}{{Papamakarios et~al.}}{{Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan}}}
+\bibcite{dgp2018park}{{132}{2018}{{Park et~al.}}{{Park, Tagade, and Choi}}}
+\bibcite{pasmans2025ekfl}{{133}{2025}{{Pasmans et~al.}}{{Pasmans, Chen, Finn, Bocquet, and Carrassi}}}
+\bibcite{BayesSysId1981}{{134}{1981}{{Peterka}}{{}}}
+\bibcite{pivezhandi2025fm}{{135}{2025}{{Pivezhandi and Saifullah}}{{}}}
+\bibcite{power2022variationalinferencempcusing}{{136}{2022}{{Power and Berenson}}{{}}}
+\bibcite{mdp2014}{{137}{1994}{{Puterman}}{{}}}
+\bibcite{radev2021diss}{{138}{2021}{{Radev}}{{}}}
+\bibcite{radev2020bayesflow}{{139}{2020}{{Radev et~al.}}{{Radev, Mertens, Voss, Ardizzone, and Köthe}}}
+\bibcite{Rahmandad2025_uh}{{140}{2025}{{Rahmandad et~al.}}{{Rahmandad, Akhavan, and Jalali}}}
+\bibcite{RAIMONDO20095}{{141}{2009}{{Raimondo et~al.}}{{Raimondo, Limon, Lazar, Magni, and {ndez Camacho}}}}
+\bibcite{Rasmussen_Williams_2008}{{142}{2008}{{Rasmussen and Williams}}{{}}}
+\bibcite{mpcbook2020}{{143}{2020}{{Rawlings et~al.}}{{Rawlings, Mayne, and Diehl}}}
+\bibcite{rezende2016}{{144}{2016}{{Rezende and Mohamed}}{{}}}
+\bibcite{awesomenfs}{{145}{2023}{{Riebesell et~al.}}{{Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}}}}
+\bibcite{rietz2024constrained}{{146}{2024}{{Rietz et~al.}}{{Rietz, Schaffernicht, Heinrich, and Stork}}}
+\bibcite{roeder2019abi}{{147}{2019}{{Roeder et~al.}}{{Roeder, Grant, Phillips, Dalchau, and Meeds}}}
+\bibcite{rouxel2025extremumflowmatchingoffline}{{148}{2025}{{Rouxel et~al.}}{{Rouxel, Donoso, Chen, Ivaldi, and Mouret}}}
+\bibcite{ruthotto2018deep}{{149}{2018}{{Ruthotto and Haber}}{{}}}
+\bibcite{changeofvariables}{{150}{1954}{{Schwartz}}{{}}}
+\bibcite{Schwenzer2021}{{151}{2021}{{Schwenzer et~al.}}{{Schwenzer, Ay, Bergs, and Abel}}}
+\bibcite{shridhar2019bcnn}{{152}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
+\bibcite{Shukla2016}{{153}{2016}{{Shukla et~al.}}{{Shukla, Balasubramanian, and Pavlovi{\'c}}}}
+\bibcite{silvestro2020prior}{{154}{2020}{{Silvestro and Andermann}}{{}}}
+\bibcite{simon2006optimal}{{155}{2006}{{Simon}}{{}}}
+\bibcite{Skilling1989}{{156}{1989}{{Skilling}}{{}}}
+\bibcite{sohn2015cvae}{{157}{2015}{{Sohn et~al.}}{{Sohn, Lee, and Yan}}}
+\bibcite{somvanshi2025s4mamba}{{158}{2025}{{Somvanshi et~al.}}{{Somvanshi, Islam, Mimi, Polock, Chhetri, and Das}}}
+\bibcite{Spiegelhalter2002}{{159}{2002}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and Van Der~Linde}}}
+\bibcite{Spiegelhalter2014}{{160}{2014}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and van~der Linde}}}
+\bibcite{Sun_2025}{{161}{2025}{{Sun et~al.}}{{Sun, Wang, and He}}}
+\bibcite{sutton1990}{{162}{1990}{{Sutton}}{{}}}
+\bibcite{sarkka2019gp}{{163}{2019}{{Särkkä}}{{}}}
+\bibcite{takhtaganov2018adaptivegaussianprocesssurrogates}{{164}{2018}{{Takhtaganov and Müller}}{{}}}
+\bibcite{tarasov2025vla}{{165}{2025}{{Tarasov et~al.}}{{Tarasov, Nikulin, Zisman, Klepach, Lyubaykin, Polubarov, Derevyagin, and Kurenkov}}}
+\bibcite{TUNE2025179}{{166}{2025}{{Tune et~al.}}{{Tune, Kooiker, Davis, Daniel, and Moussavi-Harami}}}
+\bibcite{imitationflow2020}{{167}{2020}{{Urain et~al.}}{{Urain, Ginesi, Tateo, and Peters}}}
+\bibcite{Wainwright2008}{{168}{2008}{{Wainwright and Jordan}}{{}}}
+\bibcite{ukf2000}{{169}{2000}{{Wan and Van Der~Merwe}}{{}}}
+\bibcite{wan2025fmirlflowmatchingrewardmodeling}{{170}{2025}{{Wan et~al.}}{{Wan, Wu, Yu, Zhang, Lei, An, and Tsang}}}
+\bibcite{wang2025flow}{{171}{2025}{{Wang et~al.}}{{Wang, Guan, Guo, and Wu}}}
+\bibcite{wang2023vae}{{172}{2023}{{Wang et~al.}}{{Wang, Blei, and Cunningham}}}
+\bibcite{ward2019sacnf}{{173}{2019}{{Ward et~al.}}{{Ward, Smofsky, and Bose}}}
+\bibcite{wen2025diffusionvla}{{174}{2025}{{Wen et~al.}}{{Wen, Zhu, Zhu, Tang, Li, Zhou, Li, Liu, Peng, Shen, and Feng}}}
+\bibcite{winkler2023cnf}{{175}{2023}{{Winkler et~al.}}{{Winkler, Worrall, Hoogeboom, and Welling}}}
+\bibcite{wu2020stochasticnormalizingflows}{{176}{2020}{{Wu et~al.}}{{Wu, Köhler, and Noé}}}
+\bibcite{xu2024uncertaintyaware}{{177}{2024}{{Xu and Liu}}{{}}}
+\bibcite{Yamamoto_2020rse}{{178}{2020}{{Yamamoto and Tanaka}}{{}}}
+\bibcite{yan2024brnn}{{179}{2024}{{Yan et~al.}}{{Yan, Liang, Zheng, Fan, Wang, and Wang}}}
+\bibcite{YANG2021109913}{{180}{2021}{{Yang et~al.}}{{Yang, Meng, and Karniadakis}}}
+\bibcite{Consensus2022}{{181}{2022}{{Yin et~al.}}{{Yin, Verginis, and Kragic}}}
+\bibcite{Zeng2023}{{182}{2023}{{Zeng et~al.}}{{Zeng, Todd, and Hu}}}
+\bibcite{2025flowpolicy}{{183}{2025{a}}{{Zhang et~al.}}{{Zhang, Liu, Fan, Liu, Zeng, and Liu}}}
+\bibcite{zhang2025energyweightedflowmatchingoffline}{{184}{2025{b}}{{Zhang et~al.}}{{Zhang, Zhang, and Gu}}}
+\bibcite{zhang2025reinflowfinetuningflowmatching}{{185}{2025{c}}{{Zhang et~al.}}{{Zhang, Yu, Su, and Wang}}}
+\bibcite{zhang2025sacflow}{{186}{2025{d}}{{Zhang et~al.}}{{Zhang, Yu, Zhang, Guang, Hui, Long, Wang, Yu, and Ding}}}
+\bibcite{ZHANG2023106424}{{187}{2023}{{Zhang et~al.}}{{Zhang, Zhu, Zhang, and Gao}}}
+\bibcite{zhdanov2022gisaxs}{{188}{2022}{{Zhdanov et~al.}}{{Zhdanov, Randolph, Kluge, Nakatsutsumi, Gutt, Ganeva, and Hoffmann}}}
+\bibcite{zhong2025flowcriticbridgingvalueestimation}{{189}{2025}{{Zhong et~al.}}{{Zhong, Ding, Diao, Wang, Teh, and Peng}}}
+\bibcite{zhu2025diffusion}{{190}{2025}{{Zhu et~al.}}{{Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue}}}
+\bibcite{zhu2024diffusion}{{191}{2024}{{Zhu et~al.}}{{Zhu, Zhao, He, Zhong, Zhang, Guo, Chen, and Zhang}}}
+\@writefile{toc}{\contentsline {chapter}{Appendix}{121}{section*.142}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{123}{section*.142}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{125}{section*.142}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{127}{Item.9}\protected@file@percent }
+\gdef \@abspage@last{148}

@@ -27,6 +27,7 @@
 \contentsline {figure}{\numberline {IV.13}{\ignorespaces SNF Architecture}}{80}{figure.caption.129}%
 \contentsline {figure}{\numberline {IV.14}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{82}{figure.caption.131}%
 \contentsline {figure}{\numberline {IV.15}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{83}{figure.caption.133}%
-\contentsline {figure}{\numberline {IV.16}{\ignorespaces Architecture of amortized state estimation with normalizing flows and latent state space model .}}{86}{figure.caption.134}%
+\contentsline {figure}{\numberline {IV.16}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{86}{figure.caption.135}%
+\contentsline {figure}{\numberline {IV.17}{\ignorespaces Architecture of Latent State Space Model Flow.}}{87}{figure.caption.136}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

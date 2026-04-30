@@ -1,7 +1,9 @@
 \section{State Estimation}
 \label{sec:methods:state_estimation}
 
-Adapting normalizing flow methods from parameter identification to state estimation presents several non-trivial challenges. Unlike parameter identification, which targets a fixed set of unknowns, state estimation requires recovering a full sequential trajectory from partial observations --- that is, computing the posterior $p(x_{1:T} \mid y_{1:T})$ over a multimodal distribution. Standard filtering approaches such as Kalman filters assume known dynamics, whereas the Bayesian setting considered here makes no such assumption: both the state dynamics and the observation model may be nonlinear, and the posterior over states is generally multimodal. A naive approach --- applying the parameter identification method independently at each time step --- fails to capture the temporal dependencies that couple successive states. To address these limitations, this section introduces four methods for state estimation with normalizing flows, ordered by increasing generalisability.
+Adapting normalizing flow methods from parameter identification to state estimation introduces several non-trivial challenges. Unlike parameter identification, which targets a fixed set of unknowns, state estimation requires recovering a full sequential trajectory from partial observations — that is, computing the posterior $p(x_{1:T} \mid y_{1:T})$ over a potentially multimodal distribution. Standard filtering approaches such as the Kalman filter assume known, linear-Gaussian dynamics; the Bayesian setting considered here imposes no such restrictions: both the state dynamics and the observation model may be nonlinear and stochastic, and the resulting posterior is generally multimodal. A naive approach — applying the parameter identification method independently at each time step — fails to capture the temporal dependencies coupling successive states, and permits errors to accumulate unchecked across time. 
+
+Classically, this is addressed by sequential Monte Carlo methods such as particle filters \citep{Nemeth_2014}, which approximate the posterior by propagating a set of weighted particles through time. However, these methods are computationally expensive and suffer from degeneracy issues in high-dimensional state spaces. Variational approaches such as \acp{VAE} and \acp{RNN} have been proposed to learn amortized inference networks for state estimation \ref{sec:literature:state_estimation}, but they often struggle to capture complex temporal dependencies and multimodal posteriors effectively. To address these limitations, this section introduces four methods for state estimation with normalizing flows, ordered by increasing generalisability: Amortized State Flow, Latent State Space Model Flow, NICE Flow State Space Model, and Conditional Stochastic Transpolant. For the first two methods, we employ two normalizing flow architectures: RealNVP and Flow Matching.
 
 All four methods are evaluated on the Lorenz-96 system \citep{lorenz1996predictability}, a canonical benchmark for nonlinear data assimilation. The state has dimension $N = 12$, and at each time step only $N/2 = 6$ components are observed, subject to additive Gaussian noise of varying magnitude. The governing equations are
 \begin{equation}
@@ -10,19 +12,68 @@ All four methods are evaluated on the Lorenz-96 system \citep{lorenz1996predicta
 \end{equation}
 with periodic boundary conditions $x_{-1} = x_{N-1}$, $x_0 = x_N$, $x_{N+1} = x_1$, and forcing constant $F = 8$, a regime in which the system exhibits sustained chaotic behaviour.
 
-\subsection{Amortized State Estimation}
-The most straightforward approach is to amortize inference across time by applying a normalizing flow independently to each segment of observations, effectively reducing the sequential estimation problem to a collection of independent inference problems. The key advantage is that all parameter identification methods introduced in the previous section transfer directly with minial modification. However, this simplicity comes at a cost: because each segment is processed just as a group of data points, the approach discards the temporal structure of the state trajectory. Long-range dependencies between states are not modelled, and errors can accumulate across segments without correction. Consequently, amortized state estimation is most appropriate when the underlying dynamics are relatively smooth and temporal correlations are weak; it is less suited to settings with highly nonlinear dynamics or significant observation noise.
+\subsection{Amortized State Flow}
+The most conceptually straightforward approach is to amortize inference across time by applying a normalizing flow independently to each observation segment, thereby reducing the sequential estimation problem to a collection of independent inference tasks. The primary advantage is that all parameter identification methods introduced in the preceding section transfer directly with minimal modification.
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\linewidth]{figures/state_flow.pdf}
-    \caption{Architecture of amortized state estimation with normalizing flows and latent state space model  .}
-    \label{fig:state_flow}
+    \includegraphics[width=0.7\textwidth]{figures/Amortized_state_flow.pdf}
+    \caption{Architecture of amortized state estimation with normalizing flows.}
+    \label{fig:amortized_state_flow}
 \end{figure}
-In order to give the latent variable time dependency, we use a Wiener process as the base distribution for the normalizing flow. This allows us to capture temporal correlations in the latent space, while still maintaining the flexibility of the normalizing flow to model complex distributions over states. The architecture is illustrated in \autoref{fig:state_flow}.
+To endow the latent variables with temporal structure, we adopt a Wiener process as the base distribution of the normalizing flow. This choice assigns monotonically increasing variance to successive latent variables while preserving the Gaussian character of the distribution, providing a principled inductive bias toward smooth trajectories. The architecture is illustrated in Figure~\ref{fig:amortized_state_flow}.
 
+This simplicity, however, comes at a cost. Because each segment is processed as an independent collection of observations, the approach discards the temporal structure of the state trajectory entirely. Long-range dependencies between states are not modelled, and estimation errors can accumulate across segments without any corrective mechanism. Amortized state estimation is therefore most appropriate when the underlying dynamics are relatively smooth and temporal correlations are weak; it is ill-suited to settings with highly nonlinear dynamics or substantial observation noise.
 
-\subsection{Latent State Space Model}
+\subsection{Latent State Space Model Flow}
+\label{sec:methods:latent_ssm_flow}
+\begin{figure}[ht]
+   \centering
+   \includegraphics[width=0.7\textwidth]{figures/LinearSSMFlow.pdf}
+   \caption{Architecture of Latent State Space Model Flow.}
+   \label{fig:latent_ssm_flow}
+\end{figure}
 
-\subsection{Stochastic Differential Equation}
+To overcome the fundamental limitation of treating time steps independently, we impose a linear Gaussian State Space Model directly in the latent space of the normalizing flow, yielding the architecture we term LatentSSMFlow (Figure~\ref{fig:latent_ssm_flow}). At each time step $t$, the latent variable $z_t$ evolves from the preceding latent state $z_{t-1}$ via a linear Gaussian transition:
+\begin{equation}
+z_t = F z_{t-1} + G, \qquad G \sim \mathcal{N}(0,\,\Sigma).
+\end{equation}
+The transition matrix $F$ is fixed prior to training to ensure that the latent dynamics remain in a contractive or non-expansive regime, enforced by bounding the spectral radius:
+\begin{equation*}
+    \rho(F) = \max_i |\lambda_i| \le \rho_{max} < 1,
+\end{equation*}
+where $\lambda_i$ denote the eigenvalues of $F$. The process noise covariance $\Sigma$ is likewise held fixed throughout training to promote stability.
+
+The normalizing flow acts as a learned generative filter: at each step it maps the latent variable $z_t$ to the state $x_t$, conditioned on the observations $y_{t-1:t}$ and the preceding state $x_{t-1}$. Observations include the current and the previous step and are first encoded by a conditioning network $C_\psi$ before being passed to the flow. To improve both training efficiency and accuracy over long time horizons, we employ a multiple-shooting strategy, segmenting each trajectory into shorter overlapping intervals and unrolling the flow autoregressively within each segment. 
+
+Note that the autoregressive process works differently for RealNVP and Flow Matching. For training RealNVP, each state is transformed to the latent space because of its invertibility:
+\begin{equation}
+    z_t = f_\phi^{-1}(x_t; c_t, x_{t-1}),\quad c_t=C_\psi(y_{t-1:t}).
+\end{equation}
+Then, the model is trained via \ac{MLE}. Using the Change of Variables formula, the log-likelihood of the state sequence is:
+\begin{equation}
+    \log p(x_{1:T} | y_{1:T}) = \log p_{SSM}(z_{1:T}) + \sum_{t=1}^T \log \left| \det \frac{\partial f_\phi(x_t; c_t, x_{t-1})}{\partial x_t} \right|,
+\end{equation}
+where $p_{SSM}(z_{1:T})$ is the likelihood of the latent trajectory under the linear Gaussian SSM. While the dynamics of the latent variable is modeled by the linear Gaussian SSM, the state transition is also learned by the RealNVP. 
+
+For Flow Matching, because the architecture is not invertible, the state during training is not updated autoregressively. Instead, only one step transition through conditioning is trained at a time. In the inference process, however, the state is updated autoregressively. This mismatch between training and inference leads to a significant performance gap. 
+
+\subsection{NICE Flow State Space Model}
+To further enhance the dynamics modeling capability, we propose to estimate the state trajectory by modeling the underlying dynamics as a stochastic differential equation. We take the variable $x_t|y_t:=z_t$ as the new state of the system. When the state is assumed to evolve continuously in time, the dynamics can be described by a \ac{SDE}:
+\begin{equation}
+    dz_t = f(z_t, t) dt + g(z_t, t){\color{Orchid} dW_t},\quad dW_t=\sqrt{dt}\epsilon, \quad \epsilon\sim \mathcal{N}(0, I).
+\end{equation}
+By modeling $f$ and $g$ with neural networks, we can capture complex nonlinear dynamics and state-dependent noise. A naive approach to training such a NeuralSDE by maximizing the likelihood of the observed data causes collapse of the latent state, as the networks can simply learn to ignore the diffusion and fit the drift dynamics only. 
+
+One possible solution to enhance the expressiveness of the diffusion term is to apply variational inference, namely LatentSDE \citep{li2020scalablegradientsstochasticdifferential}. LatentSDE adopts a prior NeuralSDE and a posterior NeuralSDE with the same paramtereization of the diffusion function and with different drift functions. By sharing the diffusion term, the KL divergence between the two stochastic processes becomes analytically tractable, which allows the model to be trained by maximizing the \ac{ELBO}. Another approach treats NeuralSDE as infinite-dimensional \ac{GAN} \citep{kidger2021neuralsdesinfinitedimensionalgans}. In this framework, a NeuralSDE acts as a generator that transforms Brownian motion into sample paths, while a Neural Controlled Differential Equation (NeuralCDE) serves as a discriminator that operates directly on the continuous-time trajectories. By optimizing a Wasserstein-type objective, this method allows for more flexible noise structures that are otherwise difficult to train using variational methods, effectively matching the entire distribution of generated paths to the true data distribution in path space.
+
+However, both methods require significant computational resources and careful tuning through extensive experimentation. To mitigate this issue, we introduce to leverage normalizing flow directly in the NeuralSDE framework, avoiding to use another differential equation for supporting training of the NeuralSDE. In order to keep the computation efficient, we use a simple normalizing flow architecture, NICE \ref{sec:background:coupling}, to model the diffusion term. Then, the SDE becomes a NICE enhanced state space model:
+\begin{equation}\label{eq:nice_flow_ssm}
+    dz_t = f_\theta(z_t, t) dt + g_\phi({\color{Orchid} dW_t}; z_t, t)  {\color{Orchid}\sqrt{dt}}.
+\end{equation}
+The drift function $f_\theta$ is a neural network that models the deterministic part of the dynamics. The NICE architecture $g_\phi$ takes the Brownian motion increment $dW_t$ as its latent variable, and outputs a state-dependent noise term. Unlike armortized Bayesian inference, the NICE flow is not trained by minimizing the KL divergence, because its ground truth is not available. Instead, NICE flow is sampled from the latent distribution while training. The NICEFlowSSM is trained by maximizing the overall likelihood of the observed data, which requires the SSM to be integrated over time. 
+
+The NICE flow captures complex dependencies between the noise and the state, enabling the model to learn rich stochastic dynamics. Another advantage is its simple Jacobian determinant \ref{eq:background:nice}. When the coupling layer is additive, the Jacobian determinant is always $1$, which significantly simplifies the likelihood computation and allows for efficient training. Moreover, .                    
+
+The integration of the SSM is performed by a numerical SDE solver, such as the Euler-Maruyma method, Heun, Midpoint, Milstein, or reversible Heun method. The solvers are supposed to be adjusted according to Equation \ref{eq:nice_flow_ssm}. The initial state is given or randomly initialized. So far, in comparison to the previous two methods, the NICEFlowSSM is the most powerful and general approach, which can capture complex, nonlinear, and long-term dynamics, as well as state-dependent noise. However, it is also the most computationally expensive and challenging to train, as it requires integrating the SDE over time and optimizing the neural networks simultaneously.
 
 \subsection{Stochastic Interpolant}

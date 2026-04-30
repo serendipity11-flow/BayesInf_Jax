@@ -537,7 +537,7 @@ The loss function of \acp{NF} suggests that during training, the learned latent 
 
 A variety of architectures have been developed to realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the key publications and implementations in this domain. As outlined in the comprehensive review by \citet{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal (continuous) flows. Throughout this work, we focus primarily on coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, establishing deep theoretical connections with other probabilistic frameworks such as diffusion models. Thus, we also introduce continuous \acp{NF} following the description of coupling flows.
 
-\subsection{Coupling Flows}
+\subsection{Coupling Flows}\label{sec:background:coupling}
 The basic idea of the coupling flow is partitioning the input variables into two subsets, one subset of which is processed by neural networks and also concurrently directly passed through to the output variables, while the other subset is combined with the processed subset through affine functions.
 \begin{figure}[htp!]
     \centering
@@ -571,7 +571,7 @@ Then, the inverse functions are easily calculated:
     \boldsymbol{u}_1 = \boldsymbol{v}_1,\quad \boldsymbol{u}_2 = g^{-1}(\boldsymbol{v}_2;s(\boldsymbol{u}_1)).
 \end{equation}
 From the above functions, the Jacobian matrix is:
-\begin{equation}
+\begin{equation}\label{eq:background:nice}
 \frac {\partial \boldsymbol{v}}{\partial \boldsymbol{u}}=\begin{bmatrix}
 \partial \boldsymbol{v}_1/\partial \boldsymbol{u}_1 & \partial \boldsymbol{v}_1/\partial \boldsymbol{u}_2 \\
 \partial \boldsymbol{v}_2/\partial \boldsymbol{u}_1 & \partial \boldsymbol{v}_2/\partial \boldsymbol{u}_2\\

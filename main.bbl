@@ -1,4 +1,4 @@
-\begin{thebibliography}{188}
+\begin{thebibliography}{191}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -550,6 +550,11 @@ Hassan~K Khalil and Jessy~W Grizzle.
 \newblock \emph{Nonlinear systems}, volume~3.
 \newblock Prentice hall Upper Saddle River, NJ, 2002.
 
+\bibitem[Kidger et~al.(2021)Kidger, Foster, Li, Oberhauser, and Lyons]{kidger2021neuralsdesinfinitedimensionalgans}
+Patrick Kidger, James Foster, Xuechen Li, Harald Oberhauser, and Terry Lyons.
+\newblock Neural sdes as infinite-dimensional gans, 2021.
+\newblock URL \url{https://arxiv.org/abs/2102.03657}.
+
 \bibitem[Kingma and Dhariwal(2018)]{kingma2018glow}
 Diederik~P. Kingma and Prafulla Dhariwal.
 \newblock Glow: Generative flow with invertible 1x1 convolutions, 2018.
@@ -610,9 +615,14 @@ Xin Li, Markus Lange-Hegermann, and Bogdan Raiţă.
 \newblock Gaussian process regression for inverse problems in linear pdes, 2025{\natexlab{a}}.
 \newblock URL \url{https://arxiv.org/abs/2502.04276}.
 
-\bibitem[Li et~al.(2020)Li, Wong, Chen, and Duvenaud]{li2020scalable}
+\bibitem[Li et~al.(2020{\natexlab{a}})Li, Wong, Chen, and Duvenaud]{li2020scalable}
 Xuechen Li, Ting-Kam~Leonard Wong, Ricky T.~Q. Chen, and David Duvenaud.
-\newblock Scalable gradients for stochastic differential equations, 2020.
+\newblock Scalable gradients for stochastic differential equations, 2020{\natexlab{a}}.
+
+\bibitem[Li et~al.(2020{\natexlab{b}})Li, Wong, Chen, and Duvenaud]{li2020scalablegradientsstochasticdifferential}
+Xuechen Li, Ting-Kam~Leonard Wong, Ricky T.~Q. Chen, and David Duvenaud.
+\newblock Scalable gradients for stochastic differential equations, 2020{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2001.01328}.
 
 \bibitem[Li et~al.(2025{\natexlab{b}})Li, Mallick, Wang, Yu, and Zeng]{li2025DIC}
 Yong Li, Sushanta~K. Mallick, Nianling Wang, Jun Yu, and Tao Zeng.
@@ -761,6 +771,14 @@ Radford~M. Neal.
 \newblock ISBN 978-1-4612-0745-0.
 \newblock \doi{10.1007/978-1-4612-0745-0_2}.
 \newblock URL \url{https://doi.org/10.1007/978-1-4612-0745-0_2}.
+
+\bibitem[Nemeth et~al.(2014)Nemeth, Fearnhead, and Mihaylova]{Nemeth_2014}
+Christopher Nemeth, Paul Fearnhead, and Lyudmila Mihaylova.
+\newblock Sequential monte carlo methods for state and parameter estimation in abruptly changing environments.
+\newblock \emph{IEEE Transactions on Signal Processing}, 62\penalty0 (5):\penalty0 1245–1255, March 2014.
+\newblock ISSN 1941-0476.
+\newblock \doi{10.1109/tsp.2013.2296278}.
+\newblock URL \url{http://dx.doi.org/10.1109/TSP.2013.2296278}.
 
 \bibitem[{\O}ksendal(1985)]{oksendal1985}
 Bernt {\O}ksendal.

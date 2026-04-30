@@ -78,7 +78,7 @@
 \contentsline {subsection}{\numberline {2.1}Amortized State Flow}{85}{subsection.4.2.1}%
 \contentsline {subsection}{\numberline {2.2}Latent State Space Model Flow}{86}{subsection.4.2.2}%
 \contentsline {subsection}{\numberline {2.3}NICE Flow State Space Model}{88}{subsection.4.2.3}%
-\contentsline {subsection}{\numberline {2.4}Stochastic Interpolant}{89}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {2.4}Conditional Stochastic Interpolant}{89}{subsection.4.2.4}%
 \contentsline {section}{\numberline {3}Optimal Control}{90}{section.4.3}%
 \contentsline {chapter}{\numberline {V}Experiments and Results}{91}{chapter.5}%
 \contentsline {section}{\numberline {1}Overview}{91}{section.5.1}%

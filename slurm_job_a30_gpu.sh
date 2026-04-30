@@ -1,7 +1,7 @@
 #!/bin/bash
 # Job name:
 #SBATCH --account=Mitarbeiter
-#SBATCH --job-name=latent_ssm_flow
+#SBATCH --job-name=amortized_state_flow
 #SBATCH --partition=a30
 #SBATCH --mail-type=END,INVALID_DEPEND
 #SBATCH --mail-user=yi.zhang@uni-a.de
@@ -16,47 +16,30 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --qos=a30-gpu
 
-source $HOME/myenv_312/bin/activate
 export PYTHONNOUSERSITE=1
-export PYTHONPATH=/home/zhangyi/bayesinf_jax:$PYTHONPATH
-python3.12 -c "import sys; print(sys.path)"
+VENV_SITE=$HOME/myenv_312/lib/python3.12/site-packages
+export PYTHONPATH=/home/zhangyi/bayesinf_jax:$VENV_SITE:$PYTHONPATH
+if "$HOME/myenv_312/bin/python" -c 'import sys' >/dev/null 2>&1; then
+    PYTHON=$HOME/myenv_312/bin/python
+else
+    PYTHON=$(command -v python3.12 || ls /usr/bin/python3.12 /usr/local/bin/python3.12 2>/dev/null | head -1)
+fi
+echo "Using Python: $PYTHON  ($($PYTHON --version))"
+echo "CUDA devices: $CUDA_VISIBLE_DEVICES"
 
-python3.12 -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96 \
-    --train \
-    --flow_type realnvp \
-    --fix_ssm \
-    --seg_len 50 \
-    --max_rho 0.95 \
-    --ssm_noise 0.1 \
-    --encoder_type gru \
-    --local_window \
-    --N 12 \
-    --obs_interval 2 \
-    --obs_std 0.5 \
-    --obs_df 5.0 \
-    --batch_size 32 \
-    --learning_rate 1e-4 \
-    --grad_norm 1.0 \
-    --patience 50 \
-    --max_epochs 2000 \
-    --lambda_ent 0.01 \
+for FLOW_TYPE in realnvp nsf fm; do
+    echo "Training AmortizedStateFlow: flow_type=${FLOW_TYPE}, seg_len=25"
+    $PYTHON -m bayesinf.applications.state_estimation.train_amortized_state_flow \
+        --train \
+        --flow_type "${FLOW_TYPE}" \
+        --encoder_type transformer \
+        --seg_len 25 \
+        --N 12 \
+        --obs_interval 2 \
+        --obs_std 0.5 \
+        --batch_size 32 \
+        --learning_rate 5e-4 \
+        --grad_norm 1.0 \
+        --patience 10
+done
 
-python3.12 -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96 \
-    --train \
-    --flow_type realnvp \
-    --fix_ssm \
-    --seg_len 100 \
-    --max_rho 0.95 \
-    --ssm_noise 0.1 \
-    --encoder_type gru \
-    --local_window \
-    --N 12 \
-    --obs_interval 2 \
-    --obs_std 0.5 \
-    --obs_df 5.0 \
-    --batch_size 32 \
-    --learning_rate 1e-4 \
-    --grad_norm 1.0 \
-    --patience 50 \
-    --max_epochs 2000 \
-    --lambda_ent 0.01 \

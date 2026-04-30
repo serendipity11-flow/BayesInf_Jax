@@ -1,8 +1,8 @@
 """
-ConditionalNeuralSDE / NICEFlowSDE: Flow-SDE for posterior trajectory estimation.
+NICEFlowSDE: Flow-SDE for posterior trajectory estimation.
 
 Model:
-    dz_t = f_θ(z_t, c_t, t) dt + G_φ(z_t, c_t, t) dW_t
+    dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, c_t, t) \sqrt(dt)
 
     c_t = BiGRUEncoder(y_{1:T})_t  — per-step context from a bidirectional GRU
           over the entire observation sequence (smoothing: c_t sees future y's).
@@ -19,9 +19,9 @@ Model:
           det(G_φ) = 1 for every state — variance collapse is structurally
           impossible.  Q = G_φ G_φ^T is always positive-definite.
 
-Training — Pathwise MLE under Euler-Maruyama discretization:
-    L = Σ_t  0.5 ||G_φ^{-1}(Δx_t − f_t dt)||² / dt
-    No log-det term because det(G_φ) = 1 always.
+Training:
+    Pathwise multiple-shooting reconstruction loss. The custom solver path uses
+    dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, z_t, c_t, t) sqrt(dt).
 
 Inference — Euler-Maruyama (or diffrax Heun) particle simulation conditioned
 on the BiGRU encoding of y_{1:T}.
@@ -41,6 +41,12 @@ else:
 import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
+
+
+def _positive_dt(t0: jnp.ndarray, t1: jnp.ndarray) -> jnp.ndarray:
+    """Return a strictly positive step size for stable sqrt(dt)."""
+    return jnp.maximum(t1 - t0, 1e-12)
+
 
 # Import custom stochastic solvers
 from bayesinf.applications.state_estimation.stochastic_solvers import (
@@ -327,58 +333,96 @@ _CUSTOM_SOLVER_CLASSES = {
 }
 
 
-def _get_solver(name: str, use_custom: bool = True):
-    """
-    Return a stochastic solver by name.
-    
-    Args:
-        name: Solver name
-        use_custom: If True, prefer custom solvers over diffrax
-    
-    Returns:
-        Solver instance (custom solver or diffrax solver)
-    
-    Supported custom solvers (our implementation):
-        - "euler"           — Euler-Maruyama       (strong order 0.5)
-        - "heun"            — Stochastic Heun      (strong order 1.0)
-        - "reversible_heun" — Reversible Heun      (memory-efficient)
-        - "milstein"        — Milstein             (strong order 1.0)
-        - "midpoint"        — Stochastic Midpoint  (improved stability)
-        - "adaptive_euler"  — Adaptive Euler       (error-based step size)
-        - "rk4"             — Stochastic RK4       (higher order)
-    
-    Supported diffrax solvers (fallback):
-        - "euler"           — diffrax.Euler()
-        - "heun"            — diffrax.Heun()
-        - "reversible_heun" — diffrax.ReversibleHeun()
-        - "midpoint"        — diffrax.Midpoint()
-    """
-    name_lower = name.lower()
-    
-    # Try custom solver first
-    if use_custom and name_lower in _CUSTOM_SOLVER_CLASSES:
-        return _CUSTOM_SOLVER_CLASSES[name_lower]()
-    
-    # Fall back to diffrax
+def _custom_solver_order(name: str) -> tuple[float, float]:
+    """Return (weak/CDE order, strong order) for custom solver metadata."""
+    name = name.lower()
+    if name in ("heun", "reversible_heun", "milstein", "midpoint"):
+        return 1.0, 1.0
+    if name == "rk4":
+        return 1.5, 1.5
+    return 1.0, 0.5
+
+
+def _make_custom_diffrax_solver(name: str):
+    """Wrap a local stochastic solver so diffrax.diffeqsolve can drive it."""
     import diffrax
-    diffrax_registry = {
-        "euler":           diffrax.Euler(),
-        "heun":            diffrax.Heun(),
-        "reversible_heun": diffrax.ReversibleHeun(),
-        "midpoint":        diffrax.Midpoint(),
-    }
-    if name_lower in diffrax_registry:
-        return diffrax_registry[name_lower]
-    
-    raise ValueError(
-        f"Unknown solver '{name}'. Available custom: {list(_CUSTOM_SOLVER_CLASSES.keys())}, "
-        f"available diffrax: {list(diffrax_registry.keys())}"
+
+    if name not in _CUSTOM_SOLVER_CLASSES:
+        raise ValueError(
+            f"Unknown custom solver '{name}'. Choose from: {list(_CUSTOM_SOLVER_CLASSES)}"
+        )
+
+    class _DiffraxControlBridge:
+        def __init__(self, term):
+            self.term = term
+
+        def evaluate(self, t0, t1):
+            return self.term.contr(t0, t1)
+
+    class _CustomDiffraxSolver(diffrax.AbstractItoSolver):
+        base_solver: eqx.Module
+        solver_name: str = eqx.field(static=True)
+
+        term_structure = diffrax.AbstractTerm
+        interpolation_cls = diffrax.LocalLinearInterpolation
+
+        def order(self, terms):
+            del terms
+            order, _ = _custom_solver_order(self.solver_name)
+            return order
+
+        def strong_order(self, terms):
+            del terms
+            _, strong_order = _custom_solver_order(self.solver_name)
+            return strong_order
+
+        def error_order(self, terms):
+            del terms
+            return self.order(None)
+
+        def init(self, terms, t0, t1, y0, args):
+            del terms, t0, t1, y0, args
+            return None
+
+        def func(self, terms, t0, y0, args):
+            return terms.vf(t0, y0, args)
+
+        def step(self, terms, t0, t1, y0, args, solver_state, made_jump):
+            del made_jump
+            if not hasattr(terms, "terms") or len(terms.terms) != 2:
+                raise ValueError(
+                    "Custom diffrax solvers expect MultiTerm(ODETerm, ControlTerm)."
+                )
+            drift_term, diffusion_term = terms.terms
+            control = _DiffraxControlBridge(diffusion_term)
+
+            def drift_fn(t, z):
+                return drift_term.vf(t, z, args)
+
+            def diffuse_fn(t, z, dw):
+                dt_sqrt = jnp.sqrt(_positive_dt(t0, t1))
+                noise = dw / dt_sqrt
+                return diffusion_term.prod(diffusion_term.vf(t, z, args), noise)
+
+            y1 = self.base_solver.step(
+                y0, t0, t1, drift_fn, diffuse_fn, control
+            )
+            dense_info = dict(y0=y0, y1=y1)
+            return y1, None, dense_info, solver_state, diffrax.RESULTS.successful
+
+    return _CustomDiffraxSolver(
+        base_solver=_CUSTOM_SOLVER_CLASSES[name](),
+        solver_name=name,
     )
 
 
 def _get_diffrax_solver(name: str):
-    """Return a diffrax SDE solver by name (backward compatibility)."""
+    """Return a diffrax-compatible SDE solver by name."""
     import diffrax
+    name = name.lower()
+    if name in _CUSTOM_SOLVER_CLASSES:
+        return _make_custom_diffrax_solver(name)
+
     registry = {
         "euler":           diffrax.Euler(),
         "heun":            diffrax.Heun(),
@@ -401,23 +445,22 @@ class NICEFlowSDE(eqx.Module):
     Neural SDE with NICE-structured diffusion integrated via diffrax.
 
     Physical-time SDE (t ∈ [0, 1]):
-        dz_t = f_θ(z_t, c_t, t) dt + G_φ(z_t, c_t, t) dW_t
+        dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, c_t, t) \sqrt(dt)
 
     dW_t is drawn from VirtualBrownianTree — the latent variable of G_φ.
     G_φ is a NICE coupling network: det(G_φ) = 1 always (no variance collapse).
 
     Discretised update at each solver step:
-        z_{t+dt} = z_t + f_drift(z_t) dt + G_φ(z_t, c_t, t) @ dW_t
+        z_{t+dt} = z_t + f_drift(z_t) dt + G_φ(dW_t, c_t, t) \sqrt(dt)
 
-    where G_φ(z_t, c_t, t) @ dW_t is the shaped diffusion contribution
+    where G_φ(dW_t, c_t, t) \sqrt(dt) is the shaped diffusion contribution
     produced by applying the NICE matrix to the Brownian increment dW_t.
 
-    Training modes
-    --------------
-    pathwise  — integrate SDE with diffrax, minimise ||ẑ_{1:T} − x_{1:T}||²
-                (gradients flow back through the solver via the adjoint method)
-    stepwise  — per-step NLL via NICE inverse (no integration required):
-                0.5 ||G_φ^{-1}(Δx − f dt)||² / dt   (det(G_φ)=1 → no log-det)
+    Training
+    --------
+    pathwise — integrate trajectories and minimise ||ẑ_{1:T} − x_{1:T}||².
+               With use_custom_solver=True, the update convention is
+               dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, z_t, c_t, t) sqrt(dt).
 
     Supported solvers
     -----------------
@@ -459,110 +502,6 @@ class NICEFlowSDE(eqx.Module):
     def encode(self, y: jnp.ndarray) -> jnp.ndarray:
         """y: (T, d_y) → c: (T, d_c)."""
         return self.encoder(y)
-
-    # ------------------------------------------------------------------
-    # Stepwise training:  per-step NLL via NICE inverse
-    # ------------------------------------------------------------------
-
-    def _step_nll(
-        self,
-        z_t:  jnp.ndarray,
-        c_t:  jnp.ndarray,
-        t:    jnp.ndarray,
-        dz:   jnp.ndarray,
-        dt:   float,
-    ) -> jnp.ndarray:
-        """
-        EM NLL at one step. det(G_φ) = 1 → no log-det correction.
-            0.5 ||G_φ(z_t)^{-1} (Δz − f dt)||² / dt
-        """
-        f = self.drift(z_t, c_t, t)
-        if self.physics_fn is not None:
-            f = f + self.physics_fn(z_t)
-        resid     = dz - f * dt
-        resid_inv = self.diffusion.apply_inverse(resid, z_t, c_t, t)
-        return 0.5 * jnp.dot(resid_inv, resid_inv) / dt
-
-    def nll_stepwise_single(self, x: jnp.ndarray, y: jnp.ndarray) -> jnp.ndarray:
-        """Full-sequence per-step NLL for one (x, y) pair."""
-        T  = x.shape[0]
-        dt = 1.0 / (T - 1)
-        c  = self.encode(y)
-        ts = jnp.arange(T - 1) / (T - 1)
-        nlls = jax.vmap(
-            lambda z, ci, ti, dzi: self._step_nll(z, ci, ti, dzi, dt)
-        )(x[:-1], c[:-1], ts, x[1:] - x[:-1])
-        return jnp.sum(nlls) / (T - 1)
-
-    def nll_stepwise(self, x: jnp.ndarray, y: jnp.ndarray) -> jnp.ndarray:
-        """Batch per-step NLL. x: (B,T,d_x)  y: (B,T,d_y)."""
-        return jnp.mean(jax.vmap(self.nll_stepwise_single)(x, y))
-
-    def nll_stepwise_ms_single(
-        self,
-        x:          jnp.ndarray,
-        y:          jnp.ndarray,
-        seg_length: int,
-    ) -> jnp.ndarray:
-        """Multiple-shooting per-step NLL for one trajectory."""
-        T      = x.shape[0]
-        dt     = 1.0 / (T - 1)
-        c      = self.encode(y)
-        n_segs = (T - 1) // seg_length
-        total  = jnp.array(0.0)
-        for k in range(n_segs):
-            s     = k * seg_length
-            e     = s + seg_length + 1
-            x_seg = x[s:e]
-            c_seg = c[s:e]
-            ts    = (jnp.arange(seg_length) + s) / (T - 1)
-            nlls  = jax.vmap(
-                lambda z, ci, ti, dzi: self._step_nll(z, ci, ti, dzi, dt)
-            )(x_seg[:-1], c_seg[:-1], ts, x_seg[1:] - x_seg[:-1])
-            total = total + jnp.sum(nlls) / seg_length
-        return total / n_segs
-
-    def nll_stepwise_ms(
-        self,
-        x:          jnp.ndarray,
-        y:          jnp.ndarray,
-        seg_length: int,
-    ) -> jnp.ndarray:
-        """Batch multiple-shooting per-step NLL."""
-        return jnp.mean(jax.vmap(
-            lambda xi, yi: self.nll_stepwise_ms_single(xi, yi, seg_length)
-        )(x, y))
-
-    def diffusion_regularization_single(
-        self,
-        x: jnp.ndarray,
-        y: jnp.ndarray,
-    ) -> jnp.ndarray:
-        """
-        Penalise excessive NICE coupling in the diffusion factor.
-
-        The identity part of G_phi is the irreducible Brownian scale, so the
-        regularizer targets only G_phi - I. This discourages exaggerated
-        uncertainty from the NICE part without asking the diffusion to collapse.
-        """
-        T = x.shape[0]
-        c = self.encode(y)
-        ts = jnp.linspace(0.0, 1.0, T)
-        eye = jnp.eye(self.d_x)
-
-        def penalty_at(zt, ct, tt):
-            G = self.diffusion.matrix(zt, ct, tt)
-            return jnp.mean((G - eye) ** 2)
-
-        return jnp.mean(jax.vmap(penalty_at)(x, c, ts))
-
-    def diffusion_regularization(
-        self,
-        x: jnp.ndarray,
-        y: jnp.ndarray,
-    ) -> jnp.ndarray:
-        """Batch NICE diffusion coupling penalty."""
-        return jnp.mean(jax.vmap(self.diffusion_regularization_single)(x, y))
 
     # ------------------------------------------------------------------
     # Pathwise training:  integrate SDE → minimise reconstruction loss
@@ -738,52 +677,6 @@ class NICEFlowSDE(eqx.Module):
         c_t = self._context_at(c, t)
         return self.diffusion.apply(dw * diffusion_temp, z, c_t, t)
 
-    def _custom_solver_step(
-        self,
-        z:              jnp.ndarray,
-        t0:             jnp.ndarray,
-        t1:             jnp.ndarray,
-        dw:             jnp.ndarray,
-        c:              jnp.ndarray,
-        solver_name:    str,
-        diffusion_temp: float = 1.0,
-    ) -> jnp.ndarray:
-        """JAX-native fixed-step custom solver update."""
-        dt = t1 - t0
-        name = solver_name.lower()
-
-        f0 = self._custom_drift(z, c, t0)
-        g0 = self._custom_diffusion(dw, z, c, t0, diffusion_temp)
-
-        if name in ("heun", "stochastic_heun", "reversible_heun"):
-            z_p = z + f0 * dt + g0
-            f1 = self._custom_drift(z_p, c, t1)
-            g1 = self._custom_diffusion(dw, z_p, c, t1, diffusion_temp)
-            return z + 0.5 * (f0 + f1) * dt + 0.5 * (g0 + g1)
-
-        if name in ("midpoint", "stochastic_midpoint"):
-            t_mid = 0.5 * (t0 + t1)
-            z_mid = z + 0.5 * f0 * dt + 0.5 * g0
-            f_mid = self._custom_drift(z_mid, c, t_mid)
-            g_mid = self._custom_diffusion(dw, z_mid, c, t_mid, diffusion_temp)
-            return z + f_mid * dt + g_mid
-
-        if name == "rk4":
-            t_mid = 0.5 * (t0 + t1)
-            z2 = z + 0.5 * f0 * dt + 0.5 * g0
-            f2 = self._custom_drift(z2, c, t_mid)
-            g2 = self._custom_diffusion(dw, z2, c, t_mid, diffusion_temp)
-            z3 = z + 0.5 * f2 * dt + 0.5 * g2
-            f3 = self._custom_drift(z3, c, t_mid)
-            g3 = self._custom_diffusion(dw, z3, c, t_mid, diffusion_temp)
-            z4 = z + f3 * dt + g3
-            f4 = self._custom_drift(z4, c, t1)
-            g4 = self._custom_diffusion(dw, z4, c, t1, diffusion_temp)
-            return z + (f0 + 2 * f2 + 2 * f3 + f4) * dt / 6.0 + (g0 + 2 * g2 + 2 * g3 + g4) / 6.0
-
-        # Euler-Maruyama fallback, also used for Milstein/adaptive_euler here.
-        return z + f0 * dt + g0
-
     def _integrate_custom(
         self,
         z0:             jnp.ndarray,
@@ -793,16 +686,29 @@ class NICEFlowSDE(eqx.Module):
         solver_name:    str,
         diffusion_temp: float = 1.0,
     ) -> jnp.ndarray:
-        """Integrate a segment using JAX-native Brownian increments."""
-        n_steps = ts.shape[0] - 1
-        step_keys = jr.split(key, n_steps)
+        """Integrate a segment using local solvers through diffrax.diffeqsolve."""
+        import diffrax
 
-        def scan_step(z, inputs):
-            t0, t1, k = inputs
-            dt = t1 - t0
-            dw = jr.normal(k, (self.d_x,)) * jnp.sqrt(dt)
-            z_next = self._custom_solver_step(
-                z, t0, t1, dw, c, solver_name, diffusion_temp
+        t0 = ts[0]
+        t1 = ts[-1]
+        dt0 = ts[1] - ts[0]
+        c_interp = diffrax.LinearInterpolation(ts=ts, ys=c)
+        drift_fn, diff_fn = self._build_terms(c_interp, diffusion_temp)
+        solver = _get_diffrax_solver(solver_name)
+        bm = diffrax.VirtualBrownianTree(
+            t0=t0, t1=t1 + dt0, tol=dt0 * 0.5,
+            shape=(self.d_x,), key=key,
+        )
+        terms = diffrax.MultiTerm(
+            diffrax.ODETerm(drift_fn),
+            diffrax.ControlTerm(diff_fn, bm),
+        )
+        sol = diffrax.diffeqsolve(
+            terms, solver,
+            t0=t0, t1=t1, dt0=dt0, y0=z0,
+            saveat=diffrax.SaveAt(ts=ts),
+        )
+        return sol.ys
             )
             return z_next, z_next
 
@@ -892,9 +798,9 @@ class NICEFlowSDE(eqx.Module):
         instead of diffrax, allowing for more control over the integration and
         better integration with the NICE flow diffusion model.
         
-        The SDE form is:
-            dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, z_t, c_t, t)
-        
+        The custom solver form is:
+            dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, z_t, c_t, t) sqrt(dt)
+
         where G_φ is the NICE flow that transforms the Brownian increment dW_t.
         
         Args:
@@ -948,6 +854,7 @@ class NICEFlowSDE(eqx.Module):
         seg_length:     int   = 20,
         solver_name:    str   = "heun",
         diffusion_temp: float = 1.0,
+        use_custom_solver: bool = False,
     ) -> jnp.ndarray:
         """
         Ground-truth-seeded segmented posterior sampling.
@@ -960,8 +867,28 @@ class NICEFlowSDE(eqx.Module):
         T      = y.shape[0]
         dt0    = 1.0 / (T - 1)
         c      = self.encode(y)
-        n_segs = (T + seg_length - 1) // seg_length
+        n_segs = (T - 1) // seg_length
         ts_all = jnp.linspace(0.0, 1.0, T)
+
+        if use_custom_solver:
+            def simulate_segment(k_seg, p_key):
+                start  = k_seg * seg_length
+                end    = start + seg_length + 1
+                t0_seg = start * dt0
+                t1_seg = (end - 1) * dt0
+                ts_seg = jnp.linspace(t0_seg, t1_seg, seg_length + 1)
+                return self._integrate_custom(
+                    x[start], ts_seg, c, p_key, solver_name, diffusion_temp
+                )
+
+            def run_one_particle(p_key):
+                seg_keys = jr.split(p_key, n_segs)
+                segs     = [simulate_segment(k, seg_keys[k]) for k in range(n_segs)]
+                pieces   = [segs[0]] + [seg[1:] for seg in segs[1:]]
+                return jnp.concatenate(pieces, axis=0)[:T]
+
+            return jax.vmap(run_one_particle)(jr.split(key, n_particles))
+
         c_interp          = diffrax.LinearInterpolation(ts=ts_all, ys=c)
         drift_fn, diff_fn = self._build_terms(c_interp, diffusion_temp)
         solver            = _get_diffrax_solver(solver_name)
@@ -1004,45 +931,6 @@ class NICEFlowSDE(eqx.Module):
 # ---------------------------------------------------------------------------
 
 @eqx.filter_jit
-def make_step_nice_stepwise(
-    model:     NICEFlowSDE,
-    x_batch:   jnp.ndarray,
-    y_batch:   jnp.ndarray,
-    opt_state,
-    optimizer,
-    diffusion_reg_weight: float = 0.0,
-):
-    """Per-step NLL training (NICE inverse, no SDE integration)."""
-    loss_fn = lambda m: (
-        m.nll_stepwise(x_batch, y_batch)
-        + diffusion_reg_weight * m.diffusion_regularization(x_batch, y_batch)
-    )
-    loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
-    updates, opt_state_new = optimizer.update(grads, opt_state, model)
-    return eqx.apply_updates(model, updates), opt_state_new, loss
-
-
-@eqx.filter_jit
-def make_step_nice_stepwise_ms(
-    model:      NICEFlowSDE,
-    x_batch:    jnp.ndarray,
-    y_batch:    jnp.ndarray,
-    seg_length: int,
-    opt_state,
-    optimizer,
-    diffusion_reg_weight: float = 0.0,
-):
-    """Multiple-shooting per-step NLL training."""
-    loss_fn = lambda m: (
-        m.nll_stepwise_ms(x_batch, y_batch, seg_length)
-        + diffusion_reg_weight * m.diffusion_regularization(x_batch, y_batch)
-    )
-    loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
-    updates, opt_state_new = optimizer.update(grads, opt_state, model)
-    return eqx.apply_updates(model, updates), opt_state_new, loss
-
-
-@eqx.filter_jit
 def make_step_nice_pathwise(
     model:            NICEFlowSDE,
     x_batch:          jnp.ndarray,
@@ -1053,7 +941,6 @@ def make_step_nice_pathwise(
     optimizer,
     solver_name:      str = "heun",
     use_custom_solver: bool = False,
-    diffusion_reg_weight: float = 0.0,
 ):
     """
     Path-wise training step.
@@ -1071,7 +958,6 @@ def make_step_nice_pathwise(
         m.nll_pathwise(
             x_batch, y_batch, key, seg_length, solver_name, use_custom_solver
         )
-        + diffusion_reg_weight * m.diffusion_regularization(x_batch, y_batch)
     )
     loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
     updates, opt_state_new = optimizer.update(grads, opt_state, model)

@@ -29,7 +29,7 @@ echo "Using Python: $PYTHON  ($($PYTHON --version))"
 echo "CUDA devices: $CUDA_VISIBLE_DEVICES"
 
 # ---------------------------------------------------------------------------
-# Improved SI: masked source distribution + ỹ-conditioned velocity/score nets
+# Improved SI: masked source + ỹ-conditioned nets + scaled-score SDE drift
 #   Observed dims  : z_0 = ỹ (tight, deterministic source)
 #   Unobserved dims: z_0 ~ N(0,1) per particle (diverse Gaussian prior)
 #   vel_net / score_net both see ỹ explicitly as conditioning signal
@@ -46,25 +46,26 @@ NOISE_ARGS="
     --gmm_stds 0.50,1.50,1.50"
 
 ARCH_ARGS="
-    --d_c 128 --d_hidden_enc 128
+    --d_c 128
     --d_hidden 256 --n_heads 4 --depth 4
     --time_emb_dim 32"
 
 EVAL_ARGS="
     $DATA_ARGS $NOISE_ARGS
-    --d_c 128 --d_hidden 256 --n_heads 4 --depth 4
-    --time_emb_dim 32
-    --sigma_0 1.0 --g0 0.5 --score_weight 1.0 --s_min 0.02
-    --interpolant_type linear
+    $ARCH_ARGS
+    --sigma_0 1.0 --g0 0.5
+    --score_weight 0.25 --lifter_loss_weight 0.1 --score_sigma_floor 0.05
+    --s_min 0.02
+    --interpolant_type cosine
     --seed 0
     --n_eval 100 --n_plot_seqs 6
-    --n_particles 200 --n_steps 100
+    --n_particles 200 --n_steps 25
     --ci 90.0 --t_hist 0.5
     --sampler segmented"
 
 for SEG in 5 10 20 25; do
     echo "========================================"
-    echo "  SI  seg_len=${SEG}  linear interpolant  masked-source  ỹ-conditioned"
+    echo "  SI  seg_len=${SEG}  cosine interpolant  scaled-score drift"
     echo "========================================"
 
     $PYTHON -m bayesinf.applications.state_estimation.eval_si_lorenz96 \

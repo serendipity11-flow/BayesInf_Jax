@@ -34,7 +34,7 @@ import jax
 import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
-from typing import Tuple
+from typing import Optional, Tuple
 
 from bayesinf.applications.state_estimation.amortized_state_flow import (
     StateConditionEncoder,
@@ -42,6 +42,7 @@ from bayesinf.applications.state_estimation.amortized_state_flow import (
 from bayesinf.applications.state_estimation.pointwise_state_flow import (
     build_flow_transforms,
 )
+from bayesinf.models.flow_matching import VectorField as FlowMatchingVectorField
 from bayesinf.models.normalizing_flow import ActNorm, RandomPermutation, MAFLayer
 
 
@@ -107,7 +108,7 @@ class LatentSSMFlow(eqx.Module):
                    'pointwise' — each step t is conditioned only on (y_t, u_t)
                    via a small MLP; no future information leaks into cond_t.
                    Temporal context comes entirely from the SSM and x_{t-1}.
-    flow_type    : 'realnvp' | 'nsf' | 'maf'
+    flow_type    : 'realnvp' | 'nsf' | 'maf' | 'fm'
     n_coupling   : number of flow coupling blocks
     hidden_size  : MLP hidden width (flow)
     d_enc        : hidden width of the pointwise encoder MLP
@@ -117,6 +118,7 @@ class LatentSSMFlow(eqx.Module):
 
     encoder:    object   # StateConditionEncoder  OR  eqx.nn.MLP (pointwise)
     transforms: list
+    vector_field: Optional[FlowMatchingVectorField]
 
     F:      jnp.ndarray   # (d_x, d_x)  transition matrix (raw; use F_stable)
     G_chol: jnp.ndarray   # (d_x, d_x)  lower-tri Cholesky of Q = G Gᵀ
@@ -128,6 +130,7 @@ class LatentSSMFlow(eqx.Module):
     seg_len:    int   = eqx.field(static=True)
     max_rho:    float = eqx.field(static=True)
     pointwise:  bool  = eqx.field(static=True)
+    flow_type:  str   = eqx.field(static=True)
 
     def __init__(
         self,
@@ -139,6 +142,7 @@ class LatentSSMFlow(eqx.Module):
         seg_len:      int        = 0,   # 0 = full sequence (no segmentation)
         encoder_type: str        = "transformer",
         local_window: bool       = False,
+        local_window_prev_only: bool = False,
         gru_hidden:   int        = 64,
         d_model:      int        = 64,
         n_heads:      int        = 4,
@@ -159,6 +163,7 @@ class LatentSSMFlow(eqx.Module):
         self.seg_len  = seg_len
         self.max_rho  = max_rho
         self.pointwise = (encoder_type == "pointwise")
+        self.flow_type = flow_type.lower()
 
         k_enc, k_flow, k_F, k_G = jr.split(key, 4)
 
@@ -185,6 +190,7 @@ class LatentSSMFlow(eqx.Module):
                 key          = k_enc,
                 encoder_type = encoder_type,
                 local_window = local_window,
+                local_window_prev_only = local_window_prev_only,
                 gru_hidden   = gru_hidden,
                 d_model      = d_model,
                 n_heads      = n_heads,
@@ -192,17 +198,26 @@ class LatentSSMFlow(eqx.Module):
                 n_layers     = n_layers,
             )
 
-        # ── Conditional flow: z_t ↔ x_t | [x_{t-1}, cond_t] ─────────────
-        self.transforms = build_flow_transforms(
-            input_dim   = d_x,
-            cond_dim    = d_out + d_x,   # encoder output + previous state
-            n_blocks    = n_coupling,
-            hidden_size = hidden_size,
-            n_hidden    = n_hidden,
-            flow_type   = flow_type,
-            key         = k_flow,
-            num_bins    = num_bins,
-        )
+        # ── Conditional decoder: z_t ↔ x_t | [x_{t-1}, cond_t] ──────────
+        # Normalizing-flow variants use exact change of variables. FM learns
+        # an ODE vector field from latent SSM samples z_t to data states x_t.
+        if self.flow_type == "fm":
+            self.transforms = []
+            self.vector_field = FlowMatchingVectorField(
+                d_x, d_out + d_x, hidden_size, n_hidden, k_flow
+            )
+        else:
+            self.transforms = build_flow_transforms(
+                input_dim   = d_x,
+                cond_dim    = d_out + d_x,   # encoder output + previous state
+                n_blocks    = n_coupling,
+                hidden_size = hidden_size,
+                n_hidden    = n_hidden,
+                flow_type   = self.flow_type,
+                key         = k_flow,
+                num_bins    = num_bins,
+            )
+            self.vector_field = None
 
         # ── Linear Gaussian SSM ───────────────────────────────────────────
         # F init: ρ=0.8 diagonal — faster decay suited to chaotic systems
@@ -306,6 +321,62 @@ class LatentSSMFlow(eqx.Module):
         )
         return lp_z1 + jnp.sum(lp_trans)
 
+    def _sample_ssm_prior(self, key: jr.PRNGKey, T: int) -> jnp.ndarray:
+        """Draw one latent trajectory z_{1:T} from the linear Gaussian SSM."""
+        F = self.F_stable
+        G_L = self.G_chol_pd
+        L_inf = jnp.linalg.cholesky(self.P_inf + 1e-6 * jnp.eye(self.d_x))
+        keys_z = jr.split(key, T)
+        z1 = L_inf @ jr.normal(keys_z[0], (self.d_x,))
+
+        def ssm_step(z_p, k_i):
+            z_t = F @ z_p + G_L @ jr.normal(k_i, (self.d_x,))
+            return z_t, z_t
+
+        _, z_rest = jax.lax.scan(ssm_step, z1, keys_z[1:])
+        return jnp.concatenate([z1[None], z_rest], axis=0)
+
+    def _fm_decode_step(
+        self,
+        z:      jnp.ndarray,   # (d_x,)
+        x_prev: jnp.ndarray,   # (d_x,)
+        cond:   jnp.ndarray,   # (d_out,)
+        steps:  int = 100,
+    ) -> jnp.ndarray:
+        """Decode one latent state with Euler integration of the FM ODE."""
+        c = jnp.concatenate([x_prev, cond])
+        dt = 1.0 / steps
+        vf = self.vector_field
+
+        def step(x_curr, i):
+            t = i * dt
+            v = vf(t, x_curr, c)
+            return x_curr + v * dt, None
+
+        x1, _ = jax.lax.scan(step, z, jnp.arange(steps))
+        return x1
+
+    def _fm_loss_segment(
+        self,
+        x_seg:    jnp.ndarray,   # (T, d_x)
+        cond_seg: jnp.ndarray,   # (T, d_out)
+        x_start:  jnp.ndarray,   # (d_x,)
+        key:      jr.PRNGKey,
+    ) -> jnp.ndarray:
+        """Flow-matching MSE for one segment, pairing SSM latents with states."""
+        T = x_seg.shape[0]
+        z0 = self._sample_ssm_prior(key, T)
+        x_prev = jnp.concatenate([x_start[None], x_seg[:-1]], axis=0)
+        c = jnp.concatenate([x_prev, cond_seg], axis=-1)
+
+        kt = jr.fold_in(key, 1)
+        t = jr.uniform(kt, (T,))
+        t_b = t[:, None]
+        z_t = (1.0 - t_b) * z0 + t_b * x_seg
+        v_target = x_seg - z0
+        v_pred = jax.vmap(self.vector_field)(t, z_t, c)
+        return jnp.mean((v_pred - v_target) ** 2)
+
     # ------------------------------------------------------------------
     # Internal: encode one segment  (parallel vmap over seg_len steps)
     # ------------------------------------------------------------------
@@ -347,6 +418,7 @@ class LatentSSMFlow(eqx.Module):
         u:  jnp.ndarray,   # (T, d_u)
         x0: jnp.ndarray,   # (d_x,)
     ) -> jnp.ndarray:
+        assert self.flow_type != "fm", "log_prob not available for FM; use nll_loss with a key."
         T    = x.shape[0]
         cond = self._encode(y, u, x0)   # (T, d_out)
         seg  = self.seg_len
@@ -382,11 +454,47 @@ class LatentSSMFlow(eqx.Module):
         y:  jnp.ndarray,   # (M, T, d_y)
         u:  jnp.ndarray,   # (M, T, d_u)
         x0: jnp.ndarray,   # (M, d_x)
+        key: Optional[jr.PRNGKey] = None,
     ) -> jnp.ndarray:
-        """Batch NLL: -mean_M [ (1/T) log p(x_{1:T}) ]."""
+        """Batch loss. NF: NLL. FM: flow-matching MSE."""
+        if self.flow_type == "fm":
+            assert key is not None, "FM loss requires a PRNG key."
+            return self.fm_loss(x, y, u, x0, key)
         T         = x.shape[1]
         log_probs = jax.vmap(self.log_prob)(x, y, u, x0)
         return -jnp.mean(log_probs) / T
+
+    def fm_loss(
+        self,
+        x:  jnp.ndarray,   # (M, T, d_x)
+        y:  jnp.ndarray,   # (M, T, d_y)
+        u:  jnp.ndarray,   # (M, T, d_u)
+        x0: jnp.ndarray,   # (M, d_x)
+        key: jr.PRNGKey,
+    ) -> jnp.ndarray:
+        """Batch flow-matching loss for the latent SSM decoder."""
+        M, T, _ = x.shape
+        cond = jax.vmap(self._encode)(y, u, x0)  # (M, T, d_out)
+        seg = self.seg_len
+
+        if seg <= 0 or T <= seg:
+            keys = jr.split(key, M)
+            losses = jax.vmap(self._fm_loss_segment)(x, cond, x0, keys)
+            return jnp.mean(losses)
+
+        n_segs = T // seg
+        T_eff = n_segs * seg
+        seg_starts = jnp.concatenate(
+            [x0[:, None], x[:, seg - 1 : T_eff - 1 : seg]], axis=1
+        )  # (M, n_segs, d_x)
+        x_segs = x[:, :T_eff].reshape(M, n_segs, seg, self.d_x)
+        cond_segs = cond[:, :T_eff].reshape(M, n_segs, seg, self.d_out)
+        keys = jr.split(key, M * n_segs).reshape(M, n_segs, 2)
+        losses = jax.vmap(
+            jax.vmap(self._fm_loss_segment, in_axes=(0, 0, 0, 0)),
+            in_axes=(0, 0, 0, 0),
+        )(x_segs, cond_segs, seg_starts, keys)
+        return jnp.mean(losses)
 
     # ------------------------------------------------------------------
     # Entropy regularizer
@@ -519,6 +627,7 @@ class LatentSSMFlow(eqx.Module):
         x0: jnp.ndarray,
     ) -> jnp.ndarray:
         """x_t → z_t → x̂_t using true x_prev.  Should be ~identity."""
+        assert self.flow_type != "fm", "reconstruct is only exact for normalizing-flow variants."
         T    = x.shape[0]
         cond = self._encode(y, u, x0)
         seg  = self.seg_len
@@ -600,7 +709,10 @@ class LatentSSMFlow(eqx.Module):
 
                 def decode_step(x_p, inputs):
                     zt, ct = inputs
-                    xt, _ = _flow_inv_single(self.transforms, zt, x_p, ct)
+                    if self.flow_type == "fm":
+                        xt = self._fm_decode_step(zt, x_p, ct)
+                    else:
+                        xt, _ = _flow_inv_single(self.transforms, zt, x_p, ct)
                     return xt, xt
                 _, x_traj = jax.lax.scan(decode_step, x0, (z_all, cond))
                 return x_traj
@@ -627,10 +739,15 @@ class LatentSSMFlow(eqx.Module):
                 seg_keys = jr.split(k, n_segs)
 
                 def sample_and_decode_seg(seg_key, x_start, x_first, cond_s):
-                    # Encode true first state → z_0 (deterministic anchor)
-                    z0, _ = _flow_fwd_single(
-                        self.transforms, x_first, x_start, cond_s[0]
-                    )
+                    # NF can encode the true first state as a deterministic
+                    # anchor. FM has no inverse, so it samples z_0 from the SSM.
+                    if self.flow_type == "fm":
+                        L_inf = jnp.linalg.cholesky(self.P_inf + 1e-6 * jnp.eye(self.d_x))
+                        z0 = L_inf @ jr.normal(jr.fold_in(seg_key, 0), (self.d_x,))
+                    else:
+                        z0, _ = _flow_fwd_single(
+                            self.transforms, x_first, x_start, cond_s[0]
+                        )
                     # SSM runs forward from z_0 with noise for the remaining steps
                     step_keys = jr.split(seg_key, seg - 1)
                     def ssm_step(z_p, k_i):
@@ -641,7 +758,10 @@ class LatentSSMFlow(eqx.Module):
 
                     # Autoregressive decode: x̂_0 ≈ x_first, then propagate
                     def decode_step(x_p, inp):
-                        xt, _ = _flow_inv_single(self.transforms, inp[0], x_p, inp[1])
+                        if self.flow_type == "fm":
+                            xt = self._fm_decode_step(inp[0], x_p, inp[1])
+                        else:
+                            xt, _ = _flow_inv_single(self.transforms, inp[0], x_p, inp[1])
                         return xt, xt
                     _, x_s = jax.lax.scan(decode_step, x_start, (z_s, cond_s))
                     return x_s  # (seg, d_x)
@@ -671,7 +791,10 @@ class LatentSSMFlow(eqx.Module):
                 z_s = jnp.concatenate([z1[None], z_rest], axis=0)
 
                 def decode_step(x_p, inp):
-                    xt, _ = _flow_inv_single(self.transforms, inp[0], x_p, inp[1])
+                    if self.flow_type == "fm":
+                        xt = self._fm_decode_step(inp[0], x_p, inp[1])
+                    else:
+                        xt, _ = _flow_inv_single(self.transforms, inp[0], x_p, inp[1])
                     return xt, xt
                 _, x_s = jax.lax.scan(decode_step, x_start, (z_s, cond_s))
                 return x_s

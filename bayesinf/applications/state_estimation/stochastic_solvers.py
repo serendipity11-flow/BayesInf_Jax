@@ -5,8 +5,8 @@ This module implements stochastic differential equation (SDE) solvers that
 use NICE (Non-linear Independent Components Estimation) normalizing flows
 to model the diffusion term.
 
-The SDE form is:
-    dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, z_t, c_t, t)
+The custom solver form is:
+    dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, z_t, c_t, t) sqrt(dt)
 
 where:
     - f_θ is the neural drift function
@@ -34,6 +34,11 @@ from typing import Callable, Optional, Tuple, NamedTuple
 from functools import partial
 
 
+def _positive_dt(t0: float, t1: float) -> jnp.ndarray:
+    """Return a strictly positive step size for stable sqrt(dt)."""
+    return jnp.maximum(t1 - t0, 1e-12)
+
+
 # -----------------------------------------------------------------------------
 # Brownian Motion Utilities
 # -----------------------------------------------------------------------------
@@ -52,6 +57,7 @@ class BrownianIncrement(eqx.Module):
     
     def sample(self, key: jr.PRNGKey, dt: float) -> jnp.ndarray:
         """Sample dW ~ N(0, dt * I)."""
+        dt = jnp.maximum(dt, 1e-12)
         return jr.normal(key, self.shape) * jnp.sqrt(dt)
     
     def sample_multiple(self, key: jr.PRNGKey, dt: float, n: int) -> jnp.ndarray:
@@ -96,9 +102,7 @@ class VirtualBrownianTree(eqx.Module):
         
         Returns dW ~ N(0, (t1 - t0) * I)
         """
-        dt = t1 - t0
-        if dt <= 0:
-            return jnp.zeros(self.shape)
+        dt = max(float(t1 - t0), self.tol)
         
         # Use a derived key for this specific interval
         # Hash the interval endpoints to get a consistent key
@@ -167,7 +171,7 @@ class EulerMaruyama(StochasticSolver):
     Euler-Maruyama solver (strong order 0.5).
     
     Update:
-        z_{t+1} = z_t + f(z_t, t) * dt + G_φ(dW_t, z_t, t)
+        z_{t+1} = z_t + f(z_t, t) * dt + G_φ(dW_t, z_t, t) * sqrt(dt)
     
     where dW_t ~ N(0, dt * I) and G_φ is the NICE flow.
     
@@ -183,11 +187,12 @@ class EulerMaruyama(StochasticSolver):
         diffuse_fn: Callable[[float, jnp.ndarray, jnp.ndarray], jnp.ndarray],
         bm,
     ) -> jnp.ndarray:
-        dt = t1 - t0
+        dt = _positive_dt(t0, t1)
+        dt_sqrt = jnp.sqrt(dt)
         f0 = drift_fn(t0, z)
         dw = bm.evaluate(t0, t1) if hasattr(bm, 'evaluate') else bm.sample(jr.PRNGKey(0), dt)
         g0 = diffuse_fn(t0, z, dw)
-        return z + f0 * dt + g0
+        return z + f0 * dt + g0 * dt_sqrt
     
     def name(self) -> str:
         return "EulerMaruyama"
@@ -210,7 +215,7 @@ class EulerMaruyamaWithGradient(StochasticSolver):
         diffuse_fn: Callable[[float, jnp.ndarray, jnp.ndarray], jnp.ndarray],
         bm,
     ) -> jnp.ndarray:
-        dt = t1 - t0
+        dt = _positive_dt(t0, t1)
         dt_sqrt = jnp.sqrt(dt)
         
         f0 = drift_fn(t0, z)
@@ -218,7 +223,7 @@ class EulerMaruyamaWithGradient(StochasticSolver):
         
         # Standard Euler step
         g0 = diffuse_fn(t0, z, dw)
-        z_new = z + f0 * dt + g0
+        z_new = z + f0 * dt + g0 * dt_sqrt
         
         # Add Milstein correction if diffusion is differentiable
         # This term is: 0.5 * sum_j (∂G_i/∂z_j * dW_j * dt)
@@ -238,9 +243,9 @@ class StochasticHeun(StochasticSolver):
     Stochastic Heun solver (strong order 1.0 for additive noise).
     
     Update:
-        z_p = z + f(z, t) * dt + G_φ(dW, z, t)  (predictor)
-        z_{t+1} = z + 0.5 * (f(z, t) + f(z_p, t1)) * dt 
-                  + 0.5 * (G_φ(dW, z, t) + G_φ(dW, z_p, t1))  (corrector)
+        z_p = z + f(z, t) * dt + G_φ(dW, z, t) * sqrt(dt)
+        z_{t+1} = z + 0.5 * (f0 + f1) * dt
+                    + 0.5 * (g0 + g1) * sqrt(dt)
     
     The same dW is used for both predictor and corrector steps.
     """
@@ -254,7 +259,8 @@ class StochasticHeun(StochasticSolver):
         diffuse_fn: Callable[[float, jnp.ndarray, jnp.ndarray], jnp.ndarray],
         bm,
     ) -> jnp.ndarray:
-        dt = t1 - t0
+        dt = _positive_dt(t0, t1)
+        dt_sqrt = jnp.sqrt(dt)
         
         # Evaluate at t0
         f0 = drift_fn(t0, z)
@@ -262,14 +268,14 @@ class StochasticHeun(StochasticSolver):
         g0 = diffuse_fn(t0, z, dw)
         
         # Predictor step
-        z_p = z + f0 * dt + g0
+        z_p = z + f0 * dt + g0 * dt_sqrt
         
         # Evaluate at t1 using predicted state
         f1 = drift_fn(t1, z_p)
         g1 = diffuse_fn(t1, z_p, dw)
         
         # Corrector step (average of start and end)
-        return z + 0.5 * (f0 + f1) * dt + 0.5 * (g0 + g1)
+        return z + 0.5 * (f0 + f1) * dt + 0.5 * (g0 + g1) * dt_sqrt
     
     def name(self) -> str:
         return "StochasticHeun"
@@ -292,19 +298,20 @@ class ReversibleHeun(StochasticSolver):
         diffuse_fn: Callable[[float, jnp.ndarray, jnp.ndarray], jnp.ndarray],
         bm,
     ) -> jnp.ndarray:
-        dt = t1 - t0
+        dt = _positive_dt(t0, t1)
+        dt_sqrt = jnp.sqrt(dt)
         
         f0 = drift_fn(t0, z)
         dw = bm.evaluate(t0, t1) if hasattr(bm, 'evaluate') else bm.sample(jr.PRNGKey(0), dt)
         g0 = diffuse_fn(t0, z, dw)
         
         # Store intermediate values for potential reversal
-        z_p = z + f0 * dt + g0
+        z_p = z + f0 * dt + g0 * dt_sqrt
         
         f1 = drift_fn(t1, z_p)
         g1 = diffuse_fn(t1, z_p, dw)
         
-        return z + 0.5 * (f0 + f1) * dt + 0.5 * (g0 + g1)
+        return z + 0.5 * (f0 + f1) * dt + 0.5 * (g0 + g1) * dt_sqrt
     
     def name(self) -> str:
         return "ReversibleHeun"
@@ -319,8 +326,8 @@ class Milstein(StochasticSolver):
     Milstein solver (strong order 1.0).
     
     The Milstein method adds a correction term to Euler-Maruyama:
-        z_{t+1} = z_t + f(z_t, t) * dt + G_φ(dW, z_t, t) 
-                  + 0.5 * L G_φ(z_t, t) * (dW^2 - dt)
+        z_{t+1} = z_t + f(z_t, t) * dt + G_φ(dW, z_t, t) * sqrt(dt)
+                  + 0.5 * L G_φ(z_t, t) * (dW^2 - dt) * dt
     
     where L is the Lie derivative of the diffusion field.
     
@@ -340,7 +347,7 @@ class Milstein(StochasticSolver):
         diffuse_fn: Callable[[float, jnp.ndarray, jnp.ndarray], jnp.ndarray],
         bm,
     ) -> jnp.ndarray:
-        dt = t1 - t0
+        dt = _positive_dt(t0, t1)
         dt_sqrt = jnp.sqrt(dt)
         
         f0 = drift_fn(t0, z)
@@ -350,7 +357,7 @@ class Milstein(StochasticSolver):
         g0 = diffuse_fn(t0, z, dw)
         
         # Euler-Maruyama base
-        z_new = z + f0 * dt + g0
+        z_new = z + f0 * dt + g0 * dt_sqrt
         
         # Milstein correction term
         if self.use_gradient_correction:
@@ -387,9 +394,9 @@ class StochasticMidpoint(StochasticSolver):
     Stochastic Midpoint solver.
     
     Uses midpoint approximation for both drift and diffusion:
-        z_{t+1} = z_t + f(z_mid, t_mid) * dt + G_φ(dW, z_mid, t_mid)
+        z_{t+1} = z_t + f(z_mid, t_mid) * dt + G_φ(dW, z_mid, t_mid) * sqrt(dt)
     
-    where z_mid = z_t + 0.5 * f(z_t, t) * dt + 0.5 * G_φ(dW, z_t, t)
+    where z_mid = z_t + 0.5 * (f(z_t, t) * dt + G_φ(dW, z_t, t) * sqrt(dt))
     
     This provides better stability for stiff systems.
     """
@@ -403,7 +410,8 @@ class StochasticMidpoint(StochasticSolver):
         diffuse_fn: Callable[[float, jnp.ndarray, jnp.ndarray], jnp.ndarray],
         bm,
     ) -> jnp.ndarray:
-        dt = t1 - t0
+        dt = _positive_dt(t0, t1)
+        dt_sqrt = jnp.sqrt(dt)
         t_mid = 0.5 * (t0 + t1)
         
         # Evaluate at t0
@@ -412,13 +420,13 @@ class StochasticMidpoint(StochasticSolver):
         g0 = diffuse_fn(t0, z, dw)
         
         # Midpoint approximation
-        z_mid = z + 0.5 * f0 * dt + 0.5 * g0
+        z_mid = z + 0.5 * (f0 * dt + g0 * dt_sqrt)
         
         # Evaluate at midpoint
         f_mid = drift_fn(t_mid, z_mid)
         g_mid = diffuse_fn(t_mid, z_mid, dw)
         
-        return z + f_mid * dt + g_mid
+        return z + f_mid * dt + g_mid * dt_sqrt
     
     def name(self) -> str:
         return "StochasticMidpoint"
@@ -457,16 +465,18 @@ class AdaptiveEulerMaruyama(StochasticSolver):
         diffuse_fn: Callable[[float, jnp.ndarray, jnp.ndarray], jnp.ndarray],
         bm,
     ) -> jnp.ndarray:
-        dt = t1 - t0
+        dt = _positive_dt(t0, t1)
+        dt_sqrt = jnp.sqrt(dt)
         
         # Take two half steps vs one full step
         dt_half = dt / 2
+        dt_half_sqrt = jnp.sqrt(dt_half)
         
         # Full step
         f0 = drift_fn(t0, z)
         dw = bm.evaluate(t0, t1) if hasattr(bm, 'evaluate') else bm.sample(jr.PRNGKey(0), dt)
         g0 = diffuse_fn(t0, z, dw)
-        z_full = z + f0 * dt + g0
+        z_full = z + f0 * dt + g0 * dt_sqrt
         
         # Two half steps (with same Brownian increment split)
         dw_half = dw / jnp.sqrt(2)  # Scale for half step
@@ -474,13 +484,13 @@ class AdaptiveEulerMaruyama(StochasticSolver):
         # First half step
         f0_half = drift_fn(t0, z)
         g0_half = diffuse_fn(t0, z, dw_half)
-        z_mid = z + f0_half * dt_half + g0_half
+        z_mid = z + f0_half * dt_half + g0_half * dt_half_sqrt
         
         # Second half step
         t_mid = t0 + dt_half
         f_mid = drift_fn(t_mid, z_mid)
         g_mid = diffuse_fn(t_mid, z_mid, dw_half)
-        z_two_half = z_mid + f_mid * dt_half + g_mid
+        z_two_half = z_mid + f_mid * dt_half + g_mid * dt_half_sqrt
         
         # Error estimate (difference between full and two-half)
         error = jnp.linalg.norm(z_full - z_two_half)
@@ -517,7 +527,7 @@ class StochasticRK4(StochasticSolver):
         diffuse_fn: Callable[[float, jnp.ndarray, jnp.ndarray], jnp.ndarray],
         bm,
     ) -> jnp.ndarray:
-        dt = t1 - t0
+        dt = _positive_dt(t0, t1)
         dt_sqrt = jnp.sqrt(dt)
         
         # Get Brownian increment
@@ -528,23 +538,23 @@ class StochasticRK4(StochasticSolver):
         g1 = diffuse_fn(t0, z, dw)
         
         # Stage 2
-        z2 = z + f1 * dt * 0.5 + g1 * 0.5
+        z2 = z + 0.5 * (f1 * dt + g1 * dt_sqrt)
         f2 = drift_fn(t0 + dt * 0.5, z2)
         g2 = diffuse_fn(t0 + dt * 0.5, z2, dw)
         
         # Stage 3 (uses same dW as stages 1-2 for consistency)
-        z3 = z + f2 * dt * 0.5 + g2 * 0.5
+        z3 = z + 0.5 * (f2 * dt + g2 * dt_sqrt)
         f3 = drift_fn(t0 + dt * 0.5, z3)
         g3 = diffuse_fn(t0 + dt * 0.5, z3, dw)
         
         # Stage 4
-        z4 = z + f3 * dt + g3
+        z4 = z + f3 * dt + g3 * dt_sqrt
         f4 = drift_fn(t1, z4)
         g4 = diffuse_fn(t1, z4, dw)
         
-        # Combine stages (deterministic weights for drift)
-        # For diffusion, we use the average
-        z_new = z + (f1 + 2*f2 + 2*f3 + f4) * dt / 6 + (g1 + g2 + g3 + g3) / 4
+        # Combine stages with drift scaled by dt and diffusion by sqrt(dt).
+        z_new = z + (f1 + 2 * f2 + 2 * f3 + f4) * dt / 6
+        z_new = z_new + (g1 + 2 * g2 + 2 * g3 + g4) * dt_sqrt / 6
         
         return z_new
     

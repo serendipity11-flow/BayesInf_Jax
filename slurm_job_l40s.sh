@@ -1,7 +1,7 @@
 #!/bin/bash
 # Job name:
 #SBATCH --account=Mitarbeiter
-#SBATCH --job-name=latent_ssm_flow
+#SBATCH --job-name=pointwise_state_flow
 #SBATCH --partition=l40s
 #SBATCH --mail-type=END,INVALID_DEPEND
 #SBATCH --mail-user=yi.zhang@uni-a.de
@@ -21,38 +21,17 @@ export PYTHONNOUSERSITE=1
 export PYTHONPATH=/home/zhangyi/bayesinf_jax:$PYTHONPATH
 python3.12 -c "import sys; print(sys.path)"
 
-python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
-    --train \
-    --flow_type fm \
-    --encoder_type transformer \
-    --seg_len 5 \
-    --learning_rate 1e-3 \
-    --grad_norm 1.0 \
-    --patience 30 \
-
-python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
-    --train \
-    --flow_type fm \
-    --encoder_type transformer \
-    --seg_len 10 \
-    --learning_rate 1e-3 \
-    --grad_norm 1.0 \
-    --patience 30 \
-
-python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
-    --train \
-    --flow_type fm \
-    --encoder_type transformer \
-    --seg_len 15 \
-    --learning_rate 1e-3 \
-    --grad_norm 1.0 \
-    --patience 30 \
-
-python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
-    --train \
-    --flow_type fm \
-    --encoder_type transformer \
-    --seg_len 20 \
-    --learning_rate 1e-3 \
-    --grad_norm 1.0 \
-    --patience 30 \
+for FLOW_TYPE in fm realnvp nsf; do
+    echo "Training PointwiseStateFlow: flow_type=${FLOW_TYPE}, encoder=transformer, seg_len=25"
+    python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+        --train \
+        --flow_type "${FLOW_TYPE}" \
+        --encoder_type transformer \
+        --seg_len 25 \
+        --N 12 \
+        --obs_interval 2 \
+        --obs_std 0.5 \
+        --learning_rate 1e-3 \
+        --grad_norm 1.0 \
+        --patience 30
+done

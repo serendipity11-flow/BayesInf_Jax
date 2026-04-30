@@ -218,6 +218,7 @@ class StochasticInterpolantSE(eqx.Module):
     g0:                 float = eqx.field(static=True)
     score_weight:       float = eqx.field(static=True)
     lifter_loss_weight: float = eqx.field(static=True)
+    score_sigma_floor:  float = eqx.field(static=True)
     s_min:              float = eqx.field(static=True)
     interpolant_type:   str   = eqx.field(static=True)
 
@@ -233,10 +234,11 @@ class StochasticInterpolantSE(eqx.Module):
         obs_interval:       int   = 2,
         sigma_0:            float = 1.0,
         g0:                 float = 0.5,
-        score_weight:       float = 1.0,
-        lifter_loss_weight: float = 0.5,
+        score_weight:       float = 0.25,
+        lifter_loss_weight: float = 0.1,
+        score_sigma_floor:  float = 0.05,
         s_min:              float = 0.02,
-        interpolant_type:   str   = "linear",
+        interpolant_type:   str   = "cosine",
         key:                jr.PRNGKey = jr.PRNGKey(0),
     ):
         if interpolant_type not in ("cosine", "linear"):
@@ -249,6 +251,7 @@ class StochasticInterpolantSE(eqx.Module):
         self.g0             = g0
         self.score_weight   = score_weight
         self.lifter_loss_weight = lifter_loss_weight
+        self.score_sigma_floor  = score_sigma_floor
         self.s_min          = s_min
         self.interpolant_type = interpolant_type
 
@@ -341,6 +344,11 @@ class StochasticInterpolantSE(eqx.Module):
         else:  # linear
             return self._sigma_dot_linear(s)
 
+    def _unscale_score(self, scaled_score: jnp.ndarray, s: jnp.ndarray) -> jnp.ndarray:
+        """Convert the sigma-scaled score target (-eps) into an actual score."""
+        sig = jnp.maximum(self._sigma(s), self.score_sigma_floor)
+        return scaled_score / sig
+
     # ------------------------------------------------------------------
     # Observed-dimension mask  (static, derived from d_x and obs_interval)
     # ------------------------------------------------------------------
@@ -388,7 +396,10 @@ class StochasticInterpolantSE(eqx.Module):
         def em_step(z, inputs):
             s_i, noise_k = inputs
             v         = self.vel_net.traj(z, y_lift_seg, c_seg, s_i)
-            score     = self.score_net.traj(z, y_lift_seg, c_seg, s_i)
+            score     = self._unscale_score(
+                self.score_net.traj(z, y_lift_seg, c_seg, s_i),
+                s_i,
+            )
             drift     = v + g0 ** 2 * score
             diff_coef = g0 * jnp.sqrt(2.0 * self._sigma(s_i) + 1e-8)
             noise     = diff_coef * jr.normal(noise_k, z.shape) * jnp.sqrt(ds)
@@ -401,7 +412,7 @@ class StochasticInterpolantSE(eqx.Module):
     # Core loss primitive  (one segment, pre-computed context + lift)
     # ------------------------------------------------------------------
 
-    def _loss_seg(
+    def _loss_seg_components(
         self,
         x_seg:      jnp.ndarray,   # (L, d_x)  ground-truth state segment
         y_lift_seg: jnp.ndarray,   # (L, d_x)  lifted observation segment
@@ -434,7 +445,17 @@ class StochasticInterpolantSE(eqx.Module):
 
         l_lift = jnp.mean((y_lift_seg - x_seg) ** 2)
 
-        return l_flow + self.score_weight * l_score + self.lifter_loss_weight * l_lift
+        total = l_flow + self.score_weight * l_score + self.lifter_loss_weight * l_lift
+        return total, l_flow, l_score, l_lift
+
+    def _loss_seg(
+        self,
+        x_seg:      jnp.ndarray,
+        y_lift_seg: jnp.ndarray,
+        c_seg:      jnp.ndarray,
+        key:        jr.PRNGKey,
+    ) -> jnp.ndarray:
+        return self._loss_seg_components(x_seg, y_lift_seg, c_seg, key)[0]
 
     # ------------------------------------------------------------------
     # Full-trajectory training loss
@@ -446,11 +467,24 @@ class StochasticInterpolantSE(eqx.Module):
         y_lift = self.lifter(y, c)
         return self._loss_seg(x, y_lift, c, key)
 
+    def loss_single_components(self, x, y, key):
+        """Full-trajectory loss components for one (x, y) pair."""
+        c      = self.encoder(y)
+        y_lift = self.lifter(y, c)
+        return self._loss_seg_components(x, y_lift, c, key)
+
     def loss(self, x, y, key):
         """Batch full-trajectory loss. x: (B,T,d_x)  y: (B,T,d_y)."""
         B    = x.shape[0]
         keys = jr.split(key, B)
         return jnp.mean(jax.vmap(self.loss_single)(x, y, keys))
+
+    def loss_components(self, x, y, key):
+        """Batch full-trajectory loss plus diagnostic components."""
+        B    = x.shape[0]
+        keys = jr.split(key, B)
+        vals = jax.vmap(self.loss_single_components)(x, y, keys)
+        return tuple(jnp.mean(v) for v in vals)
 
     # ------------------------------------------------------------------
     # Multiple-shooting training loss
@@ -480,6 +514,30 @@ class StochasticInterpolantSE(eqx.Module):
         losses = jax.vmap(self._loss_seg)(x_segs, y_lift_segs, c_segs, keys)
         return jnp.mean(losses)
 
+    def loss_ms_single_components(
+        self,
+        x:       jnp.ndarray,
+        y:       jnp.ndarray,
+        key:     jr.PRNGKey,
+        seg_len: int,
+    ):
+        T      = x.shape[0]
+        n_segs = (T - 1) // seg_len
+        L      = seg_len + 1
+
+        c_full      = self.encoder(y)
+        y_lift_full = self.lifter(y, c_full)
+
+        seg_starts = (jnp.arange(n_segs) * seg_len).astype(jnp.int32)
+
+        x_segs      = jax.vmap(lambda s: jax.lax.dynamic_slice(x,          (s, 0), (L, self.d_x)))(seg_starts)
+        y_lift_segs = jax.vmap(lambda s: jax.lax.dynamic_slice(y_lift_full, (s, 0), (L, self.d_x)))(seg_starts)
+        c_segs      = jax.vmap(lambda s: jax.lax.dynamic_slice(c_full,      (s, 0), (L, self.d_c)))(seg_starts)
+
+        keys = jr.split(key, n_segs)
+        vals = jax.vmap(self._loss_seg_components)(x_segs, y_lift_segs, c_segs, keys)
+        return tuple(jnp.mean(v) for v in vals)
+
     def loss_ms_batch(self, x, y, key, seg_len):
         """Batch multiple-shooting loss."""
         B    = x.shape[0]
@@ -487,6 +545,15 @@ class StochasticInterpolantSE(eqx.Module):
         return jnp.mean(jax.vmap(
             lambda xi, yi, ki: self.loss_ms_single(xi, yi, ki, seg_len)
         )(x, y, keys))
+
+    def loss_ms_batch_components(self, x, y, key, seg_len):
+        """Batch multiple-shooting loss plus diagnostic components."""
+        B    = x.shape[0]
+        keys = jr.split(key, B)
+        vals = jax.vmap(
+            lambda xi, yi, ki: self.loss_ms_single_components(xi, yi, ki, seg_len)
+        )(x, y, keys)
+        return tuple(jnp.mean(v) for v in vals)
 
     # ------------------------------------------------------------------
     # Full-trajectory SDE sampler
@@ -668,11 +735,13 @@ def make_step_si(
     optimizer,
 ):
     """Full-trajectory training step."""
-    loss_fn = lambda m: m.loss(x_batch, y_batch, key)
-    loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
+    def loss_fn(m):
+        total, l_flow, l_score, l_lift = m.loss_components(x_batch, y_batch, key)
+        return total, (l_flow, l_score, l_lift)
+    (loss, components), grads = eqx.filter_value_and_grad(loss_fn, has_aux=True)(model)
     updates, opt_state_new = optimizer.update(grads, opt_state, model)
     model = eqx.apply_updates(model, updates)
-    return model, opt_state_new, loss
+    return model, opt_state_new, loss, components
 
 
 @eqx.filter_jit
@@ -686,8 +755,10 @@ def make_step_si_ms(
     optimizer,
 ):
     """Multiple-shooting training step."""
-    loss_fn = lambda m: m.loss_ms_batch(x_batch, y_batch, key, seg_len)
-    loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
+    def loss_fn(m):
+        total, l_flow, l_score, l_lift = m.loss_ms_batch_components(x_batch, y_batch, key, seg_len)
+        return total, (l_flow, l_score, l_lift)
+    (loss, components), grads = eqx.filter_value_and_grad(loss_fn, has_aux=True)(model)
     updates, opt_state_new = optimizer.update(grads, opt_state, model)
     model = eqx.apply_updates(model, updates)
-    return model, opt_state_new, loss
+    return model, opt_state_new, loss, components

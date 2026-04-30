@@ -16,6 +16,8 @@
 #SBATCH --qos=a30-gpu
 
 export PYTHONNOUSERSITE=1
+export MPLCONFIGDIR=${TMPDIR:-/tmp}/matplotlib-${USER}
+mkdir -p "$MPLCONFIGDIR"
 VENV_SITE=$HOME/myenv_312/lib/python3.12/site-packages
 export PYTHONPATH=/home/zhangyi/bayesinf_jax:$VENV_SITE:$PYTHONPATH
 if "$HOME/myenv_312/bin/python" -c 'import sys' >/dev/null 2>&1; then
@@ -48,11 +50,9 @@ ARCH_ARGS="
 TRAIN_ARGS="
     --batch_size 32
     --learning_rate 3e-4 --grad_norm 1.0 --weight_decay 1e-4
-    --diffusion_reg_weight 1e-3
     --patience 40 --max_epochs 500
     --n_nice_layers 2
     --solver heun
-    --pathwise
     --use_custom_solver"
 
 # ---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ TRAIN_ARGS="
 # ---------------------------------------------------------------------------
 for SEG in 5 10 20 25; do
     echo "========================================"
-    echo "  NICEFlowSDE  seg_len=${SEG}  noise=GMM  NICE+VBT  pathwise/heun"
+    echo "  NICEFlowSDE  seg_len=${SEG}  custom solver  pathwise/heun"
     echo "========================================"
     $PYTHON -m bayesinf.applications.state_estimation.train_flow_sde_lorenz96 \
         --train \

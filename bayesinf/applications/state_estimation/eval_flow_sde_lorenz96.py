@@ -1,5 +1,5 @@
 """
-Evaluation and plotting for ConditionalNeuralSDE on Lorenz-96.
+Evaluation and plotting for NICEFlowSDE on Lorenz-96.
 
 Produces three figures:
   1. Trajectory panels: truth / posterior mean / 90% CI / obs dots
@@ -73,7 +73,8 @@ parser.add_argument("--n_particles",   type=int,   default=200,
                     help="Posterior particles per sequence for CI")
 parser.add_argument("--ci",            type=float, default=90.0)
 parser.add_argument("--sampler",        type=str,   default="gt_segmented",
-                    choices=("euler", "heun", "reversible_heun", "midpoint", "gt_segmented"),
+                    choices=("euler", "heun", "reversible_heun", "midpoint",
+                             "milstein", "adaptive_euler", "rk4", "gt_segmented"),
                     help="Inference sampler/solver")
 parser.add_argument("--seg_length",     type=int,   default=20,
                     help="Segment length for gt_segmented inference")
@@ -82,18 +83,19 @@ parser.add_argument("--t_hist",         type=float, default=0.5,
 parser.add_argument("--diffusion_temp", type=float, default=1.0,
                     help="Post-hoc diffusion temperature >1 widens CI (no retraining)")
 parser.add_argument("--diffusion_reg_weight", type=float, default=0.0,
-                    help="Training-time diffusion regularizer weight; used for checkpoint lookup")
+                    help="Deprecated; kept only so older launch scripts still parse.")
 parser.add_argument("--n_nice_layers",  type=int,   default=2,
                     help="Number of NICE coupling layers — must match training")
 parser.add_argument("--solver",         type=str,   default="heun",
                     choices=("euler", "heun", "reversible_heun", "midpoint", "milstein", "adaptive_euler", "rk4"),
                     help="SDE solver used during training (for checkpoint lookup)")
 parser.add_argument("--use_custom_solver", action="store_true",
-                    help="Use custom stochastic solvers instead of diffrax")
+                    help="Use custom stochastic solvers instead of diffrax; affects checkpoint lookup")
 parser.add_argument("--pathwise",       action="store_true",
-                    help="Was model trained with --pathwise? (affects checkpoint name)")
+                    help="Deprecated; pathwise checkpoints are now assumed.")
 parser.add_argument("--use_multiple_shooting", action="store_true")
 args = parser.parse_args()
+args.pathwise = True
 
 
 # ---------------------------------------------------------------------------
@@ -117,12 +119,9 @@ if _noise_tag == "gmm":
 elif _noise_tag == "student_t":
     _noise_tag = f"studt{args.obs_df}"
 
-_train_mode = ("pw" if args.pathwise else "sw") + args.solver
+_solver_backend = "custom" if args.use_custom_solver else "diffrax"
+_train_mode = f"pw{args.solver}_{_solver_backend}"
 _seg_tag    = f"seg{args.seg_length}" if args.use_multiple_shooting else "noMS"
-_diff_reg_tag = (
-    f"_dreg{args.diffusion_reg_weight:g}"
-    if args.diffusion_reg_weight != 0.0 else ""
-)
 model_tag = (
     f"NICEFlowSDE"
     f"_N{args.N}_h{args.horizon}_obs{args.obs_interval}"
@@ -130,7 +129,6 @@ model_tag = (
     f"_dc{args.d_c}_dh{args.d_hidden}_dep{args.depth}"
     f"_nl{args.n_nice_layers}"
     f"_{_seg_tag}"
-    f"{_diff_reg_tag}"
     f"_{_train_mode}"
 )
 ckpt_path = os.path.join(results_dir, f"{model_tag}.pt")
@@ -246,19 +244,22 @@ def _sample_chunk(model, y_chunk, x_chunk, key, n_particles,
         # gt_segmented uses diffrax internally
         return jax.vmap(
             lambda yi, xi, ki: model.sample_posterior_gt_segmented(
-                yi, xi, ki, n_particles, seg_length, solver_name, diffusion_temp
+                yi, xi, ki, n_particles, seg_length, solver_name,
+                diffusion_temp, use_custom_solver
             )
         )(y_chunk, x_chunk, keys)              # (B, n_particles, H, d_x)
     elif use_custom_solver:
         return jax.vmap(
             lambda yi, x0i, ki: model.sample_posterior_custom_solver(
-                yi, x0i, ki, n_particles, solver_name, diffusion_temp
+                yi, x0i, ki, n_particles, solver_name,
+                diffusion_temp=diffusion_temp,
             )
         )(y_chunk, x_chunk[:, 0, :], keys)    # (B, n_particles, H, d_x)
     else:
         return jax.vmap(
             lambda yi, x0i, ki: model.sample_posterior(
-                yi, x0i, ki, n_particles, solver_name
+                yi, x0i, ki, n_particles, solver_name,
+                diffusion_temp=diffusion_temp,
             )
         )(y_chunk, x_chunk[:, 0, :], keys)    # (B, n_particles, H, d_x)
 

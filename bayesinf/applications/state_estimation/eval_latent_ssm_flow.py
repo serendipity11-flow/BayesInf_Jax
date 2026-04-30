@@ -46,7 +46,7 @@ from bayesinf.applications.state_estimation.lorenz96_dataset import (
 
 parser = argparse.ArgumentParser(description="Evaluate LatentSSMFlow on Lorenz-96")
 parser.add_argument("--flow_type",    type=str,   default="realnvp",
-                    choices=("realnvp", "nsf", "maf"))
+                    choices=("realnvp", "nsf", "maf", "fm"))
 # Dataset — must match training
 parser.add_argument("--horizon",      type=int,   default=100)
 parser.add_argument("--N",            type=int,   default=12)
@@ -67,6 +67,8 @@ parser.add_argument("--encoder_type", type=str,   default="transformer",
                     choices=("gru", "transformer", "pointwise"))
 parser.add_argument("--local_window", action="store_true",
                     help="Must match the --local_window flag used at training time.")
+parser.add_argument("--local_window_prev_only", action="store_true",
+                    help="Must match the --local_window_prev_only flag used at training time.")
 parser.add_argument("--gru_hidden",   type=int,   default=64)
 parser.add_argument("--d_model",      type=int,   default=64)
 parser.add_argument("--n_heads",      type=int,   default=4)
@@ -110,7 +112,7 @@ data_tag  = (
 _ssm_tag  = "_fixedSSM" if args.fix_ssm else ""
 _ent_tag  = f"_ent{args.lambda_ent}" if args.lambda_ent > 0 else ""
 _enc_tag  = f"_enc{args.encoder_type}" if args.encoder_type != "transformer" else ""
-_lw_tag   = "_lw" if args.local_window else ""
+_lw_tag   = "_lwp" if args.local_window and args.local_window_prev_only else ("_lw" if args.local_window else "")
 model_tag = f"LatentSSMFlow_{args.flow_type}{_ssm_tag}{_enc_tag}{_lw_tag}{_ent_tag}_{data_tag}"
 ckpt_path = os.path.join(results_dir, f"{model_tag}.pt")
 
@@ -173,6 +175,7 @@ model = build_latent_ssm_flow(
     d_out        = args.d_out,
     encoder_type = args.encoder_type,
     local_window = args.local_window,
+    local_window_prev_only = args.local_window_prev_only,
     gru_hidden   = args.gru_hidden,
     d_model      = args.d_model,
     n_heads      = args.n_heads,
@@ -219,8 +222,12 @@ def run_posterior(model, y, u, x0, x, key, n_samples):
 @eqx.filter_jit
 def reconstruct_all(model, x, y, u, x0):
     def single(xi, yi, ui, x0i):
-        x_hat = model.reconstruct(xi, yi, ui, x0i)
-        nll   = -model.log_prob(xi, yi, ui, x0i)
+        if model.flow_type == "fm":
+            x_hat = jnp.zeros_like(xi)
+            nll = jnp.nan
+        else:
+            x_hat = model.reconstruct(xi, yi, ui, x0i)
+            nll   = -model.log_prob(xi, yi, ui, x0i)
         return x_hat, nll
     return jax.vmap(single)(x, y, u, x0)
 
@@ -275,7 +282,7 @@ rmse_all   = float(np.mean(state_rmse(jnp.array(x_true_eval), jnp.array(post_mea
 rmse_obs   = float(np.sqrt(np.mean((x_true_eval[:, :, obs_idx]   - post_mean_all[:, :, obs_idx])   ** 2)))
 rmse_unobs = float(np.sqrt(np.mean((x_true_eval[:, :, unobs_idx] - post_mean_all[:, :, unobs_idx]) ** 2)))
 mae_all    = float(np.mean(np.abs(x_true_eval - post_mean_all)))
-mean_nll   = float(np.mean(nlls))
+mean_nll   = float(np.nanmean(nlls)) if not np.all(np.isnan(nlls)) else np.nan
 
 cov_per_dim = np.mean(
     (x_true_eval >= lo_all) & (x_true_eval <= hi_all),
@@ -288,7 +295,10 @@ print(f"  RMSE posterior mean (all):       {rmse_all:.4f}")
 print(f"  RMSE posterior mean (observed):  {rmse_obs:.4f}")
 print(f"  RMSE posterior mean (unobserved):{rmse_unobs:.4f}")
 print(f"  MAE  posterior mean (all):       {mae_all:.4f}")
-print(f"  Mean NLL:                        {mean_nll:.2f}")
+if np.isnan(mean_nll):
+    print("  Mean NLL:                        n/a (FM has no exact likelihood)")
+else:
+    print(f"  Mean NLL:                        {mean_nll:.2f}")
 print(f"  Coverage @ {args.ci:.0f}% CI:           {coverage * 100:.1f}%")
 print(f"  Noise: Student-t(df={args.obs_df})")
 
@@ -308,7 +318,8 @@ fig1.suptitle(
     f"LatentSSMFlow ({args.flow_type})  –  Lorenz-96 N={args.N}  "
     f"–  Student-t(df={args.obs_df})  –  {args.ci:.0f}% CI\n"
     f"RMSE all={rmse_all:.3f}  obs={rmse_obs:.3f}  unobs={rmse_unobs:.3f}  "
-    f"coverage={coverage * 100:.1f}%  |  NLL={mean_nll:.2f}",
+    f"coverage={coverage * 100:.1f}%  |  "
+    f"NLL={'n/a' if np.isnan(mean_nll) else f'{mean_nll:.2f}'}",
     fontsize=10,
 )
 

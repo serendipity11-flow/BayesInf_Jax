@@ -27,7 +27,7 @@ echo "Using Python: $PYTHON  ($($PYTHON --version))"
 echo "CUDA devices: $CUDA_VISIBLE_DEVICES"
 
 # ---------------------------------------------------------------------------
-# Improved SI: masked source distribution + ỹ-conditioned velocity/score nets
+# Improved SI: masked source + ỹ-conditioned nets + scaled-score SDE drift
 #   Observed dims  : z_0 = ỹ (tight, deterministic source)
 #   Unobserved dims: z_0 ~ N(0,1) per particle (diverse Gaussian prior)
 #   vel_net / score_net both see ỹ explicitly as conditioning signal
@@ -51,14 +51,16 @@ ARCH_ARGS="
 TRAIN_ARGS="
     --batch_size 32
     --learning_rate 3e-4 --grad_norm 1.0 --weight_decay 1e-4
-    --patience 50 --max_epochs 600
-    --sigma_0 1.0 --g0 0.5 --score_weight 1.0 --s_min 0.02
-    --interpolant_type linear"
+    --patience 50 --max_epochs 600 --wandb
+    --sigma_0 1.0 --g0 0.5
+    --score_weight 0.25 --lifter_loss_weight 0.1 --score_sigma_floor 0.05
+    --s_min 0.02
+    --interpolant_type cosine"
 
 
 for SEG in 5 10 20 25; do
     echo "========================================"
-    echo "  SI  seg_len=${SEG}  linear interpolant  masked-source  ỹ-conditioned"
+    echo "  SI  seg_len=${SEG}  cosine interpolant  scaled-score drift"
     echo "========================================"
     $PYTHON -m bayesinf.applications.state_estimation.train_si_lorenz96 \
         --train --test \

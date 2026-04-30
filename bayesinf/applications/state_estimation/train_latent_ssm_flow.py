@@ -54,7 +54,7 @@ parser = argparse.ArgumentParser(description="Train LatentSSMFlow on Lorenz-96")
 parser.add_argument("--train",             action="store_true")
 parser.add_argument("--test",              action="store_true")
 parser.add_argument("--flow_type",         type=str,   default="realnvp",
-                    choices=("realnvp", "nsf", "maf"))
+                    choices=("realnvp", "nsf", "maf", "fm"))
 # Dataset
 parser.add_argument("--horizon",           type=int,   default=100)
 parser.add_argument("--N",                 type=int,   default=12)
@@ -74,6 +74,9 @@ parser.add_argument("--encoder_type",      type=str,   default="transformer",
 parser.add_argument("--local_window",      action="store_true",
                     help="Limit encoder context to ±1 step: GRU sees [y_{t-1},y_t,y_{t+1}]; "
                          "Transformer applies a ±1 windowed attention mask.")
+parser.add_argument("--local_window_prev_only", action="store_true",
+                    help="For GRU with --local_window, use [y_{t-1},y_t] instead of "
+                         "[y_{t-1},y_t,y_{t+1}].")
 parser.add_argument("--seg_len",           type=int,   default=5,
                     help="Segment horizon into chunks of seg_len for efficiency "
                          "(0 = no segmentation, use full horizon)")
@@ -134,7 +137,7 @@ data_tag  = (
 _ssm_tag  = f"_fixedSSM" if args.fix_ssm else ""
 _ent_tag  = f"_ent{args.lambda_ent}" if args.lambda_ent > 0 else ""
 _enc_tag  = f"_enc{args.encoder_type}" if args.encoder_type != "transformer" else ""
-_lw_tag   = "_lw" if args.local_window else ""
+_lw_tag   = "_lwp" if args.local_window and args.local_window_prev_only else ("_lw" if args.local_window else "")
 model_tag = f"LatentSSMFlow_{args.flow_type}{_ssm_tag}{_enc_tag}{_lw_tag}{_ent_tag}_{data_tag}"
 save_path = os.path.join(results_dir, f"{model_tag}.pt")
 
@@ -249,6 +252,7 @@ model = build_latent_ssm_flow(
     d_out        = args.d_out,
     encoder_type = args.encoder_type,
     local_window = args.local_window,
+    local_window_prev_only = args.local_window_prev_only,
     gru_hidden   = args.gru_hidden,
     d_model      = args.d_model,
     n_heads      = args.n_heads,
@@ -267,6 +271,7 @@ print(
     f"Model: LatentSSMFlow  d_x={d_x}  d_y={d_y}  "
     f"flow={args.flow_type}  encoder={args.encoder_type}"
     + ("  local_window=True" if args.local_window else "")
+    + ("  local_window_prev_only=True" if args.local_window_prev_only else "")
 )
 
 # Optionally freeze SSM parameters to fixed simple values.
@@ -340,8 +345,8 @@ if args.train:
 
         def _loss(dm):
             m   = eqx.combine(dm, static)
-            nll = m.nll_loss(x, y, u, x0)
-            if args.lambda_ent > 0:
+            nll = m.nll_loss(x, y, u, x0, key)
+            if args.lambda_ent > 0 and args.flow_type != "fm":
                 ent = m.entropy_reg_loss(y, u, x0, key, args.n_ent_samples)
                 return nll + lam_ent * ent, ent
             return nll, jnp.float32(0.0)
@@ -354,8 +359,8 @@ if args.train:
         return new_model, new_opt_state, total_loss, ent
 
     @eqx.filter_jit
-    def eval_loss(model, x, y, u, x0):
-        return model.nll_loss(x, y, u, x0)
+    def eval_loss(model, x, y, u, x0, key):
+        return model.nll_loss(x, y, u, x0, key)
 
     best_model       = model
     best_val_loss    = np.inf
@@ -407,7 +412,8 @@ if args.train:
 
             mean_loss = np.mean(epoch_losses)
             mean_ent  = np.mean(epoch_ent)
-            val_loss  = float(eval_loss(model, val_x, val_y, val_u, val_x0))
+            rng, k_val = jr.split(rng)
+            val_loss  = float(eval_loss(model, val_x, val_y, val_u, val_x0, k_val))
 
             if val_loss < best_val_loss:
                 best_val_loss    = val_loss

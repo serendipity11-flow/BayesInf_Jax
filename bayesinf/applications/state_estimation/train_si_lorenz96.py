@@ -87,9 +87,12 @@ parser.add_argument("--time_emb_dim",   type=int,   default=32)
 # SI hyperparameters
 parser.add_argument("--sigma_0",             type=float, default=1.0)
 parser.add_argument("--g0",                  type=float, default=0.5)
-parser.add_argument("--score_weight",        type=float, default=1.0)
+parser.add_argument("--score_weight",        type=float, default=0.25)
+parser.add_argument("--lifter_loss_weight",  type=float, default=0.1)
+parser.add_argument("--score_sigma_floor",   type=float, default=0.05,
+                    help="Floor used when converting the trained sigma-scaled score to an actual score during sampling.")
 parser.add_argument("--s_min",               type=float, default=0.02)
-parser.add_argument("--interpolant_type",    type=str,   default="linear",
+parser.add_argument("--interpolant_type",    type=str,   default="cosine",
                     choices=("linear", "cosine"),
                     help="Interpolation path between source and target.")
 # Training
@@ -105,6 +108,8 @@ parser.add_argument("--grad_norm",      type=float, default=1.0)
 parser.add_argument("--weight_decay",   type=float, default=1e-4)
 parser.add_argument("--patience",       type=int,   default=40)
 parser.add_argument("--seed",           type=int,   default=0)
+parser.add_argument("--wandb",          action="store_true",
+                    help="Enable wandb logging. Disabled by default so training works on restricted nodes.")
 # Inference
 parser.add_argument("--n_particles",    type=int,   default=50)
 parser.add_argument("--n_steps",        type=int,   default=100,
@@ -157,6 +162,7 @@ model_tag  = (
     f"_{_noise_tag}_std{args.obs_std}"
     f"_dc{args.d_c}_dh{args.d_hidden}_nh{args.n_heads}_dep{args.depth}"
     f"_sig{args.sigma_0}_g{args.g0}_sw{args.score_weight}"
+    f"_lw{args.lifter_loss_weight}_sf{args.score_sigma_floor}"
     f"_{_interp_tag}"
     f"_{_train_tag}"
 )
@@ -167,12 +173,13 @@ save_path = os.path.join(results_dir, f"{model_tag}.pt")
 # Wandb (optional)
 # ---------------------------------------------------------------------------
 
-if args.train:
+if args.train and args.wandb:
+    wandb_run = None
     try:
         import wandb
-        wandb.init(project="SI_State_Estimation", name=model_tag)
-    except ImportError:
-        pass
+        wandb_run = wandb.init(project="SI_State_Estimation", name=model_tag)
+    except Exception as exc:
+        print(f"Wandb disabled: {exc}")
 
 
 # ---------------------------------------------------------------------------
@@ -272,6 +279,8 @@ model = StochasticInterpolantSE(
     sigma_0      = args.sigma_0,
     g0           = args.g0,
     score_weight = args.score_weight,
+    lifter_loss_weight = args.lifter_loss_weight,
+    score_sigma_floor  = args.score_sigma_floor,
     s_min        = args.s_min,
     interpolant_type = args.interpolant_type,
     key          = k_model,
@@ -280,6 +289,7 @@ print(
     f"StochasticInterpolantSE  d_x={d_x}  d_y={d_y}  d_c={args.d_c}\n"
     f"  d_hidden={args.d_hidden}  n_heads={args.n_heads}  depth={args.depth}\n"
     f"  sigma_0={args.sigma_0}  g0={args.g0}  score_weight={args.score_weight}\n"
+    f"  lifter_loss_weight={args.lifter_loss_weight}  score_sigma_floor={args.score_sigma_floor}\n"
     f"  s_min={args.s_min}  interpolant_type={args.interpolant_type}"
 )
 
@@ -341,6 +351,9 @@ if args.train:
             rng, k_shuf = jr.split(rng)
             shuffled     = shuffle_batch(train_data, k_shuf)
             epoch_losses = []
+            epoch_flow   = []
+            epoch_score  = []
+            epoch_lift   = []
 
             for b in range(n_batches):
                 s, e        = b * batch_size, (b + 1) * batch_size
@@ -349,16 +362,23 @@ if args.train:
                 rng, k_step = jr.split(rng)
 
                 if args.ms:
-                    model, opt_state, loss = make_step_si_ms(
+                    model, opt_state, loss, components = make_step_si_ms(
                         model, xb, yb, k_step, args.seg_len, opt_state, optimizer
                     )
                 else:
-                    model, opt_state, loss = make_step_si(
+                    model, opt_state, loss, components = make_step_si(
                         model, xb, yb, k_step, opt_state, optimizer
                     )
+                l_flow, l_score, l_lift = components
                 epoch_losses.append(float(loss))
+                epoch_flow.append(float(l_flow))
+                epoch_score.append(float(l_score))
+                epoch_lift.append(float(l_lift))
 
             mean_loss = float(np.mean(epoch_losses))
+            mean_flow = float(np.mean(epoch_flow))
+            mean_score = float(np.mean(epoch_score))
+            mean_lift = float(np.mean(epoch_lift))
 
             rng, k_val = jr.split(rng)
             if args.ms:
@@ -380,16 +400,28 @@ if args.train:
 
             pbar.set_postfix(
                 loss=f"{mean_loss:.4f}",
+                flow=f"{mean_flow:.4f}",
+                score=f"{mean_score:.4f}",
+                lift=f"{mean_lift:.4f}",
                 val=f"{val_loss:.4f}",
                 best=f"{best_val_loss:.4f}",
                 pat=patience_counter,
             )
 
-            try:
-                import wandb
-                wandb.log({"loss": mean_loss, "val_loss": val_loss, "epoch": epoch})
-            except ImportError:
-                pass
+            if args.wandb:
+                try:
+                    import wandb
+                    if wandb.run is not None:
+                        wandb.log({
+                            "loss": mean_loss,
+                            "loss_flow": mean_flow,
+                            "loss_score": mean_score,
+                            "loss_lift": mean_lift,
+                            "val_loss": val_loss,
+                            "epoch": epoch,
+                        })
+                except Exception:
+                    pass
 
             if args.patience > 0 and patience_counter >= args.patience:
                 print(f"\nEarly stopping at epoch {epoch + 1}")
@@ -485,8 +517,10 @@ if args.test or args.train:
     print(f"  MAE  posterior mean: {mae_all:.4f}")
     print(f"  Coverage @ 90% CI:   {coverage * 100:.1f}%")
 
-    try:
-        import wandb
-        wandb.log({"test_rmse": rmse_all, "test_mae": mae_all, "test_cov90": coverage})
-    except ImportError:
-        pass
+    if args.wandb:
+        try:
+            import wandb
+            if wandb.run is not None:
+                wandb.log({"test_rmse": rmse_all, "test_mae": mae_all, "test_cov90": coverage})
+        except Exception:
+            pass

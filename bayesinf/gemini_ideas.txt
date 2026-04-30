@@ -1,3 +1,0 @@
-Q: I want to design several experiments proving normalizing flows are more suitable for parameter identification from time series observations in comparison to other generative models, including VAE and diffusion models. I consider to evaluate the models in terms of inference accuracy, precision, time, efficiency, i.e., datapoints of observations, handling linearly correlated parameters, and multi-modal distributions. I am not sure about the last point, how to realize it?
-
-A: 

@@ -51,9 +51,9 @@ class GRUSequenceEncoder(eqx.Module):
     Input : y  (M, H, D_y)
     Output: enc_y (M, H, D_enc)
 
-    When local_window=True each GRU step receives [y_{t-1}, y_t, y_{t+1}]
-    (3*D_y) so the hidden state at t carries exactly ±1 future lookahead while
-    the recurrence still accumulates past context.  Boundaries are zero-padded.
+    When local_window=True each GRU step receives either [y_{t-1}, y_t, y_{t+1}]
+    or [y_{t-1}, y_t] when local_window_prev_only=True. Boundaries are
+    zero-padded.
 
     Implementation notes
     --------------------
@@ -66,6 +66,7 @@ class GRUSequenceEncoder(eqx.Module):
     cell:         eqx.nn.GRUCell      # (D_in,) x (D_hidden,) -> (D_hidden,)
     proj:         eqx.nn.Linear       # D_hidden -> D_enc
     local_window: bool = eqx.field(static=True)
+    local_window_prev_only: bool = eqx.field(static=True)
 
     def __init__(
         self,
@@ -74,12 +75,17 @@ class GRUSequenceEncoder(eqx.Module):
         d_enc:        int,
         key:          jr.PRNGKey,
         local_window: bool = False,
+        local_window_prev_only: bool = False,
     ):
         k_cell, k_proj = jr.split(key)
-        d_in = d_y * 3 if local_window else d_y
+        if local_window:
+            d_in = d_y * (2 if local_window_prev_only else 3)
+        else:
+            d_in = d_y
         self.cell         = eqx.nn.GRUCell(d_in, d_hidden, key=k_cell)
         self.proj         = eqx.nn.Linear(d_hidden, d_enc, key=k_proj)
         self.local_window = local_window
+        self.local_window_prev_only = local_window_prev_only
 
     def __call__(self, y: jnp.ndarray) -> jnp.ndarray:
         """
@@ -89,8 +95,8 @@ class GRUSequenceEncoder(eqx.Module):
         ------------------------------------
         y_prev   : (M, H, D_y)  y shifted right by 1 (zero-padded at t=0)
         y_next   : (M, H, D_y)  y shifted left  by 1 (zero-padded at t=H-1)
-        y_in     : (M, H, 3*D_y) concatenation [y_prev, y, y_next]
-        y_T      : (H, M, 3*D_y) after transpose
+        y_in     : (M, H, 2*D_y or 3*D_y) concatenated local window
+        y_T      : (H, M, D_in) after transpose
         h_seq    : (H, M, D_hidden) from scan
         enc_y    : (M, H, D_enc)   after _apply_linear
         """
@@ -101,10 +107,13 @@ class GRUSequenceEncoder(eqx.Module):
             y_prev = jnp.concatenate(
                 [jnp.zeros_like(y[:, :1, :]), y[:, :-1, :]], axis=1
             )  # (M, H, D_y)
-            y_next = jnp.concatenate(
-                [y[:, 1:, :], jnp.zeros_like(y[:, -1:, :])], axis=1
-            )  # (M, H, D_y)
-            y_in = jnp.concatenate([y_prev, y, y_next], axis=-1)  # (M, H, 3*D_y)
+            if self.local_window_prev_only:
+                y_in = jnp.concatenate([y_prev, y], axis=-1)  # (M, H, 2*D_y)
+            else:
+                y_next = jnp.concatenate(
+                    [y[:, 1:, :], jnp.zeros_like(y[:, -1:, :])], axis=1
+                )  # (M, H, D_y)
+                y_in = jnp.concatenate([y_prev, y, y_next], axis=-1)  # (M, H, 3*D_y)
         else:
             y_in = y  # (M, H, D_y)
 
@@ -361,6 +370,7 @@ class StateConditionEncoder(eqx.Module):
     d_out:        int  = eqx.field(static=True)
     encoder_type: str  = eqx.field(static=True)
     local_window: bool = eqx.field(static=True)
+    local_window_prev_only: bool = eqx.field(static=True)
 
     def __init__(
         self,
@@ -372,6 +382,7 @@ class StateConditionEncoder(eqx.Module):
         key:          jr.PRNGKey,
         encoder_type: str  = "gru",
         local_window: bool = False,
+        local_window_prev_only: bool = False,
         # GRU kwargs
         gru_hidden:   int  = 64,
         # Transformer kwargs
@@ -385,6 +396,7 @@ class StateConditionEncoder(eqx.Module):
         self.d_out        = d_out
         self.encoder_type = encoder_type.lower()
         self.local_window = local_window
+        self.local_window_prev_only = local_window_prev_only
 
         k_enc, k_x0, k_out = jr.split(key, 3)
 
@@ -399,6 +411,7 @@ class StateConditionEncoder(eqx.Module):
             self.y_encoder = GRUSequenceEncoder(
                 d_y=d_y, d_hidden=gru_hidden, d_enc=d_enc, key=k_enc,
                 local_window=local_window,
+                local_window_prev_only=local_window_prev_only,
             )
 
         self.x0_proj  = eqx.nn.Linear(d_x,                   d_enc, key=k_x0)

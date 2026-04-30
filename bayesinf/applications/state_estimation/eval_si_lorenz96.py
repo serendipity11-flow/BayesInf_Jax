@@ -68,9 +68,11 @@ parser.add_argument("--depth",         type=int,   default=4)
 parser.add_argument("--time_emb_dim",  type=int,   default=32)
 parser.add_argument("--sigma_0",            type=float, default=1.0)
 parser.add_argument("--g0",                 type=float, default=0.5)
-parser.add_argument("--score_weight",       type=float, default=1.0)
+parser.add_argument("--score_weight",       type=float, default=0.25)
+parser.add_argument("--lifter_loss_weight", type=float, default=0.1)
+parser.add_argument("--score_sigma_floor",  type=float, default=0.05)
 parser.add_argument("--s_min",              type=float, default=0.02)
-parser.add_argument("--interpolant_type",   type=str,   default="linear",
+parser.add_argument("--interpolant_type",   type=str,   default="cosine",
                     choices=("linear", "cosine"),
                     help="Interpolation path used by the checkpoint.")
 # Training tag — must match what was used (--ms + --seg_len)
@@ -128,6 +130,7 @@ model_tag = (
     f"_{_noise_tag}_std{args.obs_std}"
     f"_dc{args.d_c}_dh{args.d_hidden}_nh{args.n_heads}_dep{args.depth}"
     f"_sig{args.sigma_0}_g{args.g0}_sw{args.score_weight}"
+    f"_lw{args.lifter_loss_weight}_sf{args.score_sigma_floor}"
     f"_{_interp_tag}"
     f"_{_train_tag}"
 )
@@ -217,6 +220,8 @@ model = StochasticInterpolantSE(
     sigma_0      = args.sigma_0,
     g0           = args.g0,
     score_weight = args.score_weight,
+    lifter_loss_weight = args.lifter_loss_weight,
+    score_sigma_floor  = args.score_sigma_floor,
     s_min        = args.s_min,
     interpolant_type = args.interpolant_type,
     key          = jr.PRNGKey(42),

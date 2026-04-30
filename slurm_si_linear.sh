@@ -1,0 +1,72 @@
+#!/bin/bash
+#SBATCH --account=Mitarbeiter
+#SBATCH --job-name=si_train_lin
+#SBATCH --partition=a30
+#SBATCH --mail-type=END,INVALID_DEPEND
+#SBATCH --mail-user=yi.zhang@uni-a.de
+#SBATCH --time=36:00:00
+
+# Request memory per CPU
+#SBATCH --mem-per-cpu=32G
+# Number of GPUs, in the format "gpu:[1-4]" or "gpu:a30:[1-4]":
+#SBATCH --gres=gpu:a30:1
+# Request n CPUs for your task.
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --qos=a30-gpu
+
+export PYTHONNOUSERSITE=1
+VENV_SITE=$HOME/myenv_312/lib/python3.12/site-packages
+export PYTHONPATH=/home/zhangyi/bayesinf_jax:$VENV_SITE:$PYTHONPATH
+if "$HOME/myenv_312/bin/python" -c 'import sys' >/dev/null 2>&1; then
+    PYTHON=$HOME/myenv_312/bin/python
+else
+    PYTHON=$(command -v python3.12 || ls /usr/bin/python3.12 /usr/local/bin/python3.12 2>/dev/null | head -1)
+fi
+echo "Using Python: $PYTHON  ($($PYTHON --version))"
+echo "CUDA devices: $CUDA_VISIBLE_DEVICES"
+
+# ---------------------------------------------------------------------------
+# Improved SI: masked source + y-conditioned nets + scaled-score SDE drift
+#   Observed dims  : z_0 = y_lift (tight, deterministic source)
+#   Unobserved dims: z_0 ~ N(0,1) per particle (diverse Gaussian prior)
+#   vel_net / score_net both see y_lift explicitly as conditioning signal
+# ---------------------------------------------------------------------------
+DATA_ARGS="
+    --N 12 --obs_interval 2 --obs_std 0.5
+    --horizon 101 --dt 0.02 --F_lorenz 8.0
+    --spinup_steps 500 --n_samples 2000"
+
+NOISE_ARGS="
+    --obs_noise_type gmm
+    --gmm_weights 0.70,0.15,0.15
+    --gmm_offsets 0.0,2.5,-2.5
+    --gmm_stds 0.50,1.50,1.50"
+
+ARCH_ARGS="
+    --d_c 128
+    --d_hidden 256 --n_heads 4 --depth 4
+    --time_emb_dim 32"
+
+TRAIN_ARGS="
+    --batch_size 32
+    --learning_rate 3e-4 --grad_norm 1.0 --weight_decay 1e-4
+    --patience 50 --max_epochs 600 --wandb
+    --sigma_0 1.0 --g0 0.5
+    --score_weight 0.25 --lifter_loss_weight 0.1 --score_sigma_floor 0.05
+    --s_min 0.02
+    --interpolant_type linear"
+
+for SEG in 5 10 20 25; do
+    echo "========================================"
+    echo "  SI  seg_len=${SEG}  linear interpolant  scaled-score drift"
+    echo "========================================"
+    $PYTHON -m bayesinf.applications.state_estimation.train_si_lorenz96 \
+        --train --test \
+        $DATA_ARGS $NOISE_ARGS $ARCH_ARGS $TRAIN_ARGS \
+        --ms --seg_len ${SEG} \
+        --sampler segmented --seg_len_eval ${SEG} \
+        --n_particles 200 --n_steps 100 \
+        --seed 0
+done
+

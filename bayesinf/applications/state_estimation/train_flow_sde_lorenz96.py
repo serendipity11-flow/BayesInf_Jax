@@ -2,21 +2,21 @@
 Training script for NICEFlowSDE on Lorenz-96 with multi-modal observations.
 
 Model:
-    dz_t = f_θ(z_t, c_t, t) dt + G_φ(z_t, c_t, t) dW_t
+    custom solver: dz_t = [f_θ(z_t, c_t, t) + G_φ(dW_t, z_t, c_t, t)] dt
+    diffrax solver: dz_t = f_θ(z_t, c_t, t) dt + G_φ(z_t, c_t, t) dW_t
     c_t  = BiGRUEncoder(y_{1:T})_t   (bidirectional, full-sequence context)
-    G_φ  = NICE diffusion: det(G_φ)=1 always, dW_t from VirtualBrownianTree.
+    G_φ  = NICE diffusion/noise map.
 
 Observation noise: Gaussian mixture (multi-modal) | Student-t | Gaussian.
 
 Training modes
 --------------
-  stepwise  (default): per-step NLL via NICE inverse — no integration needed
-  pathwise  (--pathwise): integrate SDE with diffrax, minimise ||ẑ - x||²
+  pathwise: integrate trajectories and minimise ||ẑ - x||².
+            Use --use_custom_solver for the custom (f + g)dt convention.
 
 Usage
 -----
-python3 -m bayesinf.applications.state_estimation.train_flow_sde_lorenz96 --train
-python3 -m bayesinf.applications.state_estimation.train_flow_sde_lorenz96 --train --pathwise --solver heun
+python3 -m bayesinf.applications.state_estimation.train_flow_sde_lorenz96 --train --use_custom_solver --solver heun
 """
 
 import sys, os, argparse
@@ -34,18 +34,11 @@ sys.path.insert(0, project_root)
 
 from bayesinf.applications.state_estimation.flow_sde import (
     NICEFlowSDE,
-    make_step_nice_stepwise,
-    make_step_nice_stepwise_ms,
     make_step_nice_pathwise,
-)
-from bayesinf.applications.state_estimation.stochastic_solvers import (
-    get_solver,
 )
 from bayesinf.applications.state_estimation.lorenz96_dataset import (
     generate_lorenz96_dataset,
     train_val_test_split,
-    state_rmse,
-    state_mae,
     lorenz96_rhs,
 )
 
@@ -95,19 +88,18 @@ parser.add_argument("--learning_rate",    type=float, default=3e-4)
 parser.add_argument("--grad_norm",        type=float, default=1.0)
 parser.add_argument("--weight_decay",     type=float, default=1e-4)
 parser.add_argument("--diffusion_reg_weight", type=float, default=0.0,
-                    help="L2 penalty on NICE diffusion coupling, mean((G_phi-I)^2)")
+                    help="Deprecated; kept only so older launch scripts still parse.")
 parser.add_argument("--patience",         type=int,   default=40)
 parser.add_argument("--seed",             type=int,   default=0)
 # Multiple-shooting training
 parser.add_argument("--use_multiple_shooting", action="store_true",
                     help="Enable multiple-shooting training (shorter gradient paths)")
 parser.add_argument("--seg_length",       type=int,   default=20,
-                    help="Segment length for multiple-shooting (pathwise or stepwise)")
+                    help="Segment length for multiple-shooting pathwise training")
 parser.add_argument("--n_nice_layers",    type=int,   default=2,
                     help="Number of NICE coupling layers in G_φ")
 parser.add_argument("--pathwise",         action="store_true",
-                    help="Train path-wise (integrate SDE, minimise ||ẑ-x||²) "
-                         "instead of per-step NLL")
+                    help="Deprecated; pathwise training is now always used.")
 parser.add_argument("--solver",           type=str,   default="heun",
                     choices=("euler", "heun", "reversible_heun", "midpoint", "milstein", "adaptive_euler", "rk4"),
                     help="SDE solver for pathwise training and inference")
@@ -120,6 +112,7 @@ parser.add_argument("--sampler",          type=str,   default="heun",
                     choices=("euler", "heun", "reversible_heun", "midpoint", "gt_segmented"),
                     help="Inference sampler / solver")
 args = parser.parse_args()
+args.pathwise = True
 
 
 # ---------------------------------------------------------------------------
@@ -142,11 +135,8 @@ if _noise_tag == "gmm":
 elif _noise_tag == "student_t":
     _noise_tag = f"studt{args.obs_df}"
 
-_train_mode = ("pw" if args.pathwise else "sw") + args.solver
-_diff_reg_tag = (
-    f"_dreg{args.diffusion_reg_weight:g}"
-    if args.diffusion_reg_weight != 0.0 else ""
-)
+_solver_backend = "custom" if args.use_custom_solver else "diffrax"
+_train_mode = f"pw{args.solver}_{_solver_backend}"
 model_tag = (
     f"NICEFlowSDE"
     f"_N{args.N}_h{args.horizon}_obs{args.obs_interval}"
@@ -154,7 +144,6 @@ model_tag = (
     f"_dc{args.d_c}_dh{args.d_hidden}_dep{args.depth}"
     f"_nl{args.n_nice_layers}"
     f"_seg{args.seg_length if args.use_multiple_shooting else 'noMS'}"
-    f"{_diff_reg_tag}"
     f"_{_train_mode}"
 )
 save_path = os.path.join(results_dir, f"{model_tag}.pt")
@@ -272,8 +261,7 @@ model = NICEFlowSDE(
 print(
     f"NICEFlowSDE  d_x={d_x}  d_y={d_y}  d_c={args.d_c}  "
     f"d_hidden={args.d_hidden}  depth={args.depth}  n_nice_layers={args.n_nice_layers}\n"
-    f"  training={'pathwise' if args.pathwise else 'stepwise'}  solver={args.solver}"
-    f"  diffusion_reg_weight={args.diffusion_reg_weight:g}"
+    f"  training=pathwise  solver={args.solver}  backend={_solver_backend}"
 )
 
 
@@ -291,13 +279,8 @@ def shuffle_batch(data_dict, key):
 
 
 @eqx.filter_jit
-def eval_nll(model, x, y):
-    return model.nll_stepwise(x, y)
-
-
-@eqx.filter_jit
-def eval_nll_multiple_shooting(model, x, y, seg_length):
-    return model.nll_stepwise_ms(x, y, seg_length)
+def eval_pathwise(model, x, y, key, seg_length, solver_name, use_custom_solver):
+    return model.nll_pathwise(x, y, key, seg_length, solver_name, use_custom_solver)
 
 
 # ---------------------------------------------------------------------------
@@ -328,12 +311,10 @@ if args.train:
     print(
         f"Training  max_epochs={args.max_epochs}  lr={args.learning_rate}"
         f"  grad_norm={args.grad_norm}  weight_decay={args.weight_decay}"
-        f"  diffusion_reg_weight={args.diffusion_reg_weight:g}"
     )
     if args.use_multiple_shooting:
         print(f"  Multiple-shooting: seg_length={args.seg_length}")
-    if args.pathwise:
-        print(f"  Path-wise training  solver={args.solver}")
+    print(f"  Path-wise training  solver={args.solver}  backend={_solver_backend}")
 
     rng = k_train
     with tqdm(range(args.max_epochs), desc="epoch") as pbar:
@@ -347,33 +328,23 @@ if args.train:
                 xb   = shuffled["x"][s:e]   # (B, H, d_x)
                 yb   = shuffled["y"][s:e]   # (B, H, d_y)
 
-                if args.pathwise:
-                    # Path-wise: integrate SDE per segment, backprop through solver.
-                    # seg_length=H-1 (no MS) means one segment = full sequence.
-                    seg = args.seg_length if args.use_multiple_shooting else xb.shape[1] - 1
-                    model, opt_state, loss = make_step_nice_pathwise(
-                        model, xb, yb, k_step, seg, opt_state, optimizer, 
-                        args.solver, args.use_custom_solver, args.diffusion_reg_weight
-                    )
-                elif args.use_multiple_shooting:
-                    model, opt_state, loss = make_step_nice_stepwise_ms(
-                        model, xb, yb, args.seg_length, opt_state, optimizer,
-                        args.diffusion_reg_weight
-                    )
-                else:
-                    model, opt_state, loss = make_step_nice_stepwise(
-                        model, xb, yb, opt_state, optimizer,
-                        args.diffusion_reg_weight
-                    )
+                # Path-wise: integrate per segment and backprop through solver.
+                # seg_length=H-1 (no MS) means one segment = full sequence.
+                seg = args.seg_length if args.use_multiple_shooting else xb.shape[1] - 1
+                model, opt_state, loss = make_step_nice_pathwise(
+                    model, xb, yb, k_step, seg, opt_state, optimizer,
+                    args.solver, args.use_custom_solver,
+                )
                 epoch_losses.append(float(loss))
 
             mean_loss = float(np.mean(epoch_losses))
             
-            # Validation loss
-            if args.use_multiple_shooting:
-                val_loss = float(eval_nll_multiple_shooting(model, val_data["x"], val_data["y"], args.seg_length))
-            else:
-                val_loss = float(eval_nll(model, val_data["x"], val_data["y"]))
+            rng, k_val = jr.split(rng)
+            seg = args.seg_length if args.use_multiple_shooting else val_data["x"].shape[1] - 1
+            val_loss = float(eval_pathwise(
+                model, val_data["x"], val_data["y"], k_val,
+                seg, args.solver, args.use_custom_solver,
+            ))
 
             if val_loss < best_val_loss:
                 best_val_loss    = val_loss
@@ -402,7 +373,7 @@ if args.train:
                 break
 
     model = eqx.tree_deserialise_leaves(save_path, model)
-    print(f"Best model saved to {save_path}  (val NLL = {best_val_loss:.4f})")
+    print(f"Best model saved to {save_path}  (val loss = {best_val_loss:.4f})")
 
 else:
     if not os.path.exists(save_path):
@@ -434,16 +405,29 @@ if args.test or args.train:
     all_samps = []
 
     @eqx.filter_jit
-    def _sample_chunk(model, y_chunk, x0_chunk, key, n_particles, solver_name):
+    def _sample_chunk(model, y_chunk, x_chunk, key, n_particles,
+                      solver_name, use_custom_solver, seg_length):
         B    = y_chunk.shape[0]
         keys = jr.split(key, B)
+        if use_custom_solver:
+            return jax.vmap(
+                lambda yi, x0i, ki: model.sample_posterior_custom_solver(
+                    yi, x0i, ki, n_particles, solver_name
+                )
+            )(y_chunk, x_chunk[:, 0, :], keys)
+        if solver_name == "gt_segmented":
+            return jax.vmap(
+                lambda yi, xi, ki: model.sample_posterior_gt_segmented(
+                    yi, xi, ki, n_particles, seg_length, args.solver
+                )
+            )(y_chunk, x_chunk, keys)
         return jax.vmap(
             lambda yi, x0i, ki: model.sample_posterior(
                 yi, x0i, ki, n_particles, solver_name
             )
-        )(y_chunk, x0_chunk, keys)   # (B, n_particles, H, d_x)
+        )(y_chunk, x_chunk[:, 0, :], keys)
 
-    solver_name = args.sampler if args.sampler != "gt_segmented" else args.solver
+    solver_name = args.sampler
     k_test      = jr.PRNGKey(999)
 
     print(
@@ -453,10 +437,13 @@ if args.test or args.train:
     for start in range(0, M_test, chunk):
         end   = min(start + chunk, M_test)
         yb    = y_test_norm[start:end]
-        x0b   = x_test_norm[start:end, 0, :]    # normalised first state
+        xb    = x_test_norm[start:end]
         k_c   = jr.fold_in(k_test, start)
         samps = np.array(
-            _sample_chunk(inf_model, yb, x0b, k_c, args.n_particles, solver_name)
+            _sample_chunk(
+                inf_model, yb, xb, k_c, args.n_particles,
+                solver_name, args.use_custom_solver, args.seg_length,
+            )
         )                                        # (B_chunk, n_p, H, d_x)  normalised
         all_samps.append(samps)
 

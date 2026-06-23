@@ -12,22 +12,34 @@
 \contentsline {figure}{\numberline {II.9}{\ignorespaces MPC time dependency}}{45}{figure.caption.68}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {IV.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{60}{figure.caption.98}%
-\contentsline {figure}{\numberline {IV.2}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{63}{figure.caption.111}%
-\contentsline {figure}{\numberline {IV.3}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{64}{figure.caption.112}%
-\contentsline {figure}{\numberline {IV.4}{\ignorespaces Linear Correlation Comparison}}{67}{figure.caption.113}%
-\contentsline {figure}{\numberline {IV.5}{\ignorespaces Multimodal Comparison}}{68}{figure.caption.114}%
-\contentsline {figure}{\numberline {IV.6}{\ignorespaces Convergence Speed \& Sensitivity Analysis}}{71}{figure.caption.116}%
-\contentsline {figure}{\numberline {IV.7}{\ignorespaces Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models}}{72}{figure.caption.117}%
-\contentsline {figure}{\numberline {IV.8}{\ignorespaces Comparison of Sensitivity and Identifiability Under Noisy Observations}}{74}{figure.caption.119}%
-\contentsline {figure}{\numberline {IV.9}{\ignorespaces Stress Test of Normalizing Flows under Noise}}{75}{figure.caption.121}%
-\contentsline {figure}{\numberline {IV.10}{\ignorespaces Evaluation of Stress Test under Misspecification and OOD}}{76}{figure.caption.122}%
-\contentsline {figure}{\numberline {IV.11}{\ignorespaces Micro View of Distribution under Misspecification}}{77}{figure.caption.123}%
-\contentsline {figure}{\numberline {IV.12}{\ignorespaces Global Residual Analysis under OOD}}{77}{figure.caption.124}%
-\contentsline {figure}{\numberline {IV.13}{\ignorespaces SNF Architecture}}{80}{figure.caption.129}%
-\contentsline {figure}{\numberline {IV.14}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{82}{figure.caption.131}%
-\contentsline {figure}{\numberline {IV.15}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{83}{figure.caption.133}%
-\contentsline {figure}{\numberline {IV.16}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{86}{figure.caption.135}%
-\contentsline {figure}{\numberline {IV.17}{\ignorespaces Architecture of Latent State Space Model Flow.}}{87}{figure.caption.136}%
+\contentsline {figure}{\numberline {IV.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{61}{figure.caption.97}%
+\contentsline {figure}{\numberline {IV.2}{\ignorespaces Mass-Spring-Damper System with Multimodal Parameters}}{62}{figure.caption.100}%
+\contentsline {figure}{\numberline {IV.3}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{64}{figure.caption.112}%
+\contentsline {figure}{\numberline {IV.4}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{66}{figure.caption.113}%
+\contentsline {figure}{\numberline {IV.5}{\ignorespaces Linear Correlation Comparison}}{68}{figure.caption.114}%
+\contentsline {figure}{\numberline {IV.6}{\ignorespaces Multimodal Comparison}}{69}{figure.caption.115}%
+\contentsline {figure}{\numberline {IV.7}{\ignorespaces Convergence Speed \& Sensitivity Analysis}}{73}{figure.caption.117}%
+\contentsline {figure}{\numberline {IV.8}{\ignorespaces Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models}}{74}{figure.caption.118}%
+\contentsline {figure}{\numberline {IV.9}{\ignorespaces Comparison of Sensitivity and Identifiability Under Noisy Observations}}{76}{figure.caption.120}%
+\contentsline {figure}{\numberline {IV.10}{\ignorespaces Stress Test of Normalizing Flows under Noise}}{77}{figure.caption.122}%
+\contentsline {figure}{\numberline {IV.11}{\ignorespaces Evaluation of Stress Test under Misspecification and OOD}}{78}{figure.caption.123}%
+\contentsline {figure}{\numberline {IV.12}{\ignorespaces Micro View of Distribution under Misspecification}}{79}{figure.caption.124}%
+\contentsline {figure}{\numberline {IV.13}{\ignorespaces Global Residual Analysis under OOD}}{79}{figure.caption.125}%
+\contentsline {figure}{\numberline {IV.14}{\ignorespaces Combining Normalizing Flow with MCMC}}{81}{figure.caption.128}%
+\contentsline {figure}{\numberline {IV.15}{\ignorespaces SNF Architecture}}{82}{figure.caption.131}%
+\contentsline {figure}{\numberline {IV.16}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{84}{figure.caption.133}%
+\contentsline {figure}{\numberline {IV.17}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{85}{figure.caption.135}%
+\contentsline {figure}{\numberline {IV.18}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{88}{figure.caption.136}%
+\contentsline {figure}{\numberline {IV.19}{\ignorespaces Amortized State Flow Segment-Length Metrics}}{89}{figure.caption.137}%
+\contentsline {figure}{\numberline {IV.20}{\ignorespaces Amortized State Flow Segment-Length Trajectories}}{90}{figure.caption.138}%
+\contentsline {figure}{\numberline {IV.21}{\ignorespaces Architecture of Latent State Space Model Flow.}}{91}{figure.caption.139}%
+\contentsline {figure}{\numberline {IV.22}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Trajectories}}{94}{figure.caption.142}%
+\contentsline {figure}{\numberline {IV.23}{\ignorespaces LatentSSMFlow Full-Horizon Uncertainty Distribution}}{95}{figure.caption.143}%
+\contentsline {figure}{\numberline {IV.24}{\ignorespaces Computational graph of FlowSDE}}{99}{figure.caption.149}%
+\contentsline {figure}{\numberline {IV.25}{\ignorespaces Schematic of the stochastic interpolant framework}}{104}{figure.caption.150}%
+\contentsline {figure}{\numberline {IV.26}{\ignorespaces Computational graph of Conditional Stochastic Interpolant}}{106}{figure.caption.151}%
+\contentsline {figure}{\numberline {IV.27}{\ignorespaces Performance of CondStochInterpolant}}{108}{figure.caption.152}%
+\contentsline {figure}{\numberline {IV.28}{\ignorespaces Multi-modality of CondStochInterpolant}}{109}{figure.caption.153}%
+\contentsline {figure}{\numberline {IV.29}{\ignorespaces Trajectory Reconstruction of CondStochInterpolant}}{110}{figure.caption.154}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

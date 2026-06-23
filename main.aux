@@ -90,6 +90,8 @@
 \newacro{OOD}[\AC@hyperlink{OOD}{OOD}]{Out-of-Distribution}
 \newacro{MI}[\AC@hyperlink{MI}{MI}]{Mutual Information}
 \newacro{MLE}[\AC@hyperlink{MLE}{MLE}]{Maximum Likelihood Estimation}
+\newacro{MSE}[\AC@hyperlink{MSE}{MSE}]{Mean Squared Error}
+\newacro{NLL}[\AC@hyperlink{NLL}{NLL}]{negative log-likelihood}
 \newacro{GAN}[\AC@hyperlink{GAN}{GAN}]{Generative Adversarial Network}
 \@writefile{toc}{\contentsline {chapter}{List of Figures}{vii}{section*.1}\protected@file@percent }
 \AC@undonewlabel{acro:MPC}
@@ -106,24 +108,24 @@
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{chap:introduction}{{I}{1}{Introduction}{chapter.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Motivation}{1}{section.1.1}\protected@file@percent }
-\newlabel{sec:introduction:motivation}{{1}{1}{Motivation}{section.1.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I.1}Motivation}{1}{section.1.1}\protected@file@percent }
+\newlabel{sec:introduction:motivation}{{I.1}{1}{Motivation}{section.1.1}{}}
 \citation{pml1Book}
 \citation{pml2Book}
 \citation{Kingma_2019}
 \citation{rezende2016}
 \citation{ho2020ddpm}
-\newlabel{eq:bayes_sim}{{1}{2}{Motivation}{section.1.1}{}}
+\newlabel{eq:bayes_sim}{{I.1}{2}{Motivation}{section.1.1}{}}
 \AC@undonewlabel{acro:DGM}
-\newlabel{acro:DGM}{{1}{2}{Motivation}{section*.5}{}}
+\newlabel{acro:DGM}{{I.1}{2}{Motivation}{section*.5}{}}
 \acronymused{DGM}
 \acronymused{DGM}
 \acronymused{DGM}
 \AC@undonewlabel{acro:VAE}
-\newlabel{acro:VAE}{{1}{2}{Motivation}{section*.6}{}}
+\newlabel{acro:VAE}{{I.1}{2}{Motivation}{section*.6}{}}
 \acronymused{VAE}
 \AC@undonewlabel{acro:NF}
-\newlabel{acro:NF}{{1}{2}{Motivation}{section*.7}{}}
+\newlabel{acro:NF}{{I.1}{2}{Motivation}{section*.7}{}}
 \acronymused{NF}
 \acronymused{DGM}
 \acronymused{DGM}
@@ -135,7 +137,7 @@
 \citation{asperti2020vae}
 \citation{wang2023vae}
 \AC@undonewlabel{acro:BNN}
-\newlabel{acro:BNN}{{1}{3}{Motivation}{section*.8}{}}
+\newlabel{acro:BNN}{{I.1}{3}{Motivation}{section*.8}{}}
 \acronymused{BNN}
 \acronymused{BNN}
 \acronymused{BNN}
@@ -146,10 +148,10 @@
 \acronymused{VAE}
 \acronymused{VAE}
 \AC@undonewlabel{acro:RNN}
-\newlabel{acro:RNN}{{1}{4}{Motivation}{section*.9}{}}
+\newlabel{acro:RNN}{{I.1}{4}{Motivation}{section*.9}{}}
 \acronymused{RNN}
 \AC@undonewlabel{acro:NARX}
-\newlabel{acro:NARX}{{1}{4}{Motivation}{section*.10}{}}
+\newlabel{acro:NARX}{{I.1}{4}{Motivation}{section*.10}{}}
 \acronymused{NARX}
 \acronymused{VAE}
 \acronymused{VAE}
@@ -159,21 +161,21 @@
 \acronymused{NF}
 \acronymused{NF}
 \AC@undonewlabel{acro:RL}
-\newlabel{acro:RL}{{1}{5}{Motivation}{section*.11}{}}
+\newlabel{acro:RL}{{I.1}{5}{Motivation}{section*.11}{}}
 \acronymused{RL}
 \acronymused{RL}
 \AC@undonewlabel{acro:MPC}
-\newlabel{acro:MPC}{{1}{5}{Motivation}{section*.12}{}}
+\newlabel{acro:MPC}{{I.1}{5}{Motivation}{section*.12}{}}
 \acronymused{MPC}
 \acronymused{RL}
 \acronymused{NF}
 \acronymused{NF}
 \acronymused{NF}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Objectives and Contributions}{6}{section.1.2}\protected@file@percent }
-\newlabel{sec:introduction:objectives}{{2}{6}{Objectives and Contributions}{section.1.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Outline}{7}{section.1.3}\protected@file@percent }
-\newlabel{sec:introduction:outline}{{3}{7}{Outline}{section.1.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I.2}Objectives and Contributions}{6}{section.1.2}\protected@file@percent }
+\newlabel{sec:introduction:objectives}{{I.2}{6}{Objectives and Contributions}{section.1.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I.3}Outline}{7}{section.1.3}\protected@file@percent }
+\newlabel{sec:introduction:outline}{{I.3}{7}{Outline}{section.1.3}{}}
 \citation{gelman2013bayesian}
 \citation{Allen_2007}
 \citation{Blei_2017}
@@ -196,15 +198,15 @@
 \AC@undonewlabel{acro:NF}
 \newlabel{acro:NF}{{II}{9}{Background and Preliminaries}{section*.17}{}}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Notations}{9}{section.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {II.1}Notations}{9}{section.2.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {II.1}{\ignorespaces Notation Summary}}{10}{table.caption.18}\protected@file@percent }
 \newlabel{tab:notation-summary}{{II.1}{10}{Notation Summary}{table.caption.18}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Bayesian Inference}{10}{section.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Bayes' Rule}{10}{subsection.2.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {II.2}Bayesian Inference}{10}{section.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.2.1}Bayes' Rule}{10}{subsection.2.2.1}\protected@file@percent }
 \newlabel{eq:bayes}{{II.2}{10}{Bayes' Rule}{equation.2.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Markov Chain Monte Carlo}{11}{subsection.2.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.2.2}Markov Chain Monte Carlo}{11}{subsection.2.2.2}\protected@file@percent }
 \AC@undonewlabel{acro:MCMC}
-\newlabel{acro:MCMC}{{2.2}{11}{Markov Chain Monte Carlo}{section*.19}{}}
+\newlabel{acro:MCMC}{{II.2.2}{11}{Markov Chain Monte Carlo}{section*.19}{}}
 \acronymused{MCMC}
 \acronymused{MCMC}
 \acronymused{MCMC}
@@ -212,16 +214,16 @@
 \citation{Hastings}
 \citation{besag2004markov}
 \acronymused{MCMC}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Metropolis-Hastings Algorithm}{12}{subsubsection.2.2.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.2.2.1}Metropolis-Hastings Algorithm}{12}{subsubsection.2.2.2.1}\protected@file@percent }
 \AC@undonewlabel{acro:MH}
-\newlabel{acro:MH}{{2.2.1}{12}{Metropolis-Hastings Algorithm}{section*.21}{}}
+\newlabel{acro:MH}{{II.2.2.1}{12}{Metropolis-Hastings Algorithm}{section*.21}{}}
 \acronymused{MH}
 \acronymused{MCMC}
 \acronymused{MCMC}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Metropolis-Adjusted Langevin Algorithm}{12}{subsubsection.2.2.2.2}\protected@file@percent }
-\newlabel{sec:MALA}{{2.2.2}{12}{Metropolis-Adjusted Langevin Algorithm}{subsubsection.2.2.2.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.2.2.2}Metropolis-Adjusted Langevin Algorithm}{12}{subsubsection.2.2.2.2}\protected@file@percent }
+\newlabel{sec:MALA}{{II.2.2.2}{12}{Metropolis-Adjusted Langevin Algorithm}{subsubsection.2.2.2.2}{}}
 \AC@undonewlabel{acro:MALA}
-\newlabel{acro:MALA}{{2.2.2}{12}{Metropolis-Adjusted Langevin Algorithm}{section*.22}{}}
+\newlabel{acro:MALA}{{II.2.2.2}{12}{Metropolis-Adjusted Langevin Algorithm}{section*.22}{}}
 \acronymused{MALA}
 \acronymused{MH}
 \newlabel{eq:mh_transition}{{II.7}{13}{Metropolis-Hastings Algorithm}{equation.2.7}{}}
@@ -230,7 +232,7 @@
 \newlabel{tab:comp_mh}{{II.2}{13}{Alignment between MH Algorithm and Autonomous Rover Mapping}{table.caption.20}{}}
 \citation{gabbiani2010mathematics}
 \AC@undonewlabel{acro:SDE}
-\newlabel{acro:SDE}{{2.2.2}{14}{Metropolis-Adjusted Langevin Algorithm}{section*.23}{}}
+\newlabel{acro:SDE}{{II.2.2.2}{14}{Metropolis-Adjusted Langevin Algorithm}{section*.23}{}}
 \acronymused{SDE}
 \@writefile{lof}{\contentsline {figure}{\numberline {II.2}{\ignorespaces MH MALA Comparison}}{14}{figure.caption.24}\protected@file@percent }
 \acronymused{MH}
@@ -253,16 +255,16 @@
 \acronymused{MALA}
 \acronymused{MCMC}
 \AC@undonewlabel{acro:HMC}
-\newlabel{acro:HMC}{{2.2.2}{15}{Metropolis-Adjusted Langevin Algorithm}{section*.25}{}}
+\newlabel{acro:HMC}{{II.2.2.2}{15}{Metropolis-Adjusted Langevin Algorithm}{section*.25}{}}
 \acronymused{HMC}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Variational Inference}{15}{subsection.2.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.2.3}Variational Inference}{15}{subsection.2.2.3}\protected@file@percent }
 \acronymused{MCMC}
 \AC@undonewlabel{acro:VI}
-\newlabel{acro:VI}{{2.3}{15}{Variational Inference}{section*.26}{}}
+\newlabel{acro:VI}{{II.2.3}{15}{Variational Inference}{section*.26}{}}
 \acronymused{VI}
 \acronymused{VI}
 \AC@undonewlabel{acro:KL}
-\newlabel{acro:KL}{{2.3}{15}{Variational Inference}{section*.27}{}}
+\newlabel{acro:KL}{{II.2.3}{15}{Variational Inference}{section*.27}{}}
 \acronymused{KL}
 \acronymused{VI}
 \citation{bishop2006}
@@ -272,13 +274,13 @@
 \acronymused{KL}
 \newlabel{eq:vi_kl2}{{II.17}{16}{Variational Inference}{equation.2.17}{}}
 \acronymused{KL}
-\zref@newlabel{mdf@pagelabel-1}{\default{2.3}\page{16}\abspage{36}\mdf@pagevalue{16}}
+\zref@newlabel{mdf@pagelabel-1}{\default{II.2.3}\page{16}\abspage{36}\mdf@pagevalue{16}}
 \newlabel{eq:elbo1}{{II.19}{16}{Variational Inference}{equation.2.19}{}}
 \AC@undonewlabel{acro:ELBO}
-\newlabel{acro:ELBO}{{2.3}{16}{Variational Inference}{section*.28}{}}
+\newlabel{acro:ELBO}{{II.2.3}{16}{Variational Inference}{section*.28}{}}
 \acronymused{ELBO}
 \acronymused{ELBO}
-\zref@newlabel{mdf@pagelabel-2}{\default{2.3}\page{16}\abspage{36}\mdf@pagevalue{16}}
+\zref@newlabel{mdf@pagelabel-2}{\default{II.2.3}\page{16}\abspage{36}\mdf@pagevalue{16}}
 \newlabel{eq:elbo2}{{II.20}{16}{Variational Inference}{equation.2.20}{}}
 \acronymused{KL}
 \acronymused{ELBO}
@@ -287,29 +289,29 @@
 \citation{Blei_2017}
 \acronymused{ELBO}
 \AC@undonewlabel{acro:CAVI}
-\newlabel{acro:CAVI}{{2.3}{17}{Variational Inference}{section*.29}{}}
+\newlabel{acro:CAVI}{{II.2.3}{17}{Variational Inference}{section*.29}{}}
 \acronymused{CAVI}
 \acronymused{VI}
 \acronymused{VI}
 \acronymused{MCMC}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Deep Probabilistic Methods}{17}{section.2.3}\protected@file@percent }
-\newlabel{sec:introduction:background:deep_probabilistic_methods}{{3}{17}{Deep Probabilistic Methods}{section.2.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {II.3}Deep Probabilistic Methods}{17}{section.2.3}\protected@file@percent }
+\newlabel{sec:introduction:background:deep_probabilistic_methods}{{II.3}{17}{Deep Probabilistic Methods}{section.2.3}{}}
 \acronymused{MCMC}
 \acronymused{VI}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Deep Gaussian Process}{17}{subsection.2.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.3.1}Deep Gaussian Process}{17}{subsection.2.3.1}\protected@file@percent }
 \citation{Rasmussen_Williams_2008}
 \AC@undonewlabel{acro:GPR}
-\newlabel{acro:GPR}{{3.1}{18}{Deep Gaussian Process}{section*.30}{}}
+\newlabel{acro:GPR}{{II.3.1}{18}{Deep Gaussian Process}{section*.30}{}}
 \acronymused{GPR}
 \acronymused{MCMC}
 \acronymused{GPR}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}Gaussian Process Regression}{18}{subsubsection.2.3.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.3.1.1}Gaussian Process Regression}{18}{subsubsection.2.3.1.1}\protected@file@percent }
 \newlabel{eq:simgp}{{II.25}{18}{Gaussian Process Regression}{equation.2.25}{}}
 \AC@undonewlabel{acro:SE}
-\newlabel{acro:SE}{{3.1.1}{18}{Gaussian Process Regression}{section*.31}{}}
+\newlabel{acro:SE}{{II.3.1.1}{18}{Gaussian Process Regression}{section*.31}{}}
 \acronymused{SE}
 \AC@undonewlabel{acro:RBF}
-\newlabel{acro:RBF}{{3.1.1}{18}{Gaussian Process Regression}{section*.32}{}}
+\newlabel{acro:RBF}{{II.3.1.1}{18}{Gaussian Process Regression}{section*.32}{}}
 \acronymused{RBF}
 \acronymused{GPR}
 \citation{li2025gaussianprocessregressioninverse}
@@ -318,8 +320,8 @@
 \citation{Neal1996}
 \acronymused{GPR}
 \acronymused{GPR}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.2}Parameter Identification using GPR}{19}{subsubsection.2.3.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.3}Deep Gaussian Process}{19}{subsubsection.2.3.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.3.1.2}Parameter Identification using GPR}{19}{subsubsection.2.3.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.3.1.3}Deep Gaussian Process}{19}{subsubsection.2.3.1.3}\protected@file@percent }
 \acronymused{DGP}
 \acronymused{DGP}
 \citation{Neal1996,MacKay1992}
@@ -330,7 +332,7 @@
 \@writefile{lot}{\contentsline {table}{\numberline {II.3}{\ignorespaces Two Strategies for Parameter Identification Using GPR}}{20}{table.caption.33}\protected@file@percent }
 \newlabel{tab:comp_gp}{{II.3}{20}{Two Strategies for Parameter Identification Using GPR}{table.caption.33}{}}
 \acronymused{DGP}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Bayesian Neural Network}{20}{subsection.2.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.3.2}Bayesian Neural Network}{20}{subsection.2.3.2}\protected@file@percent }
 \acronymused{BNN}
 \acronymused{BNN}
 \acronymused{VI}
@@ -346,35 +348,35 @@
 \citation{silvestro2020prior}
 \acronymused{BNN}
 \AC@undonewlabel{acro:SGD}
-\newlabel{acro:SGD}{{3.2}{21}{Bayesian Neural Network}{section*.34}{}}
+\newlabel{acro:SGD}{{II.3.2}{21}{Bayesian Neural Network}{section*.34}{}}
 \acronymused{SGD}
 \acronymused{ELBO}
 \acronymused{SGD}
 \acronymused{BNN}
 \acronymused{ELBO}
 \AC@undonewlabel{acro:BbB}
-\newlabel{acro:BbB}{{3.2}{21}{Bayesian Neural Network}{section*.35}{}}
+\newlabel{acro:BbB}{{II.3.2}{21}{Bayesian Neural Network}{section*.35}{}}
 \acronymused{BbB}
 \acronymused{DGP}
 \acronymused{BNN}
 \acronymused{BbB}
 \acronymused{BNN}
 \AC@undonewlabel{acro:CNN}
-\newlabel{acro:CNN}{{3.2}{21}{Bayesian Neural Network}{section*.36}{}}
+\newlabel{acro:CNN}{{II.3.2}{21}{Bayesian Neural Network}{section*.36}{}}
 \acronymused{CNN}
 \AC@undonewlabel{acro:RNN}
-\newlabel{acro:RNN}{{3.2}{21}{Bayesian Neural Network}{section*.37}{}}
+\newlabel{acro:RNN}{{II.3.2}{21}{Bayesian Neural Network}{section*.37}{}}
 \acronymused{RNN}
 \acronymused{DGP}
 \acronymused{BNN}
 \citation{Kingma_2019}
 \citation{gershman2014amortized,margossian2024amortized}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Variational Autoencoder}{22}{subsection.2.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.3.3}Variational Autoencoder}{22}{subsection.2.3.3}\protected@file@percent }
 \acronymused{VI}
 \acronymused{VAE}
 \AC@undonewlabel{acro:i.i.d.}
-\newlabel{acro:i.i.d.}{{3.3}{22}{Variational Autoencoder}{section*.38}{}}
+\newlabel{acro:i.i.d.}{{II.3.3}{22}{Variational Autoencoder}{section*.38}{}}
 \acronymused{i.i.d.}
 \acronymused{VAE}
 \acronymused{VAE}
@@ -402,24 +404,24 @@
 \citation{rezende2016}
 \citation{changeofvariables}
 \acronymused{VAE}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Normalizing Flow}{24}{section.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {II.4}Normalizing Flow}{24}{section.2.4}\protected@file@percent }
 \acronymused{NF}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Basics}{24}{subsection.2.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.4.1}Basics}{24}{subsection.2.4.1}\protected@file@percent }
 \acronymused{NF}
 \newlabel{eq:xfz}{{II.38a}{24}{Basics}{equation.2.38a}{}}
 \newlabel{eq:zfx}{{II.38b}{24}{Basics}{equation.2.38b}{}}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Change of Variables}{24}{subsubsection.2.4.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.4.1.1}Change of Variables}{24}{subsubsection.2.4.1.1}\protected@file@percent }
 \newlabel{eq:changeofvariables}{{II.39}{24}{Change of Variables}{equation.2.39}{}}
 \citation{DU04}
 \@writefile{lof}{\contentsline {figure}{\numberline {II.4}{\ignorespaces The Clay Volume Analogy for Change of Variables}}{25}{figure.caption.40}\protected@file@percent }
 \newlabel{fig:rnd}{{II.4}{25}{The Clay Volume Analogy for Change of Variables}{figure.caption.40}{}}
 \AC@undonewlabel{acro:PDF}
-\newlabel{acro:PDF}{{4.1.1}{25}{Change of Variables}{section*.41}{}}
+\newlabel{acro:PDF}{{II.4.1.1}{25}{Change of Variables}{section*.41}{}}
 \acronymused{PDF}
 \AC@undonewlabel{acro:CDF}
-\newlabel{acro:CDF}{{4.1.1}{25}{Change of Variables}{section*.42}{}}
+\newlabel{acro:CDF}{{II.4.1.1}{25}{Change of Variables}{section*.42}{}}
 \acronymused{CDF}
 \acronymused{PDF}
 \newlabel{eq:intx}{{II.42b}{26}{Change of Variables}{equation.2.42b}{}}
@@ -428,18 +430,18 @@
 \newlabel{eq:xnfz}{{II.46}{26}{Change of Variables}{equation.2.46}{}}
 \newlabel{eq:znfx}{{II.47}{26}{Change of Variables}{equation.2.47}{}}
 \acronymused{NF}
-\zref@newlabel{mdf@pagelabel-3}{\default{4.1.1}\page{26}\abspage{46}\mdf@pagevalue{26}}
+\zref@newlabel{mdf@pagelabel-3}{\default{II.4.1.1}\page{26}\abspage{46}\mdf@pagevalue{26}}
 \citation{papamakarios2021nf}
 \newlabel{eq:nfchangeofvariables}{{II.48}{27}{Change of Variables}{equation.2.48}{}}
 \acronymused{NF}
 \acronymused{NF}
 \newlabel{eq:inverse_composition}{{II.50b}{27}{Change of Variables}{equation.2.50b}{}}
 \newlabel{eq:jacobian_chain_rule}{{II.50c}{27}{Change of Variables}{equation.2.50c}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Using Normalizing Flows for Modeling and Inference}{28}{subsubsection.2.4.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.4.1.2}Using Normalizing Flows for Modeling and Inference}{28}{subsubsection.2.4.1.2}\protected@file@percent }
 \acronymused{NF}
 \acronymused{NF}
 \AC@undonewlabel{acro:MLE}
-\newlabel{acro:MLE}{{4.1.2}{28}{Using Normalizing Flows for Modeling and Inference}{section*.43}{}}
+\newlabel{acro:MLE}{{II.4.1.2}{28}{Using Normalizing Flows for Modeling and Inference}{section*.43}{}}
 \acronymused{MLE}
 \newlabel{eq:kl_nf}{{II.54}{28}{Using Normalizing Flows for Modeling and Inference}{equation.2.54}{}}
 \acronymused{NF}
@@ -452,8 +454,8 @@
 \acronymused{NF}
 \acronymused{NF}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Coupling Flows}{29}{subsection.2.4.2}\protected@file@percent }
-\newlabel{sec:background:coupling}{{4.2}{29}{Coupling Flows}{subsection.2.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.4.2}Coupling Flows}{29}{subsection.2.4.2}\protected@file@percent }
+\newlabel{sec:background:coupling}{{II.4.2}{29}{Coupling Flows}{subsection.2.4.2}{}}
 \acronymused{NICE}
 \newlabel{eq:background:nice}{{II.57}{29}{Coupling Flows}{equation.2.57}{}}
 \citation{ardizzone2019inn}
@@ -487,22 +489,22 @@
 \citation{khalil2002nonlinear}
 \acronymused{RealNVP}
 \AC@undonewlabel{acro:HINT}
-\newlabel{acro:HINT}{{4.2}{31}{Coupling Flows}{section*.48}{}}
+\newlabel{acro:HINT}{{II.4.2}{31}{Coupling Flows}{section*.48}{}}
 \acronymused{HINT}
 \AC@undonewlabel{acro:MAF}
-\newlabel{acro:MAF}{{4.2}{31}{Coupling Flows}{section*.49}{}}
+\newlabel{acro:MAF}{{II.4.2}{31}{Coupling Flows}{section*.49}{}}
 \acronymused{MAF}
 \acronymused{RealNVP}
 \AC@undonewlabel{acro:NSF}
-\newlabel{acro:NSF}{{4.2}{31}{Coupling Flows}{section*.50}{}}
+\newlabel{acro:NSF}{{II.4.2}{31}{Coupling Flows}{section*.50}{}}
 \acronymused{NSF}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Residual Flows}{31}{subsection.2.4.3}\protected@file@percent }
-\newlabel{sec:resflow}{{4.3}{31}{Residual Flows}{subsection.2.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.4.3}Residual Flows}{31}{subsection.2.4.3}\protected@file@percent }
+\newlabel{sec:resflow}{{II.4.3}{31}{Residual Flows}{subsection.2.4.3}{}}
 \newlabel{lem:invertibility}{{1}{31}{}{lemma.1}{}}
 \citation{Shukla2016}
 \citation{lu2020finitelayer,ruthotto2018deep,haber2017stable}
 \AC@undonewlabel{acro:ODE}
-\newlabel{acro:ODE}{{4.3}{32}{Residual Flows}{section*.51}{}}
+\newlabel{acro:ODE}{{II.4.3}{32}{Residual Flows}{section*.51}{}}
 \acronymused{ODE}
 \acronymused{NF}
 \newlabel{fig:resflow}{{II.6a}{32}{Residual Flow}{figure.caption.52}{}}
@@ -513,14 +515,14 @@
 \newlabel{sub@fig:flowmatch}{{c}{32}{Flow Matching}{figure.caption.52}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {II.6}{\ignorespaces Illustration of three Flows}}{32}{figure.caption.52}\protected@file@percent }
 \newlabel{fig:illust_flow}{{II.6}{32}{Illustration of three Flows}{figure.caption.52}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Continuous Flows}{32}{subsection.2.4.4}\protected@file@percent }
-\newlabel{sec:cnf}{{4.4}{32}{Continuous Flows}{subsection.2.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.4.4}Continuous Flows}{32}{subsection.2.4.4}\protected@file@percent }
+\newlabel{sec:cnf}{{II.4.4}{32}{Continuous Flows}{subsection.2.4.4}{}}
 \acronymused{NF}
 \acronymused{NF}
 \citation{chen2019node}
 \citation{coddington1955theory}
 \acronymused{ODE}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1}Neural Ordinary Differential Equations}{33}{subsubsection.2.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.4.4.1}Neural Ordinary Differential Equations}{33}{subsubsection.2.4.4.1}\protected@file@percent }
 \acronymused{ODE}
 \acronymused{ODE}
 \acronymused{ODE}
@@ -541,7 +543,7 @@
 \citation{chen2019node}
 \citation{Skilling1989,Hutchinson01011990,adams2018adams}
 \citation{grathwohl2018ffjord}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2}Continuous Normalizing Flows}{34}{subsubsection.2.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.4.4.2}Continuous Normalizing Flows}{34}{subsubsection.2.4.4.2}\protected@file@percent }
 \acronymused{ODE}
 \newlabel{eq:instchangeofvar}{{II.67}{34}{Continuous Normalizing Flows}{equation.2.67}{}}
 \acronymused{ODE}
@@ -552,10 +554,10 @@
 \acronymused{NF}
 \acronymused{NF}
 \acronymused{ODE}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Flow Matching}{35}{subsection.2.4.5}\protected@file@percent }
-\newlabel{sec:flowmatching}{{4.5}{35}{Flow Matching}{subsection.2.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.4.5}Flow Matching}{35}{subsection.2.4.5}\protected@file@percent }
+\newlabel{sec:flowmatching}{{II.4.5}{35}{Flow Matching}{subsection.2.4.5}{}}
 \AC@undonewlabel{acro:FM}
-\newlabel{acro:FM}{{4.5}{35}{Flow Matching}{section*.53}{}}
+\newlabel{acro:FM}{{II.4.5}{35}{Flow Matching}{section*.53}{}}
 \acronymused{FM}
 \acronymused{NF}
 \citation{radev2021diss}
@@ -570,12 +572,12 @@
 \acronymused{FM}
 \acronymused{ODE}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Conditional Normalizing Flows}{36}{subsection.2.4.6}\protected@file@percent }
-\newlabel{sec:condnf}{{4.6}{36}{Conditional Normalizing Flows}{subsection.2.4.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.4.6}Conditional Normalizing Flows}{36}{subsection.2.4.6}\protected@file@percent }
+\newlabel{sec:condnf}{{II.4.6}{36}{Conditional Normalizing Flows}{subsection.2.4.6}{}}
 \acronymused{VAE}
 \acronymused{NF}
 \AC@undonewlabel{acro:CNF}
-\newlabel{acro:CNF}{{4.6}{36}{Conditional Normalizing Flows}{section*.54}{}}
+\newlabel{acro:CNF}{{II.4.6}{36}{Conditional Normalizing Flows}{section*.54}{}}
 \acronymused{CNF}
 \acronymused{CNF}
 \acronymused{CNF}
@@ -587,7 +589,7 @@
 \acronymused{CNF}
 \acronymused{INN}
 \AC@undonewlabel{acro:cINN}
-\newlabel{acro:cINN}{{4.6}{37}{Conditional Normalizing Flows}{section*.55}{}}
+\newlabel{acro:cINN}{{II.4.6}{37}{Conditional Normalizing Flows}{section*.55}{}}
 \acronymused{cINN}
 \acronymused{cINN}
 \acronymused{cINN}
@@ -602,36 +604,36 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {II.7}{\ignorespaces BayesFlow Architecture}}{38}{figure.caption.56}\protected@file@percent }
 \acronymused{cINN}
 \newlabel{fig:bayesflow}{{II.7}{38}{BayesFlow Architecture}{figure.caption.56}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}From Bayesian Inference to Control}{38}{section.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {II.5}From Bayesian Inference to Control}{38}{section.2.5}\protected@file@percent }
 \AC@undonewlabel{acro:MPC}
-\newlabel{acro:MPC}{{5}{38}{From Bayesian Inference to Control}{section*.57}{}}
+\newlabel{acro:MPC}{{II.5}{38}{From Bayesian Inference to Control}{section*.57}{}}
 \acronymused{MPC}
 \AC@undonewlabel{acro:RL}
-\newlabel{acro:RL}{{5}{38}{From Bayesian Inference to Control}{section*.58}{}}
+\newlabel{acro:RL}{{II.5}{38}{From Bayesian Inference to Control}{section*.58}{}}
 \acronymused{RL}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Bayesian System Identification}{38}{subsection.2.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.5.1}Bayesian System Identification}{38}{subsection.2.5.1}\protected@file@percent }
 \citation{Spiegelhalter2002,Spiegelhalter2014,li2025DIC}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.1}Bayesian Model Selection}{39}{subsubsection.2.5.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.5.1.1}Bayesian Model Selection}{39}{subsubsection.2.5.1.1}\protected@file@percent }
 \AC@undonewlabel{acro:DIC}
-\newlabel{acro:DIC}{{5.1.1}{39}{Bayesian Model Selection}{section*.59}{}}
+\newlabel{acro:DIC}{{II.5.1.1}{39}{Bayesian Model Selection}{section*.59}{}}
 \acronymused{DIC}
 \citation{bayesestimation}
 \acronymused{DIC}
 \acronymused{MCMC}
 \acronymused{DIC}
 \acronymused{DIC}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.2}Bayesian Parameter Identification}{40}{subsubsection.2.5.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.5.1.2}Bayesian Parameter Identification}{40}{subsubsection.2.5.1.2}\protected@file@percent }
 \AC@undonewlabel{acro:MAP}
-\newlabel{acro:MAP}{{5.1.2}{40}{Bayesian Parameter Identification}{section*.60}{}}
+\newlabel{acro:MAP}{{II.5.1.2}{40}{Bayesian Parameter Identification}{section*.60}{}}
 \acronymused{MAP}
 \citation{chen_bayesian_2003}
 \citation{kf1960}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Bayesian State Estimation}{41}{subsection.2.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}Bayesian Filters}{41}{subsubsection.2.5.2.1}\protected@file@percent }
-\newlabel{sec:bayesfilter}{{5.2.1}{41}{Bayesian Filters}{subsubsection.2.5.2.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.5.2}Bayesian State Estimation}{41}{subsection.2.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.5.2.1}Bayesian Filters}{41}{subsubsection.2.5.2.1}\protected@file@percent }
+\newlabel{sec:bayesfilter}{{II.5.2.1}{41}{Bayesian Filters}{subsubsection.2.5.2.1}{}}
 \newlabel{eq:bayesfilter}{{II.89}{41}{Bayesian Filters}{equation.2.89}{}}
 \AC@undonewlabel{acro:KF}
-\newlabel{acro:KF}{{5.2.1}{41}{Bayesian Filters}{section*.61}{}}
+\newlabel{acro:KF}{{II.5.2.1}{41}{Bayesian Filters}{section*.61}{}}
 \acronymused{KF}
 \citation{simon2006optimal}
 \citation{ukf2000}
@@ -639,14 +641,14 @@
 \newlabel{eq:kalman_prediction}{{II.91a}{42}{Bayesian Filters}{equation.2.91a}{}}
 \newlabel{eq:kalman_update}{{II.91b}{42}{Bayesian Filters}{equation.2.91b}{}}
 \AC@undonewlabel{acro:EKF}
-\newlabel{acro:EKF}{{5.2.1}{42}{Bayesian Filters}{section*.62}{}}
+\newlabel{acro:EKF}{{II.5.2.1}{42}{Bayesian Filters}{section*.62}{}}
 \acronymused{EKF}
 \acronymused{EKF}
 \AC@undonewlabel{acro:UKF}
-\newlabel{acro:UKF}{{5.2.1}{42}{Bayesian Filters}{section*.63}{}}
+\newlabel{acro:UKF}{{II.5.2.1}{42}{Bayesian Filters}{section*.63}{}}
 \acronymused{UKF}
 \AC@undonewlabel{acro:PF}
-\newlabel{acro:PF}{{5.2.1}{42}{Bayesian Filters}{section*.64}{}}
+\newlabel{acro:PF}{{II.5.2.1}{42}{Bayesian Filters}{section*.64}{}}
 \acronymused{PF}
 \acronymused{PF}
 \acronymused{KF}
@@ -656,13 +658,13 @@
 \acronymused{PF}
 \citation{Durbin2012}
 \citation{Dempster1977}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}State-Space Models}{43}{subsubsection.2.5.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.5.2.2}State-Space Models}{43}{subsubsection.2.5.2.2}\protected@file@percent }
 \AC@undonewlabel{acro:SSM}
-\newlabel{acro:SSM}{{5.2.2}{43}{State-Space Models}{section*.65}{}}
+\newlabel{acro:SSM}{{II.5.2.2}{43}{State-Space Models}{section*.65}{}}
 \acronymused{SSM}
 \acronymused{SSM}
 \AC@undonewlabel{acro:EM}
-\newlabel{acro:EM}{{5.2.2}{43}{State-Space Models}{section*.66}{}}
+\newlabel{acro:EM}{{II.5.2.2}{43}{State-Space Models}{section*.66}{}}
 \acronymused{EM}
 \acronymused{EM}
 \citation{Durbin2000}
@@ -675,12 +677,12 @@
 \acronymused{UKF}
 \acronymused{SSM}
 \acronymused{PF}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.3}Stochastic Differential Equations}{44}{subsubsection.2.5.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.5.2.3}Stochastic Differential Equations}{44}{subsubsection.2.5.2.3}\protected@file@percent }
 \acronymused{SSM}
 \acronymused{SSM}
 \acronymused{SDE}
 \acronymused{SDE}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Model Predictive Control}{44}{subsection.2.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.5.3}Model Predictive Control}{44}{subsection.2.5.3}\protected@file@percent }
 \acronymused{MPC}
 \acronymused{MPC}
 \newlabel{fig:mpc}{{II.8a}{45}{Schematic of Model Predictive Control}{figure.caption.67}{}}
@@ -691,7 +693,7 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {II.8}{\ignorespaces \ac {MPC} and \ac {RL}.}}{45}{figure.caption.67}\protected@file@percent }
 \acronymused{MPC}
 \acronymused{RL}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.1}Nominal Model Predictive Control}{45}{subsubsection.2.5.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.5.3.1}Nominal Model Predictive Control}{45}{subsubsection.2.5.3.1}\protected@file@percent }
 \newlabel{eq:mpc_model}{{II.96a}{45}{Nominal Model Predictive Control}{equation.2.96a}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {II.9}{\ignorespaces MPC time dependency}}{45}{figure.caption.68}\protected@file@percent }
 \acronymused{MPC}
@@ -709,7 +711,7 @@
 \acronymused{MPC}
 \acronymused{MPC}
 \acronymused{MPC}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.2}Stochastic Model Predictive Control}{46}{subsubsection.2.5.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {II.5.3.2}Stochastic Model Predictive Control}{46}{subsubsection.2.5.3.2}\protected@file@percent }
 \acronymused{MPC}
 \acronymused{MPC}
 \acronymused{MPC}
@@ -722,15 +724,15 @@
 \acronymused{MPC}
 \acronymused{MPC}
 \newlabel{eq:smpc}{{II.98}{47}{Stochastic Model Predictive Control}{equation.2.98}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Reinforcement Learning for Control}{47}{subsection.2.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {II.5.4}Reinforcement Learning for Control}{47}{subsection.2.5.4}\protected@file@percent }
 \AC@undonewlabel{acro:PID}
-\newlabel{acro:PID}{{5.4}{47}{Reinforcement Learning for Control}{section*.69}{}}
+\newlabel{acro:PID}{{II.5.4}{47}{Reinforcement Learning for Control}{section*.69}{}}
 \acronymused{PID}
 \acronymused{RL}
 \acronymused{RL}
 \acronymused{RL}
 \AC@undonewlabel{acro:MDP}
-\newlabel{acro:MDP}{{5.4}{47}{Reinforcement Learning for Control}{section*.70}{}}
+\newlabel{acro:MDP}{{II.5.4}{47}{Reinforcement Learning for Control}{section*.70}{}}
 \acronymused{MDP}
 \acronymused{MDP}
 \citation{rlforcontrol2018}
@@ -773,16 +775,16 @@
 \AC@undonewlabel{acro:CNF}
 \newlabel{acro:CNF}{{III}{49}{Literature Review}{section*.74}{}}
 \acronymused{CNF}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Bayesian Parameter Identification}{49}{section.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Deep Gaussian Processes}{49}{subsection.3.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III.1}Bayesian Parameter Identification}{49}{section.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.1.1}Deep Gaussian Processes}{49}{subsection.3.1.1}\protected@file@percent }
 \acronymused{DGP}
 \AC@undonewlabel{acro:GPR}
-\newlabel{acro:GPR}{{1.1}{49}{Deep Gaussian Processes}{section*.75}{}}
+\newlabel{acro:GPR}{{III.1.1}{49}{Deep Gaussian Processes}{section*.75}{}}
 \acronymused{GPR}
 \acronymused{DGP}
 \acronymused{DGP}
 \AC@undonewlabel{acro:PDE}
-\newlabel{acro:PDE}{{1.1}{49}{Deep Gaussian Processes}{section*.76}{}}
+\newlabel{acro:PDE}{{III.1.1}{49}{Deep Gaussian Processes}{section*.76}{}}
 \acronymused{PDE}
 \acronymused{DGP}
 \acronymused{DGP}
@@ -813,34 +815,34 @@
 \citation{Zeng2023}
 \citation{Rahmandad2025_uh}
 \citation{Rahmandad2025_uh}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Bayesian Neural Networks}{50}{subsection.3.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.1.2}Bayesian Neural Networks}{50}{subsection.3.1.2}\protected@file@percent }
 \acronymused{BNN}
 \acronymused{BNN}
 \AC@undonewlabel{acro:PINN}
-\newlabel{acro:PINN}{{1.2}{50}{Bayesian Neural Networks}{section*.77}{}}
+\newlabel{acro:PINN}{{III.1.2}{50}{Bayesian Neural Networks}{section*.77}{}}
 \acronymused{PINN}
 \acronymused{PDE}
 \acronymused{PINN}
 \AC@undonewlabel{acro:ODE}
-\newlabel{acro:ODE}{{1.2}{50}{Bayesian Neural Networks}{section*.78}{}}
+\newlabel{acro:ODE}{{III.1.2}{50}{Bayesian Neural Networks}{section*.78}{}}
 \acronymused{ODE}
 \acronymused{PDE}
 \acronymused{ODE}
 \acronymused{PDE}
 \AC@undonewlabel{acro:MCMC}
-\newlabel{acro:MCMC}{{1.2}{50}{Bayesian Neural Networks}{section*.79}{}}
+\newlabel{acro:MCMC}{{III.1.2}{50}{Bayesian Neural Networks}{section*.79}{}}
 \acronymused{MCMC}
 \acronymused{BNN}
 \acronymused{BNN}
 \AC@undonewlabel{acro:HMC}
-\newlabel{acro:HMC}{{1.2}{50}{Bayesian Neural Networks}{section*.80}{}}
+\newlabel{acro:HMC}{{III.1.2}{50}{Bayesian Neural Networks}{section*.80}{}}
 \acronymused{HMC}
 \acronymused{BNN}
 \acronymused{BNN}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Conditional Variational Autoencoders}{50}{subsection.3.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.1.3}Conditional Variational Autoencoders}{50}{subsection.3.1.3}\protected@file@percent }
 \acronymused{CVAE}
 \AC@undonewlabel{acro:VAE}
-\newlabel{acro:VAE}{{1.3}{50}{Conditional Variational Autoencoders}{section*.81}{}}
+\newlabel{acro:VAE}{{III.1.3}{50}{Conditional Variational Autoencoders}{section*.81}{}}
 \acronymused{VAE}
 \acronymused{CVAE}
 \acronymused{CVAE}
@@ -862,19 +864,19 @@
 \citation{baldassari2023}
 \citation{chen2025conddiff}
 \citation{chen2025conddiff}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.4}Conditional Normalizing Flows}{51}{subsection.3.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.1.4}Conditional Normalizing Flows}{51}{subsection.3.1.4}\protected@file@percent }
 \acronymused{CNF}
 \acronymused{CVAE}
 \acronymused{CNF}
 \acronymused{CNF}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.5}Conditional Diffusion Models}{51}{subsection.3.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.1.5}Conditional Diffusion Models}{51}{subsection.3.1.5}\protected@file@percent }
 \acronymused{PDE}
 \acronymused{CNF}
 \AC@undonewlabel{acro:DGM}
-\newlabel{acro:DGM}{{1.5}{51}{Conditional Diffusion Models}{section*.82}{}}
+\newlabel{acro:DGM}{{III.1.5}{51}{Conditional Diffusion Models}{section*.82}{}}
 \acronymused{DGM}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Bayesian State Estimation}{51}{section.3.2}\protected@file@percent }
-\newlabel{sec:literature:state_estimation}{{2}{51}{Bayesian State Estimation}{section.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {III.2}Bayesian State Estimation}{51}{section.3.2}\protected@file@percent }
+\newlabel{sec:literature:state_estimation}{{III.2}{51}{Bayesian State Estimation}{section.3.2}{}}
 \citation{yan2024brnn}
 \citation{yan2024brnn}
 \citation{fraccaro2017kvae}
@@ -887,15 +889,15 @@
 \citation{lin2024ssm}
 \citation{somvanshi2025s4mamba}
 \citation{somvanshi2025s4mamba}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Data-Assisted Bayesian Filters}{52}{subsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.2.1}Data-Assisted Bayesian Filters}{52}{subsection.3.2.1}\protected@file@percent }
 \AC@undonewlabel{acro:RNN}
-\newlabel{acro:RNN}{{2.1}{52}{Data-Assisted Bayesian Filters}{section*.83}{}}
+\newlabel{acro:RNN}{{III.2.1}{52}{Data-Assisted Bayesian Filters}{section*.83}{}}
 \acronymused{RNN}
 \acronymused{VAE}
 \acronymused{VAE}
 \acronymused{VAE}
 \AC@undonewlabel{acro:NF}
-\newlabel{acro:NF}{{2.1}{52}{Data-Assisted Bayesian Filters}{section*.84}{}}
+\newlabel{acro:NF}{{III.2.1}{52}{Data-Assisted Bayesian Filters}{section*.84}{}}
 \acronymused{NF}
 \acronymused{NF}
 \acronymused{NF}
@@ -904,9 +906,9 @@
 \acronymused{CNF}
 \acronymused{NF}
 \acronymused{CNF}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Deep State-Space Models}{52}{subsection.3.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.2.2}Deep State-Space Models}{52}{subsection.3.2.2}\protected@file@percent }
 \AC@undonewlabel{acro:SSM}
-\newlabel{acro:SSM}{{2.2}{52}{Deep State-Space Models}{section*.85}{}}
+\newlabel{acro:SSM}{{III.2.2}{52}{Deep State-Space Models}{section*.85}{}}
 \acronymused{SSM}
 \citation{wang2025flow}
 \citation{wang2025flow}
@@ -916,12 +918,10 @@
 \citation{8972113}
 \citation{PANIAGUA2024200344}
 \citation{PANIAGUA2024200344}
-\citation{roeder2019abi}
-\citation{roeder2019abi}
 \acronymused{SSM}
 \acronymused{ODE}
 \AC@undonewlabel{acro:SDE}
-\newlabel{acro:SDE}{{2.2}{53}{Deep State-Space Models}{section*.86}{}}
+\newlabel{acro:SDE}{{III.2.2}{53}{Deep State-Space Models}{section*.86}{}}
 \acronymused{SDE}
 \acronymused{SSM}
 \acronymused{RNN}
@@ -930,23 +930,23 @@
 \acronymused{SSM}
 \acronymused{SSM}
 \AC@undonewlabel{acro:GP}
-\newlabel{acro:GP}{{2.2}{53}{Deep State-Space Models}{section*.87}{}}
+\newlabel{acro:GP}{{III.2.2}{53}{Deep State-Space Models}{section*.87}{}}
 \acronymused{GP}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Deep Probabilistic Models and Time Series Modeling}{53}{section.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{53}{subsection.3.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III.3}Deep Probabilistic Models and Time Series Modeling}{53}{section.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.3.1}Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{53}{subsection.3.3.1}\protected@file@percent }
 \acronymused{DGM}
 \AC@undonewlabel{acro:LSTM}
-\newlabel{acro:LSTM}{{3.1}{53}{Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{section*.88}{}}
+\newlabel{acro:LSTM}{{III.3.1}{53}{Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{section*.88}{}}
 \acronymused{LSTM}
 \acronymused{VAE}
 \AC@undonewlabel{acro:NARX}
-\newlabel{acro:NARX}{{3.1}{53}{Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{section*.89}{}}
+\newlabel{acro:NARX}{{III.3.1}{53}{Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{section*.89}{}}
 \acronymused{NARX}
 \acronymused{VAE}
 \acronymused{NARX}
-\acronymused{VAE}
-\acronymused{NARX}
+\citation{roeder2019abi}
+\citation{roeder2019abi}
 \citation{hodg2021stoch}
 \citation{deng2021ctfp}
 \citation{Bekri_2024}
@@ -955,11 +955,13 @@
 \citation{zhu2024diffusion}
 \citation{wen2025diffusionvla}
 \acronymused{VAE}
+\acronymused{NARX}
+\acronymused{VAE}
 \acronymused{ODE}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Normalizing Flows and Stochastic Processes}{54}{subsection.3.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III.3.2}Normalizing Flows and Stochastic Processes}{54}{subsection.3.3.2}\protected@file@percent }
 \acronymused{NF}
 \AC@undonewlabel{acro:SCNF}
-\newlabel{acro:SCNF}{{3.2}{54}{Normalizing Flows and Stochastic Processes}{section*.90}{}}
+\newlabel{acro:SCNF}{{III.3.2}{54}{Normalizing Flows and Stochastic Processes}{section*.90}{}}
 \acronymused{SCNF}
 \acronymused{SDE}
 \acronymused{ODE}
@@ -967,7 +969,7 @@
 \acronymused{ODE}
 \acronymused{SCNF}
 \AC@undonewlabel{acro:CTFP}
-\newlabel{acro:CTFP}{{3.2}{54}{Normalizing Flows and Stochastic Processes}{section*.91}{}}
+\newlabel{acro:CTFP}{{III.3.2}{54}{Normalizing Flows and Stochastic Processes}{section*.91}{}}
 \acronymused{CTFP}
 \acronymused{CTFP}
 \acronymused{CTFP}
@@ -1006,9 +1008,9 @@
     {1}{111.58464pt}\LT@entry 
     {1}{111.58464pt}\LT@entry 
     {1}{203.62206pt}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Deep Generative Models as Control Policy}{55}{section.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III.4}Deep Generative Models as Control Policy}{55}{section.3.4}\protected@file@percent }
 \AC@undonewlabel{acro:RL}
-\newlabel{acro:RL}{{4}{55}{Deep Generative Models as Control Policy}{section*.92}{}}
+\newlabel{acro:RL}{{III.4}{55}{Deep Generative Models as Control Policy}{section*.92}{}}
 \acronymused{RL}
 \acronymused{NF}
 \acronymused{NF}
@@ -1017,7 +1019,7 @@
 \acronymused{RL}
 \acronymused{NF}
 \AC@undonewlabel{acro:FM}
-\newlabel{acro:FM}{{4}{55}{Deep Generative Models as Control Policy}{section*.93}{}}
+\newlabel{acro:FM}{{III.4}{55}{Deep Generative Models as Control Policy}{section*.93}{}}
 \acronymused{FM}
 \@writefile{lot}{\contentsline {table}{\numberline {III.1}{\ignorespaces Normalizing Flows in Reinforcement Learning}}{55}{table.3.1}\protected@file@percent }
 \newlabel{tab:nf_rl}{{III.1}{55}{Normalizing Flows in Reinforcement Learning}{table.3.1}{}}
@@ -1028,78 +1030,81 @@
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{chap:methods}{{IV}{59}{Methodology and Numerical Validation}{chapter.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Parameter Identification}{59}{section.4.1}\protected@file@percent }
-\newlabel{sec:methods:parameter_identification}{{1}{59}{Parameter Identification}{section.4.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{59}{subsection.4.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {IV.1}Parameter Identification}{59}{section.4.1}\protected@file@percent }
+\newlabel{sec:methods:parameter_identification}{{IV.1}{59}{Parameter Identification}{section.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.1.1}Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{59}{subsection.4.1.1}\protected@file@percent }
 \AC@undonewlabel{acro:VAE}
-\newlabel{acro:VAE}{{1.1}{59}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.94}{}}
+\newlabel{acro:VAE}{{IV.1.1}{59}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.94}{}}
 \acronymused{VAE}
 \AC@undonewlabel{acro:FM}
-\newlabel{acro:FM}{{1.1}{59}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.95}{}}
+\newlabel{acro:FM}{{IV.1.1}{59}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.95}{}}
 \acronymused{FM}
 \AC@undonewlabel{acro:DGM}
-\newlabel{acro:DGM}{{1.1}{59}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.96}{}}
+\newlabel{acro:DGM}{{IV.1.1}{59}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.96}{}}
 \acronymused{DGM}
 \acronymused{DGM}
 \acronymused{DGM}
 \acronymused{DGM}
-\AC@undonewlabel{acro:BNN}
-\newlabel{acro:BNN}{{1.1}{59}{Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{section*.97}{}}
-\acronymused{BNN}
 \acronymused{DGM}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{60}{figure.caption.98}\protected@file@percent }
-\newlabel{fig:universal_framework}{{IV.1}{60}{Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}{figure.caption.98}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {IV.1}{\ignorespaces Training paradigms and inference across \acp {DGM}.}}{60}{figure.caption.98}\protected@file@percent }
 \acronymused{DGM}
-\newlabel{tab:dgm_training_inference}{{IV.1}{60}{Training paradigms and inference across \acp {DGM}}{figure.caption.98}{}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces DGM-ABI Training \& Inference}}{60}{figure.caption.98}\protected@file@percent }
-\newlabel{alg:dgm_abi}{{1}{60}{DGM-ABI Training \& Inference}{figure.caption.98}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Normalizing Flows for Parameter Identification}{60}{subsection.4.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.1.2}Normalizing Flows for Parameter Identification}{60}{subsection.4.1.2}\protected@file@percent }
 \AC@undonewlabel{acro:NF}
-\newlabel{acro:NF}{{1.2}{60}{Normalizing Flows for Parameter Identification}{section*.99}{}}
+\newlabel{acro:NF}{{IV.1.2}{60}{Normalizing Flows for Parameter Identification}{section*.98}{}}
 \acronymused{NF}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.1}Overall Settings}{61}{subsubsection.4.1.2.1}\protected@file@percent }
+\acronymused{NF}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{61}{figure.caption.97}\protected@file@percent }
+\newlabel{fig:universal_framework}{{IV.1}{61}{Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}{figure.caption.97}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {IV.1}{\ignorespaces Training paradigms and inference across \acp {DGM}.}}{61}{figure.caption.97}\protected@file@percent }
+\acronymused{DGM}
+\newlabel{tab:dgm_training_inference}{{IV.1}{61}{Training paradigms and inference across \acp {DGM}}{figure.caption.97}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces DGM-ABI Training \& Inference}}{61}{figure.caption.97}\protected@file@percent }
+\newlabel{alg:dgm_abi}{{1}{61}{DGM-ABI Training \& Inference}{figure.caption.97}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.2.1}Overall Settings}{61}{subsubsection.4.1.2.1}\protected@file@percent }
 \AC@undonewlabel{acro:ODE}
-\newlabel{acro:ODE}{{1.2.1}{61}{Overall Settings}{section*.100}{}}
+\newlabel{acro:ODE}{{IV.1.2.1}{61}{Overall Settings}{section*.99}{}}
 \acronymused{ODE}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.2}{\ignorespaces Mass-Spring-Damper System with Multimodal Parameters}}{62}{figure.caption.100}\protected@file@percent }
+\newlabel{fig:mass_spring_damper_3}{{IV.2}{62}{Mass-Spring-Damper System with Multimodal Parameters}{figure.caption.100}{}}
 \acronymused{ODE}
 \AC@undonewlabel{acro:RealNVP}
-\newlabel{acro:RealNVP}{{1.2.1}{61}{Overall Settings}{section*.101}{}}
+\newlabel{acro:RealNVP}{{IV.1.2.1}{62}{Overall Settings}{section*.101}{}}
 \acronymused{RealNVP}
 \AC@undonewlabel{acro:NSF}
-\newlabel{acro:NSF}{{1.2.1}{61}{Overall Settings}{section*.102}{}}
+\newlabel{acro:NSF}{{IV.1.2.1}{62}{Overall Settings}{section*.102}{}}
 \acronymused{NSF}
 \acronymused{FM}
 \AC@undonewlabel{acro:DDPM}
-\newlabel{acro:DDPM}{{1.2.1}{61}{Overall Settings}{section*.103}{}}
+\newlabel{acro:DDPM}{{IV.1.2.1}{62}{Overall Settings}{section*.103}{}}
 \acronymused{DDPM}
 \AC@undonewlabel{acro:SBM}
-\newlabel{acro:SBM}{{1.2.1}{61}{Overall Settings}{section*.104}{}}
+\newlabel{acro:SBM}{{IV.1.2.1}{62}{Overall Settings}{section*.104}{}}
 \acronymused{SBM}
 \acronymused{VAE}
+\AC@undonewlabel{acro:BNN}
+\newlabel{acro:BNN}{{IV.1.2.1}{62}{Overall Settings}{section*.105}{}}
 \acronymused{BNN}
 \AC@undonewlabel{acro:LSTM}
-\newlabel{acro:LSTM}{{1.2.1}{61}{Overall Settings}{section*.105}{}}
+\newlabel{acro:LSTM}{{IV.1.2.1}{62}{Overall Settings}{section*.106}{}}
 \acronymused{LSTM}
 \AC@undonewlabel{acro:ELU}
-\newlabel{acro:ELU}{{1.2.1}{61}{Overall Settings}{section*.106}{}}
+\newlabel{acro:ELU}{{IV.1.2.1}{62}{Overall Settings}{section*.107}{}}
 \acronymused{ELU}
 \AC@undonewlabel{acro:RMSE}
-\newlabel{acro:RMSE}{{1.2.1}{61}{Overall Settings}{section*.107}{}}
+\newlabel{acro:RMSE}{{IV.1.2.1}{62}{Overall Settings}{section*.108}{}}
 \acronymused{RMSE}
 \AC@undonewlabel{acro:MCIW}
-\newlabel{acro:MCIW}{{1.2.1}{62}{Overall Settings}{section*.108}{}}
+\newlabel{acro:MCIW}{{IV.1.2.1}{63}{Overall Settings}{section*.109}{}}
 \acronymused{MCIW}
 \AC@undonewlabel{acro:CICP}
-\newlabel{acro:CICP}{{1.2.1}{62}{Overall Settings}{section*.109}{}}
+\newlabel{acro:CICP}{{IV.1.2.1}{63}{Overall Settings}{section*.110}{}}
 \acronymused{CICP}
 \acronymused{CICP}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.2}Performance Comparison (Winner: RealNVP)}{62}{subsubsection.4.1.2.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {IV.2}{\ignorespaces Performance Benchmarking of Deep Bayesian Inference Methods}}{62}{table.caption.110}\protected@file@percent }
-\newlabel{tab:metrics_005}{{IV.2}{62}{Performance Benchmarking of Deep Bayesian Inference Methods}{table.caption.110}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.2.2}Performance Comparison}{63}{subsubsection.4.1.2.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {IV.2}{\ignorespaces Performance Benchmarking of Deep Bayesian Inference Methods}}{63}{table.caption.111}\protected@file@percent }
+\newlabel{tab:metrics_005}{{IV.2}{63}{Performance Benchmarking of Deep Bayesian Inference Methods}{table.caption.111}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.3}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{64}{figure.caption.112}\protected@file@percent }
+\newlabel{fig:metrics_005_spider}{{IV.3}{64}{Detailed Comparison of Deep Bayesian Inference Methods}{figure.caption.112}{}}
 \acronymused{RealNVP}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.2}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{63}{figure.caption.111}\protected@file@percent }
-\newlabel{fig:metrics_005_spider}{{IV.2}{63}{Detailed Comparison of Deep Bayesian Inference Methods}{figure.caption.111}{}}
 \acronymused{DDPM}
 \acronymused{NF}
 \acronymused{RealNVP}
@@ -1127,9 +1132,8 @@
 \acronymused{FM}
 \acronymused{BNN}
 \acronymused{SBM}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.3}Sample Efficiency (Winner: RealNVP)}{64}{subsubsection.4.1.2.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.3}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{64}{figure.caption.112}\protected@file@percent }
-\newlabel{fig:se_comp}{{IV.3}{64}{Performance Comparison w.r.t. Sample Efficiency}{figure.caption.112}{}}
+\acronymused{RealNVP}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.2.3}Sample Efficiency}{65}{subsubsection.4.1.2.3}\protected@file@percent }
 \acronymused{BNN}
 \acronymused{RealNVP}
 \acronymused{VAE}
@@ -1142,6 +1146,8 @@
 \acronymused{NSF}
 \acronymused{FM}
 \acronymused{SBM}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.4}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{66}{figure.caption.113}\protected@file@percent }
+\newlabel{fig:se_comp}{{IV.4}{66}{Performance Comparison w.r.t. Sample Efficiency}{figure.caption.113}{}}
 \acronymused{CICP}
 \acronymused{RealNVP}
 \acronymused{FM}
@@ -1164,7 +1170,8 @@
 \acronymused{NSF}
 \acronymused{BNN}
 \acronymused{DDPM}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.4}Linear Correlation (Winners: SBM, RealNVP, NSF)}{66}{subsubsection.4.1.2.4}\protected@file@percent }
+\acronymused{RealNVP}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.2.4}Linear Correlation}{67}{subsubsection.4.1.2.4}\protected@file@percent }
 \acronymused{DGM}
 \acronymused{BNN}
 \acronymused{DDPM}
@@ -1184,10 +1191,10 @@
 \acronymused{SBM}
 \acronymused{BNN}
 \acronymused{DDPM}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.5}{\ignorespaces Linear Correlation Comparison}}{68}{figure.caption.114}\protected@file@percent }
+\newlabel{fig:lc_comp}{{IV.5}{68}{Linear Correlation Comparison}{figure.caption.114}{}}
 \acronymused{VAE}
 \acronymused{SBM}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.4}{\ignorespaces Linear Correlation Comparison}}{67}{figure.caption.113}\protected@file@percent }
-\newlabel{fig:lc_comp}{{IV.4}{67}{Linear Correlation Comparison}{figure.caption.113}{}}
 \acronymused{DDPM}
 \acronymused{DDPM}
 \acronymused{FM}
@@ -1199,9 +1206,13 @@
 \acronymused{NSF}
 \acronymused{RealNVP}
 \acronymused{NSF}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.5}{\ignorespaces Multimodal Comparison}}{68}{figure.caption.114}\protected@file@percent }
-\newlabel{fig:mm_comp}{{IV.5}{68}{Multimodal Comparison}{figure.caption.114}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.5}Multimodal Distribution (Winner: NSF)}{68}{subsubsection.4.1.2.5}\protected@file@percent }
+\acronymused{SBM}
+\acronymused{RealNVP}
+\acronymused{NSF}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.6}{\ignorespaces Multimodal Comparison}}{69}{figure.caption.115}\protected@file@percent }
+\newlabel{fig:mm_comp}{{IV.6}{69}{Multimodal Comparison}{figure.caption.115}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.2.5}Multimodal Distribution}{70}{subsubsection.4.1.2.5}\protected@file@percent }
+\newlabel{sec:mm_experiments}{{IV.1.2.5}{70}{Multimodal Distribution}{subsubsection.4.1.2.5}{}}
 \acronymused{DGM}
 \acronymused{DGM}
 \acronymused{SBM}
@@ -1222,80 +1233,84 @@
 \acronymused{RealNVP}
 \acronymused{NSF}
 \acronymused{NSF}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Relationship Between Bayesian Inference and Sensitivity Analysis}{69}{subsection.4.1.3}\protected@file@percent }
+\acronymused{NSF}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.1.3}Relationship Between Bayesian Inference and Sensitivity Analysis}{70}{subsection.4.1.3}\protected@file@percent }
 \AC@undonewlabel{acro:SA}
-\newlabel{acro:SA}{{1.3}{69}{Relationship Between Bayesian Inference and Sensitivity Analysis}{section*.115}{}}
+\newlabel{acro:SA}{{IV.1.3}{70}{Relationship Between Bayesian Inference and Sensitivity Analysis}{section*.116}{}}
 \acronymused{SA}
 \acronymused{SA}
 \acronymused{SA}
 \acronymused{SA}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.1}Sobol' index}{70}{subsubsection.4.1.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.3.1}Sobol' index}{71}{subsubsection.4.1.3.1}\protected@file@percent }
 \acronymused{SA}
 \acronymused{SA}
 \acronymused{SA}
-\newlabel{fig:sa_01}{{IV.6a}{71}{Epoch=29}{figure.caption.116}{}}
-\newlabel{sub@fig:sa_01}{{a}{71}{Epoch=29}{figure.caption.116}{}}
-\newlabel{fig:sa_02}{{IV.6b}{71}{Epoch=258}{figure.caption.116}{}}
-\newlabel{sub@fig:sa_02}{{b}{71}{Epoch=258}{figure.caption.116}{}}
-\newlabel{fig:sa_03}{{IV.6c}{71}{Epoch=393}{figure.caption.116}{}}
-\newlabel{sub@fig:sa_03}{{c}{71}{Epoch=393}{figure.caption.116}{}}
-\newlabel{fig:sa_04}{{IV.6d}{71}{Epoch=951}{figure.caption.116}{}}
-\newlabel{sub@fig:sa_04}{{d}{71}{Epoch=951}{figure.caption.116}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.6}{\ignorespaces Convergence Speed \& Sensitivity Analysis}}{71}{figure.caption.116}\protected@file@percent }
+\newlabel{fig:sa_01}{{IV.7a}{73}{Epoch=29}{figure.caption.117}{}}
+\newlabel{sub@fig:sa_01}{{a}{73}{Epoch=29}{figure.caption.117}{}}
+\newlabel{fig:sa_02}{{IV.7b}{73}{Epoch=258}{figure.caption.117}{}}
+\newlabel{sub@fig:sa_02}{{b}{73}{Epoch=258}{figure.caption.117}{}}
+\newlabel{fig:sa_03}{{IV.7c}{73}{Epoch=393}{figure.caption.117}{}}
+\newlabel{sub@fig:sa_03}{{c}{73}{Epoch=393}{figure.caption.117}{}}
+\newlabel{fig:sa_04}{{IV.7d}{73}{Epoch=951}{figure.caption.117}{}}
+\newlabel{sub@fig:sa_04}{{d}{73}{Epoch=951}{figure.caption.117}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.7}{\ignorespaces Convergence Speed \& Sensitivity Analysis}}{73}{figure.caption.117}\protected@file@percent }
 \acronymused{RealNVP}
-\newlabel{fig:sa_speed}{{IV.6}{71}{Convergence Speed \& Sensitivity Analysis}{figure.caption.116}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.7}{\ignorespaces Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models}}{72}{figure.caption.117}\protected@file@percent }
+\newlabel{fig:sa_speed}{{IV.7}{73}{Convergence Speed \& Sensitivity Analysis}{figure.caption.117}{}}
 \acronymused{SA}
-\newlabel{fig:sa_l_c}{{IV.7}{72}{Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models}{figure.caption.117}{}}
 \acronymused{SA}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.8}{\ignorespaces Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models}}{74}{figure.caption.118}\protected@file@percent }
+\acronymused{SA}
+\newlabel{fig:sa_l_c}{{IV.8}{74}{Global Sensitivity Analysis of Free-Vibration and Symmetric Coupled Mass-Spring-Models}{figure.caption.118}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.3.2}Mutual Information}{74}{subsubsection.4.1.3.2}\protected@file@percent }
 \acronymused{SA}
 \citation{Bhola2023-ik}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.2}Mutual Information}{73}{subsubsection.4.1.3.2}\protected@file@percent }
-\acronymused{SA}
 \AC@undonewlabel{acro:MI}
-\newlabel{acro:MI}{{1.3.2}{73}{Mutual Information}{section*.118}{}}
+\newlabel{acro:MI}{{IV.1.3.2}{75}{Mutual Information}{section*.119}{}}
 \acronymused{MI}
 \acronymused{SA}
 \acronymused{MI}
 \acronymused{MI}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.8}{\ignorespaces Comparison of Sensitivity and Identifiability Under Noisy Observations}}{74}{figure.caption.119}\protected@file@percent }
-\newlabel{fig:mi_noise}{{IV.8}{74}{Comparison of Sensitivity and Identifiability Under Noisy Observations}{figure.caption.119}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.4}When Does the Framework Fail?}{74}{subsection.4.1.4}\protected@file@percent }
+\acronymused{MI}
+\acronymused{MI}
+\acronymused{MI}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.9}{\ignorespaces Comparison of Sensitivity and Identifiability Under Noisy Observations}}{76}{figure.caption.120}\protected@file@percent }
+\newlabel{fig:mi_noise}{{IV.9}{76}{Comparison of Sensitivity and Identifiability Under Noisy Observations}{figure.caption.120}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.1.4}When Does the Framework Fail?}{76}{subsection.4.1.4}\protected@file@percent }
 \acronymused{NF}
 \acronymused{FM}
 \acronymused{RealNVP}
 \acronymused{NSF}
 \AC@undonewlabel{acro:OOD}
-\newlabel{acro:OOD}{{1.4}{75}{When Does the Framework Fail?}{section*.120}{}}
+\newlabel{acro:OOD}{{IV.1.4}{77}{When Does the Framework Fail?}{section*.121}{}}
 \acronymused{OOD}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.9}{\ignorespaces Stress Test of Normalizing Flows under Noise}}{75}{figure.caption.121}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.10}{\ignorespaces Stress Test of Normalizing Flows under Noise}}{77}{figure.caption.122}\protected@file@percent }
 \acronymused{RealNVP}
 \acronymused{NSF}
 \acronymused{FM}
-\newlabel{fig:st_noise}{{IV.9}{75}{Stress Test of Normalizing Flows under Noise}{figure.caption.121}{}}
+\newlabel{fig:st_noise}{{IV.10}{77}{Stress Test of Normalizing Flows under Noise}{figure.caption.122}{}}
 \acronymused{NF}
 \acronymused{FM}
 \acronymused{NSF}
-\newlabel{fig:miss_metrics}{{IV.10a}{76}{Misspecification}{figure.caption.122}{}}
-\newlabel{sub@fig:miss_metrics}{{a}{76}{Misspecification}{figure.caption.122}{}}
-\newlabel{fig:ood_metrics}{{IV.10b}{76}{OOD}{figure.caption.122}{}}
-\newlabel{sub@fig:ood_metrics}{{b}{76}{OOD}{figure.caption.122}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.10}{\ignorespaces Evaluation of Stress Test under Misspecification and OOD}}{76}{figure.caption.122}\protected@file@percent }
-\acronymused{OOD}
-\acronymused{OOD}
-\newlabel{fig:metrics}{{IV.10}{76}{Evaluation of Stress Test under Misspecification and OOD}{figure.caption.122}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.11}{\ignorespaces Micro View of Distribution under Misspecification}}{77}{figure.caption.123}\protected@file@percent }
-\newlabel{fig:miss_distribution}{{IV.11}{77}{Micro View of Distribution under Misspecification}{figure.caption.123}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.12}{\ignorespaces Global Residual Analysis under OOD}}{77}{figure.caption.124}\protected@file@percent }
-\acronymused{OOD}
-\acronymused{OOD}
-\newlabel{fig:ood_distribution}{{IV.12}{77}{Global Residual Analysis under OOD}{figure.caption.124}{}}
 \AC@undonewlabel{acro:MCMC}
-\newlabel{acro:MCMC}{{1.4}{78}{When Does the Framework Fail?}{section*.125}{}}
+\newlabel{acro:MCMC}{{IV.1.4}{77}{When Does the Framework Fail?}{section*.126}{}}
 \acronymused{MCMC}
 \AC@undonewlabel{acro:SNF}
-\newlabel{acro:SNF}{{1.4}{78}{When Does the Framework Fail?}{section*.126}{}}
+\newlabel{acro:SNF}{{IV.1.4}{77}{When Does the Framework Fail?}{section*.127}{}}
 \acronymused{SNF}
+\newlabel{fig:miss_metrics}{{IV.11a}{78}{Misspecification}{figure.caption.123}{}}
+\newlabel{sub@fig:miss_metrics}{{a}{78}{Misspecification}{figure.caption.123}{}}
+\newlabel{fig:ood_metrics}{{IV.11b}{78}{OOD}{figure.caption.123}{}}
+\newlabel{sub@fig:ood_metrics}{{b}{78}{OOD}{figure.caption.123}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.11}{\ignorespaces Evaluation of Stress Test under Misspecification and OOD}}{78}{figure.caption.123}\protected@file@percent }
+\acronymused{OOD}
+\acronymused{OOD}
+\newlabel{fig:metrics}{{IV.11}{78}{Evaluation of Stress Test under Misspecification and OOD}{figure.caption.123}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.12}{\ignorespaces Micro View of Distribution under Misspecification}}{79}{figure.caption.124}\protected@file@percent }
+\newlabel{fig:miss_distribution}{{IV.12}{79}{Micro View of Distribution under Misspecification}{figure.caption.124}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.13}{\ignorespaces Global Residual Analysis under OOD}}{79}{figure.caption.125}\protected@file@percent }
+\acronymused{OOD}
+\acronymused{OOD}
+\newlabel{fig:ood_distribution}{{IV.13}{79}{Global Residual Analysis under OOD}{figure.caption.125}{}}
 \acronymused{OOD}
 \acronymused{OOD}
 \acronymused{OOD}
@@ -1305,66 +1320,72 @@
 \citation{wu2020stochasticnormalizingflows}
 \citation{Hagemann_2022}
 \citation{Hagemann_2022}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.5}Stochastic Normalizing Flows}{79}{subsection.4.1.5}\protected@file@percent }
-\newlabel{sec:snf}{{1.5}{79}{Stochastic Normalizing Flows}{subsection.4.1.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.1.5}Stochastic Normalizing Flows}{81}{subsection.4.1.5}\protected@file@percent }
+\newlabel{sec:snf}{{IV.1.5}{81}{Stochastic Normalizing Flows}{subsection.4.1.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.14}{\ignorespaces Combining Normalizing Flow with MCMC}}{81}{figure.caption.128}\protected@file@percent }
+\newlabel{fig:snf_overview}{{IV.14}{81}{Combining Normalizing Flow with MCMC}{figure.caption.128}{}}
 \acronymused{MCMC}
 \acronymused{MCMC}
 \acronymused{MCMC}
 \acronymused{MCMC}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.5.1}Theory of Stochastic Normalizing Flows}{79}{subsubsection.4.1.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.5.1}Theory of Stochastic Normalizing Flows}{81}{subsubsection.4.1.5.1}\protected@file@percent }
 \acronymused{SNF}
 \AC@undonewlabel{acro:INN}
-\newlabel{acro:INN}{{1.5.1}{79}{Theory of Stochastic Normalizing Flows}{section*.127}{}}
+\newlabel{acro:INN}{{IV.1.5.1}{81}{Theory of Stochastic Normalizing Flows}{section*.129}{}}
 \acronymused{INN}
 \acronymused{MCMC}
 \AC@undonewlabel{acro:CNF}
-\newlabel{acro:CNF}{{1.5.1}{79}{Theory of Stochastic Normalizing Flows}{section*.128}{}}
+\newlabel{acro:CNF}{{IV.1.5.1}{81}{Theory of Stochastic Normalizing Flows}{section*.130}{}}
 \acronymused{CNF}
 \acronymused{SNF}
 \acronymused{INN}
 \acronymused{MCMC}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.13}{\ignorespaces SNF Architecture}}{80}{figure.caption.129}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.15}{\ignorespaces SNF Architecture}}{82}{figure.caption.131}\protected@file@percent }
 \acronymused{SNF}
 \acronymused{NF}
-\newlabel{fig:snf}{{IV.13}{80}{SNF Architecture}{figure.caption.129}{}}
+\newlabel{fig:snf}{{IV.15}{82}{SNF Architecture}{figure.caption.131}{}}
 \acronymused{CNF}
 \acronymused{SNF}
 \acronymused{CNF}
 \acronymused{SNF}
-\newlabel{eq:det_bal}{{IV.24}{81}{Theory of Stochastic Normalizing Flows}{equation.4.24}{}}
+\newlabel{eq:det_bal}{{IV.26}{83}{Theory of Stochastic Normalizing Flows}{equation.4.26}{}}
 \acronymused{MCMC}
 \AC@undonewlabel{acro:MALA}
-\newlabel{acro:MALA}{{1.5.1}{81}{Theory of Stochastic Normalizing Flows}{section*.130}{}}
+\newlabel{acro:MALA}{{IV.1.5.1}{83}{Theory of Stochastic Normalizing Flows}{section*.132}{}}
 \acronymused{MALA}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.5.2}Experiments on Stochastic Normalizing Flows}{82}{subsubsection.4.1.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.1.5.2}Experiments on Stochastic Normalizing Flows}{84}{subsubsection.4.1.5.2}\protected@file@percent }
 \acronymused{SNF}
 \acronymused{MCMC}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.14}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{82}{figure.caption.131}\protected@file@percent }
-\newlabel{fig:snf_mm}{{IV.14}{82}{Multimodal Modeling Comparison between NF and SNF}{figure.caption.131}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {IV.3}{\ignorespaces Multimodal Modeling Comparison}}{82}{figure.caption.131}\protected@file@percent }
-\newlabel{tab:mm_comparison}{{IV.3}{82}{Multimodal Modeling Comparison}{figure.caption.131}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.16}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{84}{figure.caption.133}\protected@file@percent }
+\newlabel{fig:snf_mm}{{IV.16}{84}{Multimodal Modeling Comparison between NF and SNF}{figure.caption.133}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {IV.3}{\ignorespaces Multimodal Modeling Comparison}}{84}{figure.caption.133}\protected@file@percent }
+\newlabel{tab:mm_comparison}{{IV.3}{84}{Multimodal Modeling Comparison}{figure.caption.133}{}}
+\acronymused{NSF}
+\acronymused{RealNVP}
+\acronymused{RealNVP}
 \acronymused{SNF}
-\acronymused{RealNVP}
 \acronymused{MCMC}
 \acronymused{MCMC}
-\acronymused{RealNVP}
 \acronymused{NF}
 \acronymused{NSF}
+\acronymused{MCMC}
 \acronymused{MALA}
-\acronymused{NF}
+\acronymused{RealNVP}
+\acronymused{NSF}
+\acronymused{FM}
 \AC@undonewlabel{acro:RMALA}
-\newlabel{acro:RMALA}{{1.5.2}{83}{Experiments on Stochastic Normalizing Flows}{section*.132}{}}
+\newlabel{acro:RMALA}{{IV.1.5.2}{85}{Experiments on Stochastic Normalizing Flows}{section*.134}{}}
 \acronymused{RMALA}
 \acronymused{MALA}
 \acronymused{RMALA}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.15}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{83}{figure.caption.133}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.17}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{85}{figure.caption.135}\protected@file@percent }
 \acronymused{SNF}
 \acronymused{NF}
 \acronymused{RealNVP}
 \acronymused{FM}
 \acronymused{NSF}
 \acronymused{RMALA}
-\newlabel{fig:snf_refinement}{{IV.15}{83}{Improved Parameter Identification Under Noisy Observations with SNF}{figure.caption.133}{}}
+\newlabel{fig:snf_refinement}{{IV.17}{85}{Improved Parameter Identification Under Noisy Observations with SNF}{figure.caption.135}{}}
 \acronymused{NF}
 \acronymused{SNF}
 \acronymused{MALA}
@@ -1378,262 +1399,332 @@
 \acronymused{FM}
 \citation{Nemeth_2014}
 \citation{lorenz1996predictability}
-\@writefile{toc}{\contentsline {section}{\numberline {2}State Estimation}{85}{section.4.2}\protected@file@percent }
-\newlabel{sec:methods:state_estimation}{{2}{85}{State Estimation}{section.4.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV.2}State Estimation}{87}{section.4.2}\protected@file@percent }
+\newlabel{sec:methods:state_estimation}{{IV.2}{87}{State Estimation}{section.4.2}{}}
 \acronymused{VAE}
-\AC@undonewlabel{acro:RNN}
-\newlabel{acro:RNN}{{2}{85}{State Estimation}{section*.134}{}}
-\acronymused{RNN}
-\newlabel{eq:lorenz96}{{IV.29}{85}{State Estimation}{equation.4.29}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Amortized State Flow}{85}{subsection.4.2.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.16}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{86}{figure.caption.135}\protected@file@percent }
-\newlabel{fig:amortized_state_flow}{{IV.16}{86}{Architecture of amortized state estimation with normalizing flows}{figure.caption.135}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Latent State Space Model Flow}{86}{subsection.4.2.2}\protected@file@percent }
-\newlabel{sec:methods:latent_ssm_flow}{{2.2}{86}{Latent State Space Model Flow}{subsection.4.2.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {IV.17}{\ignorespaces Architecture of Latent State Space Model Flow.}}{87}{figure.caption.136}\protected@file@percent }
-\newlabel{fig:latent_ssm_flow}{{IV.17}{87}{Architecture of Latent State Space Model Flow}{figure.caption.136}{}}
+\newlabel{eq:lorenz96}{{IV.31}{87}{State Estimation}{equation.4.31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.2.1}Amortized State Flow}{88}{subsection.4.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.18}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{88}{figure.caption.136}\protected@file@percent }
+\newlabel{fig:amortized_state_flow}{{IV.18}{88}{Architecture of amortized state estimation with normalizing flows}{figure.caption.136}{}}
+\@writefile{toc}{\contentsline {paragraph}{Numerical Results}{88}{figure.caption.136}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.19}{\ignorespaces Amortized State Flow Segment-Length Metrics}}{89}{figure.caption.137}\protected@file@percent }
+\newlabel{fig:amortized_state_flow_segment_metrics}{{IV.19}{89}{Amortized State Flow Segment-Length Metrics}{figure.caption.137}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.20}{\ignorespaces Amortized State Flow Segment-Length Trajectories}}{90}{figure.caption.138}\protected@file@percent }
+\newlabel{fig:amortized_state_flow_segment_trajectories}{{IV.20}{90}{Amortized State Flow Segment-Length Trajectories}{figure.caption.138}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.2.2}Latent State Space Model Flow}{91}{subsection.4.2.2}\protected@file@percent }
+\newlabel{sec:methods:latent_ssm_flow}{{IV.2.2}{91}{Latent State Space Model Flow}{subsection.4.2.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.21}{\ignorespaces Architecture of Latent State Space Model Flow.}}{91}{figure.caption.139}\protected@file@percent }
+\newlabel{fig:latent_ssm_flow}{{IV.21}{91}{Architecture of Latent State Space Model Flow}{figure.caption.139}{}}
+\AC@undonewlabel{acro:SSM}
+\newlabel{acro:SSM}{{IV.2.2}{92}{Latent State Space Model Flow}{section*.140}{}}
+\acronymused{SSM}
 \AC@undonewlabel{acro:MLE}
-\newlabel{acro:MLE}{{2.2}{87}{Latent State Space Model Flow}{section*.137}{}}
+\newlabel{acro:MLE}{{IV.2.2}{92}{Latent State Space Model Flow}{section*.141}{}}
 \acronymused{MLE}
+\acronymused{SSM}
+\acronymused{SSM}
+\@writefile{toc}{\contentsline {paragraph}{Numerical Results}{93}{equation.4.34}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.22}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Trajectories}}{94}{figure.caption.142}\protected@file@percent }
+\newlabel{fig:latent_ssm_flow_rollout_trajectories}{{IV.22}{94}{LatentSSMFlow Full-Horizon Rollout Trajectories}{figure.caption.142}{}}
+\acronymused{SSM}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.23}{\ignorespaces LatentSSMFlow Full-Horizon Uncertainty Distribution}}{95}{figure.caption.143}\protected@file@percent }
+\newlabel{fig:latent_ssm_flow_rollout_uncertainty_distribution}{{IV.23}{95}{LatentSSMFlow Full-Horizon Uncertainty Distribution}{figure.caption.143}{}}
 \citation{li2020scalablegradientsstochasticdifferential}
 \citation{kidger2021neuralsdesinfinitedimensionalgans}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}NICE Flow State Space Model}{88}{subsection.4.2.3}\protected@file@percent }
-\AC@undonewlabel{acro:SDE}
-\newlabel{acro:SDE}{{2.3}{88}{NICE Flow State Space Model}{section*.138}{}}
-\acronymused{SDE}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.2.3}Normalizing Flow SDE}{96}{subsection.4.2.3}\protected@file@percent }
 \AC@undonewlabel{acro:ELBO}
-\newlabel{acro:ELBO}{{2.3}{88}{NICE Flow State Space Model}{section*.139}{}}
+\newlabel{acro:ELBO}{{IV.2.3}{96}{Normalizing Flow SDE}{section*.144}{}}
 \acronymused{ELBO}
 \AC@undonewlabel{acro:GAN}
-\newlabel{acro:GAN}{{2.3}{88}{NICE Flow State Space Model}{section*.140}{}}
+\newlabel{acro:GAN}{{IV.2.3}{96}{Normalizing Flow SDE}{section*.145}{}}
 \acronymused{GAN}
-\newlabel{eq:nice_flow_ssm}{{IV.34}{88}{NICE Flow State Space Model}{equation.4.34}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Conditional Stochastic Interpolant}{89}{subsection.4.2.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Optimal Control}{90}{section.4.3}\protected@file@percent }
-\newlabel{sec:methods:control}{{3}{90}{Optimal Control}{section.4.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {V}Experiments and Results}{91}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.2.3.1}Integration of Normalizing Flow in NeuralSDE}{96}{subsubsection.4.2.3.1}\protected@file@percent }
+\newlabel{eq:flow_sde}{{IV.37}{96}{Integration of Normalizing Flow in NeuralSDE}{equation.4.37}{}}
+\AC@undonewlabel{acro:SDE}
+\newlabel{acro:SDE}{{IV.2.3.1}{96}{Integration of Normalizing Flow in NeuralSDE}{section*.146}{}}
+\acronymused{SDE}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.2.3.2}Training FlowSDE}{97}{subsubsection.4.2.3.2}\protected@file@percent }
+\AC@undonewlabel{acro:MSE}
+\newlabel{acro:MSE}{{IV.2.3.2}{97}{Training FlowSDE}{section*.147}{}}
+\acronymused{MSE}
+\AC@undonewlabel{acro:NLL}
+\newlabel{acro:NLL}{{IV.2.3.2}{97}{Training FlowSDE}{section*.148}{}}
+\acronymused{NLL}
+\acronymused{SDE}
+\citation{billingsley1999convergence,EthierKurtz1986}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.24}{\ignorespaces Computational graph of FlowSDE}}{99}{figure.caption.149}\protected@file@percent }
+\newlabel{fig:flow_sde_graph}{{IV.24}{99}{Computational graph of FlowSDE}{figure.caption.149}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.2.3.3}Optional Theoretical Note: Weak Convergence of FlowSDE}{99}{subsubsection.4.2.3.3}\protected@file@percent }
+\citation{KushnerDupuis2001,EthierKurtz1986,kloeden1992numerical}
+\newlabel{eq:discrete_update}{{IV.43}{100}{Weak Convergence of FlowSDE}{equation.4.43}{}}
+\newlabel{eq:continuous_sde}{{IV.45}{100}{Weak Convergence of FlowSDE}{equation.4.45}{}}
+\newlabel{eq:flow_sde_generator_definition}{{IV.47}{101}{Optional Theoretical Note: Weak Convergence of FlowSDE}{equation.4.47}{}}
+\newlabel{eq:flow_sde_taylor_expansion}{{IV.48}{101}{Optional Theoretical Note: Weak Convergence of FlowSDE}{equation.4.48}{}}
+\newlabel{eq:flow_sde_first_moment}{{IV.50}{101}{Optional Theoretical Note: Weak Convergence of FlowSDE}{equation.4.50}{}}
+\newlabel{eq:flow_sde_second_moment}{{IV.52}{101}{Optional Theoretical Note: Weak Convergence of FlowSDE}{equation.4.52}{}}
+\newlabel{eq:flow_sde_remainder}{{IV.54}{101}{Optional Theoretical Note: Weak Convergence of FlowSDE}{equation.4.54}{}}
+\newlabel{eq:flow_sde_generator_expansion}{{IV.55}{102}{Optional Theoretical Note: Weak Convergence of FlowSDE}{equation.4.55}{}}
+\newlabel{eq:flow_sde_limiting_generator}{{IV.56}{102}{Optional Theoretical Note: Weak Convergence of FlowSDE}{equation.4.56}{}}
+\citation{albergo2025si}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.2.3.4}Numerical Results}{103}{subsubsection.4.2.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV.2.4}Conditional Stochastic Interpolant}{103}{subsection.4.2.4}\protected@file@percent }
+\acronymused{SDE}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.2.4.1}Stochastic Interpolant}{103}{subsubsection.4.2.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.25}{\ignorespaces Schematic of the stochastic interpolant framework}}{104}{figure.caption.150}\protected@file@percent }
+\newlabel{fig:stochastic_interpolant}{{IV.25}{104}{Schematic of the stochastic interpolant framework}{figure.caption.150}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.2.4.2}Conditional Stochastic Interpolant for State Estimation}{104}{subsubsection.4.2.4.2}\protected@file@percent }
+\newlabel{eq:conditional_stochastic_interpolant_encoder}{{IV.64}{105}{Conditional Stochastic Interpolant for State Estimation}{equation.4.64}{}}
+\newlabel{eq:conditional_stochastic_interpolant_source}{{IV.65}{105}{Conditional Stochastic Interpolant for State Estimation}{equation.4.65}{}}
+\@writefile{toc}{\contentsline {paragraph}{Target Interpolant}{105}{equation.4.66}\protected@file@percent }
+\newlabel{eq:conditional_stochastic_interpolant_path}{{IV.67}{105}{Target Interpolant}{equation.4.67}{}}
+\newlabel{eq:conditional_stochastic_interpolant_velocity_target}{{IV.70}{105}{Target Interpolant}{equation.4.70}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.26}{\ignorespaces Computational graph of Conditional Stochastic Interpolant}}{106}{figure.caption.151}\protected@file@percent }
+\newlabel{fig:conditional_stochastic_interpolant_graph}{{IV.26}{106}{Computational graph of Conditional Stochastic Interpolant}{figure.caption.151}{}}
+\@writefile{toc}{\contentsline {paragraph}{Learned Interpolant Dynamics}{106}{equation.4.70}\protected@file@percent }
+\acronymused{SDE}
+\newlabel{eq:conditional_stochastic_interpolant_general}{{IV.71}{106}{Learned Interpolant Dynamics}{equation.4.71}{}}
+\newlabel{eq:conditional_stochastic_interpolant_loss}{{IV.72}{107}{Learned Interpolant Dynamics}{equation.4.72}{}}
+\acronymused{SDE}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV.2.4.3}Numerical Results}{107}{subsubsection.4.2.4.3}\protected@file@percent }
+\acronymused{RMSE}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.27}{\ignorespaces Performance of CondStochInterpolant}}{108}{figure.caption.152}\protected@file@percent }
+\acronymused{RMSE}
+\newlabel{fig:si_diagnostics}{{IV.27}{108}{Performance of CondStochInterpolant}{figure.caption.152}{}}
+\acronymused{SDE}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.28}{\ignorespaces Multi-modality of CondStochInterpolant}}{109}{figure.caption.153}\protected@file@percent }
+\newlabel{fig:si_multimodal}{{IV.28}{109}{Multi-modality of CondStochInterpolant}{figure.caption.153}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV.3}Optimal Control}{109}{section.4.3}\protected@file@percent }
+\newlabel{sec:methods:control}{{IV.3}{109}{Optimal Control}{section.4.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {IV.29}{\ignorespaces Trajectory Reconstruction of CondStochInterpolant}}{110}{figure.caption.154}\protected@file@percent }
+\newlabel{fig:si_trajectories}{{IV.29}{110}{Trajectory Reconstruction of CondStochInterpolant}{figure.caption.154}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {V}Experiments and Results}{111}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:experiments}{{V}{91}{Experiments and Results}{chapter.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Overview}{91}{section.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Parameter Identification}{91}{section.5.2}\protected@file@percent }
-\newlabel{sec:experiments:parameter_identification}{{2}{91}{Parameter Identification}{section.5.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}State Estimation}{91}{section.5.3}\protected@file@percent }
-\newlabel{sec:experiments:state_estimation}{{3}{91}{State Estimation}{section.5.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Optimal Control}{91}{section.5.4}\protected@file@percent }
-\newlabel{sec:experiments:mpc}{{4}{91}{Optimal Control}{section.5.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{93}{chapter.6}\protected@file@percent }
+\newlabel{chap:experiments}{{V}{111}{Experiments and Results}{chapter.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V.1}Overview}{111}{section.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V.2}Parameter Identification}{111}{section.5.2}\protected@file@percent }
+\newlabel{sec:experiments:parameter_identification}{{V.2}{111}{Parameter Identification}{section.5.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V.3}State Estimation}{111}{section.5.3}\protected@file@percent }
+\newlabel{sec:experiments:state_estimation}{{V.3}{111}{State Estimation}{section.5.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V.4}Optimal Control}{111}{section.5.4}\protected@file@percent }
+\newlabel{sec:experiments:mpc}{{V.4}{111}{Optimal Control}{section.5.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{113}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{VI}{93}{Conclusion and Future Work}{chapter.6}{}}
-\@writefile{toc}{\contentsline {chapter}{Abstract}{95}{chapter.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Zusammenfassung}{97}{chapter.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Bibliography}{98}{section*.141}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{99}{section*.141}\protected@file@percent }
-\newlabel{chap:contributions}{{VI}{99}{Conclusion and Future Work}{section*.141}{}}
-\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{99}{section*.142}\protected@file@percent }
-\newlabel{sec:own-data-acquisition}{{VI}{99}{}{section*.142}{}}
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{99}{section*.142}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{99}{section*.142}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Own Publications}{99}{section*.142}\protected@file@percent }
-\newlabel{sec:own-publications}{{VI}{99}{}{section*.142}{}}
-\newlabel{sec:publications:peer_reviewed_journal_first}{{VI}{99}{}{section*.142}{}}
-\newlabel{sec:publications:peer_reviewed_conf_first}{{VI}{99}{}{section*.142}{}}
+\newlabel{chap:conclusion}{{VI}{113}{Conclusion and Future Work}{chapter.6}{}}
+\@writefile{toc}{\contentsline {chapter}{Abstract}{115}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Zusammenfassung}{117}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Bibliography}{118}{section*.155}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Own Contributions and Publications}{119}{section*.155}\protected@file@percent }
+\newlabel{chap:contributions}{{VI}{119}{Conclusion and Future Work}{section*.155}{}}
+\@writefile{toc}{\contentsline {section}{Own share in data acquisition and data analysis}{119}{section*.156}\protected@file@percent }
+\newlabel{sec:own-data-acquisition}{{VI}{119}{}{section*.156}{}}
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Acquisition.}{119}{section*.156}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Own share in Data Analysis.}{119}{section*.156}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Own Publications}{119}{section*.156}\protected@file@percent }
+\newlabel{sec:own-publications}{{VI}{119}{}{section*.156}{}}
+\newlabel{sec:publications:peer_reviewed_journal_first}{{VI}{119}{}{section*.156}{}}
+\newlabel{sec:publications:peer_reviewed_conf_first}{{VI}{119}{}{section*.156}{}}
 \bibdata{refs}
-\newlabel{sec:publications:other_co}{{VI}{100}{}{section*.142}{}}
+\newlabel{sec:publications:other_co}{{VI}{120}{}{section*.156}{}}
 \bibcite{abraham2023deepgp}{{1}{2023}{{Abraham and Deo}}{{}}}
 \bibcite{adams2018adams}{{2}{2018}{{Adams et~al.}}{{Adams, Pennington, Johnson, Smith, Ovadia, Patton, and Saunderson}}}
 \bibcite{agarwal2022imitativeplanning}{{3}{2022}{{Agarwal et~al.}}{{Agarwal, Sikchi, Gulino, Wilkinson, and Gautam}}}
 \bibcite{NIPS2017_861dc9bd}{{4}{2017}{{Alaa and van~der Schaar}}{{}}}
-\bibcite{Allen_2007}{{5}{2007}{{Allen}}{{}}}
-\bibcite{alles2025flowqenergyguidedflowpolicies}{{6}{2025}{{Alles et~al.}}{{Alles, Chen, van~der Smagt, and Cseke}}}
-\bibcite{govinda2021cinn}{{7}{2021}{{{Anantha Padmanabha} and Zabaras}}{{}}}
-\bibcite{ardizzone2019inn}{{8}{2019{a}}{{Ardizzone et~al.}}{{Ardizzone, Kruse, Wirkert, Rahner, Pellegrini, Klessen, Maier-Hein, Rother, and Köthe}}}
-\bibcite{ardizzone2019cinn}{{9}{2019{b}}{{Ardizzone et~al.}}{{Ardizzone, Lüth, Kruse, Rother, and Köthe}}}
-\bibcite{asperti2020vae}{{10}{2020}{{Asperti}}{{}}}
-\bibcite{baldassari2023}{{11}{2023}{{Baldassari et~al.}}{{Baldassari, Siahkoohi, Garnier, Solna, and de~Hoop}}}
-\bibcite{bayesestimation}{{12}{1995}{{Barker et~al.}}{{Barker, Brown, and Martin}}}
-\bibcite{behrmann2019ires}{{13}{2019}{{Behrmann et~al.}}{{Behrmann, Grathwohl, Chen, Duvenaud, and Jacobsen}}}
-\bibcite{Bekri_2024}{{14}{2024}{{Bekri et~al.}}{{Bekri, Drumetz, and Vermet}}}
-\bibcite{besag2004markov}{{15}{2004}{{Besag}}{{}}}
-\bibcite{Bhola2023-ik}{{16}{2023}{{Bhola and Duraisamy}}{{}}}
-\bibcite{bishop2006}{{17}{2006}{{Bishop}}{{}}}
-\bibcite{Bittner1963}{{18}{1963}{{Bittner}}{{}}}
-\bibcite{Blei_2017}{{19}{2017}{{Blei et~al.}}{{Blei, Kucukelbir, and McAuliffe}}}
-\bibcite{blundell2015bbb}{{20}{2015}{{Blundell et~al.}}{{Blundell, Cornebise, Kavukcuoglu, and Wierstra}}}
-\bibcite{damian2021}{{21}{2021}{{Boborzi et~al.}}{{Boborzi, Straehle, Buchner, and Mikelsons}}}
-\bibcite{bottou1999sgd}{{22}{1999}{{Bottou}}{{}}}
-\bibcite{bowman2016cvae}{{23}{2016}{{Bowman et~al.}}{{Bowman, Vilnis, Vinyals, Dai, Jozefowicz, and Bengio}}}
-\bibcite{NEURIPS2023_3fd9fe8e}{{24}{2023}{{Brahmanage et~al.}}{{Brahmanage, LING, and Kumar}}}
-\bibcite{8972113}{{25}{2019}{{Brusaferri et~al.}}{{Brusaferri, Matteucci, Portolani, and Spinelli}}}
-\bibcite{rlforcontrol2018}{{26}{2018}{{Buşoniu et~al.}}{{Buşoniu, {de Bruin}, Tolić, Kober, and Palunko}}}
-\bibcite{Calafiore_2013}{{27}{2013}{{Calafiore and Fagiano}}{{}}}
-\bibcite{rmpc1987}{{28}{1987}{{Campo and Morari}}{{}}}
-\bibcite{chang2022ilflowimitationlearningobservation}{{29}{2022}{{Chang et~al.}}{{Chang, Higuera, Fujimoto, Meger, and Dudek}}}
-\bibcite{NEURIPS2024_661c37f3}{{30}{2024}{{Chao et~al.}}{{Chao, Feng, Sun, Lee, See, and Lee}}}
-\bibcite{chen2019node}{{31}{2019}{{Chen et~al.}}{{Chen, Rubanova, Bettencourt, and Duvenaud}}}
-\bibcite{chen2020resflow}{{32}{2020}{{Chen et~al.}}{{Chen, Behrmann, Duvenaud, and Jacobsen}}}
-\bibcite{chen2025conddiff}{{33}{2025}{{Chen et~al.}}{{Chen, Bansal, and Scott}}}
-\bibcite{chen2021dpfcnf}{{34}{2021}{{Chen et~al.}}{{Chen, Wen, and Li}}}
-\bibcite{chen_bayesian_2003}{{35}{2003}{{Chen}}{{}}}
-\bibcite{cho2024outofdistributionadaptationofflinerl}{{36}{2024}{{Cho et~al.}}{{Cho, How, and Sun}}}
-\bibcite{Christophersen2007}{{37}{2007}{{Christophersen}}{{}}}
-\bibcite{coddington1955theory}{{38}{1955}{{Coddington and Levinson}}{{}}}
-\bibcite{damianou2013dgp}{{39}{2013}{{Damianou and Lawrence}}{{}}}
-\bibcite{De_Santi_2024}{{40}{2024}{{De~Santi et~al.}}{{De~Santi, Razzano, Fidecaro, Muccillo, Papalini, and Patricelli}}}
-\bibcite{Dempster1977}{{41}{1977}{{Dempster et~al.}}{{Dempster, Laird, and Rubin}}}
-\bibcite{deng2021continuous}{{42}{2021{a}}{{Deng et~al.}}{{Deng, Brubaker, Mori, and Lehrmann}}}
-\bibcite{deng2021ctfp}{{43}{2021{b}}{{Deng et~al.}}{{Deng, Chang, Brubaker, Mori, and Lehrmann}}}
-\bibcite{dgp2023desai}{{44}{2023}{{Desai et~al.}}{{Desai, Gujarathi, Parikh, Yadav, Patel, and Batra}}}
-\bibcite{Diehl2013}{{45}{2013}{{Diehl}}{{}}}
-\bibcite{dinh2015nice}{{46}{2015}{{Dinh et~al.}}{{Dinh, Krueger, and Bengio}}}
-\bibcite{DONG2025117457}{{47}{2025}{{Dong et~al.}}{{Dong, Jacobsen, Khalloufi, Akram, Liu, Duraisamy, and Huan}}}
-\bibcite{du2022toflow}{{48}{2022}{{Du et~al.}}{{Du, Luo, Chen, Xu, and Zeng}}}
-\bibcite{duane1987hybrid}{{49}{1987}{{Duane et~al.}}{{Duane, Kennedy, Pendleton, and Roweth}}}
-\bibcite{Durbin2000}{{50}{2000}{{Durbin and Koopman}}{{}}}
-\bibcite{Durbin2012}{{51}{2012}{{Durbin and Koopman}}{{}}}
-\bibcite{durkan2019neuralsplineflows}{{52}{2019}{{Durkan et~al.}}{{Durkan, Bekasov, Murray, and Papamakarios}}}
-\bibcite{DU04}{{53}{1996}{{Durrett}}{{}}}
-\bibcite{Elfring2021-xf}{{54}{2021}{{Elfring et~al.}}{{Elfring, Torta, and van~de Molengraft}}}
-\bibcite{Ferreira_2025}{{55}{2025}{{Ferreira and Bejger}}{{}}}
-\bibcite{Fliess_2013}{{56}{2013}{{Fliess and Join}}{{}}}
-\bibcite{foong2019inbetween}{{57}{2019}{{Foong et~al.}}{{Foong, Li, Hernández-Lobato, and Turner}}}
-\bibcite{foong2020bnn}{{58}{2020}{{Foong et~al.}}{{Foong, Burt, Li, and Turner}}}
-\bibcite{fortunato2019brnn}{{59}{2019}{{Fortunato et~al.}}{{Fortunato, Blundell, and Vinyals}}}
-\bibcite{fraccaro2017kvae}{{60}{2017}{{Fraccaro et~al.}}{{Fraccaro, Kamronn, Paquet, and Winther}}}
-\bibcite{coupledflowimitation2023}{{61}{2023}{{Freund et~al.}}{{Freund, Sarafian, and Kraus}}}
-\bibcite{Gabbard2022}{{62}{2022}{{Gabbard et~al.}}{{Gabbard, Messenger, Heng, Tonolini, and Murray-Smith}}}
-\bibcite{gabbiani2010mathematics}{{63}{2010}{{Gabbiani and Cox}}{{}}}
-\bibcite{mpcreview1989}{{64}{1989}{{García et~al.}}{{García, Prett, and Morari}}}
-\bibcite{adjoint1963}{{65}{1963}{{Gavrilović et~al.}}{{Gavrilović, Petrović, and Šiljak}}}
-\bibcite{gelman2013bayesian}{{66}{2013}{{Gelman et~al.}}{{Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin}}}
-\bibcite{gershman2014amortized}{{67}{2014}{{Gershman and Goodman}}{{}}}
-\bibcite{ghugare2025nf}{{68}{2025}{{Ghugare and Eysenbach}}{{}}}
-\bibcite{Girin_2021}{{69}{2021}{{Girin et~al.}}{{Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda}}}
-\bibcite{Goan_2020}{{70}{2020}{{Goan and Fookes}}{{}}}
-\bibcite{pf1993}{{71}{1993}{{Gordon et~al.}}{{Gordon, Salmond, and Smith}}}
-\bibcite{grathwohl2018ffjord}{{72}{2018}{{Grathwohl et~al.}}{{Grathwohl, Chen, Bettencourt, Sutskever, and Duvenaud}}}
-\bibcite{haber2017stable}{{73}{2017}{{Haber and Ruthotto}}{{}}}
-\bibcite{Hagemann_2022}{{74}{2022}{{Hagemann et~al.}}{{Hagemann, Hertrich, and Steidl}}}
-\bibcite{haitsiukevich2024}{{75}{2024}{{Haitsiukevich et~al.}}{{Haitsiukevich, Poyraz, Marttinen, and Ilin}}}
-\bibcite{Hastings}{{76}{1970}{{Hastings}}{{}}}
-\bibcite{he2015residual}{{77}{2015}{{He et~al.}}{{He, Zhang, Ren, and Sun}}}
-\bibcite{HEIRUNG2018158}{{78}{2018}{{Heirung et~al.}}{{Heirung, Paulson, O’Leary, and Mesbah}}}
-\bibcite{ho2020ddpm}{{79}{2020}{{Ho et~al.}}{{Ho, Jain, and Abbeel}}}
-\bibcite{cvae2025}{{80}{2025}{{Ho et~al.}}{{Ho, Song, Sachdev, Jiang, and Wen}}}
-\bibcite{hodg2021stoch}{{81}{2021}{{Hodgkinson et~al.}}{{Hodgkinson, van~der Heide, Roosta, and Mahoney}}}
-\bibcite{Hutchinson01011990}{{82}{1990}{{Hutchinson}}{{}}}
-\bibcite{izmailov2021bnnp}{{83}{2021}{{Izmailov et~al.}}{{Izmailov, Vikram, Hoffman, and Wilson}}}
-\bibcite{jakkala2021survey}{{84}{2021}{{Jakkala}}{{}}}
-\bibcite{Jordan1998}{{85}{1998}{{Jordan et~al.}}{{Jordan, Ghahramani, Jaakkola, and Saul}}}
-\bibcite{kf1960}{{86}{1960}{{Kalman}}{{}}}
-\bibcite{stableflow2021}{{87}{2021}{{Khader et~al.}}{{Khader, Yin, Falco, and Kragic}}}
-\bibcite{khalil2002nonlinear}{{88}{2002}{{Khalil and Grizzle}}{{}}}
-\bibcite{kidger2021neuralsdesinfinitedimensionalgans}{{89}{2021}{{Kidger et~al.}}{{Kidger, Foster, Li, Oberhauser, and Lyons}}}
-\bibcite{kingma2018glow}{{90}{2018}{{Kingma and Dhariwal}}{{}}}
-\bibcite{Kingma_2019}{{91}{2019}{{Kingma and Welling}}{{}}}
-\bibcite{kingma2013auto}{{92}{2022}{{Kingma and Welling}}{{}}}
-\bibcite{kobyzev2021nfsreview}{{93}{2021}{{Kobyzev et~al.}}{{Kobyzev, Prince, and Brubaker}}}
-\bibcite{kong2025compositeflowmatchingreinforcement}{{94}{2025}{{Kong et~al.}}{{Kong, Wang, Wang, Xiong, and Tambe}}}
-\bibcite{kruse2021hint}{{95}{2021}{{Kruse et~al.}}{{Kruse, Detommaso, Köthe, and Scheichl}}}
-\bibcite{Kucharsk2025}{{96}{2025}{{Kucharský and Bürkner}}{{}}}
-\bibcite{kl1951}{{97}{1951}{{Kullback and Leibler}}{{}}}
-\bibcite{Lee2023ImprovingPM}{{98}{2023}{{Lee and Diwan}}{{}}}
-\bibcite{li2025gaussianprocessregressioninverse}{{99}{2025{a}}{{Li et~al.}}{{Li, Lange-Hegermann, and Raiţă}}}
-\bibcite{li2020scalable}{{100}{2020{a}}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
-\bibcite{li2020scalablegradientsstochasticdifferential}{{101}{2020{b}}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
-\bibcite{li2025DIC}{{102}{2025{b}}{{Li et~al.}}{{Li, Mallick, Wang, Yu, and Zeng}}}
-\bibcite{lin2024ssm}{{103}{2024}{{Lin and Michailidis}}{{}}}
-\bibcite{lin2025}{{104}{2025}{{Lin et~al.}}{{Lin, Li, Yin, Maroñas, and Thiéry}}}
-\bibcite{lind2025normalizingflowscapablevisuomotor}{{105}{2025}{{Lind et~al.}}{{Lind, Li, Stenmark, and Krüger}}}
-\bibcite{lipman2023flowmatching}{{106}{2023}{{Lipman et~al.}}{{Lipman, Chen, Ben-Hamu, Nickel, and Le}}}
-\bibcite{lorenz1996predictability}{{107}{1996}{{Lorenz}}{{}}}
-\bibcite{lu2020finitelayer}{{108}{2020}{{Lu et~al.}}{{Lu, Zhong, Li, and Dong}}}
-\bibcite{lv2025flowbasedpolicy}{{109}{2025}{{Lv et~al.}}{{Lv, Li, Luo, Sun, Kong, Xu, and Ma}}}
-\bibcite{ma2020normalizingflowpolicy}{{110}{2020}{{Ma et~al.}}{{Ma, Gupta, and Kochenderfer}}}
-\bibcite{MacKay1992}{{111}{1995}{{MacKay}}{{}}}
-\bibcite{margossian2024amortized}{{112}{2024}{{Margossian and Blei}}{{}}}
-\bibcite{martínezpalomera2020pelsvae}{{113}{2020}{{Martínez-Palomera et~al.}}{{Martínez-Palomera, Bloom, and Abrahams}}}
-\bibcite{offpolicy2020}{{114}{2020}{{Mazoure et~al.}}{{Mazoure, Doan, Durand, Pineau, and Hjelm}}}
-\bibcite{mcallister2025flowmatchingpolicygradients}{{115}{2025}{{McAllister et~al.}}{{McAllister, Ge, Yi, Kim, Weber, Choi, Feng, and Kanazawa}}}
-\bibcite{mccarthy2020cvae}{{116}{2020}{{McCarthy et~al.}}{{McCarthy, Li, Gu, and Dong}}}
-\bibcite{Merkatas2023_sm}{{117}{2023}{{Merkatas and S{\"a}rkk{\"a}}}{{}}}
-\bibcite{smpc2016}{{118}{2016}{{Mesbah}}{{}}}
-\bibcite{Metropolis}{{119}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
-\bibcite{Mienye2025}{{120}{2025}{{Mienye and Swart}}{{}}}
-\bibcite{mbrl2020}{{121}{2022}{{Moerland et~al.}}{{Moerland, Broekens, Plaat, and Jonker}}}
-\bibcite{pml1Book}{{122}{2022}{{Murphy}}{{}}}
-\bibcite{pml2Book}{{123}{2023}{{Murphy}}{{}}}
-\bibcite{müller2024transbi}{{124}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
-\bibcite{vae_sbi}{{125}{2024}{{Nautiyal et~al.}}{{Nautiyal, Shternshis, Hellander, and Singh}}}
-\bibcite{Neal1996}{{126}{1996}{{Neal}}{{}}}
-\bibcite{Nemeth_2014}{{127}{2014}{{Nemeth et~al.}}{{Nemeth, Fearnhead, and Mihaylova}}}
-\bibcite{oksendal1985}{{128}{1985}{{{\O }ksendal}}{{}}}
-\bibcite{PANIAGUA2024200344}{{129}{2024}{{Paniagua and López}}{{}}}
-\bibcite{papamakarios2018maf}{{130}{2018}{{Papamakarios et~al.}}{{Papamakarios, Pavlakou, and Murray}}}
-\bibcite{papamakarios2021nf}{{131}{2021}{{Papamakarios et~al.}}{{Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan}}}
-\bibcite{dgp2018park}{{132}{2018}{{Park et~al.}}{{Park, Tagade, and Choi}}}
-\bibcite{pasmans2025ekfl}{{133}{2025}{{Pasmans et~al.}}{{Pasmans, Chen, Finn, Bocquet, and Carrassi}}}
-\bibcite{BayesSysId1981}{{134}{1981}{{Peterka}}{{}}}
-\bibcite{pivezhandi2025fm}{{135}{2025}{{Pivezhandi and Saifullah}}{{}}}
-\bibcite{power2022variationalinferencempcusing}{{136}{2022}{{Power and Berenson}}{{}}}
-\bibcite{mdp2014}{{137}{1994}{{Puterman}}{{}}}
-\bibcite{radev2021diss}{{138}{2021}{{Radev}}{{}}}
-\bibcite{radev2020bayesflow}{{139}{2020}{{Radev et~al.}}{{Radev, Mertens, Voss, Ardizzone, and Köthe}}}
-\bibcite{Rahmandad2025_uh}{{140}{2025}{{Rahmandad et~al.}}{{Rahmandad, Akhavan, and Jalali}}}
-\bibcite{RAIMONDO20095}{{141}{2009}{{Raimondo et~al.}}{{Raimondo, Limon, Lazar, Magni, and {ndez Camacho}}}}
-\bibcite{Rasmussen_Williams_2008}{{142}{2008}{{Rasmussen and Williams}}{{}}}
-\bibcite{mpcbook2020}{{143}{2020}{{Rawlings et~al.}}{{Rawlings, Mayne, and Diehl}}}
-\bibcite{rezende2016}{{144}{2016}{{Rezende and Mohamed}}{{}}}
-\bibcite{awesomenfs}{{145}{2023}{{Riebesell et~al.}}{{Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}}}}
-\bibcite{rietz2024constrained}{{146}{2024}{{Rietz et~al.}}{{Rietz, Schaffernicht, Heinrich, and Stork}}}
-\bibcite{roeder2019abi}{{147}{2019}{{Roeder et~al.}}{{Roeder, Grant, Phillips, Dalchau, and Meeds}}}
-\bibcite{rouxel2025extremumflowmatchingoffline}{{148}{2025}{{Rouxel et~al.}}{{Rouxel, Donoso, Chen, Ivaldi, and Mouret}}}
-\bibcite{ruthotto2018deep}{{149}{2018}{{Ruthotto and Haber}}{{}}}
-\bibcite{changeofvariables}{{150}{1954}{{Schwartz}}{{}}}
-\bibcite{Schwenzer2021}{{151}{2021}{{Schwenzer et~al.}}{{Schwenzer, Ay, Bergs, and Abel}}}
-\bibcite{shridhar2019bcnn}{{152}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
-\bibcite{Shukla2016}{{153}{2016}{{Shukla et~al.}}{{Shukla, Balasubramanian, and Pavlovi{\'c}}}}
-\bibcite{silvestro2020prior}{{154}{2020}{{Silvestro and Andermann}}{{}}}
-\bibcite{simon2006optimal}{{155}{2006}{{Simon}}{{}}}
-\bibcite{Skilling1989}{{156}{1989}{{Skilling}}{{}}}
-\bibcite{sohn2015cvae}{{157}{2015}{{Sohn et~al.}}{{Sohn, Lee, and Yan}}}
-\bibcite{somvanshi2025s4mamba}{{158}{2025}{{Somvanshi et~al.}}{{Somvanshi, Islam, Mimi, Polock, Chhetri, and Das}}}
-\bibcite{Spiegelhalter2002}{{159}{2002}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and Van Der~Linde}}}
-\bibcite{Spiegelhalter2014}{{160}{2014}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and van~der Linde}}}
-\bibcite{Sun_2025}{{161}{2025}{{Sun et~al.}}{{Sun, Wang, and He}}}
-\bibcite{sutton1990}{{162}{1990}{{Sutton}}{{}}}
-\bibcite{sarkka2019gp}{{163}{2019}{{Särkkä}}{{}}}
-\bibcite{takhtaganov2018adaptivegaussianprocesssurrogates}{{164}{2018}{{Takhtaganov and Müller}}{{}}}
-\bibcite{tarasov2025vla}{{165}{2025}{{Tarasov et~al.}}{{Tarasov, Nikulin, Zisman, Klepach, Lyubaykin, Polubarov, Derevyagin, and Kurenkov}}}
-\bibcite{TUNE2025179}{{166}{2025}{{Tune et~al.}}{{Tune, Kooiker, Davis, Daniel, and Moussavi-Harami}}}
-\bibcite{imitationflow2020}{{167}{2020}{{Urain et~al.}}{{Urain, Ginesi, Tateo, and Peters}}}
-\bibcite{Wainwright2008}{{168}{2008}{{Wainwright and Jordan}}{{}}}
-\bibcite{ukf2000}{{169}{2000}{{Wan and Van Der~Merwe}}{{}}}
-\bibcite{wan2025fmirlflowmatchingrewardmodeling}{{170}{2025}{{Wan et~al.}}{{Wan, Wu, Yu, Zhang, Lei, An, and Tsang}}}
-\bibcite{wang2025flow}{{171}{2025}{{Wang et~al.}}{{Wang, Guan, Guo, and Wu}}}
-\bibcite{wang2023vae}{{172}{2023}{{Wang et~al.}}{{Wang, Blei, and Cunningham}}}
-\bibcite{ward2019sacnf}{{173}{2019}{{Ward et~al.}}{{Ward, Smofsky, and Bose}}}
-\bibcite{wen2025diffusionvla}{{174}{2025}{{Wen et~al.}}{{Wen, Zhu, Zhu, Tang, Li, Zhou, Li, Liu, Peng, Shen, and Feng}}}
-\bibcite{winkler2023cnf}{{175}{2023}{{Winkler et~al.}}{{Winkler, Worrall, Hoogeboom, and Welling}}}
-\bibcite{wu2020stochasticnormalizingflows}{{176}{2020}{{Wu et~al.}}{{Wu, Köhler, and Noé}}}
-\bibcite{xu2024uncertaintyaware}{{177}{2024}{{Xu and Liu}}{{}}}
-\bibcite{Yamamoto_2020rse}{{178}{2020}{{Yamamoto and Tanaka}}{{}}}
-\bibcite{yan2024brnn}{{179}{2024}{{Yan et~al.}}{{Yan, Liang, Zheng, Fan, Wang, and Wang}}}
-\bibcite{YANG2021109913}{{180}{2021}{{Yang et~al.}}{{Yang, Meng, and Karniadakis}}}
-\bibcite{Consensus2022}{{181}{2022}{{Yin et~al.}}{{Yin, Verginis, and Kragic}}}
-\bibcite{Zeng2023}{{182}{2023}{{Zeng et~al.}}{{Zeng, Todd, and Hu}}}
-\bibcite{2025flowpolicy}{{183}{2025{a}}{{Zhang et~al.}}{{Zhang, Liu, Fan, Liu, Zeng, and Liu}}}
-\bibcite{zhang2025energyweightedflowmatchingoffline}{{184}{2025{b}}{{Zhang et~al.}}{{Zhang, Zhang, and Gu}}}
-\bibcite{zhang2025reinflowfinetuningflowmatching}{{185}{2025{c}}{{Zhang et~al.}}{{Zhang, Yu, Su, and Wang}}}
-\bibcite{zhang2025sacflow}{{186}{2025{d}}{{Zhang et~al.}}{{Zhang, Yu, Zhang, Guang, Hui, Long, Wang, Yu, and Ding}}}
-\bibcite{ZHANG2023106424}{{187}{2023}{{Zhang et~al.}}{{Zhang, Zhu, Zhang, and Gao}}}
-\bibcite{zhdanov2022gisaxs}{{188}{2022}{{Zhdanov et~al.}}{{Zhdanov, Randolph, Kluge, Nakatsutsumi, Gutt, Ganeva, and Hoffmann}}}
-\bibcite{zhong2025flowcriticbridgingvalueestimation}{{189}{2025}{{Zhong et~al.}}{{Zhong, Ding, Diao, Wang, Teh, and Peng}}}
-\bibcite{zhu2025diffusion}{{190}{2025}{{Zhu et~al.}}{{Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue}}}
-\bibcite{zhu2024diffusion}{{191}{2024}{{Zhu et~al.}}{{Zhu, Zhao, He, Zhong, Zhang, Guo, Chen, and Zhang}}}
-\@writefile{toc}{\contentsline {chapter}{Appendix}{121}{section*.142}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{123}{section*.142}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{125}{section*.142}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{127}{Item.9}\protected@file@percent }
-\gdef \@abspage@last{148}
+\bibcite{albergo2025si}{{5}{2025}{{Albergo et~al.}}{{Albergo, Boffi, and Vanden-Eijnden}}}
+\bibcite{Allen_2007}{{6}{2007}{{Allen}}{{}}}
+\bibcite{alles2025flowqenergyguidedflowpolicies}{{7}{2025}{{Alles et~al.}}{{Alles, Chen, van~der Smagt, and Cseke}}}
+\bibcite{govinda2021cinn}{{8}{2021}{{{Anantha Padmanabha} and Zabaras}}{{}}}
+\bibcite{ardizzone2019inn}{{9}{2019{a}}{{Ardizzone et~al.}}{{Ardizzone, Kruse, Wirkert, Rahner, Pellegrini, Klessen, Maier-Hein, Rother, and Köthe}}}
+\bibcite{ardizzone2019cinn}{{10}{2019{b}}{{Ardizzone et~al.}}{{Ardizzone, Lüth, Kruse, Rother, and Köthe}}}
+\bibcite{asperti2020vae}{{11}{2020}{{Asperti}}{{}}}
+\bibcite{baldassari2023}{{12}{2023}{{Baldassari et~al.}}{{Baldassari, Siahkoohi, Garnier, Solna, and de~Hoop}}}
+\bibcite{bayesestimation}{{13}{1995}{{Barker et~al.}}{{Barker, Brown, and Martin}}}
+\bibcite{behrmann2019ires}{{14}{2019}{{Behrmann et~al.}}{{Behrmann, Grathwohl, Chen, Duvenaud, and Jacobsen}}}
+\bibcite{Bekri_2024}{{15}{2024}{{Bekri et~al.}}{{Bekri, Drumetz, and Vermet}}}
+\bibcite{besag2004markov}{{16}{2004}{{Besag}}{{}}}
+\bibcite{Bhola2023-ik}{{17}{2023}{{Bhola and Duraisamy}}{{}}}
+\bibcite{billingsley1999convergence}{{18}{1999}{{Billingsley}}{{}}}
+\bibcite{bishop2006}{{19}{2006}{{Bishop}}{{}}}
+\bibcite{Bittner1963}{{20}{1963}{{Bittner}}{{}}}
+\bibcite{Blei_2017}{{21}{2017}{{Blei et~al.}}{{Blei, Kucukelbir, and McAuliffe}}}
+\bibcite{blundell2015bbb}{{22}{2015}{{Blundell et~al.}}{{Blundell, Cornebise, Kavukcuoglu, and Wierstra}}}
+\bibcite{damian2021}{{23}{2021}{{Boborzi et~al.}}{{Boborzi, Straehle, Buchner, and Mikelsons}}}
+\bibcite{bottou1999sgd}{{24}{1999}{{Bottou}}{{}}}
+\bibcite{bowman2016cvae}{{25}{2016}{{Bowman et~al.}}{{Bowman, Vilnis, Vinyals, Dai, Jozefowicz, and Bengio}}}
+\bibcite{NEURIPS2023_3fd9fe8e}{{26}{2023}{{Brahmanage et~al.}}{{Brahmanage, LING, and Kumar}}}
+\bibcite{8972113}{{27}{2019}{{Brusaferri et~al.}}{{Brusaferri, Matteucci, Portolani, and Spinelli}}}
+\bibcite{rlforcontrol2018}{{28}{2018}{{Buşoniu et~al.}}{{Buşoniu, {de Bruin}, Tolić, Kober, and Palunko}}}
+\bibcite{Calafiore_2013}{{29}{2013}{{Calafiore and Fagiano}}{{}}}
+\bibcite{rmpc1987}{{30}{1987}{{Campo and Morari}}{{}}}
+\bibcite{chang2022ilflowimitationlearningobservation}{{31}{2022}{{Chang et~al.}}{{Chang, Higuera, Fujimoto, Meger, and Dudek}}}
+\bibcite{NEURIPS2024_661c37f3}{{32}{2024}{{Chao et~al.}}{{Chao, Feng, Sun, Lee, See, and Lee}}}
+\bibcite{chen2019node}{{33}{2019}{{Chen et~al.}}{{Chen, Rubanova, Bettencourt, and Duvenaud}}}
+\bibcite{chen2020resflow}{{34}{2020}{{Chen et~al.}}{{Chen, Behrmann, Duvenaud, and Jacobsen}}}
+\bibcite{chen2025conddiff}{{35}{2025}{{Chen et~al.}}{{Chen, Bansal, and Scott}}}
+\bibcite{chen2021dpfcnf}{{36}{2021}{{Chen et~al.}}{{Chen, Wen, and Li}}}
+\bibcite{chen_bayesian_2003}{{37}{2003}{{Chen}}{{}}}
+\bibcite{cho2024outofdistributionadaptationofflinerl}{{38}{2024}{{Cho et~al.}}{{Cho, How, and Sun}}}
+\bibcite{Christophersen2007}{{39}{2007}{{Christophersen}}{{}}}
+\bibcite{coddington1955theory}{{40}{1955}{{Coddington and Levinson}}{{}}}
+\bibcite{damianou2013dgp}{{41}{2013}{{Damianou and Lawrence}}{{}}}
+\bibcite{De_Santi_2024}{{42}{2024}{{De~Santi et~al.}}{{De~Santi, Razzano, Fidecaro, Muccillo, Papalini, and Patricelli}}}
+\bibcite{Dempster1977}{{43}{1977}{{Dempster et~al.}}{{Dempster, Laird, and Rubin}}}
+\bibcite{deng2021continuous}{{44}{2021{a}}{{Deng et~al.}}{{Deng, Brubaker, Mori, and Lehrmann}}}
+\bibcite{deng2021ctfp}{{45}{2021{b}}{{Deng et~al.}}{{Deng, Chang, Brubaker, Mori, and Lehrmann}}}
+\bibcite{dgp2023desai}{{46}{2023}{{Desai et~al.}}{{Desai, Gujarathi, Parikh, Yadav, Patel, and Batra}}}
+\bibcite{Diehl2013}{{47}{2013}{{Diehl}}{{}}}
+\bibcite{dinh2015nice}{{48}{2015}{{Dinh et~al.}}{{Dinh, Krueger, and Bengio}}}
+\bibcite{DONG2025117457}{{49}{2025}{{Dong et~al.}}{{Dong, Jacobsen, Khalloufi, Akram, Liu, Duraisamy, and Huan}}}
+\bibcite{du2022toflow}{{50}{2022}{{Du et~al.}}{{Du, Luo, Chen, Xu, and Zeng}}}
+\bibcite{duane1987hybrid}{{51}{1987}{{Duane et~al.}}{{Duane, Kennedy, Pendleton, and Roweth}}}
+\bibcite{Durbin2000}{{52}{2000}{{Durbin and Koopman}}{{}}}
+\bibcite{Durbin2012}{{53}{2012}{{Durbin and Koopman}}{{}}}
+\bibcite{durkan2019neuralsplineflows}{{54}{2019}{{Durkan et~al.}}{{Durkan, Bekasov, Murray, and Papamakarios}}}
+\bibcite{DU04}{{55}{1996}{{Durrett}}{{}}}
+\bibcite{Elfring2021-xf}{{56}{2021}{{Elfring et~al.}}{{Elfring, Torta, and van~de Molengraft}}}
+\bibcite{EthierKurtz1986}{{57}{1986}{{Ethier and Kurtz}}{{}}}
+\bibcite{Ferreira_2025}{{58}{2025}{{Ferreira and Bejger}}{{}}}
+\bibcite{Fliess_2013}{{59}{2013}{{Fliess and Join}}{{}}}
+\bibcite{foong2019inbetween}{{60}{2019}{{Foong et~al.}}{{Foong, Li, Hernández-Lobato, and Turner}}}
+\bibcite{foong2020bnn}{{61}{2020}{{Foong et~al.}}{{Foong, Burt, Li, and Turner}}}
+\bibcite{fortunato2019brnn}{{62}{2019}{{Fortunato et~al.}}{{Fortunato, Blundell, and Vinyals}}}
+\bibcite{fraccaro2017kvae}{{63}{2017}{{Fraccaro et~al.}}{{Fraccaro, Kamronn, Paquet, and Winther}}}
+\bibcite{coupledflowimitation2023}{{64}{2023}{{Freund et~al.}}{{Freund, Sarafian, and Kraus}}}
+\bibcite{Gabbard2022}{{65}{2022}{{Gabbard et~al.}}{{Gabbard, Messenger, Heng, Tonolini, and Murray-Smith}}}
+\bibcite{gabbiani2010mathematics}{{66}{2010}{{Gabbiani and Cox}}{{}}}
+\bibcite{mpcreview1989}{{67}{1989}{{García et~al.}}{{García, Prett, and Morari}}}
+\bibcite{adjoint1963}{{68}{1963}{{Gavrilović et~al.}}{{Gavrilović, Petrović, and Šiljak}}}
+\bibcite{gelman2013bayesian}{{69}{2013}{{Gelman et~al.}}{{Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin}}}
+\bibcite{gershman2014amortized}{{70}{2014}{{Gershman and Goodman}}{{}}}
+\bibcite{ghugare2025nf}{{71}{2025}{{Ghugare and Eysenbach}}{{}}}
+\bibcite{Girin_2021}{{72}{2021}{{Girin et~al.}}{{Girin, Leglaive, Bie, Diard, Hueber, and Alameda-Pineda}}}
+\bibcite{Goan_2020}{{73}{2020}{{Goan and Fookes}}{{}}}
+\bibcite{pf1993}{{74}{1993}{{Gordon et~al.}}{{Gordon, Salmond, and Smith}}}
+\bibcite{grathwohl2018ffjord}{{75}{2018}{{Grathwohl et~al.}}{{Grathwohl, Chen, Bettencourt, Sutskever, and Duvenaud}}}
+\bibcite{haber2017stable}{{76}{2017}{{Haber and Ruthotto}}{{}}}
+\bibcite{Hagemann_2022}{{77}{2022}{{Hagemann et~al.}}{{Hagemann, Hertrich, and Steidl}}}
+\bibcite{haitsiukevich2024}{{78}{2024}{{Haitsiukevich et~al.}}{{Haitsiukevich, Poyraz, Marttinen, and Ilin}}}
+\bibcite{Hastings}{{79}{1970}{{Hastings}}{{}}}
+\bibcite{he2015residual}{{80}{2015}{{He et~al.}}{{He, Zhang, Ren, and Sun}}}
+\bibcite{HEIRUNG2018158}{{81}{2018}{{Heirung et~al.}}{{Heirung, Paulson, O’Leary, and Mesbah}}}
+\bibcite{ho2020ddpm}{{82}{2020}{{Ho et~al.}}{{Ho, Jain, and Abbeel}}}
+\bibcite{cvae2025}{{83}{2025}{{Ho et~al.}}{{Ho, Song, Sachdev, Jiang, and Wen}}}
+\bibcite{hodg2021stoch}{{84}{2021}{{Hodgkinson et~al.}}{{Hodgkinson, van~der Heide, Roosta, and Mahoney}}}
+\bibcite{Hutchinson01011990}{{85}{1990}{{Hutchinson}}{{}}}
+\bibcite{izmailov2021bnnp}{{86}{2021}{{Izmailov et~al.}}{{Izmailov, Vikram, Hoffman, and Wilson}}}
+\bibcite{jakkala2021survey}{{87}{2021}{{Jakkala}}{{}}}
+\bibcite{Jordan1998}{{88}{1998}{{Jordan et~al.}}{{Jordan, Ghahramani, Jaakkola, and Saul}}}
+\bibcite{kf1960}{{89}{1960}{{Kalman}}{{}}}
+\bibcite{stableflow2021}{{90}{2021}{{Khader et~al.}}{{Khader, Yin, Falco, and Kragic}}}
+\bibcite{khalil2002nonlinear}{{91}{2002}{{Khalil and Grizzle}}{{}}}
+\bibcite{kidger2021neuralsdesinfinitedimensionalgans}{{92}{2021}{{Kidger et~al.}}{{Kidger, Foster, Li, Oberhauser, and Lyons}}}
+\bibcite{kingma2018glow}{{93}{2018}{{Kingma and Dhariwal}}{{}}}
+\bibcite{Kingma_2019}{{94}{2019}{{Kingma and Welling}}{{}}}
+\bibcite{kingma2013auto}{{95}{2022}{{Kingma and Welling}}{{}}}
+\bibcite{kloeden1992numerical}{{96}{1992}{{Kloeden and Platen}}{{}}}
+\bibcite{kobyzev2021nfsreview}{{97}{2021}{{Kobyzev et~al.}}{{Kobyzev, Prince, and Brubaker}}}
+\bibcite{kong2025compositeflowmatchingreinforcement}{{98}{2025}{{Kong et~al.}}{{Kong, Wang, Wang, Xiong, and Tambe}}}
+\bibcite{kruse2021hint}{{99}{2021}{{Kruse et~al.}}{{Kruse, Detommaso, Köthe, and Scheichl}}}
+\bibcite{Kucharsk2025}{{100}{2025}{{Kucharský and Bürkner}}{{}}}
+\bibcite{kl1951}{{101}{1951}{{Kullback and Leibler}}{{}}}
+\bibcite{KushnerDupuis2001}{{102}{2001}{{Kushner and Dupuis}}{{}}}
+\bibcite{Lee2023ImprovingPM}{{103}{2023}{{Lee and Diwan}}{{}}}
+\bibcite{li2025gaussianprocessregressioninverse}{{104}{2025{a}}{{Li et~al.}}{{Li, Lange-Hegermann, and Raiţă}}}
+\bibcite{li2020scalable}{{105}{2020{a}}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
+\bibcite{li2020scalablegradientsstochasticdifferential}{{106}{2020{b}}{{Li et~al.}}{{Li, Wong, Chen, and Duvenaud}}}
+\bibcite{li2025DIC}{{107}{2025{b}}{{Li et~al.}}{{Li, Mallick, Wang, Yu, and Zeng}}}
+\bibcite{lin2024ssm}{{108}{2024}{{Lin and Michailidis}}{{}}}
+\bibcite{lin2025}{{109}{2025}{{Lin et~al.}}{{Lin, Li, Yin, Maroñas, and Thiéry}}}
+\bibcite{lind2025normalizingflowscapablevisuomotor}{{110}{2025}{{Lind et~al.}}{{Lind, Li, Stenmark, and Krüger}}}
+\bibcite{lipman2023flowmatching}{{111}{2023}{{Lipman et~al.}}{{Lipman, Chen, Ben-Hamu, Nickel, and Le}}}
+\bibcite{lorenz1996predictability}{{112}{1996}{{Lorenz}}{{}}}
+\bibcite{lu2020finitelayer}{{113}{2020}{{Lu et~al.}}{{Lu, Zhong, Li, and Dong}}}
+\bibcite{lv2025flowbasedpolicy}{{114}{2025}{{Lv et~al.}}{{Lv, Li, Luo, Sun, Kong, Xu, and Ma}}}
+\bibcite{ma2020normalizingflowpolicy}{{115}{2020}{{Ma et~al.}}{{Ma, Gupta, and Kochenderfer}}}
+\bibcite{MacKay1992}{{116}{1995}{{MacKay}}{{}}}
+\bibcite{margossian2024amortized}{{117}{2024}{{Margossian and Blei}}{{}}}
+\bibcite{martínezpalomera2020pelsvae}{{118}{2020}{{Martínez-Palomera et~al.}}{{Martínez-Palomera, Bloom, and Abrahams}}}
+\bibcite{offpolicy2020}{{119}{2020}{{Mazoure et~al.}}{{Mazoure, Doan, Durand, Pineau, and Hjelm}}}
+\bibcite{mcallister2025flowmatchingpolicygradients}{{120}{2025}{{McAllister et~al.}}{{McAllister, Ge, Yi, Kim, Weber, Choi, Feng, and Kanazawa}}}
+\bibcite{mccarthy2020cvae}{{121}{2020}{{McCarthy et~al.}}{{McCarthy, Li, Gu, and Dong}}}
+\bibcite{Merkatas2023_sm}{{122}{2023}{{Merkatas and S{\"a}rkk{\"a}}}{{}}}
+\bibcite{smpc2016}{{123}{2016}{{Mesbah}}{{}}}
+\bibcite{Metropolis}{{124}{1953}{{Metropolis et~al.}}{{Metropolis, Rosenbluth, Rosenbluth, Teller, and Teller}}}
+\bibcite{Mienye2025}{{125}{2025}{{Mienye and Swart}}{{}}}
+\bibcite{mbrl2020}{{126}{2022}{{Moerland et~al.}}{{Moerland, Broekens, Plaat, and Jonker}}}
+\bibcite{pml1Book}{{127}{2022}{{Murphy}}{{}}}
+\bibcite{pml2Book}{{128}{2023}{{Murphy}}{{}}}
+\bibcite{müller2024transbi}{{129}{2024}{{Müller et~al.}}{{Müller, Hollmann, Arango, Grabocka, and Hutter}}}
+\bibcite{vae_sbi}{{130}{2024}{{Nautiyal et~al.}}{{Nautiyal, Shternshis, Hellander, and Singh}}}
+\bibcite{Neal1996}{{131}{1996}{{Neal}}{{}}}
+\bibcite{Nemeth_2014}{{132}{2014}{{Nemeth et~al.}}{{Nemeth, Fearnhead, and Mihaylova}}}
+\bibcite{oksendal1985}{{133}{1985}{{{\O }ksendal}}{{}}}
+\bibcite{PANIAGUA2024200344}{{134}{2024}{{Paniagua and López}}{{}}}
+\bibcite{papamakarios2018maf}{{135}{2018}{{Papamakarios et~al.}}{{Papamakarios, Pavlakou, and Murray}}}
+\bibcite{papamakarios2021nf}{{136}{2021}{{Papamakarios et~al.}}{{Papamakarios, Nalisnick, Rezende, Mohamed, and Lakshminarayanan}}}
+\bibcite{dgp2018park}{{137}{2018}{{Park et~al.}}{{Park, Tagade, and Choi}}}
+\bibcite{pasmans2025ekfl}{{138}{2025}{{Pasmans et~al.}}{{Pasmans, Chen, Finn, Bocquet, and Carrassi}}}
+\bibcite{BayesSysId1981}{{139}{1981}{{Peterka}}{{}}}
+\bibcite{pivezhandi2025fm}{{140}{2025}{{Pivezhandi and Saifullah}}{{}}}
+\bibcite{power2022variationalinferencempcusing}{{141}{2022}{{Power and Berenson}}{{}}}
+\bibcite{mdp2014}{{142}{1994}{{Puterman}}{{}}}
+\bibcite{radev2021diss}{{143}{2021}{{Radev}}{{}}}
+\bibcite{radev2020bayesflow}{{144}{2020}{{Radev et~al.}}{{Radev, Mertens, Voss, Ardizzone, and Köthe}}}
+\bibcite{Rahmandad2025_uh}{{145}{2025}{{Rahmandad et~al.}}{{Rahmandad, Akhavan, and Jalali}}}
+\bibcite{RAIMONDO20095}{{146}{2009}{{Raimondo et~al.}}{{Raimondo, Limon, Lazar, Magni, and {ndez Camacho}}}}
+\bibcite{Rasmussen_Williams_2008}{{147}{2008}{{Rasmussen and Williams}}{{}}}
+\bibcite{mpcbook2020}{{148}{2020}{{Rawlings et~al.}}{{Rawlings, Mayne, and Diehl}}}
+\bibcite{rezende2016}{{149}{2016}{{Rezende and Mohamed}}{{}}}
+\bibcite{awesomenfs}{{150}{2023}{{Riebesell et~al.}}{{Riebesell, Sachdeva, Johnson, Rozet, {AifuHan}, Ahn, Wang, Pourbozorg, Shon, Crenshaw, Hartikainen, Cranmer, Skiffington, Vandegar, Orozco, Nagar, Gl{\"u}senkamp, Stimper, and {kleinicke}}}}
+\bibcite{rietz2024constrained}{{151}{2024}{{Rietz et~al.}}{{Rietz, Schaffernicht, Heinrich, and Stork}}}
+\bibcite{roeder2019abi}{{152}{2019}{{Roeder et~al.}}{{Roeder, Grant, Phillips, Dalchau, and Meeds}}}
+\bibcite{rouxel2025extremumflowmatchingoffline}{{153}{2025}{{Rouxel et~al.}}{{Rouxel, Donoso, Chen, Ivaldi, and Mouret}}}
+\bibcite{ruthotto2018deep}{{154}{2018}{{Ruthotto and Haber}}{{}}}
+\bibcite{changeofvariables}{{155}{1954}{{Schwartz}}{{}}}
+\bibcite{Schwenzer2021}{{156}{2021}{{Schwenzer et~al.}}{{Schwenzer, Ay, Bergs, and Abel}}}
+\bibcite{shridhar2019bcnn}{{157}{2019}{{Shridhar et~al.}}{{Shridhar, Laumann, and Liwicki}}}
+\bibcite{Shukla2016}{{158}{2016}{{Shukla et~al.}}{{Shukla, Balasubramanian, and Pavlovi{\'c}}}}
+\bibcite{silvestro2020prior}{{159}{2020}{{Silvestro and Andermann}}{{}}}
+\bibcite{simon2006optimal}{{160}{2006}{{Simon}}{{}}}
+\bibcite{Skilling1989}{{161}{1989}{{Skilling}}{{}}}
+\bibcite{sohn2015cvae}{{162}{2015}{{Sohn et~al.}}{{Sohn, Lee, and Yan}}}
+\bibcite{somvanshi2025s4mamba}{{163}{2025}{{Somvanshi et~al.}}{{Somvanshi, Islam, Mimi, Polock, Chhetri, and Das}}}
+\bibcite{Spiegelhalter2002}{{164}{2002}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and Van Der~Linde}}}
+\bibcite{Spiegelhalter2014}{{165}{2014}{{Spiegelhalter et~al.}}{{Spiegelhalter, Best, Carlin, and van~der Linde}}}
+\bibcite{Sun_2025}{{166}{2025}{{Sun et~al.}}{{Sun, Wang, and He}}}
+\bibcite{sutton1990}{{167}{1990}{{Sutton}}{{}}}
+\bibcite{sarkka2019gp}{{168}{2019}{{Särkkä}}{{}}}
+\bibcite{takhtaganov2018adaptivegaussianprocesssurrogates}{{169}{2018}{{Takhtaganov and Müller}}{{}}}
+\bibcite{tarasov2025vla}{{170}{2025}{{Tarasov et~al.}}{{Tarasov, Nikulin, Zisman, Klepach, Lyubaykin, Polubarov, Derevyagin, and Kurenkov}}}
+\bibcite{TUNE2025179}{{171}{2025}{{Tune et~al.}}{{Tune, Kooiker, Davis, Daniel, and Moussavi-Harami}}}
+\bibcite{imitationflow2020}{{172}{2020}{{Urain et~al.}}{{Urain, Ginesi, Tateo, and Peters}}}
+\bibcite{Wainwright2008}{{173}{2008}{{Wainwright and Jordan}}{{}}}
+\bibcite{ukf2000}{{174}{2000}{{Wan and Van Der~Merwe}}{{}}}
+\bibcite{wan2025fmirlflowmatchingrewardmodeling}{{175}{2025}{{Wan et~al.}}{{Wan, Wu, Yu, Zhang, Lei, An, and Tsang}}}
+\bibcite{wang2025flow}{{176}{2025}{{Wang et~al.}}{{Wang, Guan, Guo, and Wu}}}
+\bibcite{wang2023vae}{{177}{2023}{{Wang et~al.}}{{Wang, Blei, and Cunningham}}}
+\bibcite{ward2019sacnf}{{178}{2019}{{Ward et~al.}}{{Ward, Smofsky, and Bose}}}
+\bibcite{wen2025diffusionvla}{{179}{2025}{{Wen et~al.}}{{Wen, Zhu, Zhu, Tang, Li, Zhou, Li, Liu, Peng, Shen, and Feng}}}
+\bibcite{winkler2023cnf}{{180}{2023}{{Winkler et~al.}}{{Winkler, Worrall, Hoogeboom, and Welling}}}
+\bibcite{wu2020stochasticnormalizingflows}{{181}{2020}{{Wu et~al.}}{{Wu, Köhler, and Noé}}}
+\bibcite{xu2024uncertaintyaware}{{182}{2024}{{Xu and Liu}}{{}}}
+\bibcite{Yamamoto_2020rse}{{183}{2020}{{Yamamoto and Tanaka}}{{}}}
+\bibcite{yan2024brnn}{{184}{2024}{{Yan et~al.}}{{Yan, Liang, Zheng, Fan, Wang, and Wang}}}
+\bibcite{YANG2021109913}{{185}{2021}{{Yang et~al.}}{{Yang, Meng, and Karniadakis}}}
+\bibcite{Consensus2022}{{186}{2022}{{Yin et~al.}}{{Yin, Verginis, and Kragic}}}
+\bibcite{Zeng2023}{{187}{2023}{{Zeng et~al.}}{{Zeng, Todd, and Hu}}}
+\bibcite{2025flowpolicy}{{188}{2025{a}}{{Zhang et~al.}}{{Zhang, Liu, Fan, Liu, Zeng, and Liu}}}
+\bibcite{zhang2025energyweightedflowmatchingoffline}{{189}{2025{b}}{{Zhang et~al.}}{{Zhang, Zhang, and Gu}}}
+\bibcite{zhang2025reinflowfinetuningflowmatching}{{190}{2025{c}}{{Zhang et~al.}}{{Zhang, Yu, Su, and Wang}}}
+\bibcite{zhang2025sacflow}{{191}{2025{d}}{{Zhang et~al.}}{{Zhang, Yu, Zhang, Guang, Hui, Long, Wang, Yu, and Ding}}}
+\bibcite{ZHANG2023106424}{{192}{2023}{{Zhang et~al.}}{{Zhang, Zhu, Zhang, and Gao}}}
+\bibcite{zhdanov2022gisaxs}{{193}{2022}{{Zhdanov et~al.}}{{Zhdanov, Randolph, Kluge, Nakatsutsumi, Gutt, Ganeva, and Hoffmann}}}
+\bibcite{zhong2025flowcriticbridgingvalueestimation}{{194}{2025}{{Zhong et~al.}}{{Zhong, Ding, Diao, Wang, Teh, and Peng}}}
+\bibcite{zhu2025diffusion}{{195}{2025}{{Zhu et~al.}}{{Zhu, Torbunov, Jiang, Zhao, Yogarathnam, Ren, and Yue}}}
+\bibcite{zhu2024diffusion}{{196}{2024}{{Zhu et~al.}}{{Zhu, Zhao, He, Zhong, Zhang, Guo, Chen, and Zhang}}}
+\@writefile{toc}{\contentsline {chapter}{Appendix}{141}{section*.156}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Acknowledgement}{143}{section*.156}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{145}{section*.156}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{147}{Item.19}\protected@file@percent }
+\gdef \@abspage@last{168}

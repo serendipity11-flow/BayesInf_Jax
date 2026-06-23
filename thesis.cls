@@ -13,7 +13,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[protrusion=true,expansion=true]{microtype}
-\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
 \renewcommand{\thechapter}{\Roman{chapter}}
 \usepackage[hidelinks, bookmarks=true, bookmarksopen=true, bookmarksopenlevel=4]{hyperref} % add [hidelinks] in the end to suppress the ugly boxes :)
 \usepackage{titlesec}
@@ -103,7 +103,10 @@
 \newcolumntype{a}{>{\columncolor{dkfzgray}}m{0.27\textwidth}}
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}} %table centering
 \newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+\renewcommand*\l@figure{\@dottedtocline{1}{1.5em}{3.5em}}
+\renewcommand*\l@table{\@dottedtocline{1}{1.5em}{3.5em}}
 % #################################
 %   CHAPTER
 % #################################

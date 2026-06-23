@@ -1,4 +1,4 @@
-\begin{thebibliography}{191}
+\begin{thebibliography}{196}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -25,6 +25,11 @@ Ahmed~M. Alaa and Mihaela van~der Schaar.
 \newblock Deep multi-task gaussian processes for survival analysis with competing risks.
 \newblock In \emph{Proceedings of the 31st International Conference on Neural Information Processing Systems}, NIPS'17, page 2326–2334, Red Hook, NY, USA, 2017. Curran Associates Inc.
 \newblock ISBN 9781510860964.
+
+\bibitem[Albergo et~al.(2025)Albergo, Boffi, and Vanden-Eijnden]{albergo2025si}
+Michael~S. Albergo, Nicholas~M. Boffi, and Eric Vanden-Eijnden.
+\newblock Stochastic interpolants: A unifying framework for flows and diffusions, 2025.
+\newblock URL \url{https://arxiv.org/abs/2303.08797}.
 
 \bibitem[Allen(2007)]{Allen_2007}
 Edward Allen.
@@ -92,6 +97,11 @@ Julian Besag.
 Sahil Bhola and Karthik Duraisamy.
 \newblock Estimating global identifiability using conditional mutual information in a bayesian framework.
 \newblock \emph{Scientific Reports}, 13\penalty0 (1):\penalty0 18336, October 2023.
+
+\bibitem[Billingsley(1999)]{billingsley1999convergence}
+Patrick Billingsley.
+\newblock Convergence of probability measures.
+\newblock \emph{Space}, 100:\penalty0 80--120, 1999.
 
 \bibitem[Bishop(2006)]{bishop2006}
 Christopher~M. Bishop.
@@ -329,6 +339,11 @@ Richard Durrett.
 Jos Elfring, Elena Torta, and Ren{\'e} van~de Molengraft.
 \newblock Particle filters: A {Hands-On} tutorial.
 \newblock \emph{Sensors (Basel)}, 21\penalty0 (2), jan 2021.
+
+\bibitem[Ethier and Kurtz(1986)]{EthierKurtz1986}
+Stewart~N. Ethier and Thomas~G. Kurtz.
+\newblock \emph{Markov Processes: Characterization and Convergence}.
+\newblock John Wiley \& Sons, 1986.
 
 \bibitem[Ferreira and Bejger(2025)]{Ferreira_2025}
 Márcio Ferreira and Michał Bejger.
@@ -573,6 +588,11 @@ Diederik~P Kingma and Max Welling.
 \newblock Auto-encoding variational bayes, 2022.
 \newblock URL \url{https://arxiv.org/abs/1312.6114}.
 
+\bibitem[Kloeden and Platen(1992)]{kloeden1992numerical}
+Peter~E Kloeden and Eckhard Platen.
+\newblock \emph{Numerical solution of stochastic differential equations}, volume~23.
+\newblock Springer-Verlag, 1992.
+
 \bibitem[Kobyzev et~al.(2021)Kobyzev, Prince, and Brubaker]{kobyzev2021nfsreview}
 Ivan Kobyzev, Simon~J.D. Prince, and Marcus~A. Brubaker.
 \newblock Normalizing flows: An introduction and review of current methods.
@@ -604,6 +624,12 @@ S.~Kullback and R.~A. Leibler.
 \newblock \emph{The Annals of Mathematical Statistics}, 22\penalty0 (1):\penalty0 79--86, 1951.
 \newblock ISSN 00034851.
 \newblock URL \url{http://www.jstor.org/stable/2236703}.
+
+\bibitem[Kushner and Dupuis(2001)]{KushnerDupuis2001}
+Harold~J. Kushner and Paul Dupuis.
+\newblock \emph{Numerical Methods for Stochastic Control Problems in Continuous Time}, volume~24 of \emph{Stochastic Modelling and Applied Probability}.
+\newblock Springer, 2 edition, 2001.
+\newblock \doi{10.1007/978-1-4613-0007-6}.
 
 \bibitem[Lee and Diwan(2023)]{Lee2023ImprovingPM}
 Mason Lee and Siddharth Diwan.

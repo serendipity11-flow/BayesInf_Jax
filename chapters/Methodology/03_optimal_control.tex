@@ -1,7 +1,63 @@
 \section{Optimal Control}
 \label{sec:methods:control}
 
-Model free control with IMFlow
+From a general perspective, the state-estimation methods discussed in the previous section transform one temporal sequence into another. These two sequences are related through the underlying dynamical system. The same perspective also applies to the control framework: in an \ac{MPC} setting, the simulation model maps the current state and control input to the next state; a control policy finds the next control input from the target and observations; a path planner generates a sequence of future control inputs from the current state and the relevant history. In this section, we will discuss how to integrate the normalizing-flow-based methods into control frameworks.
+
+The four methods are applied differently in a control framework due to their different characteristics. 
+\begin{enumerate}
+    \item \textbf{AmortizedSeqFlow} is based on training a desired mapping offline and then directly using the trained model online. Thus, the optimization process of finding the optimal control input is performed implicitly offline by training the posterior of control inputs conditioned on the observed and reference signals. Once trained, the control input can be inferred directly.
+    \item \textbf{LatentSSMFlow} applies a linear state space model in the latent space, which is natural to adapt it to capturing the underlying dynamics of the system. The system states are then modeled stochastically by taking the previous states and inputs as conditions, i.e., $x_t \leftarrow (x_{t-1}, u_{t-1})$. Then, the control input is optimized in a stochastic \ac{MPC} framework.
+    \item \textbf{FlowSDE}, likewise, can also model the system dynamics and be integrated into a stochastic \ac{MPC} framework.
+    \item \textbf{CondStochInterpolant} is a conditional generative model, which can be used as a control policy or path planner to generate sequential control inputs conditioned on the current system states and observation histories.
+\end{enumerate}
+
+\subsection{AmortizedSeqFlow for Control}
+Recall the Section~\ref{sec:mpc}, a standard \ac{MPC} requires solving a constrained trajectory optimization problem at every single environment time step. This is highly compute-intensive and can cause execution latencies. At every time step for updating the system, a sequence of future control inputs are supposed to be optimized based on the observed and referred signals. This mapping from observations and references to control inputs can be learned by the AmortizedSeqFlow. It bypasses this iterative optimization loop entirely and effectively "amortizes" the optimization cost.
+
+As shown in Figure~\ref{fig:amortized_seq_flow_control}, the whole \ac{MPC} block including the optimization and model, together with the state estimation are replaced by a two-head conditional normalizing flow. One head extracts information from the reference signals, while the other head is a similar condition network for the history observations. The normalizing flow transforms a latent sequence to the control input sequence under the conditions from both heads. 
+
+Once the action chunk $u_{0:H-1}$ is generated, the first control action $u_{0}$ is extracted and applied to the system (the physical robot or plant). The system interacts with environmental disturbances/noise $\epsilon$ and advances one step, producing a new observation $y_1$. The history buffer is then updated ($y_{...:0}\rightarrow [y_{...:0},y_1]$) and ready for the next control cycle.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\linewidth]{figures/AmortizedSeqFlow_Control.pdf}
+\caption[Amortized Sequence Flow for Control]{Applying AmortizedSeqFlow as an \ac{MPC}. The latent variable of the normalizing flow $z_{0:H-1}$ is sampled from a Wiener process. On the other side of the normalizing flow, the target is the control input sequence $u_{0:H-1}$. Two condition networks are applied for next-step references $y^r_{1:H}$ and history observations $y_{...:0}$, respectively.}
+\label{fig:amortized_seq_flow_control}
+\end{figure}
+
+Comparing with the classical \ac{MPC}, AmortizedSeqFlow offers several advantages. First of all, by replacing the iterative optimization loop with a single feedforward pass through the normalizing flow, the controller has a constant execution time, which helps prevent control loop delays. Secondly, AmortizedSeqFlow integrates a state estimator with the controller, which utilizes information from history observations as much as possible. Thirdly, the normalizing flow implicitly learns the system's dynamic constraints from offline training data, ensuring that the generated control input sequences are dynamically feasible for the system to execute.
+
+\subsection{LatentSSMFlow and FlowSDE for Control}
+A stochastic \ac{MPC} relies heavily on a surrogate dynamics model to project future system behaviors over a prediction horizon $H$. When the underlying physical system is highly non-linear or exhibits multi-modal stochasticity, standard deterministic or Gaussian dynamics models fail. This method resolves this by modeling transitions using either a LatentSSMFlow or a FlowSDE. As shown in Figure~\ref{fig:latentssmflow_flowsde_control}, the stochastic \ac{MPC} iteratively chooses candidate inputs $u_{0:H-1}$ through the dynamics model to predict next-step states $\hat{x}_{1:H}$ and select the optimal sequence that tracks a reference trajectory $y^r_{1:H}$. 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\linewidth]{figures/LatentSSM_FlowSDE_Control.pdf}
+\caption[LatentSSMFlow and FlowSDE for Control]{Application of LatentSSM or FlowSDE for the Surrogate Model in Stochastic \ac{MPC}. In LatentSSMFlow, the latent state $z_t$ propagates through linear transition equations $z_t=Fz_{t-1}+G$, where $G\sim\mathcal{N}(0,\Sigma)$ represents system noise. A Normalizing Flow maps the latent state $z_t$ back to the physical state representation $\hat{x}_t$ under the previous state $\hat{x}_{t-1}$ and input $u_{t-1}$ as conditions. In FlowSDE, the state $\hat{x}_t$ is updated by integrating the transition dynamics. The dynamics are modeled by an \ac{SDE}, where the drift network $f_\theta$ learns the deterministic trend and the flow-integrated diffusion network $g_\phi$ learns the state-dependent uncertainty.}
+\label{fig:latentssmflow_flowsde_control}
+\end{figure}
+
+\subsection{CondStochInterpolant for Control}
+The CondStochInterpolant control policy generates action sequence based on history observations and current state, as shown in Figure~\ref{fig:condstochomterpolant_control}. At the beginning of environment step $t=1$, the agent observes its current physical state $s_1 \in \mathbb{R}^{D_s}$ and retrieves the sliding window of historical observations $y_{...:0}$. A condition network $C_\psi$ embeds these temporal observations into a low-dimensional embedding vector $c$, which provides context information for the generative process of the stochastic interpolant. Besides, a inference network $q_\eta$ estimates the statistical parameters ($\mu_\eta,\sigma_\eta$) of a prior distribution. Then, the prior distribution is reparameterized with these parameters and has the same dimension of the target action sequence, $\mathcal{U}_0\in\mathbb{R}^{D_a\times H}$. The coarse trajectory $\mathcal{U}_0$ is transformed into a high-fidelity action sequence $\mathcal{U}_1$ by numerically integrating the \ac{SDE} from $\tau = 0$ to $\tau = 1$:
+\begin{equation}
+    d\mathcal{U}_\tau = \left[ v_\theta(\mathcal{U}_\tau, \tau; \mu_\eta, c) + g_0^2 S_\phi(\mathcal{U}_\tau, \tau; \mu_\eta, c) \right] d\tau + g_0 \sqrt{2\sigma_\tau} dW_\tau.
+\end{equation}
+
+The agent executes a prefix of length $T$ (where $1 \le T \le H$) from the generated sequence $a_{1:H}$ in closed loop. To update the networks ($\theta, \phi, \eta, \psi$) online using \ac{RL}, the generated action chunks are evaluated against a reward function $r$.
+
+Compared with other diffusion policies, the CondStochInterpolant control policy provides several advantages:
+\begin{itemize}
+    \item Standard diffusion models typically initiate their denoising process from pure, isotropic Gaussian noise, requiring a lot of flow steps to produce coherent results. By contrast, the CondStochInterpolant begins from the "warm start" action sequence $\mathcal{U}_0$, which reduces the flow steps significantly.
+    \item The stochastic interpolant formulation unifies probability flow \acp{ODE} and \acp{SDE} within a single mathematical framework, which allows configuring the solver dynamically at test-time without retraining.
+    \item Predicting cohesive action sequences $a_{1:H}$ rather than step-by-step actions helps mitigate compounding tracking errors, smoothens the trajectory, and generates a long sequence fast in parallel.
+\end{itemize}
 
 
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{figures/CondStochInterpolant_Control.pdf}
+\caption[CondStochInterpolant for Control]{Closed-loop reinforcement learning agent utilizing a Conditional Stochastic Interpolant policy for action sequence generation. At timestep $t=1$, the policy processes past observation history $y_{...:0}$ and the current physical state $s_1$. The condition network $C_\psi$ maps these conditions to a context embedding $c$. Simultaneously, the inference network $q_\eta$ estimates the statistical parameters ($\mu_\eta,\sigma_\eta$) of a prior distribution. These parameters are used to sample an initial noisy chunk $\mathcal{U}_0$ at flow time $\tau=0$, which has the shape as the to be generated action chunks. The policy integrates an \ac{SDE}, which is driven by a velocity network $v_\theta$ and a score network $S_\phi$. Both networks are conditioned on the mean parameter $\mu_\eta$ and the context embedding $c$. At flow time $\tau=1$, the integrated trajectory yields the final, smooth action chunk $a_{1:H}$, which is then executed in the environment.}
+\label{fig:condstochomterpolant_control}
+\end{figure}
 
+\subsection{Numerical Results}

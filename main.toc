@@ -1,6 +1,6 @@
 \babel@toc {english}{}\relax 
 \contentsline {chapter}{Acronyms}{i}{Doc-Start}%
-\contentsline {chapter}{List of Figures}{vii}{section*.1}%
+\contentsline {chapter}{List of Figures}{vi}{section*.1}%
 \contentsline {chapter}{List of Tables}{ix}{section*.1}%
 \contentsline {chapter}{\numberline {I}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {I.1}Motivation}{1}{section.1.1}%
@@ -75,37 +75,42 @@
 \contentsline {subsubsection}{\numberline {IV.1.5.1}Theory of Stochastic Normalizing Flows}{81}{subsubsection.4.1.5.1}%
 \contentsline {subsubsection}{\numberline {IV.1.5.2}Experiments on Stochastic Normalizing Flows}{84}{subsubsection.4.1.5.2}%
 \contentsline {section}{\numberline {IV.2}State Estimation}{87}{section.4.2}%
-\contentsline {subsection}{\numberline {IV.2.1}Amortized State Flow}{88}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {IV.2.1}Amortized Sequence Flow}{88}{subsection.4.2.1}%
 \contentsline {paragraph}{Numerical Results}{88}{figure.caption.136}%
 \contentsline {subsection}{\numberline {IV.2.2}Latent State Space Model Flow}{91}{subsection.4.2.2}%
 \contentsline {paragraph}{Numerical Results}{93}{equation.4.34}%
-\contentsline {subsection}{\numberline {IV.2.3}Normalizing Flow SDE}{96}{subsection.4.2.3}%
-\contentsline {subsubsection}{\numberline {IV.2.3.1}Integration of Normalizing Flow in NeuralSDE}{96}{subsubsection.4.2.3.1}%
-\contentsline {subsubsection}{\numberline {IV.2.3.2}Training FlowSDE}{97}{subsubsection.4.2.3.2}%
-\contentsline {subsubsection}{\numberline {IV.2.3.3}Optional Theoretical Note: Weak Convergence of FlowSDE}{99}{subsubsection.4.2.3.3}%
-\contentsline {subsubsection}{\numberline {IV.2.3.4}Numerical Results}{103}{subsubsection.4.2.3.4}%
-\contentsline {subsection}{\numberline {IV.2.4}Conditional Stochastic Interpolant}{103}{subsection.4.2.4}%
-\contentsline {subsubsection}{\numberline {IV.2.4.1}Stochastic Interpolant}{103}{subsubsection.4.2.4.1}%
-\contentsline {subsubsection}{\numberline {IV.2.4.2}Conditional Stochastic Interpolant for State Estimation}{104}{subsubsection.4.2.4.2}%
-\contentsline {paragraph}{Target Interpolant}{105}{equation.4.66}%
-\contentsline {paragraph}{Learned Interpolant Dynamics}{106}{equation.4.70}%
-\contentsline {subsubsection}{\numberline {IV.2.4.3}Numerical Results}{107}{subsubsection.4.2.4.3}%
-\contentsline {section}{\numberline {IV.3}Optimal Control}{109}{section.4.3}%
-\contentsline {chapter}{\numberline {V}Experiments and Results}{111}{chapter.5}%
-\contentsline {section}{\numberline {V.1}Overview}{111}{section.5.1}%
-\contentsline {section}{\numberline {V.2}Parameter Identification}{111}{section.5.2}%
-\contentsline {section}{\numberline {V.3}State Estimation}{111}{section.5.3}%
-\contentsline {section}{\numberline {V.4}Optimal Control}{111}{section.5.4}%
-\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{113}{chapter.6}%
-\contentsline {chapter}{Abstract}{115}{chapter.6}%
-\contentsline {chapter}{Zusammenfassung}{117}{chapter.6}%
-\contentsline {chapter}{Bibliography}{118}{section*.155}%
-\contentsline {chapter}{Own Contributions and Publications}{119}{section*.155}%
-\contentsline {section}{Own share in data acquisition and data analysis}{119}{section*.156}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{119}{section*.156}%
-\contentsline {paragraph}{Own share in Data Analysis.}{119}{section*.156}%
-\contentsline {section}{Own Publications}{119}{section*.156}%
-\contentsline {chapter}{Appendix}{141}{section*.156}%
-\contentsline {chapter}{Acknowledgement}{143}{section*.156}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{145}{section*.156}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{147}{Item.19}%
+\contentsline {subsection}{\numberline {IV.2.3}Normalizing Flow SDE}{97}{subsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {IV.2.3.1}Integration of Normalizing Flow in NeuralSDE}{98}{subsubsection.4.2.3.1}%
+\contentsline {subsubsection}{\numberline {IV.2.3.2}Training FlowSDE}{98}{subsubsection.4.2.3.2}%
+\contentsline {subsubsection}{\numberline {IV.2.3.3}Optional Theoretical Note: Weak Convergence of FlowSDE}{101}{subsubsection.4.2.3.3}%
+\contentsline {subsubsection}{\numberline {IV.2.3.4}Numerical Results}{104}{subsubsection.4.2.3.4}%
+\contentsline {subsection}{\numberline {IV.2.4}Conditional Stochastic Interpolant}{107}{subsection.4.2.4}%
+\contentsline {subsubsection}{\numberline {IV.2.4.1}Stochastic Interpolant}{107}{subsubsection.4.2.4.1}%
+\contentsline {subsubsection}{\numberline {IV.2.4.2}Conditional Stochastic Interpolant for State Estimation}{108}{subsubsection.4.2.4.2}%
+\contentsline {paragraph}{Target Interpolant}{109}{equation.4.67}%
+\contentsline {paragraph}{Learned Interpolant Dynamics}{110}{equation.4.71}%
+\contentsline {subsubsection}{\numberline {IV.2.4.3}Numerical Results}{111}{subsubsection.4.2.4.3}%
+\contentsline {subsection}{\numberline {IV.2.5}Summary of State Estimation Methods}{113}{subsection.4.2.5}%
+\contentsline {section}{\numberline {IV.3}Optimal Control}{115}{section.4.3}%
+\contentsline {subsection}{\numberline {IV.3.1}AmortizedSeqFlow for Control}{115}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {IV.3.2}LatentSSMFlow and FlowSDE for Control}{117}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {IV.3.3}CondStochInterpolant for Control}{117}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {IV.3.4}Numerical Results}{118}{subsection.4.3.4}%
+\contentsline {chapter}{\numberline {V}Experiments and Results}{121}{chapter.5}%
+\contentsline {section}{\numberline {V.1}Overview}{121}{section.5.1}%
+\contentsline {section}{\numberline {V.2}Parameter Identification}{121}{section.5.2}%
+\contentsline {section}{\numberline {V.3}State Estimation}{121}{section.5.3}%
+\contentsline {section}{\numberline {V.4}Optimal Control}{121}{section.5.4}%
+\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{123}{chapter.6}%
+\contentsline {chapter}{Abstract}{125}{chapter.6}%
+\contentsline {chapter}{Zusammenfassung}{127}{chapter.6}%
+\contentsline {chapter}{Bibliography}{128}{section*.165}%
+\contentsline {chapter}{Own Contributions and Publications}{129}{section*.165}%
+\contentsline {section}{Own share in data acquisition and data analysis}{129}{section*.166}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{129}{section*.166}%
+\contentsline {paragraph}{Own share in Data Analysis.}{129}{section*.166}%
+\contentsline {section}{Own Publications}{129}{section*.166}%
+\contentsline {chapter}{Appendix}{151}{section*.166}%
+\contentsline {chapter}{Acknowledgement}{153}{section*.166}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{155}{section*.166}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{157}{Item.23}%

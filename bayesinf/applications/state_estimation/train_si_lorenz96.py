@@ -53,6 +53,108 @@ from bayesinf.applications.state_estimation.lorenz96_dataset import (
 )
 
 
+class CalibratedStochasticInterpolantSE(StochasticInterpolantSE):
+    """
+    Training-script variant that keeps the old calibration flags accepted by
+    the CLI while using the q_eta source from the base model.
+
+    Source states are sampled from q_eta for all coordinates; no observed/hidden
+    coordinate mask is applied.
+    """
+    obs_loss_weight: float = eqx.field(static=True)
+    unobs_loss_weight: float = eqx.field(static=True)
+    obs_source_noise_std: float = eqx.field(static=True)
+    unobs_source_scale: float = eqx.field(static=True)
+    obs_g0_scale: float = eqx.field(static=True)
+    unobs_g0_scale: float = eqx.field(static=True)
+
+    def __init__(
+        self,
+        *args,
+        obs_loss_weight: float = 1.0,
+        unobs_loss_weight: float = 1.0,
+        obs_source_noise_std: float = 0.0,
+        unobs_source_scale: float = 1.0,
+        obs_g0_scale: float = 1.0,
+        unobs_g0_scale: float = 1.0,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.obs_loss_weight = obs_loss_weight
+        self.unobs_loss_weight = unobs_loss_weight
+        self.obs_source_noise_std = obs_source_noise_std
+        self.unobs_source_scale = unobs_source_scale
+        self.obs_g0_scale = obs_g0_scale
+        self.unobs_g0_scale = unobs_g0_scale
+
+    def _coord_weights(self) -> jnp.ndarray:
+        return jnp.ones(self.d_x)
+
+    def _weighted_mean(self, err: jnp.ndarray) -> jnp.ndarray:
+        weights = self._coord_weights()
+        return jnp.mean(err * weights) / jnp.mean(weights)
+
+    def _loss_seg_components(
+        self,
+        x_seg:      jnp.ndarray,
+        mu_seg:     jnp.ndarray,
+        log_sigma_seg: jnp.ndarray,
+        c_seg:      jnp.ndarray,
+        key:        jr.PRNGKey,
+    ) -> jnp.ndarray:
+        k_s, k_eps, k_z0 = jr.split(key, 3)
+        s   = jr.uniform(k_s, minval=self.s_min, maxval=1.0 - self.s_min)
+        eps = jr.normal(k_eps, x_seg.shape)
+
+        z0_seg = self._make_source(mu_seg, log_sigma_seg, k_z0)
+        sig_s  = self._sigma(s)
+        z_s    = self._alpha(s) * z0_seg + self._beta(s) * x_seg + sig_s * eps
+
+        v_target = (
+            self._alpha_dot(s) * z0_seg
+            + self._beta_dot(s) * x_seg
+            + self._sigma_dot(s) * eps
+        )
+        v_pred = self.vel_net.traj(z_s, mu_seg, c_seg, s)
+        l_flow = self._weighted_mean((v_pred - v_target) ** 2)
+
+        score_pred = self.score_net.traj(z_s, mu_seg, c_seg, s)
+        l_score = self._weighted_mean((score_pred + eps) ** 2)
+
+        l_source = self._source_nll(x_seg, mu_seg, log_sigma_seg)
+
+        total = l_flow + self.score_weight * l_score + self.lifter_loss_weight * l_source
+        return total, l_flow, l_score, l_source
+
+    def _simulate_sde_segment(
+        self,
+        z0:         jnp.ndarray,
+        mu_seg:     jnp.ndarray,
+        c_seg:      jnp.ndarray,
+        key:        jr.PRNGKey,
+        n_steps:    int,
+        g0:         float,
+    ) -> jnp.ndarray:
+        ds        = 1.0 / n_steps
+        s_vals    = jnp.linspace(0.0, 1.0 - ds, n_steps)
+        step_keys = jr.split(key, n_steps)
+
+        def em_step(z, inputs):
+            s_i, noise_k = inputs
+            v = self.vel_net.traj(z, mu_seg, c_seg, s_i)
+            score = self._unscale_score(
+                self.score_net.traj(z, mu_seg, c_seg, s_i),
+                s_i,
+            )
+            drift = v + g0 ** 2 * score
+            diff_coef = g0 * jnp.sqrt(2.0 * self._sigma(s_i) + 1e-8)
+            noise = diff_coef * jr.normal(noise_k, z.shape) * jnp.sqrt(ds)
+            return z + drift * ds + noise, None
+
+        z1, _ = jax.lax.scan(em_step, z0, (s_vals, step_keys))
+        return z1
+
+
 # ---------------------------------------------------------------------------
 # Arguments
 # ---------------------------------------------------------------------------
@@ -92,9 +194,23 @@ parser.add_argument("--lifter_loss_weight",  type=float, default=0.1)
 parser.add_argument("--score_sigma_floor",   type=float, default=0.05,
                     help="Floor used when converting the trained sigma-scaled score to an actual score during sampling.")
 parser.add_argument("--s_min",               type=float, default=0.02)
-parser.add_argument("--interpolant_type",    type=str,   default="cosine",
+parser.add_argument("--interpolant_type",    type=str,   default="linear",
                     choices=("linear", "cosine"),
                     help="Interpolation path between source and target.")
+# Legacy calibration controls kept for CLI compatibility. The current SI source
+# is sampled from q_eta for every state coordinate, without masking.
+parser.add_argument("--obs_loss_weight",     type=float, default=1.0,
+                    help="Deprecated; q_eta source is unmasked.")
+parser.add_argument("--unobs_loss_weight",   type=float, default=1.0,
+                    help="Deprecated; q_eta source is unmasked.")
+parser.add_argument("--obs_source_noise_std", type=float, default=0.0,
+                    help="Deprecated; source sigma is produced by q_eta.")
+parser.add_argument("--unobs_source_scale",  type=float, default=1.0,
+                    help="Deprecated; source sigma is produced by q_eta.")
+parser.add_argument("--obs_g0_scale",        type=float, default=1.0,
+                    help="Deprecated; sampler diffusion uses a single g0.")
+parser.add_argument("--unobs_g0_scale",      type=float, default=1.0,
+                    help="Deprecated; sampler diffusion uses a single g0.")
 # Training
 parser.add_argument("--ms",             action="store_true",
                     help="Multiple-shooting training (more stable on long sequences)")
@@ -268,7 +384,7 @@ x_test_norm = jnp.array((test_data["x"] - x_mean) / x_std)
 # Model
 # ---------------------------------------------------------------------------
 
-model = StochasticInterpolantSE(
+model = CalibratedStochasticInterpolantSE(
     d_x          = d_x,
     d_y          = d_y,
     d_c          = args.d_c,
@@ -283,14 +399,22 @@ model = StochasticInterpolantSE(
     score_sigma_floor  = args.score_sigma_floor,
     s_min        = args.s_min,
     interpolant_type = args.interpolant_type,
+    obs_loss_weight = args.obs_loss_weight,
+    unobs_loss_weight = args.unobs_loss_weight,
+    obs_source_noise_std = args.obs_source_noise_std,
+    unobs_source_scale = args.unobs_source_scale,
+    obs_g0_scale = args.obs_g0_scale,
+    unobs_g0_scale = args.unobs_g0_scale,
     key          = k_model,
 )
 print(
     f"StochasticInterpolantSE  d_x={d_x}  d_y={d_y}  d_c={args.d_c}\n"
     f"  d_hidden={args.d_hidden}  n_heads={args.n_heads}  depth={args.depth}\n"
     f"  sigma_0={args.sigma_0}  g0={args.g0}  score_weight={args.score_weight}\n"
-    f"  lifter_loss_weight={args.lifter_loss_weight}  score_sigma_floor={args.score_sigma_floor}\n"
-    f"  s_min={args.s_min}  interpolant_type={args.interpolant_type}"
+    f"  source_nll_weight={args.lifter_loss_weight}  score_sigma_floor={args.score_sigma_floor}\n"
+    f"  s_min={args.s_min}  interpolant_type={args.interpolant_type}\n"
+    f"  source: q_eta(y,c)=N(mu_eta, sigma_eta^2), unmasked\n"
+    f"  conditioning: velocity/score see mu_eta and c"
 )
 
 
@@ -353,7 +477,7 @@ if args.train:
             epoch_losses = []
             epoch_flow   = []
             epoch_score  = []
-            epoch_lift   = []
+            epoch_source = []
 
             for b in range(n_batches):
                 s, e        = b * batch_size, (b + 1) * batch_size
@@ -369,16 +493,16 @@ if args.train:
                     model, opt_state, loss, components = make_step_si(
                         model, xb, yb, k_step, opt_state, optimizer
                     )
-                l_flow, l_score, l_lift = components
+                l_flow, l_score, l_source = components
                 epoch_losses.append(float(loss))
                 epoch_flow.append(float(l_flow))
                 epoch_score.append(float(l_score))
-                epoch_lift.append(float(l_lift))
+                epoch_source.append(float(l_source))
 
             mean_loss = float(np.mean(epoch_losses))
             mean_flow = float(np.mean(epoch_flow))
             mean_score = float(np.mean(epoch_score))
-            mean_lift = float(np.mean(epoch_lift))
+            mean_source = float(np.mean(epoch_source))
 
             rng, k_val = jr.split(rng)
             if args.ms:
@@ -402,7 +526,7 @@ if args.train:
                 loss=f"{mean_loss:.4f}",
                 flow=f"{mean_flow:.4f}",
                 score=f"{mean_score:.4f}",
-                lift=f"{mean_lift:.4f}",
+                source=f"{mean_source:.4f}",
                 val=f"{val_loss:.4f}",
                 best=f"{best_val_loss:.4f}",
                 pat=patience_counter,
@@ -416,7 +540,7 @@ if args.train:
                             "loss": mean_loss,
                             "loss_flow": mean_flow,
                             "loss_score": mean_score,
-                            "loss_lift": mean_lift,
+                            "loss_source_nll": mean_source,
                             "val_loss": val_loss,
                             "epoch": epoch,
                         })

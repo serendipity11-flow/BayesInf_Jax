@@ -3,8 +3,8 @@ State estimation with normalizing flows.
 
 - AmortizedStateFlow: Amortized Bayesian state inference; encoder + flow over
   state sequences with Wiener-process latent prior.
-- FlowSDE: Conditional probability flow ODE (training) + SDE (sampling);
-  NICE diffusion block G_φ with det(G)=1; bidirectional Transformer encoder.
+- FlowSDE: exact conditional RealNVP or scaled-NICE transition NLL plus
+  stochastic sampling and a bidirectional sequence encoder.
 - LatentSSMFlow: Linear Gaussian SSM in latent z-space with a conditional
   normalizing flow decoder; exact MLE training via change of variables.
 """
@@ -19,7 +19,8 @@ from bayesinf.applications.state_estimation.amortized_state_flow import (
     state_flow_loss,
 )
 from bayesinf.applications.state_estimation.flow_sde import (
-    NICEFlowSDE,
+    RealNVPFlowSDE,
+    NICEDiffusionNet,
 )
 from bayesinf.applications.state_estimation.stochastic_solvers import (
     VirtualBrownianTree,
@@ -49,7 +50,8 @@ from bayesinf.applications.state_estimation.lorenz96_dataset import (
 )
 
 __all__ = [
-    "NICEFlowSDE",
+    "RealNVPFlowSDE",
+    "NICEDiffusionNet",
     "VirtualBrownianTree",
     "get_solver",
     "list_solvers",

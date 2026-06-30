@@ -5,6 +5,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.join(current_dir, '..')
 sys.path.append(project_root)
 from jax._src.source_info_util import current
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sns 
@@ -15,8 +17,22 @@ from functools import partial
 import jax.numpy as jnp
 import numpy as np
 import os
+from sklearn.metrics import r2_score
 from bayesinf.utils.generate_data import normalize_data, denormalize_data
-from cross_evaluation_metrics import cicp_mciw, r2_score
+
+
+def confidence_interval(samples, lower=0.025, upper=0.975):
+    ci_low = jnp.quantile(samples, lower, axis=0)
+    ci_high = jnp.quantile(samples, upper, axis=0)
+    return ci_low, ci_high
+
+
+def cicp_mciw(theta_approx, theta_test):
+    ci_low, ci_high = confidence_interval(theta_approx)
+    within_interval = (theta_test > ci_low) & (theta_test < ci_high)
+    cicp = jnp.mean(within_interval, axis=0)
+    mciw = jnp.mean(ci_high - ci_low, axis=0)
+    return cicp, mciw
 
 misspecification = False
 ood = True
@@ -306,7 +322,7 @@ test_theta_p_norm, mean_theta, std_theta = normalize_data(test_theta_p)
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
-results_dir = os.path.join(project_root, 'results')
+results_dir = os.path.join(project_root, 'results', 'results_parameter_identification')
 figure_dir = os.path.join(project_root, 'evaluation')
 
 sample_results = {}
@@ -315,7 +331,7 @@ metrics_results = {}
 flow_types = ['RealNVP', 'NSF', 'FM']
 scales = ['0.5', '1.0', '2.0']
 modes = ['Original', 'retrain_cn', 'retrain']
-colors = ['#E76F51', '#2A9D8F', '#264653']
+colors = ['#E76F51', '#2A9D8F', '#836bc2']
 
 for s, _scale in enumerate(scales):
     sample_results[_scale] = {}
@@ -382,3 +398,8 @@ for s, _scale in enumerate(scales):
             cicp, mciw = cicp_mciw(samples, test_theta_p)
             metrics_results[_scale][_flow][_mode]['cicp'] = cicp
             metrics_results[_scale][_flow][_mode]['mciw'] = mciw
+
+if misspecification:
+    plot_distribution_grid(sample_results, data_dict)
+elif ood:
+    plot_global_residuals(sample_results, data_dict)

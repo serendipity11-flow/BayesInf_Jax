@@ -91,6 +91,8 @@ parser.add_argument("--n_plot_seqs",  type=int,   default=6)
 parser.add_argument("--num_samples",  type=int,   default=100,
                     help="Posterior samples per sequence for CI")
 parser.add_argument("--ci",           type=float, default=90.0)
+parser.add_argument("--full_horizon_rollout", action="store_true",
+                    help="Sample one 100-step posterior rollout instead of restarting at segment boundaries.")
 args = parser.parse_args()
 
 
@@ -120,7 +122,8 @@ assert os.path.exists(ckpt_path), (
     f"Checkpoint not found: {ckpt_path}\n"
     f"Run training first with matching arguments."
 )
-out_base = os.path.join(results_dir, f"{model_tag}_eval")
+_eval_suffix = "_eval_fullhorizon" if args.full_horizon_rollout else "_eval"
+out_base = os.path.join(results_dir, f"{model_tag}{_eval_suffix}")
 
 
 # ---------------------------------------------------------------------------
@@ -200,19 +203,77 @@ print("Checkpoint loaded.")
 # ---------------------------------------------------------------------------
 
 @eqx.filter_jit
-def run_posterior(model, y, u, x0, x, key, n_samples):
-    """
-    Multiple-shooting posterior samples for a batch.  Returns (M, n_samples, T, d_x).
-
-    Passes true states x to sample_posterior so each patch is anchored to the
-    true first state (encode → z_0, SSM forward, autoregressive decode).
-    Boundary states and patch firsts are computed inside sample_posterior.
-    """
+def run_posterior(model, y, u, x0, key, n_samples):
+    """Posterior samples for a batch. Returns (M, n_samples, T, d_x)."""
     keys = jr.split(key, y.shape[0])
 
-    def one_seq(xi, yi, ui, x0i, ki):
-        return model.sample_posterior(yi, ui, x0i, ki, n_samples, x=xi)
-    return jax.vmap(one_seq)(x, y, u, x0, keys)
+    def one_seq(yi, ui, x0i, ki):
+        return model.sample_posterior(yi, ui, x0i, ki, n_samples)
+    return jax.vmap(one_seq)(y, u, x0, keys)
+
+
+@eqx.filter_jit
+def run_posterior_full_horizon(model, y, u, x0, key, n_samples):
+    """Full-horizon posterior rollouts for a batch. Returns (M, n_samples, T, d_x)."""
+    keys = jr.split(key, y.shape[0])
+
+    def one_seq(yi, ui, x0i, ki):
+        return model.sample_posterior(
+            yi, ui, x0i, ki, n_samples, restart_segments=False,
+        )
+    return jax.vmap(one_seq)(y, u, x0, keys)
+
+
+def segment_eval_arrays(x, y, u, x0, seg_len):
+    """
+    Split evaluation windows into independent segments, matching training.
+
+    The boundary state for segment s is treated as the segment initial
+    condition. Sampling then runs only inside that segment and does not free-run
+    across the full horizon.
+    """
+    if seg_len <= 0 or x.shape[1] <= seg_len:
+        return x, y, u, x0, 1, x.shape[1]
+
+    M, H, D_x = x.shape
+    D_y = y.shape[-1]
+    D_u = u.shape[-1]
+    n_segs = H // seg_len
+    H_eff = n_segs * seg_len
+
+    x_eff = x[:, :H_eff]
+    y_eff = y[:, :H_eff]
+    u_eff = u[:, :H_eff]
+
+    if n_segs > 1:
+        boundaries = x_eff[:, seg_len - 1 : H_eff - 1 : seg_len, :]
+        x0_segs = np.concatenate([x0[:, None, :], boundaries], axis=1)
+    else:
+        x0_segs = x0[:, None, :]
+
+    x_seg = x_eff.reshape(M, n_segs, seg_len, D_x).reshape(M * n_segs, seg_len, D_x)
+    y_seg = y_eff.reshape(M, n_segs, seg_len, D_y).reshape(M * n_segs, seg_len, D_y)
+    u_seg = u_eff.reshape(M, n_segs, seg_len, D_u).reshape(M * n_segs, seg_len, D_u)
+    x0_seg = x0_segs.reshape(M * n_segs, D_x)
+    return x_seg, y_seg, u_seg, x0_seg, n_segs, H_eff
+
+
+def unsegment_samples(samples_seg, n_eval, n_segs, seg_len):
+    if n_segs == 1:
+        return samples_seg
+    _, n_samples, _, D_x = samples_seg.shape
+    return (
+        samples_seg.reshape(n_eval, n_segs, n_samples, seg_len, D_x)
+        .transpose(0, 2, 1, 3, 4)
+        .reshape(n_eval, n_samples, n_segs * seg_len, D_x)
+    )
+
+
+def unsegment_array(arr_seg, n_eval, n_segs, seg_len):
+    if n_segs == 1:
+        return arr_seg
+    D = arr_seg.shape[-1]
+    return arr_seg.reshape(n_eval, n_segs, seg_len, D).reshape(n_eval, n_segs * seg_len, D)
 
 
 # ---------------------------------------------------------------------------
@@ -236,26 +297,56 @@ def reconstruct_all(model, x, y, u, x0):
 # Run
 # ---------------------------------------------------------------------------
 
-print(f"Computing NLL for {n_eval} test sequences …")
+seg_eval_len = args.seg_len if args.seg_len > 0 and args.horizon > args.seg_len else args.horizon
+if args.full_horizon_rollout:
+    x_seg = x_test[:n_eval]
+    y_seg = y_test[:n_eval]
+    u_seg = u_test[:n_eval]
+    x0_seg = x0_test[:n_eval]
+    n_segs_eval = 1
+    T_eff = args.horizon
+    x_true_eval = x_seg
+    y_eval = y_seg
+else:
+    x_seg, y_seg, u_seg, x0_seg, n_segs_eval, T_eff = segment_eval_arrays(
+        x_test[:n_eval],
+        y_test[:n_eval],
+        u_test[:n_eval],
+        x0_test[:n_eval],
+        seg_eval_len,
+    )
+    x_true_eval = unsegment_array(x_seg, n_eval, n_segs_eval, seg_eval_len)
+    y_eval = unsegment_array(y_seg, n_eval, n_segs_eval, seg_eval_len)
+
+eval_mode = "full 100-step rollouts" if args.full_horizon_rollout else "restarted segments"
+print(f"Computing NLL for {n_eval} test sequences as {x_seg.shape[0]} {eval_mode} …")
 _, nlls_arr = reconstruct_all(
     model,
-    jnp.array(x_test[:n_eval]), jnp.array(y_test[:n_eval]),
-    jnp.array(u_test[:n_eval]), jnp.array(x0_test[:n_eval]),
+    jnp.array(x_seg), jnp.array(y_seg),
+    jnp.array(u_seg), jnp.array(x0_seg),
 )
 nlls = np.array(nlls_arr)
 
-print(
-    f"Drawing {args.num_samples} posterior samples for {n_eval} sequences …"
-)
-samps_all = np.array(run_posterior(
-    model,
-    jnp.array(y_test[:n_eval]),
-    jnp.array(u_test[:n_eval]),
-    jnp.array(x0_test[:n_eval]),
-    jnp.array(x_test[:n_eval]),
-    key       = jr.PRNGKey(999),
-    n_samples = args.num_samples,
-))  # (n_eval, S, T, d_x)
+print(f"Drawing {args.num_samples} posterior samples for {x_seg.shape[0]} {eval_mode} …")
+if args.full_horizon_rollout:
+    samps_all = np.array(run_posterior_full_horizon(
+        model,
+        jnp.array(y_seg),
+        jnp.array(u_seg),
+        jnp.array(x0_seg),
+        key       = jr.PRNGKey(999),
+        n_samples = args.num_samples,
+    ))  # (n_eval, S, T, d_x)
+else:
+    samps_seg = np.array(run_posterior(
+        model,
+        jnp.array(y_seg),
+        jnp.array(u_seg),
+        jnp.array(x0_seg),
+        key       = jr.PRNGKey(999),
+        n_samples = args.num_samples,
+    ))  # (n_eval*n_segs, S, seg_len, d_x)
+    samps_all = unsegment_samples(samps_seg, n_eval, n_segs_eval, seg_eval_len)
 
 post_mean_all = samps_all.mean(axis=1)                                        # (n_eval, T, d_x)
 lo_all = np.percentile(samps_all, (100 - args.ci) / 2,       axis=1)
@@ -271,12 +362,6 @@ hi_plot        = hi_all[:n_plot]
 # ---------------------------------------------------------------------------
 # Metrics  (all from posterior samples — reconstruction RMSE is trivially 0)
 # ---------------------------------------------------------------------------
-
-# sample_posterior returns T_eff = (T // seg_len) * seg_len steps, which may
-# be shorter than T when T is not divisible by seg_len.  Truncate x_true to
-# match before computing metrics.
-T_eff = samps_all.shape[2]
-x_true_eval = x_test[:n_eval, :T_eff]
 
 rmse_all   = float(np.mean(state_rmse(jnp.array(x_true_eval), jnp.array(post_mean_all))))
 rmse_obs   = float(np.sqrt(np.mean((x_true_eval[:, :, obs_idx]   - post_mean_all[:, :, obs_idx])   ** 2)))
@@ -336,9 +421,9 @@ for wi, ax in enumerate(np.array(axes).flat):
                         color=c, alpha=0.20)
         ax.plot(t_axis_eff, post_mean_plot[wi, :, dim], color=c, lw=1.5, ls="--",
                 label=f"x{dim} (post mean)")
-        ax.plot(t_axis_eff, x_test[wi, :T_eff, dim],    color=c, lw=1.2, ls="-")
+        ax.plot(t_axis_eff, x_true_eval[wi, :, dim],    color=c, lw=1.2, ls="-")
         oi = int(np.where(obs_idx == dim)[0][0])
-        ax.scatter(t_axis_eff, y_test[wi, :T_eff, oi], color=c, s=5, zorder=5,
+        ax.scatter(t_axis_eff, y_eval[wi, :, oi], color=c, s=5, zorder=5,
                    marker="o", alpha=0.6)
 
     for ci_i, dim in enumerate(unobs_idx[:n_show]):
@@ -346,9 +431,12 @@ for wi, ax in enumerate(np.array(axes).flat):
         ax.fill_between(t_axis_eff, lo_plot[wi, :, dim], hi_plot[wi, :, dim],
                         color=c, alpha=0.20)
         ax.plot(t_axis_eff, post_mean_plot[wi, :, dim], color=c, lw=1.5, ls="--")
-        ax.plot(t_axis_eff, x_test[wi, :T_eff, dim],    color=c, lw=1.2, ls="-")
+        ax.plot(t_axis_eff, x_true_eval[wi, :, dim],    color=c, lw=1.2, ls="-")
 
-    ax.set_title(f"Test seq {wi}  (seg_len={args.seg_len})", fontsize=9)
+    ax.set_title(
+        f"Test seq {wi}  (observed + unobserved; seg_len={args.seg_len})",
+        fontsize=9,
+    )
     ax.set_xlabel("Time")
     ax.set_ylabel("State")
 
@@ -404,7 +492,7 @@ ax.legend(fontsize=8)
 # Panel C: calibration — posterior std vs |error|
 ax = axes2[2]
 post_std_plot = samps_plot.std(axis=1)             # (n_plot, T_eff, d_x)
-abs_err_plot  = np.abs(x_test[:n_plot, :T_eff] - post_mean_plot)
+abs_err_plot  = np.abs(x_true_eval[:n_plot] - post_mean_plot)
 
 rng_np = np.random.default_rng(0)
 for label, idx, color in [("Observed",   obs_idx,   "steelblue"),
@@ -445,12 +533,12 @@ else:
     y_pred_predictive = y_post_samps + args.obs_std * rng_pred.standard_normal(y_post_samps.shape)
 
 # Flatten for plotting
-y_data_flat = y_test[:n_eval, :T_eff, :].ravel()    # noisy observations
+y_data_flat = y_eval.ravel()                        # noisy observations
 y_pred_flat = y_pred_predictive.ravel()              # posterior predictive
 
 # Standardised residuals: (y - x_true_at_obs) / obs_std
 x_true_obs  = x_true_eval[:, :, obs_idx]            # (n_eval, T_eff, d_y)
-residuals   = (y_test[:n_eval, :T_eff, :] - x_true_obs) / args.obs_std
+residuals   = (y_eval - x_true_obs) / args.obs_std
 res_flat    = residuals.ravel()
 
 # ── Figure ─────────────────────────────────────────────────────────────────

@@ -1,18 +1,20 @@
 """
-Training script for NICEFlowSDE on Lorenz-96 with multi-modal observations.
+Training script for RealNVPFlowSDE on Lorenz-96 with multi-modal observations.
 
 Model:
-    custom solver: dz_t = [f_θ(z_t, c_t, t) + G_φ(dW_t, z_t, c_t, t)] dt
-    diffrax solver: dz_t = f_θ(z_t, c_t, t) dt + G_φ(z_t, c_t, t) dW_t
+    custom solver: dz_t = f_θ(z_t, c_t, t) dt + G_φ(eps_t, z_t, c_t, t) sqrt(dt)
+    eps_t ~ N(0, I)
     c_t  = BiGRUEncoder(y_{1:T})_t   (bidirectional, full-sequence context)
-    G_φ  = NICE diffusion/noise map.
+    T_φ  = bounded conditional RealNVP transition-noise map.
 
 Observation noise: Gaussian mixture (multi-modal) | Student-t | Gaussian.
 
 Training modes
 --------------
   pathwise: integrate trajectories and minimise ||ẑ - x||².
-            Use --use_custom_solver for the custom (f + g)dt convention.
+            Segment starts are sampled from a diagonal Gaussian parameterised
+            by a GRU applied to each observation segment, with an initial-state
+            NLL and optional adjacent-segment continuity loss.
 
 Usage
 -----
@@ -33,8 +35,8 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
 sys.path.insert(0, project_root)
 
 from bayesinf.applications.state_estimation.flow_sde import (
-    NICEFlowSDE,
-    make_step_nice_pathwise,
+    RealNVPFlowSDE,
+    make_step_realnvp_pathwise,
 )
 from bayesinf.applications.state_estimation.lorenz96_dataset import (
     generate_lorenz96_dataset,
@@ -47,7 +49,7 @@ from bayesinf.applications.state_estimation.lorenz96_dataset import (
 # Arguments
 # ---------------------------------------------------------------------------
 
-parser = argparse.ArgumentParser(description="Train NICEFlowSDE on Lorenz-96")
+parser = argparse.ArgumentParser(description="Train RealNVPFlowSDE on Lorenz-96")
 parser.add_argument("--train",            action="store_true")
 parser.add_argument("--test",             action="store_true")
 # Dataset
@@ -78,9 +80,13 @@ parser.add_argument("--d_hidden_enc",     type=int,   default=64,
                     help="BiGRU hidden state size")
 parser.add_argument("--d_hidden",         type=int,   default=128,
                     help="Drift/diffusion MLP hidden width")
+parser.add_argument("--d_hidden_diffusion", type=int, default=64,
+                    help="NICE/RealNVP coupling MLP hidden width")
 parser.add_argument("--depth",            type=int,   default=3,
                     help="Drift/diffusion MLP depth")
 parser.add_argument("--time_emb_dim",     type=int,   default=32)
+parser.add_argument("--observation_stride", type=int, default=5,
+                    help="Observation interval used by drift/diffusion context")
 # Training
 parser.add_argument("--batch_size",       type=int,   default=64)
 parser.add_argument("--max_epochs",       type=int,   default=500)
@@ -96,8 +102,46 @@ parser.add_argument("--use_multiple_shooting", action="store_true",
                     help="Enable multiple-shooting training (shorter gradient paths)")
 parser.add_argument("--seg_length",       type=int,   default=20,
                     help="Segment length for multiple-shooting pathwise training")
-parser.add_argument("--n_nice_layers",    type=int,   default=2,
-                    help="Number of NICE coupling layers in G_φ")
+parser.add_argument("--seg_length_start", type=int,   default=5,
+                    help="Initial segment length for scheduled multiple-shooting")
+parser.add_argument("--seg_length_schedule_epochs", type=int, default=100,
+                    help="Epochs used to grow seg_length_start to seg_length")
+parser.add_argument("--shooting_noise_std", type=float, default=0.0,
+                    help="Stddev of normalized-state noise added to non-initial segment starts")
+parser.add_argument("--rollout_loss_weight", type=float, default=0.0,
+                    help="Weight for auxiliary rollout loss during training")
+parser.add_argument("--rollout_loss_type", choices=("mse", "energy_score", "gaussian_nll"),
+                    default="energy_score",
+                    help="Auxiliary full-horizon rollout objective")
+parser.add_argument("--rollout_num_ensemble", type=int, default=4,
+                    help="Number of rollout particles for probabilistic rollout losses")
+parser.add_argument("--rollout_energy_beta", type=float, default=1.0,
+                    help="Power beta for energy score rollout loss")
+parser.add_argument("--rollout_uncertainty_weight", type=float, default=0.5,
+                    help="Pairwise spread weight for energy score rollout loss")
+parser.add_argument("--rollout_every", type=int, default=1,
+                    help="Compute auxiliary rollout loss every K optimizer steps")
+parser.add_argument("--rollout_warmup_epochs", type=int, default=0,
+                    help="Train without auxiliary rollout loss for this many initial epochs")
+parser.add_argument("--rollout_window", type=int, default=0,
+                    help="Random contiguous rollout-loss window length; 0 uses full horizon")
+parser.add_argument("--kl_weight",        type=float, default=1e-3,
+                    help="Deprecated; retained for launch-script compatibility.")
+parser.add_argument("--continuity_loss_weight", type=float, default=0.1,
+                    help="Weight for adjacent-segment continuity loss")
+parser.add_argument("--init_loss_weight", type=float, default=1.0,
+                    help="Weight for Gaussian NLL of each segment initial state")
+parser.add_argument("--initial_state_mode", choices=("inferred", "provided"),
+                    default="inferred",
+                    help="Infer segment starts from observations or use known states")
+parser.add_argument("--n_realnvp_layers", type=int, default=2,
+                    help="Number of affine RealNVP coupling layers")
+parser.add_argument("--realnvp_alpha", type=float, default=1.0,
+                    help="Bound alpha for log scale = alpha * tanh(raw scale)")
+parser.add_argument("--flow_type", choices=("realnvp", "nice"), default="realnvp")
+parser.add_argument("--n_nice_layers", type=int, default=2)
+parser.add_argument("--nice_noise_scale", type=float, default=0.5,
+                    help="Initial value of the learnable NICE global scale")
 parser.add_argument("--pathwise",         action="store_true",
                     help="Deprecated; pathwise training is now always used.")
 parser.add_argument("--solver",           type=str,   default="heun",
@@ -109,7 +153,8 @@ parser.add_argument("--use_custom_solver", action="store_true",
 parser.add_argument("--n_particles",      type=int,   default=50,
                     help="Posterior particles used for test RMSE")
 parser.add_argument("--sampler",          type=str,   default="heun",
-                    choices=("euler", "heun", "reversible_heun", "midpoint", "gt_segmented"),
+                    choices=("euler", "heun", "reversible_heun", "midpoint",
+                             "milstein", "adaptive_euler", "rk4"),
                     help="Inference sampler / solver")
 args = parser.parse_args()
 args.pathwise = True
@@ -137,14 +182,38 @@ elif _noise_tag == "student_t":
 
 _solver_backend = "custom" if args.use_custom_solver else "diffrax"
 _train_mode = f"pw{args.solver}_{_solver_backend}"
+_robust_tag = ""
+if args.shooting_noise_std != 0.0:
+    _robust_tag += f"_sn{args.shooting_noise_std:g}"
+if args.rollout_loss_weight != 0.0:
+    _robust_tag += f"_rw{args.rollout_loss_weight:g}"
+    if args.rollout_loss_type != "mse":
+        _robust_tag += (
+            f"_{args.rollout_loss_type.replace('_', '')}"
+            f"{args.rollout_num_ensemble}"
+        )
+        if args.rollout_loss_type == "energy_score" and args.rollout_energy_beta != 1.0:
+            _robust_tag += f"b{args.rollout_energy_beta:g}"
+        if args.rollout_loss_type == "energy_score" and args.rollout_uncertainty_weight != 0.5:
+            _robust_tag += f"uw{args.rollout_uncertainty_weight:g}"
+    if args.rollout_every > 1:
+        _robust_tag += f"_re{args.rollout_every}"
+    if args.rollout_warmup_epochs > 0:
+        _robust_tag += f"_rwu{args.rollout_warmup_epochs}"
+    if args.rollout_window > 0:
+        _robust_tag += f"_rwnd{args.rollout_window}"
+if args.continuity_loss_weight != 0.0:
+    _robust_tag += f"_cw{args.continuity_loss_weight:g}"
+if args.initial_state_mode == "inferred" and args.init_loss_weight != 0.0:
+    _robust_tag += f"_iw{args.init_loss_weight:g}"
+if args.use_multiple_shooting and args.seg_length_start != args.seg_length:
+    _robust_tag += f"_sched{args.seg_length_start}to{args.seg_length}"
 model_tag = (
-    f"NICEFlowSDE"
+    f"{'RealNVP' if args.flow_type == 'realnvp' else 'NICE'}FlowSDE"
     f"_N{args.N}_h{args.horizon}_obs{args.obs_interval}"
     f"_{_noise_tag}_std{args.obs_std}"
-    f"_dc{args.d_c}_dh{args.d_hidden}_dep{args.depth}"
-    f"_nl{args.n_nice_layers}"
-    f"_seg{args.seg_length if args.use_multiple_shooting else 'noMS'}"
     f"_{_train_mode}"
+    f"{_robust_tag}"
 )
 save_path = os.path.join(results_dir, f"{model_tag}.pt")
 
@@ -227,6 +296,7 @@ def _normalize(d):
     return {
         "x": jnp.array((d["x"] - x_mean) / x_std),
         "y": jnp.array((d["y"] - y_mean) / y_std),
+        "x0": jnp.array((d["x0"] - x_mean) / x_std),
     }
 
 train_data = _normalize(train_data)
@@ -235,6 +305,7 @@ val_data   = _normalize(val_data)
 x_test_raw = np.array(test_data["x"])   # (M_test, H, d_x)  original scale
 y_test_norm = jnp.array((test_data["y"] - y_mean) / y_std)
 x_test_norm = jnp.array((test_data["x"] - x_mean) / x_std)
+x0_test_norm = jnp.array((test_data["x0"] - x_mean) / x_std)
 
 
 # ---------------------------------------------------------------------------
@@ -246,22 +317,31 @@ _xm  = jnp.array(x_mean)
 _xs  = jnp.array(x_std)
 physics_fn = lambda z: lorenz96_rhs(_xm + _xs * z, _F) / _xs
 
-model = NICEFlowSDE(
+model = RealNVPFlowSDE(
     d_x           = d_x,
     d_y           = d_y,
     d_c           = args.d_c,
     d_hidden_enc  = args.d_hidden_enc,
     d_hidden      = args.d_hidden,
+    d_hidden_diffusion = args.d_hidden_diffusion,
     depth         = args.depth,
     time_emb_dim  = args.time_emb_dim,
-    n_nice_layers = args.n_nice_layers,
+    n_realnvp_layers = args.n_realnvp_layers,
+    realnvp_alpha = args.realnvp_alpha,
+    flow_type      = args.flow_type,
+    n_nice_layers  = args.n_nice_layers,
+    nice_noise_scale = args.nice_noise_scale,
+    observation_stride = args.observation_stride,
+    time_step      = args.dt,
     key           = k_model,
     physics_fn    = physics_fn,
 )
 print(
-    f"NICEFlowSDE  d_x={d_x}  d_y={d_y}  d_c={args.d_c}  "
-    f"d_hidden={args.d_hidden}  depth={args.depth}  n_nice_layers={args.n_nice_layers}\n"
-    f"  training=pathwise  solver={args.solver}  backend={_solver_backend}"
+    f"RealNVPFlowSDE  d_x={d_x}  d_y={d_y}  d_c={args.d_c}  "
+    f"d_hidden={args.d_hidden}  depth={args.depth}  "
+    f"flow={args.flow_type}  diffusion_hidden={args.d_hidden_diffusion}  layers="
+    f"{args.n_realnvp_layers if args.flow_type == 'realnvp' else args.n_nice_layers}\n"
+    f"  training=transition_nll  solver={args.solver}  backend={_solver_backend}"
 )
 
 
@@ -278,9 +358,36 @@ def shuffle_batch(data_dict, key):
     }
 
 
+def scheduled_seg_length(epoch: int, horizon: int) -> int:
+    if not args.use_multiple_shooting:
+        return horizon - 1
+    start = max(1, min(args.seg_length_start, horizon - 1))
+    end = max(start, min(args.seg_length, horizon - 1))
+    sched_epochs = max(1, args.seg_length_schedule_epochs)
+    alpha = min(1.0, float(epoch) / float(sched_epochs))
+    seg = int(round(start + alpha * (end - start)))
+    return max(1, min(seg, horizon - 1))
+
+
 @eqx.filter_jit
-def eval_pathwise(model, x, y, key, seg_length, solver_name, use_custom_solver):
-    return model.nll_pathwise(x, y, key, seg_length, solver_name, use_custom_solver)
+def eval_pathwise(model, x, y, key, seg_length, solver_name, use_custom_solver,
+                  rollout_loss_weight, kl_weight, continuity_loss_weight,
+                  init_loss_weight, infer_initial, rollout_num_ensemble,
+                  rollout_loss_type, rollout_energy_beta,
+                  rollout_uncertainty_weight, rollout_window):
+    path_loss = model.nll_pathwise(
+        x, y, key, seg_length, solver_name, use_custom_solver,
+        kl_weight=kl_weight, continuity_weight=continuity_loss_weight,
+        init_loss_weight=init_loss_weight, infer_initial=infer_initial,
+    )
+    if rollout_loss_weight == 0.0:
+        return path_loss
+    rollout_loss = model.rollout_loss(
+        x, y, jr.fold_in(key, 29), solver_name, use_custom_solver, infer_initial,
+        rollout_num_ensemble, rollout_loss_type, rollout_energy_beta,
+        rollout_uncertainty_weight, rollout_window
+    )
+    return path_loss + rollout_loss_weight * rollout_loss
 
 
 # ---------------------------------------------------------------------------
@@ -313,7 +420,29 @@ if args.train:
         f"  grad_norm={args.grad_norm}  weight_decay={args.weight_decay}"
     )
     if args.use_multiple_shooting:
-        print(f"  Multiple-shooting: seg_length={args.seg_length}")
+        print(
+            f"  Multiple-shooting: seg_length {args.seg_length_start}"
+            f" -> {args.seg_length} over {args.seg_length_schedule_epochs} epochs"
+        )
+        print(f"  Continuity loss weight: {args.continuity_loss_weight}")
+        print(f"  Initial-state loss weight: {args.init_loss_weight}")
+    infer_initial = args.initial_state_mode == "inferred"
+    if infer_initial:
+        print("  Initial state: z0 ~ N(mu_GRU(y_segment), diag(sigma_GRU(y_segment)^2))")
+    else:
+        print("  Initial state: provided ground-truth segment start (inference network bypassed)")
+    if args.shooting_noise_std > 0:
+        print(f"  Segment-start noise std: {args.shooting_noise_std}")
+    if args.rollout_loss_weight > 0:
+        print(
+            f"  Auxiliary rollout loss weight: {args.rollout_loss_weight}  "
+            f"type={args.rollout_loss_type}  "
+            f"ensemble={args.rollout_num_ensemble}  "
+            f"uncertainty_weight={args.rollout_uncertainty_weight}  "
+            f"every={max(1, args.rollout_every)} step(s)  "
+            f"warmup={max(0, args.rollout_warmup_epochs)} epoch(s)  "
+            f"window={args.rollout_window if args.rollout_window > 0 else 'full'}"
+        )
     print(f"  Path-wise training  solver={args.solver}  backend={_solver_backend}")
 
     rng = k_train
@@ -322,28 +451,57 @@ if args.train:
             rng, k_shuf, k_step = jr.split(rng, 3)
             shuffled     = shuffle_batch(train_data, k_shuf)
             epoch_losses = []
+            seg_epoch = scheduled_seg_length(epoch, train_data["x"].shape[1])
 
             for b in range(n_batches):
+                global_step = epoch * n_batches + b
                 s, e = b * batch_size, (b + 1) * batch_size
                 xb   = shuffled["x"][s:e]   # (B, H, d_x)
                 yb   = shuffled["y"][s:e]   # (B, H, d_y)
+                rollout_every = max(1, args.rollout_every)
+                rollout_warmup_done = epoch >= max(0, args.rollout_warmup_epochs)
+                rollout_weight_step = (
+                    args.rollout_loss_weight
+                    if (
+                        rollout_warmup_done
+                        and args.rollout_loss_weight > 0.0
+                        and global_step % rollout_every == 0
+                    )
+                    else 0.0
+                )
 
                 # Path-wise: integrate per segment and backprop through solver.
                 # seg_length=H-1 (no MS) means one segment = full sequence.
-                seg = args.seg_length if args.use_multiple_shooting else xb.shape[1] - 1
-                model, opt_state, loss = make_step_nice_pathwise(
-                    model, xb, yb, k_step, seg, opt_state, optimizer,
+                key_step = jr.fold_in(k_step, global_step)
+                model, opt_state, loss = make_step_realnvp_pathwise(
+                    model, xb, yb, key_step, seg_epoch, opt_state, optimizer,
                     args.solver, args.use_custom_solver,
+                    args.shooting_noise_std, rollout_weight_step,
+                    args.kl_weight, args.continuity_loss_weight,
+                    args.init_loss_weight, infer_initial,
+                    args.rollout_num_ensemble, args.rollout_loss_type,
+                    args.rollout_energy_beta, args.rollout_uncertainty_weight,
+                    args.rollout_window,
                 )
                 epoch_losses.append(float(loss))
 
             mean_loss = float(np.mean(epoch_losses))
             
             rng, k_val = jr.split(rng)
-            seg = args.seg_length if args.use_multiple_shooting else val_data["x"].shape[1] - 1
+            seg = scheduled_seg_length(epoch, val_data["x"].shape[1])
+            rollout_weight_eval = (
+                args.rollout_loss_weight
+                if epoch >= max(0, args.rollout_warmup_epochs)
+                else 0.0
+            )
             val_loss = float(eval_pathwise(
                 model, val_data["x"], val_data["y"], k_val,
                 seg, args.solver, args.use_custom_solver,
+                rollout_weight_eval, args.kl_weight,
+                args.continuity_loss_weight, args.init_loss_weight,
+                infer_initial, args.rollout_num_ensemble,
+                args.rollout_loss_type, args.rollout_energy_beta,
+                args.rollout_uncertainty_weight, args.rollout_window,
             ))
 
             if val_loss < best_val_loss:
@@ -358,13 +516,14 @@ if args.train:
                 loss=f"{mean_loss:.4f}",
                 val=f"{val_loss:.4f}",
                 best=f"{best_val_loss:.4f}",
+                seg=seg_epoch,
                 pat=patience_counter,
             )
 
             try:
                 import wandb
                 if getattr(wandb, "run", None) is not None:
-                    wandb.log({"loss": mean_loss, "val_loss": val_loss})
+                    wandb.log({"loss": mean_loss, "val_loss": val_loss, "seg_length": seg_epoch})
             except Exception:
                 pass
 
@@ -405,7 +564,7 @@ if args.test or args.train:
     all_samps = []
 
     @eqx.filter_jit
-    def _sample_chunk(model, y_chunk, x_chunk, key, n_particles,
+    def _sample_chunk(model, y_chunk, x_chunk, x0_chunk, key, n_particles,
                       solver_name, use_custom_solver, seg_length):
         B    = y_chunk.shape[0]
         keys = jr.split(key, B)
@@ -414,18 +573,12 @@ if args.test or args.train:
                 lambda yi, x0i, ki: model.sample_posterior_custom_solver(
                     yi, x0i, ki, n_particles, solver_name
                 )
-            )(y_chunk, x_chunk[:, 0, :], keys)
-        if solver_name == "gt_segmented":
-            return jax.vmap(
-                lambda yi, xi, ki: model.sample_posterior_gt_segmented(
-                    yi, xi, ki, n_particles, seg_length, args.solver
-                )
-            )(y_chunk, x_chunk, keys)
+            )(y_chunk, x0_chunk, keys)
         return jax.vmap(
             lambda yi, x0i, ki: model.sample_posterior(
                 yi, x0i, ki, n_particles, solver_name
             )
-        )(y_chunk, x_chunk[:, 0, :], keys)
+        )(y_chunk, x0_chunk, keys)
 
     solver_name = args.sampler
     k_test      = jr.PRNGKey(999)
@@ -441,7 +594,7 @@ if args.test or args.train:
         k_c   = jr.fold_in(k_test, start)
         samps = np.array(
             _sample_chunk(
-                inf_model, yb, xb, k_c, args.n_particles,
+                inf_model, yb, xb, x0_test_norm[start:end], k_c, args.n_particles,
                 solver_name, args.use_custom_solver, args.seg_length,
             )
         )                                        # (B_chunk, n_p, H, d_x)  normalised

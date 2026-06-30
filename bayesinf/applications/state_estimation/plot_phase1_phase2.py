@@ -1,7 +1,7 @@
 """
 Plot Phase 1 (ODE) and Phase 2 (SDE prior) trajectories vs ground truth.
 
-Loads the Phase-2 checkpoint (ODE + NICEPrior trained, correction frozen/untrained)
+Loads the Phase-2 checkpoint (ODE + RealNVPPrior trained, correction frozen/untrained)
 and visualises:
   - Ground truth state
   - predict_ode  : deterministic ODE rollout  (Phase 1)

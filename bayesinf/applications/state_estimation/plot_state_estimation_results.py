@@ -234,7 +234,10 @@ for wi, ax in enumerate(np.array(axes).flat):
     for sb in seg_boundaries:
         ax.axvline(sb, color="grey", lw=0.8, ls=":", alpha=0.7)
 
-    ax.set_title(f"Window {wi}  (H={H_eff}, {n_segs}×{seg_len} segments)", fontsize=9)
+    ax.set_title(
+        f"Window {wi}  (observed + unobserved; H={H_eff}, {n_segs}×{seg_len} segments)",
+        fontsize=9,
+    )
     ax.set_xlabel("Time")
     ax.set_ylabel("State value")
 

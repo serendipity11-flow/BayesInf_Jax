@@ -14,7 +14,7 @@ python3 -m bayesinf.applications.state_estimation.eval_si_lorenz96 \\
     --seg_len 5 --sampler segmented
 """
 
-import sys, os, argparse, time
+import sys, os, argparse, time, subprocess
 if not os.environ.get("CUDA_VISIBLE_DEVICES"):
     os.environ.setdefault("JAX_PLATFORMS", "cpu")
 import numpy as np
@@ -72,7 +72,7 @@ parser.add_argument("--score_weight",       type=float, default=0.25)
 parser.add_argument("--lifter_loss_weight", type=float, default=0.1)
 parser.add_argument("--score_sigma_floor",  type=float, default=0.05)
 parser.add_argument("--s_min",              type=float, default=0.02)
-parser.add_argument("--interpolant_type",   type=str,   default="cosine",
+parser.add_argument("--interpolant_type",   type=str,   default="linear",
                     choices=("linear", "cosine"),
                     help="Interpolation path used by the checkpoint.")
 # Training tag — must match what was used (--ms + --seg_len)
@@ -95,6 +95,21 @@ parser.add_argument("--g0_override",   type=float, default=None,
                     help="Post-hoc diffusion strength override (>g0 widens posteriors)")
 parser.add_argument("--t_hist",        type=float, default=0.5,
                     help="Normalised time in (0,1) for per-particle histogram")
+parser.add_argument("--ckpt_path",     type=str,   default=None,
+                    help="Optional explicit checkpoint path; overrides tag-based lookup.")
+parser.add_argument("--out_tag",       type=str,   default=None,
+                    help="Optional suffix for output figure names when --ckpt_path is used.")
+parser.add_argument("--legacy_lifter", action="store_true",
+                    help="Load legacy lifter-based SI checkpoints from before q_eta log-sigma heads.")
+parser.add_argument("--output_dir",    type=str,   default=None,
+                    help="Optional directory for saved figures; defaults to results directory.")
+parser.add_argument("--file_ext",      type=str,   default="png",
+                    choices=("png", "pdf"),
+                    help="Figure file extension.")
+parser.add_argument("--no_title",      action="store_true",
+                    help="Suppress figure and axes titles.")
+parser.add_argument("--font_scale",    type=float, default=1.0,
+                    help="Scale Matplotlib font sizes for saved figures.")
 args = parser.parse_args()
 
 if args.seg_len_eval is None:
@@ -134,8 +149,18 @@ model_tag = (
     f"_{_interp_tag}"
     f"_{_train_tag}"
 )
-ckpt_path = os.path.join(results_dir, f"{model_tag}.pt")
-out_base  = os.path.join(results_dir, f"{model_tag}_eval")
+ckpt_path = args.ckpt_path or os.path.join(results_dir, f"{model_tag}.pt")
+if args.ckpt_path:
+    ckpt_stem = os.path.splitext(os.path.basename(args.ckpt_path))[0]
+    model_tag = ckpt_stem
+    out_base = os.path.join(results_dir, f"{ckpt_stem}_eval")
+    if args.out_tag:
+        out_base += f"_{args.out_tag}"
+else:
+    out_base  = os.path.join(results_dir, f"{model_tag}_eval")
+if args.output_dir is not None:
+    os.makedirs(args.output_dir, exist_ok=True)
+    out_base = os.path.join(args.output_dir, os.path.basename(out_base))
 
 if not os.path.exists(ckpt_path):
     raise FileNotFoundError(
@@ -209,7 +234,18 @@ y_test = jnp.array((y_test_raw - y_mean) / y_std)
 # ---------------------------------------------------------------------------
 
 print(f"Loading checkpoint: {ckpt_path}")
-model = StochasticInterpolantSE(
+ModelClass = StochasticInterpolantSE
+if args.legacy_lifter:
+    legacy_src = subprocess.check_output(
+        ["git", "show", "5443df1:bayesinf/applications/state_estimation/stochastic_interpolant.py"],
+        cwd=project_root,
+        text=True,
+    )
+    legacy_ns = {}
+    exec(compile(legacy_src, "legacy_stochastic_interpolant.py", "exec"), legacy_ns)
+    ModelClass = legacy_ns["StochasticInterpolantSE"]
+
+model = ModelClass(
     d_x          = d_x,
     d_y          = d_y,
     d_c          = args.d_c,
@@ -226,7 +262,42 @@ model = StochasticInterpolantSE(
     interpolant_type = args.interpolant_type,
     key          = jr.PRNGKey(42),
 )
-model = eqx.tree_deserialise_leaves(ckpt_path, model)
+
+def _load_array_leaf(f, x):
+    # Older checkpoints differ slightly in which Equinox metadata leaves were
+    # serialized. Scalar leaves are metadata; array leaves are the trained
+    # weights. Peek around scalar leaves and skip stray serialized scalars when
+    # the current tree expects an array.
+    is_jax_arr = isinstance(x, (jax.Array, jax.ShapeDtypeStruct))
+    is_np_arr = isinstance(x, np.ndarray)
+    if is_jax_arr or is_np_arr:
+        for _ in range(8):
+            value = np.load(f, allow_pickle=True)
+            if np.shape(value) == np.shape(x):
+                return jnp.asarray(value) if is_jax_arr else value
+            if np.size(value) == 1:
+                continue
+            return jnp.asarray(value) if is_jax_arr else value
+        return jnp.asarray(value) if is_jax_arr else value
+
+    if isinstance(x, (bool, int, float, complex, np.generic)):
+        pos = f.tell()
+        value = np.load(f, allow_pickle=True)
+        if np.size(value) == 1:
+            return type(x)(value.item())
+        f.seek(pos)
+        return x
+
+    if isinstance(x, (jax.Array, jax.ShapeDtypeStruct)):
+        return jnp.load(f)
+    if isinstance(x, np.ndarray):
+        return np.load(f, allow_pickle=True)
+    return x
+
+if args.legacy_lifter:
+    model = eqx.tree_deserialise_leaves(ckpt_path, model)
+else:
+    model = eqx.tree_deserialise_leaves(ckpt_path, model, filter_spec=_load_array_leaf)
 model = eqx.nn.inference_mode(model)
 print("Checkpoint loaded.")
 print(f"JAX backend: {jax.default_backend()}  devices: {jax.devices()}")
@@ -322,6 +393,15 @@ print(f"  RMSE posterior mean (unobserved): {rmse_unobs:.4f}")
 print(f"  MAE  posterior mean:              {mae_all:.4f}")
 print(f"  Coverage @ {args.ci:.0f}% CI:            {coverage * 100:.1f}%")
 
+plt.rcParams.update({
+    "font.size": 10 * args.font_scale,
+    "axes.titlesize": 11 * args.font_scale,
+    "axes.labelsize": 11 * args.font_scale,
+    "xtick.labelsize": 9 * args.font_scale,
+    "ytick.labelsize": 9 * args.font_scale,
+    "legend.fontsize": 9 * args.font_scale,
+})
+
 
 # ---------------------------------------------------------------------------
 # Figure 1: Trajectory panels
@@ -331,13 +411,14 @@ t_axis_eval = np.arange(T_eval) * args.dt
 n_cols  = 2
 n_rows  = (n_plot + 1) // n_cols
 fig1, axes1 = plt.subplots(n_rows, n_cols, figsize=(14, 3.8 * n_rows), sharex=False)
-fig1.suptitle(
-    f"StochasticInterpolantSE  –  Lorenz-96 N={d_x}  –  noise={args.obs_noise_type}  "
-    f"–  {args.ci:.0f}% CI\n"
-    f"RMSE={rmse_all:.3f}  obs={rmse_obs:.3f}  unobs={rmse_unobs:.3f}  "
-    f"cov={coverage * 100:.1f}%",
-    fontsize=10,
-)
+if not args.no_title:
+    fig1.suptitle(
+        f"StochasticInterpolantSE  –  Lorenz-96 N={d_x}  –  noise={args.obs_noise_type}  "
+        f"–  {args.ci:.0f}% CI\n"
+        f"RMSE={rmse_all:.3f}  obs={rmse_obs:.3f}  unobs={rmse_unobs:.3f}  "
+        f"cov={coverage * 100:.1f}%",
+        fontsize=10 * args.font_scale,
+    )
 
 n_show  = min(4, d_x)
 c_obs   = plt.cm.Blues(np.linspace(0.45, 0.85, max(1, len(obs_idx[:n_show]))))
@@ -353,16 +434,20 @@ for wi, ax in enumerate(np.array(axes1).flat):
         ax.plot(t_axis_eval, post_mean[wi, :, dim], color=c, lw=1.5, ls="--")
         ax.plot(t_axis_eval, x_true[wi, :, dim],    color=c, lw=1.2, ls="-")
         oi = int(np.where(obs_idx == dim)[0][0])
-        ax.scatter(t_axis[:T_eval], y_test_raw[wi, :T_eval, oi],
+        ax.scatter(t_axis_eval, y_test_raw[wi, :T_eval, oi],
                    color=c, s=4, zorder=5, alpha=0.5)
     for ci_i, dim in enumerate(unobs_idx[:n_show]):
         c = c_unobs[ci_i]
         ax.fill_between(t_axis_eval, lo[wi, :, dim], hi[wi, :, dim], color=c, alpha=0.20)
         ax.plot(t_axis_eval, post_mean[wi, :, dim], color=c, lw=1.5, ls="--")
         ax.plot(t_axis_eval, x_true[wi, :, dim],    color=c, lw=1.2, ls="-")
-    ax.set_title(f"Seq {wi}", fontsize=9)
-    ax.set_xlabel("Time")
-    ax.set_ylabel("State")
+    if not args.no_title:
+        ax.set_title(f"Seq {wi}", fontsize=9 * args.font_scale)
+    ax.set_xlim(t_axis_eval[0], t_axis_eval[-1])
+    ax.margins(x=0)
+    ax.set_xlabel("Time", fontsize=9 * args.font_scale)
+    ax.set_ylabel("State", fontsize=9 * args.font_scale)
+    ax.tick_params(labelsize=9 * args.font_scale)
 
 legend_elems = [
     Line2D([0], [0], color="steelblue",  lw=1.2, ls="-",  label="Truth (obs dim)"),
@@ -372,7 +457,7 @@ legend_elems = [
     Line2D([0], [0], color="darkorange", lw=1.5, ls="--", label="Post. mean (unobs dim)"),
     Patch(facecolor="grey", alpha=0.3, label=f"{args.ci:.0f}% CI"),
 ]
-fig1.legend(handles=legend_elems, loc="lower center", ncol=3, fontsize=8,
+fig1.legend(handles=legend_elems, loc="lower center", ncol=3, fontsize=8 * args.font_scale,
             bbox_to_anchor=(0.5, -0.02))
 fig1.tight_layout(rect=[0, 0.05, 1, 1])
 
@@ -382,11 +467,12 @@ fig1.tight_layout(rect=[0, 0.05, 1, 1])
 # ---------------------------------------------------------------------------
 
 fig2, axes2 = plt.subplots(1, 3, figsize=(15, 4))
-fig2.suptitle(
-    f"StochasticInterpolantSE diagnostics — {model_tag}\n"
-    f"n_eval={n_eval}  n_particles={args.n_particles}  sampler={args.sampler}",
-    fontsize=10,
-)
+if not args.no_title:
+    fig2.suptitle(
+        f"StochasticInterpolantSE diagnostics — {model_tag}\n"
+        f"n_eval={n_eval}  n_particles={args.n_particles}  sampler={args.sampler}",
+        fontsize=10 * args.font_scale,
+    )
 bar_colors = ["steelblue" if i in obs_idx else "darkorange" for i in range(d_x)]
 
 # Panel A: RMSE per dimension
@@ -396,12 +482,13 @@ ax.bar(np.arange(d_x), rmse_per_dim, color=bar_colors)
 ax.axhline(args.obs_std, color="red", ls="--", lw=1.2)
 ax.set_xlabel("State dimension")
 ax.set_ylabel("RMSE")
-ax.set_title("RMSE per state dim (posterior mean)")
+if not args.no_title:
+    ax.set_title("RMSE per state dim (posterior mean)")
 ax.legend(handles=[
     Patch(color="steelblue",  label="Observed"),
     Patch(color="darkorange", label="Unobserved"),
     Line2D([0], [0], color="red", ls="--", label=f"obs_std={args.obs_std}"),
-], fontsize=8)
+], fontsize=8 * args.font_scale)
 
 # Panel B: coverage per dimension
 ax = axes2[1]
@@ -410,8 +497,9 @@ ax.axhline(args.ci, color="red", ls="--", lw=1.2, label=f"nominal {args.ci:.0f}%
 ax.set_ylim(0, 105)
 ax.set_xlabel("State dimension")
 ax.set_ylabel("Coverage (%)")
-ax.set_title(f"Empirical {args.ci:.0f}% CI coverage per dim")
-ax.legend(fontsize=8)
+if not args.no_title:
+    ax.set_title(f"Empirical {args.ci:.0f}% CI coverage per dim")
+ax.legend(fontsize=8 * args.font_scale)
 
 # Panel C: calibration scatter (posterior std vs |error|)
 ax = axes2[2]
@@ -433,8 +521,9 @@ ax.plot([0, lim], [0, lim], "k--", lw=1, label="ideal")
 ax.set_xlim(0, lim); ax.set_ylim(0, lim)
 ax.set_xlabel("Posterior std")
 ax.set_ylabel("|Error|")
-ax.set_title("Calibration: posterior std vs |error|")
-ax.legend(fontsize=8)
+if not args.no_title:
+    ax.set_title("Calibration: posterior std vs |error|")
+ax.legend(fontsize=8 * args.font_scale)
 
 fig2.tight_layout()
 
@@ -447,12 +536,13 @@ t_idx = int(round(args.t_hist * (T_eval - 1)))
 t_val = t_idx * args.dt
 
 fig3, axes3 = plt.subplots(1, 3, figsize=(15, 4.5))
-fig3.suptitle(
-    f"StochasticInterpolantSE — Multi-modal analysis\n"
-    f"noise={args.obs_noise_type}  obs_std={args.obs_std}  "
-    f"n_eval={n_eval}  n_particles={args.n_particles}",
-    fontsize=10,
-)
+if not args.no_title:
+    fig3.suptitle(
+        f"StochasticInterpolantSE — Multi-modal analysis\n"
+        f"noise={args.obs_noise_type}  obs_std={args.obs_std}  "
+        f"n_eval={n_eval}  n_particles={args.n_particles}",
+        fontsize=10 * args.font_scale,
+    )
 
 # Panel A: Per-particle histogram at t_hist
 ax = axes3[0]
@@ -476,8 +566,9 @@ for color, dim, label in dim_pairs:
             color=color, histtype="step", lw=2, label=f"truth – {label}")
 ax.set_xlabel(f"State value at t={t_val:.2f}")
 ax.set_ylabel("Density")
-ax.set_title(f"Particle distribution at t={t_val:.2f}\nvs ground truth")
-ax.legend(fontsize=7)
+if not args.no_title:
+    ax.set_title(f"Particle distribution at t={t_val:.2f}\nvs ground truth")
+ax.legend(fontsize=7 * args.font_scale)
 
 # Panel B: Marginal distribution of observations vs posterior predictive
 ax = axes3[1]
@@ -510,8 +601,9 @@ ax.hist(y_pred, bins=bins_m, density=True, alpha=0.55,
         color="darkorange", label="Posterior predictive $\\hat{y}$")
 ax.set_xlabel("Observation value")
 ax.set_ylabel("Density")
-ax.set_title("Marginal: data vs posterior predictive")
-ax.legend(fontsize=8)
+if not args.no_title:
+    ax.set_title("Marginal: data vs posterior predictive")
+ax.legend(fontsize=8 * args.font_scale)
 
 # Panel C: Spread of particle trajectories for one test sequence
 ax = axes3[2]
@@ -526,11 +618,16 @@ for pi in range(n_show_traj):
 
 ax.plot(t_axis_eval, x_true[seq_i, :, dim_show], "k-", lw=2.0, zorder=10, label="Truth")
 ax.plot(t_axis_eval, post_mean[seq_i, :, dim_show], "r--", lw=1.5, label="Post. mean")
-ax.set_xlabel("Time")
-ax.set_ylabel(f"State dim {dim_show}")
-ax.set_title(f"Particle trajectories (seq 0, dim {dim_show})\n"
-             f"{n_show_traj} of {args.n_particles} particles shown")
-ax.legend(fontsize=8)
+ax.set_xlim(t_axis_eval[0], t_axis_eval[-1])
+ax.margins(x=0)
+ax.set_xlabel("Time", fontsize=9 * args.font_scale)
+ax.set_ylabel(f"State dim {dim_show}", fontsize=9 * args.font_scale)
+if not args.no_title:
+    ax.set_title(f"Particle trajectories (seq 0, dim {dim_show})\n"
+                 f"{n_show_traj} of {args.n_particles} particles shown",
+                 fontsize=9 * args.font_scale)
+ax.tick_params(labelsize=9 * args.font_scale)
+ax.legend(fontsize=8 * args.font_scale)
 
 fig3.tight_layout()
 
@@ -541,11 +638,12 @@ fig3.tight_layout()
 
 _g0_tag = f"_g0ov{args.g0_override:g}" if args.g0_override is not None else ""
 _eval_tag = f"_sam{args.sampler}_segev{args.seg_len_eval}{_g0_tag}"
+ext = args.file_ext
 
-p1 = out_base + _eval_tag + "_trajectories.png"
-p2 = out_base + _eval_tag + "_diagnostics.png"
-p3 = out_base + _eval_tag + "_multimodal.png"
-fig1.savefig(p1, dpi=150, bbox_inches="tight")
-fig2.savefig(p2, dpi=150, bbox_inches="tight")
-fig3.savefig(p3, dpi=150, bbox_inches="tight")
+p1 = out_base + _eval_tag + f"_trajectories.{ext}"
+p2 = out_base + _eval_tag + f"_diagnostics.{ext}"
+p3 = out_base + _eval_tag + f"_multimodal.{ext}"
+fig1.savefig(p1, dpi=300, bbox_inches="tight")
+fig2.savefig(p2, dpi=300, bbox_inches="tight")
+fig3.savefig(p3, dpi=300, bbox_inches="tight")
 print(f"\nSaved:\n  {p1}\n  {p2}\n  {p3}")

@@ -4,6 +4,8 @@ import re
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.join(current_dir, '..')
 sys.path.append(project_root)
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.lines import Line2D
@@ -235,7 +237,7 @@ models = [create_model(flow_type) for flow_type in flow_types]
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
-results_dir = os.path.join(project_root, 'results')
+results_dir = os.path.join(project_root, 'results', 'results_parameter_identification')
 figure_dir = os.path.join(project_root, 'evaluation')
 
 if multi_modal:

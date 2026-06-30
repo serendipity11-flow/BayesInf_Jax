@@ -472,32 +472,50 @@ if args.test or args.train:
     inf_model = eqx.nn.inference_mode(model)
 
     @eqx.filter_jit
-    def test_samples(model, x, y, u, x0, key):
-        """Multiple-shooting posterior samples for a batch.
-
-        Each sequence is split into num_patches patches of seg_len steps.
-        Patches run in parallel (vmap inside sample_posterior).
-        Within each patch:
-          - Step 0: true first state is encoded → z_0  (anchor).
-          - Steps 1…: SSM propagates from z_0 with noise; decoded autoregressively.
-
-        Returns (M, S, T, d_x).
-        """
+    def test_samples(model, y, u, x0, key):
+        """Posterior samples for a batch. Returns (M, S, T, d_x)."""
         keys = jr.split(key, y.shape[0])
         return jax.vmap(
-            lambda xi, yi, ui, x0i, ki: model.sample_posterior(
-                yi, ui, x0i, ki, n_samples=5, x=xi,
+            lambda yi, ui, x0i, ki: model.sample_posterior(
+                yi, ui, x0i, ki, n_samples=5,
             )
-        )(x, y, u, x0, keys)
+        )(y, u, x0, keys)
+
+    def unsegment_test_samples(samples_seg, n_test, n_segs, seg_len):
+        if n_segs == 1:
+            return samples_seg
+        _, n_draws, _, D_x = samples_seg.shape
+        return (
+            samples_seg.reshape(n_test, n_segs, n_draws, seg_len, D_x)
+            .transpose(0, 2, 1, 3, 4)
+            .reshape(n_test, n_draws, n_segs * seg_len, D_x)
+        )
+
+    if use_seg:
+        test_x, test_y, test_u, test_x0 = segment_batch(
+            test_data["x"], test_data["y"], test_data["u"], test_data["x0"],
+            args.seg_len,
+        )
+        n_segs_test = test_data["x"].shape[1] // args.seg_len
+        h_eff_test = n_segs_test * args.seg_len
+    else:
+        test_x, test_y, test_u, test_x0 = (
+            test_data["x"], test_data["y"], test_data["u"], test_data["x0"]
+        )
+        n_segs_test = 1
+        h_eff_test = test_data["x"].shape[1]
 
     samps = np.array(test_samples(
         inf_model,
-        test_data["x"], test_data["y"], test_data["u"], test_data["x0"],
+        test_y, test_u, test_x0,
         key=jr.PRNGKey(0),
     ))  # (M_test, S, T, d_x)
+    samps = unsegment_test_samples(
+        samps, test_data["x"].shape[0], n_segs_test, args.seg_len,
+    )
     # state_rmse expects (S, M, T, d_x) or (M, T, d_x)
     samps_t = samps.transpose(1, 0, 2, 3)   # (S, M_test, T, d_x)
-    test_rmse = float(jnp.mean(state_rmse(test_data["x"], jnp.array(samps_t))))
+    test_rmse = float(jnp.mean(state_rmse(test_data["x"][:, :h_eff_test], jnp.array(samps_t))))
     print(f"Test RMSE (posterior mean vs true): {test_rmse:.4f}")
 
     try:

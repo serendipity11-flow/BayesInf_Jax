@@ -54,6 +54,83 @@ To estimate the posterior for a new sequence $y_{1:T}$:
 
 ---
 
+### 6. `StochasticInterpolantSE` Implementation
+The implementation in `bayesinf/applications/state_estimation/stochastic_interpolant.py` specializes the S3I idea into a **signal-to-signal stochastic interpolant**. The key difference from the abstract description above is that the source is not just the raw observation $y$. First, the observation sequence is encoded into context $c$, then lifted into state space:
+
+$$\tilde{y} = \mathrm{Lifter}(y, c).$$
+
+The lifted signal $\tilde{y}$ has the same dimensionality as the target state $x$, so the interpolant can move directly in state space.
+
+#### Default Linear Path
+For a training pair $(x, y)$, the model samples a flow time $s \in [0, 1]$ and constructs
+
+$$z_s = (1-s) z_0 + s x + \sigma_s \epsilon,$$
+
+with
+
+$$\sigma_s = \sigma_0 s(1-s).$$
+
+Equivalently,
+
+$$\alpha(s) = 1-s,\quad \alpha'(s) = -1,$$
+$$\beta(s) = s,\quad \beta'(s) = 1,$$
+$$\dot{\sigma}(s) = \sigma_0(1-2s).$$
+
+This gives a supervised target velocity:
+
+$$v_{\mathrm{tgt}} = \alpha'(s)z_0 + \beta'(s)x + \dot{\sigma}(s)\epsilon.$$
+
+For the linear path, that is the instantaneous direction of the noisy bridge from the source $z_0$ to the true state $x$.
+
+#### Masked Source Distribution
+The source $z_0$ is built per particle and per sequence step:
+
+*   **Observed dimensions:** $z_0 = \tilde{y} = \mathrm{Lifter}(y, c)$. These dimensions start from a tight, deterministic observation-informed estimate.
+*   **Unobserved dimensions:** $z_0 \sim \mathcal{N}(0, 1)$. These dimensions start from a Gaussian prior, with a different draw for each particle.
+
+This is what gives the sampler diversity before the SDE begins. Observed coordinates are anchored by the lifted signal, while hidden coordinates can spread across plausible posterior modes.
+
+#### Conditioning on the Lifted Signal
+Both neural fields receive $\tilde{y}$ explicitly:
+
+$$v_\theta(z_s, \tilde{y}, c, s), \qquad \mathrm{score}_\psi(z_s, \tilde{y}, c, s).$$
+
+This matters because the networks do not need to infer the source from $z_s$ alone. They can directly compare the current particle state against the lifted observation signal and learn corrections relative to that source.
+
+#### Refinement SDE
+At inference time, each particle is evolved from $s=0$ to $s=1$ with
+
+$$dz_s =
+\left[
+v_\theta(z_s, \tilde{y}, c, s)
++ g_0^2\,\mathrm{score}_\psi(z_s, \tilde{y}, c, s)
+\right]ds
++ g_0\sqrt{2\sigma_s}\,dW_s.$$
+
+The velocity term moves particles along the learned observation-to-state transport. The score term reshapes the cloud toward high-probability posterior regions. The diffusion term injects flow-time noise, scaled by $\sigma_s$, so it is strongest away from the endpoints and vanishes at $s=0$ and $s=1$.
+
+#### Joint Training Loss
+Training uses a joint flow-matching and sigma-scaled score-matching objective:
+
+$$z_0 = \mathrm{masked\_source}(\tilde{y}, \epsilon_0, \mathrm{obs\_mask}),$$
+$$z_s = \alpha(s)z_0 + \beta(s)x + \sigma_s\epsilon,$$
+$$v_{\mathrm{tgt}} = \alpha'(s)z_0 + \beta'(s)x + \dot{\sigma}(s)\epsilon,$$
+
+and
+
+$$
+\mathcal{L}
+= \|v_\theta - v_{\mathrm{tgt}}\|^2
++ \lambda\|\mathrm{score}_\psi + \epsilon\|^2
++ \mu\|\tilde{y} - x\|^2.
+$$
+
+The first term trains the transport velocity. The second trains the score network in a sigma-scaled form, where the target is $-\epsilon$ rather than $-\epsilon / \sigma_s$; the implementation unscales this prediction during SDE sampling. The third term teaches the lifter to produce a useful deterministic state-space observation before refinement begins.
+
+The code also supports a cosine interpolant, selected by `interpolant_type`, where the same source, conditioning, SDE, and loss structure are used with different $\alpha$, $\beta$, and $\sigma$ schedules.
+
+---
+
 ### Why this solves your problem:
 *   **Physical Dynamics:** Incorporated into $v_\theta$ via the sequence-time connections (Transformers/RNNs).
 *   **Uncertainty:** Captured by the Gradient/Score $\nabla \mathcal{E}$, allowing for multi-modality.

@@ -1,21 +1,21 @@
 """
-Custom Stochastic Solvers for NICE-Flow SDE.
+Custom Stochastic Solvers for RealNVP-Flow SDE.
 
 This module implements stochastic differential equation (SDE) solvers that
-use NICE (Non-linear Independent Components Estimation) normalizing flows
-to model the diffusion term.
+use conditional RealNVP normalizing flows to model transition noise.
 
 The custom solver form is:
-    dz_t = f_θ(z_t, c_t, t) dt + G_φ(dW_t, z_t, c_t, t) sqrt(dt)
+    dz_t = f_θ(z_t, c_t, t) dt + G_φ(eps_t, z_t, c_t, t) sqrt(dt),
+    eps_t ~ N(0, I)
 
 where:
     - f_θ is the neural drift function
-    - dW_t is a Brownian increment (latent noise)
-    - G_φ is a NICE flow that transforms the latent noise
+    - eps_t is standard-Gaussian latent noise
+    - G_φ is a RealNVP flow that transforms the latent noise
 
 The key difference from classical SDE solvers:
-    - The diffusion term is modeled by a NICE normalizing flow
-    - The flow takes dW_t as the latent distribution and transforms it
+    - The diffusion term is modeled by a RealNVP normalizing flow
+    - The flow takes eps_t as the latent distribution and transforms it
     - This allows learning complex noise structures beyond Gaussian
 
 Solvers implemented:
@@ -40,15 +40,15 @@ def _positive_dt(t0: float, t1: float) -> jnp.ndarray:
 
 
 # -----------------------------------------------------------------------------
-# Brownian Motion Utilities
+# Solver Noise Utilities
 # -----------------------------------------------------------------------------
 
 class BrownianIncrement(eqx.Module):
     """
-    Generate Brownian increments with proper scaling.
+    Generate independent standard-Gaussian solver noise.
     
     For SDE integration over time steps [t0, t1]:
-        dW ~ N(0, dt * I) where dt = t1 - t0
+        eps ~ N(0, I), and the solver applies sqrt(dt).
     """
     shape: Tuple[int, ...] = eqx.field(static=True)
     
@@ -56,25 +56,23 @@ class BrownianIncrement(eqx.Module):
         self.shape = shape
     
     def sample(self, key: jr.PRNGKey, dt: float) -> jnp.ndarray:
-        """Sample dW ~ N(0, dt * I)."""
-        dt = jnp.maximum(dt, 1e-12)
-        return jr.normal(key, self.shape) * jnp.sqrt(dt)
+        """Sample eps ~ N(0, I)."""
+        del dt
+        return jr.normal(key, self.shape)
     
     def sample_multiple(self, key: jr.PRNGKey, dt: float, n: int) -> jnp.ndarray:
-        """Sample multiple independent Brownian increments."""
+        """Sample multiple independent standard-Gaussian increments."""
         keys = jr.split(key, n)
         return jnp.stack([self.sample(k, dt) for k in keys])
 
 
 class VirtualBrownianTree(eqx.Module):
     """
-    Virtual Brownian Tree for SDE solvers.
+    Step-noise source for SDE solvers.
     
-    Provides Brownian increments for arbitrary time intervals while
-    maintaining consistency (the increments are differentiable w.r.t. t).
-    
-    This is similar to diffrax.VirtualBrownianTree but simplified for
-    our NICE-Flow SDE framework.
+    Provides deterministic-per-interval eps ~ N(0, I). The solvers multiply
+    the transformed diffusion by sqrt(dt), so eps is intentionally not scaled
+    like a Brownian increment.
     """
     t0: float = eqx.field(static=True)
     t1: float = eqx.field(static=True)
@@ -98,18 +96,41 @@ class VirtualBrownianTree(eqx.Module):
     
     def evaluate(self, t0: float, t1: float) -> jnp.ndarray:
         """
-        Get Brownian increment for interval [t0, t1].
+        Get standard-Gaussian noise for interval [t0, t1].
         
-        Returns dW ~ N(0, (t1 - t0) * I)
+        Returns eps ~ N(0, I)
         """
-        dt = max(float(t1 - t0), self.tol)
-        
         # Use a derived key for this specific interval
         # Hash the interval endpoints to get a consistent key
         interval_key = jr.PRNGKey(
             hash((t0 * 1e6, t1 * 1e6, self.key.tolist())) % (2**31)
         )
-        return jr.normal(interval_key, self.shape) * jnp.sqrt(dt)
+        return jr.normal(interval_key, self.shape)
+
+
+class StepNoisePath(eqx.Module):
+    """
+    Array-backed standard-Gaussian step noise for JAX scans.
+
+    ``eps_steps[i]`` is returned for the interval starting at
+    ``t_start + i * dt``. The solvers multiply the transformed diffusion by
+    ``sqrt(dt)``, so these are standard normal epsilons, not Brownian-scaled
+    increments.
+    """
+    eps_steps: jnp.ndarray
+    t_start: jnp.ndarray
+    dt: jnp.ndarray
+
+    def __init__(self, eps_steps: jnp.ndarray, t_start: float, dt: float):
+        self.eps_steps = eps_steps
+        self.t_start = jnp.asarray(t_start)
+        self.dt = jnp.asarray(dt)
+
+    def evaluate(self, t0: float, t1: float) -> jnp.ndarray:
+        del t1
+        idx = jnp.rint((t0 - self.t_start) / self.dt).astype(jnp.int32)
+        idx = jnp.clip(idx, 0, self.eps_steps.shape[0] - 1)
+        return self.eps_steps[idx]
 
 
 # -----------------------------------------------------------------------------
@@ -142,7 +163,7 @@ class StochasticSolver(eqx.Module):
         - t0, t1: time interval [t0, t1]
         - drift_fn(t, z): returns drift f(z, t) → (d_x,)
         - diffuse_fn(t, z, dW): returns G_φ(dW, z, t) → (d_x,)
-        - bm: Brownian motion (VirtualBrownianTree or similar)
+        - bm: step-noise source with evaluate(t0, t1) -> eps
     """
     
     def step(
@@ -171,9 +192,9 @@ class EulerMaruyama(StochasticSolver):
     Euler-Maruyama solver (strong order 0.5).
     
     Update:
-        z_{t+1} = z_t + f(z_t, t) * dt + G_φ(dW_t, z_t, t) * sqrt(dt)
+        z_{t+1} = z_t + f(z_t, t) * dt + G_φ(eps_t, z_t, t) * sqrt(dt)
     
-    where dW_t ~ N(0, dt * I) and G_φ is the NICE flow.
+    where eps_t ~ N(0, I) and G_φ is the RealNVP flow.
     
     This is the simplest and most widely used SDE solver.
     """
@@ -227,7 +248,7 @@ class EulerMaruyamaWithGradient(StochasticSolver):
         
         # Add Milstein correction if diffusion is differentiable
         # This term is: 0.5 * sum_j (∂G_i/∂z_j * dW_j * dt)
-        # For NICE flows, we can approximate this
+        # For RealNVP flows, we can approximate this
         return z_new
     
     def name(self) -> str:
@@ -331,7 +352,7 @@ class Milstein(StochasticSolver):
     
     where L is the Lie derivative of the diffusion field.
     
-    For NICE flows, we approximate the correction using
+    For RealNVP flows, we approximate the correction using
     the Jacobian of the diffusion mapping.
     """
     
@@ -362,7 +383,7 @@ class Milstein(StochasticSolver):
         # Milstein correction term
         if self.use_gradient_correction:
             # Compute Jacobian of diffusion w.r.t. state
-            # For NICE flows: d(G_φ(dW, z, t))/dz
+            # For RealNVP flows: d(G_φ(dW, z, t))/dz
             # This is approximated using JAX jacobian
             jacobian_fn = jax.jacfwd(
                 lambda zz: diffuse_fn(t0, zz, dw), 

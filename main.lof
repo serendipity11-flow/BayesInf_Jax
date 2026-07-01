@@ -32,7 +32,7 @@
 \contentsline {figure}{\numberline {IV.18}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{88}{figure.caption.136}%
 \contentsline {figure}{\numberline {IV.19}{\ignorespaces AmortizedSeqFlow Segment-Length Metrics}}{89}{figure.caption.137}%
 \contentsline {figure}{\numberline {IV.20}{\ignorespaces AmortizedSeqFlow Segment-Length Trajectories}}{90}{figure.caption.138}%
-\contentsline {figure}{\numberline {IV.21}{\ignorespaces Architecture of Latent State Space Model Flow.}}{91}{figure.caption.140}%
+\contentsline {figure}{\numberline {IV.21}{\ignorespaces Architecture of Latent State Space Model Flow.}}{92}{figure.caption.141}%
 \contentsline {figure}{\numberline {IV.22}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Metrics}}{94}{figure.caption.143}%
 \contentsline {figure}{\numberline {IV.23}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Trajectories}}{95}{figure.caption.144}%
 \contentsline {figure}{\numberline {IV.24}{\ignorespaces LatentSSMFlow Full-Horizon Uncertainty Distribution}}{96}{figure.caption.145}%

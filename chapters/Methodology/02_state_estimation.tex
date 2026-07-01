@@ -53,6 +53,8 @@ The trajectory reconstructions in Figure~\ref{fig:amortized_state_flow_segment_t
 
 \subsection{Latent State Space Model Flow}
 \label{sec:methods:latent_ssm_flow}
+To overcome the limitation of treating time steps independently, we impose a linear Gaussian \ac{SSM} directly in the latent space of the normalizing flow. This yields the architecture termed LatentSSMFlow, shown in Figure~\ref{fig:latent_ssm_flow}. The model combines a structured temporal prior with a conditional normalizing flow decoder. A further motivation is to build a deep-learning-based Kalman filter or state-space model, as Section~\ref{sec:literature:data_assisted_bayes_filter} and \ref{sec:literature:deep_state_space_model} summarize. In a classical Kalman filter, temporal propagation and uncertainty update are analytically tractable because the transition model is restricted to be linear and the observation model is Gaussian. Here, the linear Gaussian \ac{SSM} preserves this interpretable filtering structure in a latent space, while the flow decoder maps the latent Gaussian process to nonlinear and non-Gaussian physical state distributions. Thus, the model can be viewed as a flow-augmented state-space model that retains tractability of the temporal propagation and uncertainty but releases the model restrictions.
+
 \begin{figure}[ht]
    \centering
    \includegraphics[width=0.6\textwidth]{figures/LinearSSMFlow.pdf}
@@ -60,7 +62,7 @@ The trajectory reconstructions in Figure~\ref{fig:amortized_state_flow_segment_t
    \label{fig:latent_ssm_flow}
 \end{figure}
 
-To overcome the limitation of treating time steps independently, we impose a linear Gaussian \ac{SSM} directly in the latent space of the normalizing flow. This yields the architecture termed LatentSSMFlow, shown in Figure~\ref{fig:latent_ssm_flow}. The model combines a structured temporal prior with a conditional normalizing flow decoder. Instead of using an independent standard Gaussian base distribution at each time step, the latent trajectory $z_{1:T}$ follows a Markovian Gaussian process:
+This idea is implemented by changing the base distribution of the flow to a structured dynamical prior. Instead of using an independent standard Gaussian base distribution at each time step, the latent trajectory $z_{1:T}$ follows a Markovian Gaussian process:
 \begin{equation}
 z_t = F z_{t-1} + \eta_t, \qquad \eta_t \sim \mathcal{N}(0,\,Q).
 \end{equation}

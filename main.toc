@@ -21,96 +21,98 @@
 \contentsline {subsubsection}{\numberline {II.3.1.3}Deep Gaussian Process}{19}{subsubsection.2.3.1.3}%
 \contentsline {subsection}{\numberline {II.3.2}Bayesian Neural Network}{20}{subsection.2.3.2}%
 \contentsline {subsection}{\numberline {II.3.3}Variational Autoencoder}{22}{subsection.2.3.3}%
-\contentsline {section}{\numberline {II.4}Normalizing Flow}{24}{section.2.4}%
+\contentsline {section}{\numberline {II.4}Normalizing Flow and Other Deep Generative Models}{24}{section.2.4}%
 \contentsline {subsection}{\numberline {II.4.1}Basics}{24}{subsection.2.4.1}%
-\contentsline {subsubsection}{\numberline {II.4.1.1}Change of Variables}{24}{subsubsection.2.4.1.1}%
+\contentsline {subsubsection}{\numberline {II.4.1.1}Change of Variables}{25}{subsubsection.2.4.1.1}%
 \contentsline {subsubsection}{\numberline {II.4.1.2}Using Normalizing Flows for Modeling and Inference}{28}{subsubsection.2.4.1.2}%
-\contentsline {subsection}{\numberline {II.4.2}Coupling Flows}{29}{subsection.2.4.2}%
-\contentsline {subsection}{\numberline {II.4.3}Residual Flows}{31}{subsection.2.4.3}%
-\contentsline {subsection}{\numberline {II.4.4}Continuous Flows}{32}{subsection.2.4.4}%
-\contentsline {subsubsection}{\numberline {II.4.4.1}Neural Ordinary Differential Equations}{33}{subsubsection.2.4.4.1}%
-\contentsline {subsubsection}{\numberline {II.4.4.2}Continuous Normalizing Flows}{34}{subsubsection.2.4.4.2}%
-\contentsline {subsection}{\numberline {II.4.5}Flow Matching}{35}{subsection.2.4.5}%
-\contentsline {subsection}{\numberline {II.4.6}Conditional Normalizing Flows}{36}{subsection.2.4.6}%
-\contentsline {section}{\numberline {II.5}From Bayesian Inference to Control}{38}{section.2.5}%
-\contentsline {subsection}{\numberline {II.5.1}Bayesian System Identification}{38}{subsection.2.5.1}%
-\contentsline {subsubsection}{\numberline {II.5.1.1}Bayesian Model Selection}{39}{subsubsection.2.5.1.1}%
-\contentsline {subsubsection}{\numberline {II.5.1.2}Bayesian Parameter Identification}{40}{subsubsection.2.5.1.2}%
-\contentsline {subsection}{\numberline {II.5.2}Bayesian State Estimation}{41}{subsection.2.5.2}%
-\contentsline {subsubsection}{\numberline {II.5.2.1}Bayesian Filters}{41}{subsubsection.2.5.2.1}%
-\contentsline {subsubsection}{\numberline {II.5.2.2}State-Space Models}{43}{subsubsection.2.5.2.2}%
-\contentsline {subsubsection}{\numberline {II.5.2.3}Stochastic Differential Equations}{44}{subsubsection.2.5.2.3}%
-\contentsline {subsection}{\numberline {II.5.3}Model Predictive Control}{44}{subsection.2.5.3}%
-\contentsline {subsubsection}{\numberline {II.5.3.1}Nominal Model Predictive Control}{45}{subsubsection.2.5.3.1}%
-\contentsline {subsubsection}{\numberline {II.5.3.2}Stochastic Model Predictive Control}{46}{subsubsection.2.5.3.2}%
-\contentsline {subsection}{\numberline {II.5.4}Reinforcement Learning for Control}{47}{subsection.2.5.4}%
-\contentsline {chapter}{\numberline {III}Literature Review}{49}{chapter.3}%
-\contentsline {section}{\numberline {III.1}Bayesian Parameter Identification}{49}{section.3.1}%
-\contentsline {subsection}{\numberline {III.1.1}Deep Gaussian Processes}{49}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {III.1.2}Bayesian Neural Networks}{50}{subsection.3.1.2}%
-\contentsline {subsection}{\numberline {III.1.3}Conditional Variational Autoencoders}{50}{subsection.3.1.3}%
-\contentsline {subsection}{\numberline {III.1.4}Conditional Normalizing Flows}{51}{subsection.3.1.4}%
-\contentsline {subsection}{\numberline {III.1.5}Conditional Diffusion Models}{51}{subsection.3.1.5}%
-\contentsline {section}{\numberline {III.2}Bayesian State Estimation}{51}{section.3.2}%
-\contentsline {subsection}{\numberline {III.2.1}Data-Assisted Bayesian Filters}{52}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {III.2.2}Deep State-Space Models}{52}{subsection.3.2.2}%
-\contentsline {section}{\numberline {III.3}Deep Probabilistic Models and Time Series Modeling}{53}{section.3.3}%
-\contentsline {subsection}{\numberline {III.3.1}Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{53}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {III.3.2}Normalizing Flows and Stochastic Processes}{54}{subsection.3.3.2}%
-\contentsline {section}{\numberline {III.4}Deep Generative Models as Control Policy}{55}{section.3.4}%
-\contentsline {chapter}{\numberline {IV}Methodology and Numerical Validation}{59}{chapter.4}%
-\contentsline {section}{\numberline {IV.1}Parameter Identification}{59}{section.4.1}%
-\contentsline {subsection}{\numberline {IV.1.1}Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{59}{subsection.4.1.1}%
-\contentsline {subsection}{\numberline {IV.1.2}Normalizing Flows for Parameter Identification}{60}{subsection.4.1.2}%
-\contentsline {subsubsection}{\numberline {IV.1.2.1}Overall Settings}{61}{subsubsection.4.1.2.1}%
-\contentsline {subsubsection}{\numberline {IV.1.2.2}Performance Comparison}{63}{subsubsection.4.1.2.2}%
-\contentsline {subsubsection}{\numberline {IV.1.2.3}Sample Efficiency}{65}{subsubsection.4.1.2.3}%
-\contentsline {subsubsection}{\numberline {IV.1.2.4}Linear Correlation}{67}{subsubsection.4.1.2.4}%
-\contentsline {subsubsection}{\numberline {IV.1.2.5}Multimodal Distribution}{70}{subsubsection.4.1.2.5}%
-\contentsline {subsection}{\numberline {IV.1.3}Relationship Between Bayesian Inference and Sensitivity Analysis}{70}{subsection.4.1.3}%
-\contentsline {subsubsection}{\numberline {IV.1.3.1}Sobol' index}{71}{subsubsection.4.1.3.1}%
-\contentsline {subsubsection}{\numberline {IV.1.3.2}Mutual Information}{74}{subsubsection.4.1.3.2}%
-\contentsline {subsection}{\numberline {IV.1.4}When Does the Framework Fail?}{76}{subsection.4.1.4}%
-\contentsline {subsection}{\numberline {IV.1.5}Stochastic Normalizing Flows}{81}{subsection.4.1.5}%
-\contentsline {subsubsection}{\numberline {IV.1.5.1}Theory of Stochastic Normalizing Flows}{81}{subsubsection.4.1.5.1}%
-\contentsline {subsubsection}{\numberline {IV.1.5.2}Experiments on Stochastic Normalizing Flows}{84}{subsubsection.4.1.5.2}%
-\contentsline {section}{\numberline {IV.2}State Estimation}{87}{section.4.2}%
-\contentsline {subsection}{\numberline {IV.2.1}Amortized Sequence Flow}{88}{subsection.4.2.1}%
-\contentsline {paragraph}{Numerical Results}{88}{figure.caption.136}%
-\contentsline {subsection}{\numberline {IV.2.2}Latent State Space Model Flow}{91}{subsection.4.2.2}%
-\contentsline {paragraph}{Numerical Results}{93}{equation.4.34}%
-\contentsline {subsection}{\numberline {IV.2.3}Normalizing Flow SDE}{97}{subsection.4.2.3}%
-\contentsline {subsubsection}{\numberline {IV.2.3.1}Integration of Normalizing Flow in NeuralSDE}{98}{subsubsection.4.2.3.1}%
-\contentsline {subsubsection}{\numberline {IV.2.3.2}Training FlowSDE}{99}{subsubsection.4.2.3.2}%
-\contentsline {subsubsection}{\numberline {IV.2.3.3}Optional Theoretical Note: Weak Convergence of FlowSDE}{101}{subsubsection.4.2.3.3}%
-\contentsline {subsubsection}{\numberline {IV.2.3.4}Numerical Results}{104}{subsubsection.4.2.3.4}%
-\contentsline {subsection}{\numberline {IV.2.4}Conditional Stochastic Interpolant}{107}{subsection.4.2.4}%
-\contentsline {subsubsection}{\numberline {IV.2.4.1}Stochastic Interpolant}{107}{subsubsection.4.2.4.1}%
-\contentsline {subsubsection}{\numberline {IV.2.4.2}Conditional Stochastic Interpolant for State Estimation}{108}{subsubsection.4.2.4.2}%
-\contentsline {paragraph}{Target Interpolant}{109}{equation.4.67}%
-\contentsline {paragraph}{Learned Interpolant Dynamics}{110}{equation.4.71}%
-\contentsline {subsubsection}{\numberline {IV.2.4.3}Numerical Results}{111}{subsubsection.4.2.4.3}%
-\contentsline {subsection}{\numberline {IV.2.5}Summary of State Estimation Methods}{113}{subsection.4.2.5}%
-\contentsline {section}{\numberline {IV.3}Optimal Control}{115}{section.4.3}%
-\contentsline {subsection}{\numberline {IV.3.1}AmortizedSeqFlow for Control}{115}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {IV.3.2}LatentSSMFlow and FlowSDE for Control}{117}{subsection.4.3.2}%
-\contentsline {subsection}{\numberline {IV.3.3}CondStochInterpolant for Control}{117}{subsection.4.3.3}%
-\contentsline {subsection}{\numberline {IV.3.4}Numerical Results}{118}{subsection.4.3.4}%
-\contentsline {chapter}{\numberline {V}Experiments and Results}{121}{chapter.5}%
-\contentsline {section}{\numberline {V.1}Overview}{121}{section.5.1}%
-\contentsline {section}{\numberline {V.2}Parameter Identification}{121}{section.5.2}%
-\contentsline {section}{\numberline {V.3}State Estimation}{121}{section.5.3}%
-\contentsline {section}{\numberline {V.4}Optimal Control}{121}{section.5.4}%
-\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{123}{chapter.6}%
-\contentsline {chapter}{Abstract}{125}{chapter.6}%
-\contentsline {chapter}{Zusammenfassung}{127}{chapter.6}%
-\contentsline {chapter}{Bibliography}{128}{section*.165}%
-\contentsline {chapter}{Own Contributions and Publications}{129}{section*.165}%
-\contentsline {section}{Own share in data acquisition and data analysis}{129}{section*.166}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{129}{section*.166}%
-\contentsline {paragraph}{Own share in Data Analysis.}{129}{section*.166}%
-\contentsline {section}{Own Publications}{129}{section*.166}%
-\contentsline {chapter}{Appendix}{151}{section*.166}%
-\contentsline {chapter}{Acknowledgement}{153}{section*.166}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{155}{section*.166}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{157}{Item.23}%
+\contentsline {subsubsection}{\numberline {II.4.1.3}Conditional Normalizing Flows}{29}{subsubsection.2.4.1.3}%
+\contentsline {subsection}{\numberline {II.4.2}Coupling Flows}{31}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {II.4.3}Residual Flows}{33}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {II.4.4}Continuous Flows}{34}{subsection.2.4.4}%
+\contentsline {subsubsection}{\numberline {II.4.4.1}Neural Ordinary Differential Equations}{35}{subsubsection.2.4.4.1}%
+\contentsline {subsubsection}{\numberline {II.4.4.2}Continuous Normalizing Flows}{36}{subsubsection.2.4.4.2}%
+\contentsline {subsection}{\numberline {II.4.5}Flow Matching}{37}{subsection.2.4.5}%
+\contentsline {subsection}{\numberline {II.4.6}Diffusion Models}{38}{subsection.2.4.6}%
+\contentsline {subsection}{\numberline {II.4.7}Stochastic Interpolant}{40}{subsection.2.4.7}%
+\contentsline {section}{\numberline {II.5}From Bayesian Inference to Control}{40}{section.2.5}%
+\contentsline {subsection}{\numberline {II.5.1}Bayesian System Identification}{41}{subsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {II.5.1.1}Bayesian Model Selection}{42}{subsubsection.2.5.1.1}%
+\contentsline {subsubsection}{\numberline {II.5.1.2}Bayesian Parameter Identification}{43}{subsubsection.2.5.1.2}%
+\contentsline {subsection}{\numberline {II.5.2}Bayesian State Estimation}{43}{subsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {II.5.2.1}Bayesian Filters}{44}{subsubsection.2.5.2.1}%
+\contentsline {subsubsection}{\numberline {II.5.2.2}State-Space Models}{46}{subsubsection.2.5.2.2}%
+\contentsline {subsubsection}{\numberline {II.5.2.3}Stochastic Differential Equations}{47}{subsubsection.2.5.2.3}%
+\contentsline {subsection}{\numberline {II.5.3}Model Predictive Control}{47}{subsection.2.5.3}%
+\contentsline {subsubsection}{\numberline {II.5.3.1}Nominal Model Predictive Control}{48}{subsubsection.2.5.3.1}%
+\contentsline {subsubsection}{\numberline {II.5.3.2}Stochastic Model Predictive Control}{50}{subsubsection.2.5.3.2}%
+\contentsline {subsection}{\numberline {II.5.4}Reinforcement Learning for Control}{50}{subsection.2.5.4}%
+\contentsline {chapter}{\numberline {III}Literature Review}{53}{chapter.3}%
+\contentsline {section}{\numberline {III.1}Bayesian Parameter Identification}{53}{section.3.1}%
+\contentsline {subsection}{\numberline {III.1.1}Deep Gaussian Processes}{53}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {III.1.2}Bayesian Neural Networks}{54}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {III.1.3}Conditional Variational Autoencoders}{54}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {III.1.4}Conditional Normalizing Flows}{55}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {III.1.5}Conditional Diffusion Models}{55}{subsection.3.1.5}%
+\contentsline {section}{\numberline {III.2}Bayesian State Estimation}{55}{section.3.2}%
+\contentsline {subsection}{\numberline {III.2.1}Data-Assisted Bayesian Filters}{56}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {III.2.2}Deep State-Space Models}{56}{subsection.3.2.2}%
+\contentsline {section}{\numberline {III.3}Deep Probabilistic Models and Time Series Modeling}{57}{section.3.3}%
+\contentsline {subsection}{\numberline {III.3.1}Integration of Deep Probabilistic Models with Time Series Modeling Architectures}{57}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {III.3.2}Normalizing Flows and Stochastic Processes}{58}{subsection.3.3.2}%
+\contentsline {section}{\numberline {III.4}Deep Generative Models as Control Policies}{59}{section.3.4}%
+\contentsline {chapter}{\numberline {IV}Methodology and Numerical Validation}{63}{chapter.4}%
+\contentsline {section}{\numberline {IV.1}Parameter Identification}{63}{section.4.1}%
+\contentsline {subsection}{\numberline {IV.1.1}Universal Framework with Deep Generative Models for Amortized Bayesian Inference}{63}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {IV.1.2}Normalizing Flows for Parameter Identification}{64}{subsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {IV.1.2.1}Overall Settings}{65}{subsubsection.4.1.2.1}%
+\contentsline {subsubsection}{\numberline {IV.1.2.2}Performance Comparison}{67}{subsubsection.4.1.2.2}%
+\contentsline {subsubsection}{\numberline {IV.1.2.3}Sample Efficiency}{69}{subsubsection.4.1.2.3}%
+\contentsline {subsubsection}{\numberline {IV.1.2.4}Linear Correlation}{71}{subsubsection.4.1.2.4}%
+\contentsline {subsubsection}{\numberline {IV.1.2.5}Multimodal Distribution}{74}{subsubsection.4.1.2.5}%
+\contentsline {subsubsection}{\numberline {IV.1.2.6}Characteristics Comparison}{74}{subsubsection.4.1.2.6}%
+\contentsline {subsection}{\numberline {IV.1.3}Relationship Between Bayesian Inference and Sensitivity Analysis}{75}{subsection.4.1.3}%
+\contentsline {subsubsection}{\numberline {IV.1.3.1}Sobol' Index}{75}{subsubsection.4.1.3.1}%
+\contentsline {subsubsection}{\numberline {IV.1.3.2}Mutual Information}{79}{subsubsection.4.1.3.2}%
+\contentsline {subsection}{\numberline {IV.1.4}When Does the Framework Fail?}{81}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {IV.1.5}Stochastic Normalizing Flows}{85}{subsection.4.1.5}%
+\contentsline {subsubsection}{\numberline {IV.1.5.1}Theory of Stochastic Normalizing Flows}{86}{subsubsection.4.1.5.1}%
+\contentsline {subsubsection}{\numberline {IV.1.5.2}Experiments on Stochastic Normalizing Flows}{88}{subsubsection.4.1.5.2}%
+\contentsline {section}{\numberline {IV.2}State Estimation}{92}{section.4.2}%
+\contentsline {subsection}{\numberline {IV.2.1}Amortized Sequence Flow}{93}{subsection.4.2.1}%
+\contentsline {paragraph}{Numerical Results}{93}{figure.caption.142}%
+\contentsline {subsection}{\numberline {IV.2.2}Latent State Space Model Flow}{96}{subsection.4.2.2}%
+\contentsline {paragraph}{Numerical Results}{98}{equation.4.34}%
+\contentsline {subsection}{\numberline {IV.2.3}Normalizing Flow SDE}{102}{subsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {IV.2.3.1}Integration of Normalizing Flow in NeuralSDE}{103}{subsubsection.4.2.3.1}%
+\contentsline {subsubsection}{\numberline {IV.2.3.2}Training FlowSDE}{104}{subsubsection.4.2.3.2}%
+\contentsline {subsubsection}{\numberline {IV.2.3.3}Optional Theoretical Note: Weak Convergence of FlowSDE}{106}{subsubsection.4.2.3.3}%
+\contentsline {subsubsection}{\numberline {IV.2.3.4}Numerical Results}{109}{subsubsection.4.2.3.4}%
+\contentsline {subsection}{\numberline {IV.2.4}Conditional Stochastic Interpolant}{111}{subsection.4.2.4}%
+\contentsline {subsubsection}{\numberline {IV.2.4.1}Conditional Stochastic Interpolant for State Estimation}{112}{subsubsection.4.2.4.1}%
+\contentsline {paragraph}{Target Interpolant}{113}{equation.4.66}%
+\contentsline {paragraph}{Learned Interpolant Dynamics}{113}{equation.4.70}%
+\contentsline {subsubsection}{\numberline {IV.2.4.2}Numerical Results}{115}{subsubsection.4.2.4.2}%
+\contentsline {subsection}{\numberline {IV.2.5}Summary of State Estimation Methods}{117}{subsection.4.2.5}%
+\contentsline {section}{\numberline {IV.3}Optimal Control}{119}{section.4.3}%
+\contentsline {subsection}{\numberline {IV.3.1}AmortizedSeqFlow for Control}{119}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {IV.3.2}LatentSSMFlow and FlowSDE for Control}{121}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {IV.3.3}CondStochInterpolant for Control}{121}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {IV.3.4}Numerical Results}{122}{subsection.4.3.4}%
+\contentsline {chapter}{\numberline {V}Experiments and Results}{125}{chapter.5}%
+\contentsline {section}{\numberline {V.1}Overview}{125}{section.5.1}%
+\contentsline {section}{\numberline {V.2}Parameter Identification}{125}{section.5.2}%
+\contentsline {section}{\numberline {V.3}State Estimation}{125}{section.5.3}%
+\contentsline {section}{\numberline {V.4}Optimal Control}{125}{section.5.4}%
+\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{127}{chapter.6}%
+\contentsline {chapter}{Abstract}{129}{chapter.6}%
+\contentsline {chapter}{Zusammenfassung}{131}{chapter.6}%
+\contentsline {chapter}{Bibliography}{132}{section*.170}%
+\contentsline {chapter}{Own Contributions and Publications}{133}{section*.170}%
+\contentsline {section}{Own share in data acquisition and data analysis}{133}{section*.171}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{133}{section*.171}%
+\contentsline {paragraph}{Own share in Data Analysis.}{133}{section*.171}%
+\contentsline {section}{Own Publications}{133}{section*.171}%
+\contentsline {chapter}{Appendix}{157}{section*.171}%
+\contentsline {chapter}{Acknowledgement}{159}{section*.171}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{161}{section*.171}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{163}{Item.23}%

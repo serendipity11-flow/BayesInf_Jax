@@ -3,10 +3,10 @@
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/Mindmap.pdf}
-    \caption[Knowledge Map]{Conceptual map illustrating the integration of Bayesian inference with deep generative modeling and its applications in control engineering. The left side categorizes the modeling paradigms employed, moving from classical statistical methods to modern deep generative architectures. Notably, Normalizing Flows and Flow Matching are grouped together due to their shared theoretical foundation in continuous-time differential transformations and exact density estimation. On the right, the framework is mapped to core control tasks: system identification, state estimation, and optimal control. A dashed line connects Reinforcement Learning and Optimal Control, signifying the modern methodological convergence of these two disciplines where data-driven learning is increasingly viewed as an adaptive realization of classical optimal control theory.}
+    \caption[Knowledge Map]{Conceptual map illustrating the integration of Bayesian inference with deep generative modeling and its applications in control engineering. The left side categorizes the modeling paradigms employed, moving from classical statistical methods to modern deep generative architectures. Notably, Normalizing Flows and Flow Matching are grouped together due to their shared theoretical foundation in continuous-time differential transformations and exact density estimation. On the right, the framework is mapped to core control tasks: system identification, state estimation, and optimal control. A dashed line connects Reinforcement Learning and Optimal Control, signifying the modern methodological convergence of these two disciplines where many data-driven learning methods can be viewed as an adaptive realization of classical optimal control theory.}
     \label{fig:knowledgemap}
 \end{figure}
-This section introduces the necessary foundational concepts and methodologies for understanding the rest of this work. Before the main contents, we explain the unified notations applied in this whole work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic methods, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge Bayesian inference to control methods, covering system identification, state estimation, and model predictive control. The overview for this chapter is shown in Figure~\ref{fig:knowledgemap}.
+This section introduces the necessary foundational concepts and methodologies for understanding the rest of this work. Before the main content, we explain the unified notation used throughout this work. We first review classical Bayesian inference methods. Then we introduce deep probabilistic methods, including \acf{DGP}, \acf{BNN}, and \acf{VAE}. Next, we present the core methods of this work, \acfp{NF}, a powerful class of generative models for flexible density estimation. Finally, we bridge Bayesian inference to control methods, covering system identification, state estimation, and model predictive control. The overview for this chapter is shown in Figure~\ref{fig:knowledgemap}.
 
 \section{Notations}
 
@@ -43,8 +43,8 @@ Identity: $\boldsymbol{I}$; Jacobian: $\boldsymbol{J}$; Determinant: $\det|\bold
 \end{table}
 
 \section{Bayesian Inference}
-Bayesian inference gets its name from using Bayes' rule to perform statistical inference of probability distributions.
-This chapter refers to \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}, \textit{Handbook of MCMC} \citep{Allen_2007}, and \textit{Variational Inference} \citep{Blei_2017}.
+Bayesian inference gets its name from Bayes' rule, which is used to perform statistical inference over probability distributions.
+This chapter draws on \textit{Bayesian Data Analysis} \citep{gelman2013bayesian}, \textit{Handbook of MCMC} \citep{Allen_2007}, and \textit{Variational Inference} \citep{Blei_2017}.
 
 \subsection{Bayes' Rule}
 Bayes' rule is derived from the chain rule of conditional probability. For target variables $\boldsymbol{\theta}$ and the corresponding observed data $\mathcal{D}$, the chain rule states that:
@@ -68,18 +68,18 @@ In practice, it is often treated as a normalizing constant and ignored. The unno
     p_u(\boldsymbol{\theta}|\mathcal{D}) \propto p(\mathcal{D}|\boldsymbol{\theta})p(\boldsymbol{\theta}).            
 \end{equation}
 
-Normally, the posterior distribution does not have a closed-form expression. Instead, we approximate it using numerical methods. Computational algorithms that rely on repeated random sampling to obtain numerical results refers to "Monte Carlo" methods. Monte Carlo methods provide ways to approximate the posterior distribution by expectations:
+Normally, the posterior distribution does not have a closed-form expression. Instead, we approximate it using numerical methods. Computational algorithms that rely on repeated random sampling to obtain numerical results are referred to as "Monte Carlo" methods. Monte Carlo methods provide ways to approximate the posterior distribution by expectations:
 \begin{equation}
     E=\mathbb{E}_{p(\boldsymbol{\theta}|\mathcal{D})}[f(\boldsymbol{\theta})] = \int f(\boldsymbol{\theta}) p(\boldsymbol{\theta}|\mathcal{D}) d\boldsymbol{\theta},
 \end{equation}
-where $f(\boldsymbol{\theta})$ is any function of interest, for example, $f(\boldsymbol{\theta})=\boldsymbol{\theta}$. As the simplest way, we can approximate it using standard numerical techniques such as a Riemann sum over a discrete grid of points:
+where $f(\boldsymbol{\theta})$ is any function of interest, for example, $f(\boldsymbol{\theta})=\boldsymbol{\theta}$. In the simplest case, we can approximate it using standard numerical techniques such as a Riemann sum over a discrete grid of points:
 \begin{equation}
     E \approx \Sigma_{\boldsymbol{\theta}'} f(\boldsymbol{\theta}') \Delta \boldsymbol{\theta}'.
 \end{equation}
-However, this approach is only feasible for low-dimensional $\boldsymbol{\theta}$ due to the curse of dimensionality. Besides, for complex distributions, the discretization is highly inefficient. Therefore, for high-dimensional parameters and complex distributions, we often resort to sampling-based or optimization-based methods to approximate the posterior distribution, which will be discussed in the following sections.
+However, this approach is only feasible for low-dimensional $\boldsymbol{\theta}$ due to the curse of dimensionality. Moreover, for complex distributions, the discretization is highly inefficient. Therefore, for high-dimensional parameters and complex distributions, we often resort to sampling-based or optimization-based methods to approximate the posterior distribution, which will be discussed in the following sections.
 
 \subsection{Markov Chain Monte Carlo}
-The "Markov Chain" aspect indicates that these algorithms generate a sequence of samples where each sample depends only on the previous one. In contrast to the basic Monte Carlo methods, \acf{MCMC} methods produce auto-correlated samples, so that each new sample adds less new information than an independent draw would. Different sequences updating algorithms lead to different \ac{MCMC} methods. The goal of \ac{MCMC} is to construct a Markov chain that has the desired posterior distribution as its \textit{equilibrium} distribution. After running the chain for a sufficient number of iterations, the samples generated from the chain can be treated as samples from the target posterior distribution. 
+The "Markov Chain" aspect indicates that these algorithms generate a sequence of samples in which each sample depends only on the previous one. In contrast to the basic Monte Carlo methods, \acf{MCMC} methods produce auto-correlated samples, so that each new sample adds less new information than an independent draw would. Different sequence-update algorithms lead to different \ac{MCMC} methods. The goal of \ac{MCMC} is to construct a Markov chain that has the desired posterior distribution as its \textit{equilibrium} distribution. After running the chain for a sufficient number of iterations, the samples generated from the chain can be treated as samples from the target posterior distribution. 
 
 This concept is analogous to the steady-state behavior of a dynamical system. Typically, a dynamical system undergoes a transient phase before settling into an equilibrium where the states remain constant. In \ac{MCMC}, while the variables continue to move, their probability distribution reaches a steady state. If we interpret the probability density as the energy landscape of a physical system, equilibrium is reached when the system has settled into a stable statistical configuration. At this point, although individual samples continue to transition between different regions of the parameter space, the net movement between these regions is zero. This balance ensures that the density of samples remains constant over time, allowing the chain to accurately represent the invariant target posterior distribution.
 
@@ -121,7 +121,7 @@ This concept is analogous to the steady-state behavior of a dynamical system. Ty
         \begin{equation}
         \label{eq:mh_update}
         \boldsymbol{\theta}_{(i)} =
-        \begin{cases} \boldsymbol{\theta}'_{(i)}, & \text{if } u < T \\ \boldsymbol{\theta}_{(i-1)}, & \text{otherwise} 
+        \begin{cases} \boldsymbol{\theta}'_{(i)}, & \text{if } u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)}) \\ \boldsymbol{\theta}_{(i-1)}, & \text{otherwise} 
         \end{cases}
         \end{equation}
     \end{minipage}
@@ -129,12 +129,12 @@ This concept is analogous to the steady-state behavior of a dynamical system. Ty
     If the spot is "better," the motors drive there. If "worse," it rolls a die: it might still move there to explore, or stay put and record the current spot again. \\
     \midrule
     \textbf{3. Accumulation} & \textbf{3. Mission Duration} \\
-    Repeat for $N$ iterations to obtain a sequence of samples $\{\boldsymbol{\theta}_{(1)}, \ldots, \boldsymbol{\theta}_{(N)}\}$. & 
-    The rover repeats this loop $N$ times. Every cycle, it writes its final $(x,y)$ coordinate for that minute into the mission logbook. \\
+    Run the chain for more than $N_{\mathrm{burn}}$ iterations. The first $N_{\mathrm{burn}}$ samples are treated as burn-in, after which the chain is assumed to have reached its stationary distribution. The retained samples are $\{\boldsymbol{\theta}_{(N_{\mathrm{burn}}+1)}, \ldots, \boldsymbol{\theta}_{(N_{\mathrm{burn}}+B)}\}$. & 
+    The rover first drives long enough to leave its arbitrary starting region and reach a representative exploration pattern. Only after this warm-up period does it write the subsequent $(x,y)$ coordinates into the mission logbook. \\
     \midrule
     \textbf{4. Estimator} & \textbf{4. Resource Density Map} \\
-    \[p(\boldsymbol{\theta}| \mathcal{D}) \approx \frac{1}{N} \sum_{n=1}^{N} \delta_{\boldsymbol{\theta}_{(n)}}(\boldsymbol{\theta})\] 
-    $\delta_{\boldsymbol{\theta}_{(n)}}(\boldsymbol{\theta})$ denotes a dirac function of the query $\boldsymbol{\theta}$ at the target $\boldsymbol{\theta}_{(n)}$.
+    \[p(\boldsymbol{\theta}| \mathcal{D}) \approx \frac{1}{B} \sum_{b=1}^{B} \delta_{(N_{\mathrm{burn}}+b)}(\boldsymbol{\theta})\] 
+    $\delta_{(N_{\mathrm{burn}}+b)}(\boldsymbol{\theta})$ denotes a Dirac delta centered at the retained sample $\boldsymbol{\theta}_{(N_{\mathrm{burn}}+b)}$.
     & 
     Download the log and plot the coordinates. The resulting point cloud density shows the ice distribution $p(\boldsymbol{\theta}|\mathcal{D})$ across the crater. \\
     \bottomrule
@@ -142,9 +142,9 @@ This concept is analogous to the steady-state behavior of a dynamical system. Ty
     \caption[Alignment between MH Algorithm and Autonomous Rover Mapping]{Alignment between the Metropolis-Hastings (MH) algorithm and an autonomous rover mapping.}
     \label{tab:comp_mh}
 \end{table}
-The \ac{MH} algorithm, which is named after Metropolis \citeyearpar{Metropolis} and Hastings \citeyearpar{Hastings}, is a widely used \ac{MCMC} method. To understand its logic, consider the "Autonomous Rover Mapping" analogy: Imagine an autonomous rover equipped with a noisy sensor is deployed into a dark and unmapped crater. Its task is to create a high-resolution density map of water-ice concentrations across the crater floor. It doesn't have a satellite map; it only knows the signal strength of ice at its current coordinates using a neutron spectrometer. It cannot teleport and thus has to move from point to point in order to take readings. The density map is essentially a confidence map of where the ice is located $(\boldsymbol{\theta})$ given the sensor observations $(\mathcal{D})$. A alignment between the MH algorithm and its analogy is shown in Table~\ref{tab:comp_mh}.
+The \ac{MH} algorithm, which is named after Metropolis \citeyearpar{Metropolis} and Hastings \citeyearpar{Hastings}, is a widely used \ac{MCMC} method. To understand its logic, consider the "Autonomous Rover Mapping" analogy: Imagine an autonomous rover equipped with a noisy sensor is deployed into a dark and unmapped crater. Its task is to create a high-resolution density map of water-ice concentrations across the crater floor. It doesn't have a satellite map; it only knows the signal strength of ice at its current coordinates using a neutron spectrometer. It cannot teleport and thus has to move from point to point in order to take readings. The density map is essentially a confidence map of where the ice is located $(\boldsymbol{\theta})$ given the sensor observations $(\mathcal{D})$. An alignment between the MH algorithm and its analogy is shown in Table~\ref{tab:comp_mh}.
 
-Although this procedure allows flexible approximation of complex posterior distribution, it suffers from slow convergence rate due to its random exploration nature. Thus, gradient-based \ac{MCMC} methods are proposed to incorporate the structure of the target density, leading to faster sampling.
+Although this procedure allows flexible approximation of complex posterior distributions, it suffers from a slow convergence rate because of its random exploration strategy. Thus, gradient-based \ac{MCMC} methods are proposed to incorporate the structure of the target density, leading to faster sampling.
 
 \subsubsection{Metropolis-Adjusted Langevin Algorithm}\label{sec:MALA}
 The \ac{MALA} \citep{besag2004markov} combines the \ac{MH} algorithm with Langevin diffusion, whose stationary distribution is the target density. In this framework, 
@@ -172,7 +172,7 @@ where $\mathit{W}(t)$ denotes a standard Wiener process \citep{gabbiani2010mathe
     \end{minipage}
 \end{figure}
 
-A comparison between the \ac{MH} algorithm and \ac{MALA} is illustrated in Figure~\ref{fig:mh_mala}. The \ac{MALA} uses the first order Euler-Maruyama discretization of the \ac{SDE}, resulting in the following proposal distribution:
+A comparison between the \ac{MH} algorithm and \ac{MALA} is illustrated in Figure~\ref{fig:mh_mala}. The \ac{MALA} uses the first-order Euler-Maruyama discretization of the \ac{SDE}, resulting in the following proposal distribution:
 \begin{equation}
     \label{eq:langevin}
     \mathit{\Theta}(t) = \mathit{\Theta}(i-1) + \tau \nabla \log p(\mathit{\Theta}(i-1)) + \sqrt{2\tau}\; \mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
@@ -193,7 +193,7 @@ For each iteration $i$, the \ac{MALA} updates the state as follows (correspondin
 Compared to the \ac{MH}, \ac{MALA} converges faster and scales better in higher dimensions, at the cost of requiring gradients and tuning. As a more advanced \ac{MCMC} method, \acf{HMC} \citep{duane1987hybrid} further improves sampling efficiency by simulating the whole sampling trajectory as Hamiltonian dynamics. 
 
 \subsection{Variational Inference}
-Different from \ac{MCMC}, \acf{VI} \citep{Jordan1998, Wainwright2008} is an optimization-based method that approximates the target posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$ with a simpler, parameterized distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$, where $\boldsymbol{\phi}$ are the variational factors. The goal of \ac{VI} is to find the optimal variational factors $\boldsymbol{\phi}^*$ that minimize the distance between the approximate distribution and the true posterior. The distance is normally measured by the \ac{KL}-divergence \citep{kl1951}, which is defined as:
+Unlike \ac{MCMC}, \acf{VI} \citep{Jordan1998, Wainwright2008} is an optimization-based method that approximates the target posterior distribution $p(\boldsymbol{\theta}|\mathcal{D})$ with a simpler, parameterized distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})$, where $\boldsymbol{\phi}$ denotes the variational factors. The goal of \ac{VI} is to find the optimal variational factors $\boldsymbol{\phi}^*$ that minimize the distance between the approximate distribution and the true posterior. The distance is normally measured by the \ac{KL}-divergence \citep{kl1951}, which is defined as:
 \begin{equation}
     D_{\text{KL}}(q(z)||p(z)) = \mathbb{E}_{q(z)}[\log \frac{q(z)}{p(z)}] = \int q(z)\log \frac{q(z)}{p(z)}dz.
 \end{equation}
@@ -234,7 +234,7 @@ Since the \ac{KL}-divergence is always non-negative, we have:
         \log p(\mathcal{D}) \geq \textcolor{ForestGreen}{\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\boldsymbol{\theta}, \mathcal{D})-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}.
     \end{equation}
 \end{mdframed}
-Because of this inequality, the right hand side is called the \acf{ELBO}, also known as the variational lower bound. Another way to formulate the \ac{ELBO} using Equation~(\ref{eq:vi_kl2}) is:
+Because of this inequality, the right-hand side is called the \acf{ELBO}, also known as the variational lower bound. Another way to formulate the \ac{ELBO} using Equation~(\ref{eq:vi_kl2}) is:
 \begin{mdframed}[nobreak=true]
     \begin{equation}
         \label{eq:elbo2}
@@ -257,14 +257,14 @@ where each factor $\phi_i$ governs a variable $\theta_i$. Then, the \ac{ELBO} (\
 \end{equation}
 where the expectation is taken with respect to the distributions of all other groups $j \neq i$. This algorithm is called \ac{CAVI} \citep{bishop2006}. 
 
-The assumption of the mean-field \ac{VI} simplifies the optimization problem, and thus makes it scalable for large dimensional variables and also enables parallelizable computation. However, it may also limit the expressiveness of the variational distribution, especially when the posterior correlations are crucial, leading to suboptimal approximations of the true posterior. Summarizing, \ac{VI} is generally faster than \ac{MCMC} and scales better to large datasets, but it may provide less accurate approximations of the posterior distribution \citep{Blei_2017}. 
+The assumption of the mean-field \ac{VI} simplifies the optimization problem, and thus makes it scalable for high-dimensional variables and also enables parallelizable computation. However, it may also limit the expressiveness of the variational distribution, especially when the posterior correlations are crucial, leading to suboptimal approximations of the true posterior. In summary, \ac{VI} is generally faster than \ac{MCMC} and scales better to large datasets, but it may provide less accurate approximations of the posterior distribution \citep{Blei_2017}. 
 
 \section{Deep Probabilistic Methods}
 \label{sec:introduction:background:deep_probabilistic_methods}
-The classical methods, \ac{MCMC} and \ac{VI}, although provide general solution for Bayesian inference, they are limited by their "approximation-per-point" behavior. Deep probabilistic methods, on the contrary, enable amortized Bayesian inference and unlock both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic methods: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder. The former two methods are direct extensions of classical Bayesian inference with deep architectures, while the last one is a fundamental deep generative model that leverages variational inference.
+Although classical methods such as \ac{MCMC} and \ac{VI} provide general solutions for Bayesian inference, they are limited by their "approximation-per-point" behavior. Deep probabilistic methods, in contrast, enable amortized Bayesian inference and unlock both high expressiveness and scalability to large datasets. In the following section, we briefly review three prominent deep probabilistic methods: the Deep Gaussian Process, the Bayesian Neural Network, and the Variational Autoencoder. The former two methods are direct extensions of classical Bayesian inference with deep architectures, while the last one is a fundamental deep generative model that leverages variational inference.
 
 \subsection{Deep Gaussian Process}
-A Gaussian process can be interpreted as an infinite-dimensional Gaussian distribution. It is fully specified by a mean function $m(\cdot)$ and a covariance (kernel) function $k(\cdot, \cdot)$. For simplification, we consider a single-variable case where the variable is $x$ and the corresponding Gaussian process is $\mathit{X}(t)$. We collect $M$ observations at discrete input points $\boldsymbol{x} = [x_1, \dots, x_M]^\top$, the associated random variables follow a multivariate normal distribution:
+A Gaussian process can be interpreted as an infinite-dimensional Gaussian distribution. It is fully specified by a mean function $m(\cdot)$ and a covariance (kernel) function $k(\cdot, \cdot)$. For simplicity, we consider a single-variable case where the variable is $x$ and the corresponding Gaussian process is $\mathit{X}(t)$. We collect $M$ observations at discrete input points $\boldsymbol{x} = [x_1, \dots, x_M]^\top$, the associated random variables follow a multivariate normal distribution:
 \begin{equation}
     \begin{bmatrix} \mathit{X}(t_1) \\ \vdots \\ \mathit{X}(t_M) \end{bmatrix} \sim \mathcal{N} \left( \boldsymbol{\mu}=\begin{bmatrix} \mu(t_1) \\ \vdots \\ \mu(t_M) \end{bmatrix}, \boldsymbol{K}=\begin{bmatrix} k(t_1, t_1) & \dots & k(t_1, t_M) \\ \vdots & \ddots & \vdots \\ k(t_M, t_1) & \dots & k(t_M, t_M) \end{bmatrix} \right).
 \end{equation}
@@ -284,7 +284,7 @@ The prior distribution over functions $f(\cdot)$ is assumed to be a zero-mean Ga
 \begin{equation}
     f(\cdot)\sim\mathcal{GP}(0, k(\cdot, \cdot)).
 \end{equation}
-The kernel function $k(\cdot,\cdot)$ is usually chosen to be the \ac{SE} kernel function, or as known as the \ac{RBF}, defined as:
+The kernel function $k(\cdot,\cdot)$ is usually chosen as the \ac{SE} kernel, also known as the \ac{RBF}, defined as:
 \begin{equation}
     k(x_i, x_j) = \sigma_{SE}^2\exp(-\frac{1}{2\ell^2}\left\| x_i - x_j\right\|^2),
 \end{equation}
@@ -300,7 +300,7 @@ The optimization objective $\mathcal{J}(\varphi)$ is the logarithm of this margi
 \end{equation}
 The optimal hyperparameters $\hat{\varphi}$ are found by maximizing this function, typically using gradient-based optimizers.
 
-The \ac{GPR} is widely used for regression tasks owing to its non-parametric nature and its capacity to quantify uncertainty. However, its computational complexity scales cubically with the number of training points, i.e., $\mathcal{O}(D^3)$ for an $D$-dimensional input. Additionally, calculating the Gaussian processes requires the entire storage of training datasets, incurring a memory cost of $\mathcal{O}(M^2)$, which grows quadratically with the dataset size $M$. These limitations hinder its scalability to high-dimensional inputs and large datasets. In addition, the expressiveness of \ac{GPR} is constrained by the choice of kernel function and its incapacity to perform hierarchical feature extraction.
+The \ac{GPR} is widely used for regression tasks owing to its non-parametric nature and its capacity to quantify uncertainty. However, its computational complexity scales cubically with the number of training points, i.e., $\mathcal{O}(D^3)$ for a $D$-dimensional input. Additionally, calculating Gaussian processes requires storing the entire training dataset, incurring a memory cost of $\mathcal{O}(M^2)$, which grows quadratically with the dataset size $M$. These limitations hinder its scalability to high-dimensional inputs and large datasets. In addition, the expressiveness of \ac{GPR} is constrained by the choice of kernel function and its incapacity to perform hierarchical feature extraction.
 
 \subsubsection{Parameter Identification using GPR}
 \begin{table}[ht]
@@ -341,74 +341,81 @@ The \ac{GPR} is widely used for regression tasks owing to its non-parametric nat
 In the context of system identification, we aim to estimate the posterior distribution of system parameters given observed system data, denoted as $p(\boldsymbol{\theta} | \mathcal{D})$. There are two primary strategies to achieve this, which are compared in Table~\ref{tab:comp_gp}. 
 
 \subsubsection{Deep Gaussian Process}
-To improve expressiveness, \acf{DGP} \citep{damianou2013dgp} is proposed as multilayer hierarchical generalizations of Gaussian processes. The input $\boldsymbol{x}$ is passed through multiple layers of Gaussian processes to obtain the output $\boldsymbol{y}$. For an $L$-layer \ac{DGP}, the model extends the Gaussian process (\ref{eq:simgp}) by:
+To improve expressiveness, \acf{DGP} \citep{damianou2013dgp} is proposed as a multilayer hierarchical generalization of Gaussian processes. The input $\boldsymbol{x}$ is passed through multiple layers of Gaussian processes to obtain the output $\boldsymbol{y}$. For an $L$-layer \ac{DGP}, the model extends the Gaussian process (\ref{eq:simgp}) by:
 \begin{multline}
     y_i = f_{L}(f_{L-1}(\dots f_{1}(x_i)+\epsilon_{i,1}\dots)) + \epsilon_{L}, \quad f_{l}(\cdot) \sim \mathcal{GP}(0, k_l(\cdot, \cdot)), \\ l=1,\dots,L,\; i=1,\dots,M.
 \end{multline}  
-The deep architecture enables Gaussian processes to learn more complex data patterns and hierarchical representations. It can be seen as a deep neural network with infinitely wide layers \citep{Neal1996}, where each layer applies a Gaussian process, instead of nonlinear matrix transformation. However, due to the computational cost and storage consumption the \ac{DGP} is still cumbersome to apply in practice. 
+The deep architecture enables Gaussian processes to learn more complex data patterns and hierarchical representations. It can be seen as a deep neural network with infinitely wide layers \citep{Neal1996}, where each layer applies a Gaussian process instead of a nonlinear matrix transformation. However, due to computational cost and storage requirements, the \ac{DGP} is still cumbersome to apply in practice. 
 
 \subsection{Bayesian Neural Network}
 Another approach of deep probabilistic methods involves integrating Bayesian inference with deep neural networks. A \acf{BNN} \citep{Neal1996, MacKay1992} places prior distributions over the network’s weights and biases, allowing uncertainty to be modeled directly within the architecture. 
 
-The goal of training a \ac{BNN} is to infer the posterior distribution over the parameters $\boldsymbol{\theta}=[\boldsymbol{w}, \boldsymbol{b}]$ given the training data $\mathcal{D}$, i.e., $p(\boldsymbol{\theta}|\mathcal{D})$. \ac{VI} is commonly employed to approximate the posterior by optimizing the \ac{ELBO} (\ref{eq:elbo2}). Here, we inherit the notation from \ac{VI}. The parameters $\boldsymbol{\theta}$ are not the to be identified system parameters.
+Unlike \ac{VI}, where the posterior of the target parameters is directly approximated, the objective of a \ac{BNN} is to optimize a probabilistic model for estimating the target posterior. Thus, the aim is to infer the posterior distribution over the model parameters $\tilde{\boldsymbol{\theta}}=[\boldsymbol{w}, \boldsymbol{b}]$ given the training data $\mathcal{D}$, i.e., $p(\tilde{\boldsymbol{\theta}}|\mathcal{D})$. \ac{VI} is commonly employed to approximate the posterior by optimizing the \ac{ELBO} (\ref{eq:elbo2}). Here, we inherit the notation from \ac{VI}. The parameters $\tilde{\boldsymbol{\theta}}$ are not the system parameters to be identified.
 
-To facilitate gradient-based optimization via backpropagation---similar to standard neural networks---the reparameterization trick \citep{kingma2013auto} is used. This technique expresses random variables as deterministic variables of noise, enabling efficient and differentiable sampling during training. For example, for a Gaussian variational distribution $q_{\boldsymbol{\phi}}(\boldsymbol{\theta})=\mathcal{N}(\boldsymbol{\theta}|\boldsymbol{\mu}, \text{diag}(\boldsymbol{\sigma}^2))$, we can reparameterize $\boldsymbol{\theta}$ as:  
+To facilitate gradient-based optimization via backpropagation---similar to standard neural networks---the reparameterization trick \citep{kingma2013auto} is used. This technique expresses random variables as deterministic variables of noise, enabling efficient and differentiable sampling during training. For example, for a Gaussian variational distribution $q_{\boldsymbol{\phi}}(\tilde{\boldsymbol{\theta}})=\mathcal{N}(\tilde{\boldsymbol{\theta}}|\boldsymbol{\mu}, \text{diag}(\boldsymbol{\sigma}^2))$, we can reparameterize $\tilde{\boldsymbol{\theta}}$ as:  
 \begin{equation}
-    \boldsymbol{\theta} = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon}\sim\mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
+    \tilde{\boldsymbol{\theta}} = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon}\sim\mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
 \end{equation}  
 where $\odot$ represents the Hadamard product, i.e., the element-wise product, and the variational parameters here are $\boldsymbol{\phi}=[\boldsymbol{\mu}, \boldsymbol{\sigma}]$. 
 To train a \ac{BNN} on large datasets, \ac{SGD} \citep{bottou1999sgd} is typically employed to optimize the \ac{ELBO}. Unlike standard gradient descent, \ac{SGD} estimates the gradient at each iteration using a randomly selected subset of the data. Then, the variational objective of a \ac{BNN} using the \ac{ELBO} (\ref{eq:elbo2}) becomes:
 \begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi}) = \frac{1}{M}\sum_{i=1}^{M} [D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{\theta})||p(\boldsymbol{\theta}))-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{\theta})}\log p(\mathcal{D}_i|\boldsymbol{\theta})],
+    \mathcal{L}(\tilde{\boldsymbol{\theta}}, \boldsymbol{\phi}) = \frac{1}{M}\sum_{i=1}^{M} [D_{\text{KL}}(q_{\boldsymbol{\phi}}(\tilde{\boldsymbol{\theta}})||p(\tilde{\boldsymbol{\theta}}))-\mathbb{E}_{q_{\boldsymbol{\phi}}(\tilde{\boldsymbol{\theta}})}\log p(\mathcal{D}_i|\tilde{\boldsymbol{\theta}})],
 \end{equation}
-where each mini-batch $\mathcal{D}_i\subset\mathcal{D}$ is drawn from the equally sized subsets of the training data $\mathcal{D}=\{\mathcal{D}_1,\dots,\mathcal{D}_M\}$. During each optimization step, the auxiliary noise $\boldsymbol{\epsilon}$ is sampled multiple times from $\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ to perform Monte Carlo estimation of the expectation terms in the loss function $\mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi})$. The gradient $\nabla_{\boldsymbol{\phi}}\mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi})$ is then computed via backpropagation and averaged across all samples. Finally, the variational parameter $\boldsymbol{\phi}$ is updated by 
+where each mini-batch $\mathcal{D}_i\subset\mathcal{D}$ is drawn from equally sized subsets of the training data $\mathcal{D}=\{\mathcal{D}_1,\dots,\mathcal{D}_M\}$. During each optimization step, the auxiliary noise $\boldsymbol{\epsilon}$ is sampled multiple times from $\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ to perform Monte Carlo estimation of the expectation terms in the loss function $\mathcal{L}(\tilde{\boldsymbol{\theta}}, \boldsymbol{\phi})$. The gradient $\nabla_{\boldsymbol{\phi}}\mathcal{L}(\tilde{\boldsymbol{\theta}}, \boldsymbol{\phi})$ is then computed via backpropagation and averaged across all samples. Finally, the variational parameter $\boldsymbol{\phi}$ is updated by 
 \begin{equation}
-    \boldsymbol{\phi}\leftarrow\boldsymbol{\phi}-\alpha\nabla_{\boldsymbol{\phi}}\mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi}),
+    \boldsymbol{\phi}\leftarrow\boldsymbol{\phi}-\alpha\nabla_{\boldsymbol{\phi}}\mathcal{L}(\tilde{\boldsymbol{\theta}}, \boldsymbol{\phi}),
 \end{equation}
 where $\alpha$ is the learning rate. This procedure is called \ac{BbB} \citep{blundell2015bbb}.
 
-In comparison to \ac{DGP}, the \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \ac{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}.
+In comparison to \ac{DGP}, \ac{BNN} demonstrates better scalability to large datasets and improved representational capacity. Moreover, the \ac{BbB} method facilitates the compatibility of \acp{BNN} with deep learning techniques and thus enables flexible implementation in different neural network architectures, such as \ac{CNN} \citep{shridhar2019bcnn}, \ac{RNN} \citep{fortunato2019brnn}, and Transformer \citep{müller2024transbi}.
 
 However, a fundamental challenge remains. Neither \acp{DGP} (typically employed as forward maps) nor \acp{BNN} (which can operate in either mapping direction) inherently model the posterior uncertainty of parameters in a direct, closed-form manner. Instead, both act as functional mappings that require an external probabilistic framework to characterize the distribution of interest, such as marginalization over latent functions or variational optimization over weights.
 
-Consequently, several works raise concerns with BNNs, including wrong uncertainty estimation in between separated regions of observations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and a high sensitivity to the choice of prior distributions \citep{silvestro2020prior}. These limitations, arising from the difficulty of capturing complex, multi-modal posterior landscapes using standard approximate inference, motivate the applications of more powerful generative models, such as variational autoencoders and \acp{NF}, which are discussed in the following sections.
+Consequently, several works raise concerns with BNNs, including incorrect uncertainty estimation between separated regions of observations \citep{foong2019inbetween, foong2020bnn}, poor generalization ability under domain shift \citep{izmailov2021bnnp}, and a high sensitivity to the choice of prior distributions \citep{silvestro2020prior}. These limitations, arising from the difficulty of capturing complex, multi-modal posterior landscapes using standard approximate inference, motivate the application of more powerful generative models, such as variational autoencoders and \acp{NF}, which are discussed in the following sections.
 
 \subsection{Variational Autoencoder}
-In classical \ac{VI} methods, the parameters of interest $\boldsymbol{\theta}$ are random variables, and the approximate posterior distribution over the parameters is parameterized by variational parameters $\boldsymbol{\phi}$. In contrast, a \acf{VAE} is constructed with deterministic neural networks (parameterized by $\boldsymbol{\theta}$ and $\boldsymbol{\phi}$) and introduces variability by latent variables. For a dataset $\mathcal{D}=\{\boldsymbol{x}^{(i)}\}_{i=1}^{M}$, the samples are assumed to be \ac{i.i.d.} and drawn from an unchanging underlying distribution $p_{\boldsymbol{\theta}}(\boldsymbol{x})$. A \ac{VAE} extracts information from input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$ by a parameterized inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$, which is also called an \textit{encoder} or \textit{recognition model}. Then, the \ac{VAE} generates data $\boldsymbol{x}$ from the latent variables $\boldsymbol{z}$ by another parameterized model $p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$, which is also called a \textit{decoder}. The decoder is often mentioned as a "generative" model. However, according to the formal definition \citep{Kingma_2019}, a generative model learns a joint distribution $p_{\boldsymbol{\theta}}(\boldsymbol{z}, \boldsymbol{x})=p_{\boldsymbol{\theta}}(\boldsymbol{z})p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$, including sampling $\boldsymbol{z}\sim p_{\boldsymbol{\theta}}(\boldsymbol{z})$ and sampling $\boldsymbol{x}\sim p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})$. 
+One way to address the limitations of \ac{BNN} and directly model the posterior distribution of parameters is to use a \ac{DGM}. Generally speaking, \ac{DGM} is a model that learns a probabilistic mapping from latent variables $\boldsymbol{z}$ to observed data $\boldsymbol{x}$, enabling the generation of new samples and the inference of latent representations.
 
-The latent variables connect the inference model and the generative model. From the encoder side, the inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$ approximates the true posterior distribution $p_{\boldsymbol{\theta}}(\boldsymbol{z}|\boldsymbol{x})$ of the generative model, which is intractable. From the decoder side, the distribution of latent variables is a prior distribution, which is usually chosen to be a standard normal distribution, i.e., $p(\boldsymbol{z})=\mathcal{N}(\boldsymbol{z}|\boldsymbol{0}, \boldsymbol{I})$. The whole architecture is illustrated in Figure~\ref{fig:vae}.
+\ac{VAE} is one of the most widely used \acp{DGM}. For a dataset $\mathcal{D}=\{\boldsymbol{x}^{(i)}\}_{i=1}^{M}$, the samples are assumed to be \ac{i.i.d.} and drawn from an unchanging underlying distribution $p(\boldsymbol{x})$. A \ac{VAE} maps input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$ using a parameterized inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$, which is also called an \textit{encoder} or \textit{recognition model}. Then, the \ac{VAE} generates data $\boldsymbol{x}$ from the latent variables $\boldsymbol{z}$ by another parameterized model $p_{\boldsymbol{\varphi}}(\boldsymbol{x}|\boldsymbol{z})$, which is also called a \textit{decoder}. The decoder is often described as a "generative" model. However, according to the formal definition \citep{Kingma_2019}, a generative model learns a joint distribution $p_{\boldsymbol{\varphi}}(\boldsymbol{z}, \boldsymbol{x})=p_{\boldsymbol{\varphi}}(\boldsymbol{z})p_{\boldsymbol{\varphi}}(\boldsymbol{x}|\boldsymbol{z})$, including both sampling $\boldsymbol{z}\sim p_{\boldsymbol{\varphi}}(\boldsymbol{z})$ and sampling $\boldsymbol{x}\sim p_{\boldsymbol{\varphi}}(\boldsymbol{x}|\boldsymbol{z})$. 
+
+The latent variables connect the inference model and the generative model. From the encoder side, the inference model $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})$ approximates the true posterior distribution $p_{\boldsymbol{\varphi}}(\boldsymbol{z}|\boldsymbol{x})$ of the generative model, which is intractable. From the decoder side, the distribution of latent variables is a prior distribution, which is usually chosen to be a standard normal distribution, i.e., $p(\boldsymbol{z})=\mathcal{N}(\boldsymbol{z}|\boldsymbol{0}, \boldsymbol{I})$. The whole architecture is illustrated in Figure~\ref{fig:vae}.
 \begin{figure}[htp!]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/VAE.pdf} 
-    \caption[Variational Autoencoder Architecture]{The architecture of a Variational Autoencoder. The encoder (with neural network parameters $\boldsymbol{\phi}$) maps the input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$, and the decoder (with neural network parameters $\boldsymbol{\theta}$) reconstructs the input data from the latent variables.}
+    \caption[Variational Autoencoder Architecture]{The architecture of a Variational Autoencoder. The encoder (with neural network parameters $\boldsymbol{\phi}$) maps the input data $\boldsymbol{x}$ to latent variables $\boldsymbol{z}$, and the decoder (with neural network parameters $\boldsymbol{\varphi}$) reconstructs the input data from the latent variables.}
     \label{fig:vae}
 \end{figure}
 
-Same reparameterization trick as in the \ac{BNN} is used to enable gradient-based optimization. The latent variables $\boldsymbol{z}$ becomes:
+The same reparameterization trick as in the \ac{BNN} is used to enable gradient-based optimization. The latent variables $\boldsymbol{z}$ become:
 \begin{equation}
     \boldsymbol{z} = \boldsymbol{\mu}_{\boldsymbol{\phi}}(\boldsymbol{x}) + \boldsymbol{\sigma}_{\boldsymbol{\phi}}(\boldsymbol{x}) \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon}\sim\mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),
 \end{equation}
 where $\boldsymbol{\mu}_{\boldsymbol{\phi}}(\boldsymbol{x})$ and $\boldsymbol{\sigma}_{\boldsymbol{\phi}}(\boldsymbol{x})$ are also neural networks. 
-Different from the mini-batch optimization in the \ac{BNN}, we use one single encoder neural network to perform posterior inference over all samples in the dataset. This strategy of sharing variational parameters across datapoints is called \textit{amortized variational inference} \citep{gershman2014amortized, margossian2024amortized}, which improves the optimization efficiency. 
 
-The objective of the inference model is to minimize the \ac{KL}-divergence between the inferred and true posterior $D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p_{\boldsymbol{\theta}}(\boldsymbol{z}|\boldsymbol{x}))$. Recall the \ac{ELBO} in \ac{VI} (\ref{eq:elbo1}, \ref{eq:elbo2}), the \ac{ELBO} of a \ac{VAE} is given by:
+Unlike the mini-batch optimization in the \ac{BNN}, we use a single encoder neural network to perform posterior inference over all samples in the dataset. This strategy of sharing variational parameters across data points is called \textit{amortized variational inference} \citep{gershman2014amortized, margossian2024amortized}, which improves the optimization efficiency. 
+
+The objective of the inference model is to minimize the \ac{KL}-divergence between the inferred and true posterior $D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p_{\boldsymbol{\varphi}}(\boldsymbol{z}|\boldsymbol{x}))$. Recall the \ac{ELBO} in \ac{VI} (\ref{eq:elbo1}, \ref{eq:elbo2}), the \ac{ELBO} of a \ac{VAE} is given by:
 \begin{equation}
-    \log p_{\boldsymbol{\theta}}(\boldsymbol{x}) \geq \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})}\log p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z}) - D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p_{\boldsymbol{\theta}}(\boldsymbol{z})).
+    \log p_{\boldsymbol{\varphi}}(\boldsymbol{x}) \geq \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})}\log p_{\boldsymbol{\varphi}}(\boldsymbol{x}|\boldsymbol{z}) - D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p_{\boldsymbol{\varphi}}(\boldsymbol{z})).
 \end{equation}
-Maximizing the \ac{ELBO} optimizes concurrently both the inference model and the generative model. The marginal likelihood $p_{\boldsymbol{\theta}}(\boldsymbol{\theta})$ is maximized, meaning the generated data maximally resembles the input data. Meanwhile, the distance between the approximated and the true posterior is minimized. 
-Changing the prior distribution in the \ac{ELBO}, $p_{\boldsymbol{\theta}}(\boldsymbol{z}):=p(\boldsymbol{z})$, the overall loss function of a \ac{VAE} is given by:
+Maximizing the \ac{ELBO} concurrently optimizes both the inference model and the generative model. The marginal likelihood $p_{\boldsymbol{\varphi}}(\boldsymbol{x})$ is maximized, meaning the generated data maximally resembles the input data. Meanwhile, the distance between the approximated and the true posterior is minimized. 
+Changing the prior distribution in the \ac{ELBO}, $p_{\boldsymbol{\varphi}}(\boldsymbol{z}):=p(\boldsymbol{z})$, the overall loss function of a \ac{VAE} is given by:
 \begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\phi}) = \underbrace{-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})}\log p_{\boldsymbol{\theta}}(\boldsymbol{x}|\boldsymbol{z})}_{\text{reconstruction}} + \underbrace{D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p(\boldsymbol{z}))}_{\text{regularization}}.
+    \mathcal{L}(\boldsymbol{\varphi}, \boldsymbol{\phi}) = \underbrace{-\mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})}\log p_{\boldsymbol{\varphi}}(\boldsymbol{x}|\boldsymbol{z})}_{\text{reconstruction}} + \underbrace{D_{\text{KL}}(q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x})||p(\boldsymbol{z}))}_{\text{regularization}}.
 \end{equation}
 The first term is a reconstruction loss, which encourages the decoder to reconstruct the input data from the latent variables. The second term is a regularization term, which forces the approximate posterior to be close to the prior distribution.
 
-\acp{VAE} have proven to be versatile and powerful in diverse applications, such as representation learning, anomaly detection, and generative modeling \citep{Mienye2025}. To enable \acp{VAE} to perform Bayesian inference of variables $\boldsymbol{x}$ given observations $\boldsymbol{y}$, the observations should be inserted into both the encoder and decoder as conditions. This method is named as conditional \ac{VAE} \citep{sohn2015cvae}. The inference model becomes $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{y})$, the prior distribution becomes $p(\boldsymbol{z}|\boldsymbol{y})$, and the generative model becomes $p_{\boldsymbol{\theta}}(\boldsymbol{z}, \boldsymbol{x}|\boldsymbol{y})$. The conditions are often constrained to be low-dimensional variables, such as class labels \citep{sohn2015cvae} or physical parameters \citep{martínezpalomera2020pelsvae}. For high-dimensional and complex conditions, a powerful decoder is required to capture the relationship between the variables and observations. In this case, the latent variables may be ignored and thus the variability losses. This issue is known as posterior collapse \citep{bowman2016cvae, mccarthy2020cvae}, which limits the application of \acp{VAE} in conditional inference tasks.
+\acp{VAE} have proven to be versatile and powerful in diverse applications, such as representation learning, anomaly detection, and generative modeling \citep{Mienye2025}. To enable \acp{VAE} to perform Bayesian inference of variables $\boldsymbol{x}$ given observations $\boldsymbol{y}$, the observations should be inserted into both the encoder and decoder as conditions. This method is known as conditional \ac{VAE} \citep{sohn2015cvae}. The inference model becomes $q_{\boldsymbol{\phi}}(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{y})$, the prior distribution becomes $p(\boldsymbol{z}|\boldsymbol{y})$, and the generative model becomes $p_{\boldsymbol{\varphi}}(\boldsymbol{z}, \boldsymbol{x}|\boldsymbol{y})$. The conditions are often constrained to be low-dimensional variables, such as class labels \citep{sohn2015cvae} or physical parameters \citep{martínezpalomera2020pelsvae}. For high-dimensional and complex conditions, a powerful decoder is required to capture the relationship between the variables and observations. In this case, the latent variables may be ignored and thus the variability is lost. This issue is known as posterior collapse \citep{bowman2016cvae, mccarthy2020cvae}, which limits the application of \acp{VAE} in conditional inference tasks.
 
-\section{Normalizing Flow}
-Another deep probabilistic model is the \acfp{NF}. \citeauthor{rezende2016} \citeyearpar{rezende2016} proposed \ac{NF} as a method for approximating posterior distributions by transforming a simple base distribution through a sequence of invertible mappings into complex target distributions. 
+\section{Normalizing Flow and Other Deep Generative Models}
+Another \ac{DGM} is the \acfp{NF}. \citeauthor{rezende2016} \citeyearpar{rezende2016} proposed \ac{NF} as a method for approximating posterior distributions by transforming a simple base distribution through a sequence of invertible mappings into complex target distributions. 
+
+A variety of architectures have been developed to realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the key publications and implementations in this domain. As outlined in the comprehensive review by \citet{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal (continuous) flows. Throughout this work, we focus primarily on coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, establishing deep theoretical connections with other probabilistic frameworks such as diffusion models. Thus, we also introduce continuous \acp{NF} following the description of coupling flows.
+
+Continuous \acp{NF} provide a bridge to other generative models, including flow matching and diffusion models, which are also introduced. In particular, flow matching is often referred to as a member of normalizing flows due to its close relationship with the normalizing flow framework. Moreover, stochastic interpolants generalize and unify the concepts of flow matching and diffusion models, providing a comprehensive framework for understanding these generative processes.
 
 \subsection{Basics}
-We simplify a \ac{NF} as an invertible and differentiable function $f:\mathbb{R}^D\rightarrow\mathbb{R}^D$ (as known as a diffeomorphism) that maps a random variable $\boldsymbol{z}$ in latent space to another random variable $\boldsymbol{x}$ in data space:
+We simplify a \ac{NF} as an invertible and differentiable function $f:\mathbb{R}^D\rightarrow\mathbb{R}^D$ (known as a diffeomorphism) that maps a random variable $\boldsymbol{z}$ in latent space to another random variable $\boldsymbol{x}$ in data space:
 \begin{subequations}
     \begin{align}
         \label{eq:xfz}
@@ -419,7 +426,7 @@ We simplify a \ac{NF} as an invertible and differentiable function $f:\mathbb{R}
 \end{subequations}
 The variable $\boldsymbol{x}$ follows an underlying distribution of data $p_X(\boldsymbol{x})$. The variable $\boldsymbol{z}$ is drawn from a simple base distribution $p_Z(\boldsymbol{z})$, such as a standard normal distribution. Understanding the transformation between the two density functions is essential for comprehending \acp{NF}. 
 \subsubsection{Change of Variables}
-According to the change of variables formula \citep{changeofvariables}, when both the latent and data space are smooth and the function $f$ is differentiable, we have:
+According to the change of variables formula \citep{changeofvariables}, when both the latent and data spaces are smooth and the function $f$ is differentiable, we have:
 \begin{equation}
     \label{eq:changeofvariables}
     \int \varPsi(\boldsymbol{x}) d\boldsymbol{x} = \int \varPsi(\boldsymbol{x}=f(\boldsymbol{z}))\left|\det\boldsymbol{J}_f(\boldsymbol{z})\right| d\boldsymbol{z},
@@ -428,7 +435,7 @@ where $\varPsi$ is a continuous function, $\boldsymbol{J}_f(\boldsymbol{z})$ is 
 \begin{equation}
     \left|\det\boldsymbol{J}_f(\boldsymbol{z})\right|=\left|\det\frac{\partial f(\boldsymbol{z})}{\partial\boldsymbol{z}}\right|.
 \end{equation}
-This Equation~(\ref{eq:changeofvariables}) implies probability conservation under transformation. 
+Equation~(\ref{eq:changeofvariables}) implies probability conservation under transformation. 
 
 \begin{figure}[htbp]
     \centering
@@ -439,7 +446,7 @@ This Equation~(\ref{eq:changeofvariables}) implies probability conservation unde
 
 In probability theory, the \textit{Radon–Nikodym derivative} \citep{DU04} provides a rigorous method to express how one probability measure changes with respect to another. In the context of continuous random variables, the \ac{PDF} is essentially the Radon–Nikodym derivative of the probability measure (probability mass of an event) with respect to the Lebesgue measure (standard geometric volume). This relationship generalizes the familiar link between a \ac{CDF} and a \ac{PDF}. To provide a physical intuition for this abstract concept, we introduce the "Clay Volume" Analogy illustrated in Figure~\ref{fig:rnd}. The Radon–Nikodym derivative corresponds to the local thickness of the clay at any given point.
 
-For or a random variable $\boldsymbol{x}$ and a measurement set $A$, the probability measure is defined by the integral of the density:
+For a random variable $\boldsymbol{x}$ and a measurement set $A$, the probability measure is defined by the integral of the density:
 \begin{equation}
     P(X\in A)=\int_A p_X(\boldsymbol{x})d\boldsymbol{x}.
 \end{equation}
@@ -460,7 +467,7 @@ Here, the Jacobian determinant of the inverse mapping $f^{-1}$ is related to the
 \begin{equation}
     \left|\det\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|=\left|\det\frac{\partial f^{-1}(\boldsymbol{x})}{\partial\boldsymbol{x}}\right|=\left|\det\frac{\partial\boldsymbol{z}}{\partial f(\boldsymbol{z})}\right|=\frac{1}{\left|\det\boldsymbol{J}_f(\boldsymbol{z})\right|}.
 \end{equation}
-By substituting (\ref{eq:intz}) into (\ref{eq:intx}), we obtain an equality of two integrals defined over the same domain $A$::
+By substituting (\ref{eq:intz}) into (\ref{eq:intx}), we obtain an equality of two integrals defined over the same domain $A$:
 \begin{equation}
     \label{eq:integral_equality}
     \int_A p_X(\boldsymbol{x})d\boldsymbol{x}=\int_A p_Z(f^{-1}(\boldsymbol{x}))\left|\det\boldsymbol{J}_{f^{-1}}(\boldsymbol{x})\right|d\boldsymbol{x}.
@@ -475,7 +482,7 @@ Substituting $\boldsymbol{x}$ and $\boldsymbol{z}$ with equations \ref{eq:xfz} a
     \label{eq:znfx}
     p_Z(\boldsymbol{z}) = p_X(f(\boldsymbol{z}))\left|\det\boldsymbol{J}_f(\boldsymbol{z})\right|.
 \end{equation}
-These two equations are declared as the \textbf{change of variables} applied for \acp{NF}. They are often formulated in logarithm function:
+These two equations define the \textbf{change of variables} formula applied to \acp{NF}. They are often formulated in logarithmic form:
 \begin{mdframed}[nobreak=true,innertopmargin=-4pt,innerbottommargin=4pt,innerleftmargin=6pt,innerrightmargin=6pt]
     \begin{align}
         \label{eq:nfchangeofvariables}
@@ -514,31 +521,61 @@ Equation~(\ref{eq:jacobian_chain_rule}) applies the multivariate \textbf{chain r
 This allows the total change in density to be computed by simply summing the log-determinants of each layer, enabling the construction of deep, expressive flows while maintaining linear computational complexity.
 
 \subsubsection{Using Normalizing Flows for Modeling and Inference}
-The invertibility also provides us easy way to fit \ac{NF} models by minimizing the divergence between the true data distribution and the estimated one. For a \ac{NF} with parameters $\boldsymbol{\theta}$, the KL-divergence is given by:
+Invertibility also provides an easy way to fit \ac{NF} models by minimizing the divergence between the true data distribution and the estimated one. For a \ac{NF} with parameters $\boldsymbol{\varphi}$, the KL-divergence is given by:
 \begin{equation}
-    D_{\text{KL}}(p_X(\boldsymbol{x}) \| p_{\boldsymbol{\theta}}(\boldsymbol{x})) = 
-    \mathbb{E}_{\boldsymbol{x} \sim p_X}[\log p_X(\boldsymbol{x})] - \mathbb{E}_{\boldsymbol{x} \sim p_X}[\log p_{\boldsymbol{\theta}}(\boldsymbol{x})].
+    D_{\text{KL}}(p_X(\boldsymbol{x}) || p_{\boldsymbol{\varphi}}(\boldsymbol{x})) = 
+    \mathbb{E}_{\boldsymbol{x} \sim p_X}[\log p_X(\boldsymbol{x})] - \mathbb{E}_{\boldsymbol{x} \sim p_X}[\log p_{\boldsymbol{\varphi}}(\boldsymbol{x})].
 \end{equation}
-In this objective function, the first term (the entropy of the data) depends only on the true distribution and is constant with respect to $\boldsymbol{\theta}$. Consequently, minimizing the KL divergence is equivalent to maximizing the second term, which corresponds to the expected log-likelihood. Given a dataset $\mathcal{D} = \{\boldsymbol{x}^{(m)}\}_{m=1}^M$ drawn from $p_X(\boldsymbol{x})$, we can approximate this expectation using the sample mean (Monte Carlo simulation):
+In this objective function, the first term (the entropy of the data) depends only on the true distribution and is constant with respect to $\boldsymbol{\varphi}$. Consequently, minimizing the KL divergence is equivalent to maximizing the second term, which corresponds to the expected log-likelihood. Given a dataset $\mathcal{D} = \{\boldsymbol{x}^{(m)}\}_{m=1}^M$ drawn from $p_X(\boldsymbol{x})$, we can approximate this expectation using the sample mean (Monte Carlo simulation):
 \begin{equation}
-    \mathbb{E}_{\boldsymbol{x} \sim p_X}[\log p_{\boldsymbol{\theta}}(\boldsymbol{x})] \approx \frac{1}{M}\sum_{m=1}^{M}\log p_{\boldsymbol{\theta}}(\boldsymbol{x}^{(m)}).
+    \mathbb{E}_{\boldsymbol{x} \sim p_X}[\log p_{\boldsymbol{\varphi}}(\boldsymbol{x})] \approx \frac{1}{M}\sum_{m=1}^{M}\log p_{\boldsymbol{\varphi}}(\boldsymbol{x}^{(m)}).
 \end{equation}
 
 This confirms that minimizing the KL divergence is equivalent to \ac{MLE}. By substituting the change of variables formula (Equation~(\ref{eq:xnfz})) into the log-likelihood, we obtain the final loss function to be minimized:
 
 \begin{align}
 \label{eq:kl_nf}
-\mathcal{L}(\boldsymbol{\theta}) &= - \frac{1}{M}\sum_{m=1}^{M} \left[ \log p_{Z}(f_{\boldsymbol{\theta}}^{-1}(\boldsymbol{x}^{(m)})) + \log \left| \det \boldsymbol{J}_{f_{\boldsymbol{\theta}}^{-1}}(\boldsymbol{x}^{(m)}) \right| \right], \nonumber\\
-&= \frac{1}{M}\sum_{m=1}^{M} \left[ \underbrace{\frac{1}{2}\left\|f_{\boldsymbol{\theta}}^{-1}(\boldsymbol{x}^{(m)})\right\|^2_2}_{\text{inference}} \underbrace{- \log \left| \det \boldsymbol{J}_{f_{\boldsymbol{\theta}}^{-1}}(\boldsymbol{x}^{(m)}) \right|}_{\text{preparation for generation}} \right], \quad \text{when } p_Z(\boldsymbol{z})=\mathcal{N}(\boldsymbol{0},\boldsymbol{I}).
+\mathcal{L}(\boldsymbol{\varphi}) &= - \frac{1}{M}\sum_{m=1}^{M} \left[ \log p_{Z}(f_{\boldsymbol{\varphi}}^{-1}(\boldsymbol{x}^{(m)})) + \log \left| \det \boldsymbol{J}_{f_{\boldsymbol{\varphi}}^{-1}}(\boldsymbol{x}^{(m)}) \right| \right], \nonumber\\
+&= \frac{1}{M}\sum_{m=1}^{M} \left[ \underbrace{\frac{1}{2}\left\|f_{\boldsymbol{\varphi}}^{-1}(\boldsymbol{x}^{(m)})\right\|^2_2}_{\text{inference}} \underbrace{- \log \left| \det \boldsymbol{J}_{f_{\boldsymbol{\varphi}}^{-1}}(\boldsymbol{x}^{(m)}) \right|}_{\text{preparation for generation}} \right], \quad \text{when } p_Z(\boldsymbol{z})=\mathcal{N}(\boldsymbol{0},\boldsymbol{I}).
 \end{align}
-The parameters $\boldsymbol{\theta}$ are then optimized using stochastic gradient-based methods.
+The parameters $\boldsymbol{\varphi}$ are then optimized using stochastic gradient-based methods.
 
-The loss function of \acp{NF} suggests that during training, the learned latent representation is compared with the true latent distribution, while the term of Jacobian determinant ensures this comparison to be transformed back to the data space. Recalling the \ac{VAE}, the first term can be seen as inference, while the second term can be implicitly regarded as "preparation for generation". After the \ac{NF} model is well-trained, new data can be generated by sampling the latent variables and transforming them via the forward mapping. It is important to emphasize that, \acp{NF} are conventionally trained in one direction at a time. Simultaneously bidirectional training would necessitate computing gradients through the composition of a function and its inverse, leading to problematic gradient flows of the form $\partial \mathcal{L}/\partial \boldsymbol{\theta}_f(\boldsymbol{\theta_{f^{-1}}})$, which creates numerical instabilities and computational inefficiencies.
+The loss function of \acp{NF} suggests that during training, the learned latent representation is compared with the true latent distribution, while the Jacobian determinant term ensures that this comparison is transformed back to the data space. Recalling the \ac{VAE}, the first term can be seen as inference, while the second term can be implicitly regarded as "preparation for generation". After the \ac{NF} model is trained, new data can be generated by sampling the latent variables and transforming them via the forward mapping. It is important to emphasize that \acp{NF} are conventionally trained in one direction at a time. Simultaneously bidirectional training would necessitate computing gradients through the composition of a function and its inverse, leading to problematic gradient flows of the form $\partial \mathcal{L}/\partial \boldsymbol{\varphi}_f(\boldsymbol{\varphi{f^{-1}}})$, which creates numerical instabilities and computational inefficiencies.
 
-A variety of architectures have been developed to realize \acp{NF}. A GitHub website \citep{awesomenfs} summarizes the key publications and implementations in this domain. As outlined in the comprehensive review by \citet{kobyzev2021nfsreview}, successful architectures include coupling flows, autoregressive flows, residual flows, and infinitesimal (continuous) flows. Throughout this work, we focus primarily on coupling flows, which offer structural invertibility and have been extensively utilized in \acp{NF}. Infinitesimal flows characterize distributional transformations through continuous dynamics, establishing deep theoretical connections with other probabilistic frameworks such as diffusion models. Thus, we also introduce continuous \acp{NF} following the description of coupling flows.
+\subsubsection{Conditional Normalizing Flows}
+\label{sec:condnf}
+The ability to estimate complex densities is desirable in Bayesian inference of the posterior distribution of variables given observations $p(\boldsymbol{x}|\boldsymbol{y})$. Similar to \ac{VAE}, amortized Bayesian inference \citep{radev2021diss} is applied in \ac{NF} to achieve a general posterior estimation across all data points. Obtaining the posterior distribution is represented by a conditional density transformation via a \ac{CNF}. The change of variables for a \ac{CNF} extends the standard one (\ref{eq:xnfz}) by the condition $\boldsymbol{y}$:
+\begin{equation}
+    p_{X|Y}(\boldsymbol{x}|\boldsymbol{y}) = p_{Z|Y}(f^{-1}(\boldsymbol{x},\boldsymbol{y})|\boldsymbol{y})\left|\det\frac{\partial f^{-1}(\boldsymbol{x},\boldsymbol{y})}{\partial\boldsymbol{x}}\right|,
+\end{equation}
+where the mapping $f:Z\rightarrow X\times Y$ is bijective between $X$ and $Z$, and $\boldsymbol{z}=f^{-1}(\boldsymbol{x},\boldsymbol{y})$.
+
+Designing such a \ac{CNF} requires addressing two key considerations in advance: (1) how to manage the conditioned latent variables, and (2) how to incorporate conditions into the flow architecture while preserving invertibility. \citeauthor{winkler2023cnf} \citeyearpar{winkler2023cnf} proposed to build the conditional prior $p_{Z|Y}(\boldsymbol{z}|\boldsymbol{y})$ as a diagonal Gaussian:
+\begin{equation}
+    p_{Z|Y}(\boldsymbol{z}|\boldsymbol{y}) = \mathcal{N}({\boldsymbol{z}|\mu(\boldsymbol{y}), \text{diag}[\sigma^2(\boldsymbol{y})]}).
+\end{equation}
+For simpler conditioning scenarios, incorporating the conditional prior could accelerate the transformation by leveraging information from the conditions. For complex conditions, summarizing the conditions through mean and variance may result in information loss, thereby degrading posterior estimation quality. This limitation likely explains why most existing work on \acp{CNF} adopts a standard Gaussian as the latent base distribution, bypassing the need for an explicitly conditioned prior and relying instead on the normalizing flows to capture conditional information.
+
+In terms of architectures of \acp{CNF}, a direct adaptation based on the \ac{INN} is the \ac{cINN} \citep{ardizzone2019cinn}. It takes the condition as an augmented input to the neural networks. In cases of higher-dimensional conditions, such as images, \citeauthor{govinda2021cinn} \citeyearpar{govinda2021cinn} apply a staged \ac{cINN} coupled with a staged condition network, wherein the conditions are progressively processed, and each intermediate representation is fed into its corresponding \ac{cINN} block.
+
+In scenarios involving complexly structured conditions and low-dimensional target variables, for example, parameter identification from observed time series signals, BayesFlow \citep{radev2020bayesflow} offers a general framework by extracting informative representations through a summary network and incorporating them, alongside the inputs as augmented inputs to the \ac{cINN}. This framework is particularly well-suited for parameter identification from time series observations, where the summary network is typically chosen as a time series modeling architecture, such as \ac{RNN}. The architecture is illustrated in Figure~\ref{fig:bayesflow}. Both the summary network and \ac{cINN} are optimized together by minimizing the \ac{KL}-divergence between the true posterior density and the estimated one (similar to Equation~(\ref{eq:kl_nf})):
+\begin{multline}
+\label{eq:kl_cnf}
+D_{\text{KL}}(p_{X|Y}(\boldsymbol{x}|\boldsymbol{y})||p_{\boldsymbol{\varphi},\boldsymbol{\phi}}(\boldsymbol{x}|\boldsymbol{y}))\approx const. - \\
+\frac{1}{M}\sum_{m=1}^{M}[\log p_{Z}(f_{\boldsymbol{\varphi}}^{-1}(\boldsymbol{x}^{(m)}, h_{\boldsymbol{\phi}}(\boldsymbol{x}^{(m)})))+\log\left|\det\boldsymbol{J}_{f_{\boldsymbol{\varphi}}^{-1}}(\boldsymbol{x}^{(m)},h_{\boldsymbol{\phi}}(\boldsymbol{x}^{(m)}))\right|],
+\end{multline}
+where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\varphi}$ and $h$ is the summary network parameterized by $\boldsymbol{\phi}$.
+
+\begin{figure}[htp!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/BayesFlow.pdf}
+    \caption[BayesFlow Architecture]{ The architecture of BayesFlow. The blue arrows indicate the forward direction for training BayesFlow, while the yellow arrows indicate the reverse direction for inference. The summary network extracts informative representations from the observations, which are then fed into the \ac{cINN} alongside the target variables.}
+    \label{fig:bayesflow}
+\end{figure}
+The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} and thus improve inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, system dynamics modeling, and state estimation.
 
 \subsection{Coupling Flows}\label{sec:background:coupling}
-The basic idea of the coupling flow is partitioning the input variables into two subsets, one subset of which is processed by neural networks and also concurrently directly passed through to the output variables, while the other subset is combined with the processed subset through affine functions.
+The basic idea of a coupling flow is to partition the input variables into two subsets: one subset is processed by neural networks while being passed directly to the output variables, and the other subset is combined with the processed subset through affine functions.
 \begin{figure}[htp!]
     \centering
     \begin{subfigure}{0.45\textwidth}
@@ -549,12 +586,12 @@ The basic idea of the coupling flow is partitioning the input variables into two
     \hspace{0.02\textwidth}
     \begin{subfigure}{0.5\textwidth}
         \includegraphics{figures/RealNVP.pdf}
-        \caption[RealNVP Architecture]{ The architecture of a \ac{RealNVP} layer. $s$ and $t$ are neural networks. The symbol $\times$ stands for element-wise product by the exponential function over input.}
+        \caption[RealNVP Architecture]{ The architecture of a \ac{RealNVP} layer. $s$ and $t$ are neural networks. The symbol $\times$ denotes element-wise multiplication by the exponential function over the input.}
         \label{fig:realnvp}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \includegraphics{figures/INN.pdf}
-        \caption[INN Architecture]{ The architecture of an \ac{INN} layer. $s_1$, $s_2$, $t_1$, and $t_2$ are neural networks. The symbol $\times$ stands for element-wise product by the exponential function over input.}
+        \caption[INN Architecture]{ The architecture of an \ac{INN} layer. $s_1$, $s_2$, $t_1$, and $t_2$ are neural networks. The symbol $\times$ denotes element-wise multiplication by the exponential function over the input.}
         \label{fig:inn}
     \end{subfigure}
     \caption[Coupling Flow Architecture]{ The architectures of coupling flows. The input of the layer is $\boldsymbol{u}$ and the output is $\boldsymbol{v}$.}
@@ -580,28 +617,28 @@ From the above functions, the Jacobian matrix is:
 \partial \boldsymbol{v}_2/\partial \boldsymbol{u}_1 & \partial g(\boldsymbol{u}_2;s(\boldsymbol{u}_1))/\partial \boldsymbol{u}_2\\
 \end{bmatrix}
 \end{equation}
-Because of the triangle matrix, the determinant is $ \partial g(\boldsymbol{u}_2;s(\boldsymbol{u}_1))/\partial \boldsymbol{u}_2$.
+Because of the triangular matrix, the determinant is $ \partial g(\boldsymbol{u}_2;s(\boldsymbol{u}_1))/\partial \boldsymbol{u}_2$.
 By composing multiple coupling layers, we can construct increasingly complex hierarchical transformations. Since each coupling layer preserves a subset of its input unchanged, it is essential to alternate the roles of the partitioned subsets across successive layers. This ensures that all input dimensions are eventually processed. Analyzing the Jacobian reveals that a minimum of three coupling layers is required for full inter-dimensional interaction. In practice, we typically employ four layers to achieve sufficient expressiveness.
 
 An improved architecture is \ac{RealNVP}, where one part of the variables is processed by two neural networks. The forward transformation is:
 \begin{equation}
     \boldsymbol{v}_1 = \boldsymbol{u}_1, \quad \boldsymbol{v}_2 = \boldsymbol{u}_2\odot\exp(s(\boldsymbol{u}_1))+t(\boldsymbol{u}_1).
 \end{equation}
-And the inverse transformation is:
+The inverse transformation is:
 \begin{equation}
     \boldsymbol{u}_1 = \boldsymbol{v}_1, \quad \boldsymbol{u}_2 = (\boldsymbol{v}_2-t(\boldsymbol{u}_1))\odot\exp(-s(\boldsymbol{u}_1)).
 \end{equation}
 The Jacobian determinant $\det|\partial\boldsymbol{v}/\boldsymbol{u}|$ is then $\exp(\Sigma_i s(\boldsymbol{u}_{1,i}))$.
-The architecture is shown in Figure~\ref{fig:realnvp}. To interact all variables in one block, \ac{INN} \citep{ardizzone2019inn} extends \ac{RealNVP} by another same coupling block, as shown in Figure~\ref{fig:inn}. 
+The architecture is shown in Figure~\ref{fig:realnvp}. To interact all variables in one block, \ac{INN} \citep{ardizzone2019inn} extends \ac{RealNVP} by another coupling block of the same form, as shown in Figure~\ref{fig:inn}. 
 
-A further enhancement of \ac{RealNVP} is Glow \citep{kingma2018glow}, which inserts an invertible normalization layer and an invertible permutation layer before affine transformation. \ac{HINT} \citep{kruse2021hint} partitions the inputs of coupling blocks recursively to construct a dense, triangular Jacobian. Another method to increase interaction among variables is \ac{MAF} \citep{papamakarios2018maf}, which can be considered as a generalized \ac{RealNVP} that leverages autoregressive transformations between variables. Apart from affine coupling, \ac{NSF} \citep{durkan2019neuralsplineflows} applies monotonic rational-quadratic spline functions, enabling more expressive and smooth transformations, however, at the cost of higher complexity. 
+A further enhancement of \ac{RealNVP} is Glow \citep{kingma2018glow}, which inserts an invertible normalization layer and an invertible permutation layer before affine transformation. \ac{HINT} \citep{kruse2021hint} partitions the inputs of coupling blocks recursively to construct a dense, triangular Jacobian. Another method to increase interaction among variables is \ac{MAF} \citep{papamakarios2018maf}, which can be considered as a generalized \ac{RealNVP} that leverages autoregressive transformations between variables. Apart from affine coupling, \ac{NSF} \citep{durkan2019neuralsplineflows} applies monotonic rational-quadratic spline functions, enabling more expressive and smooth transformations, but at the cost of higher complexity. 
 
 \subsection{Residual Flows}\label{sec:resflow}
-Such flows build step-wise invertible transformations between distributions, enabling tractable Jacobian calculation and density estimation. A notable drawback lies in the strict architectural constraint on coupling blocks. To release this limitation, residual flows \citep{behrmann2019ires, chen2020resflow} introduce invertible mapping through specified residual blocks. A residual block \citep{he2015residual} takes the form $f(x)=x+F(x)$, where $F$ is a neural network. When $F$ is constrained to be Lipschitz continuous and the Lipschitz constant is smaller than 1, the function $f(x)$ is invertible. 
+Such flows build stepwise invertible transformations between distributions, enabling tractable Jacobian calculation and density estimation. A notable drawback lies in the strict architectural constraint on coupling blocks. To relax this limitation, residual flows \citep{behrmann2019ires, chen2020resflow} introduce invertible mapping through specified residual blocks. A residual block \citep{he2015residual} takes the form $f(x)=x+F(x)$, where $F$ is a neural network. When $F$ is constrained to be Lipschitz continuous and the Lipschitz constant is smaller than 1, the function $f(x)$ is invertible. 
 
-The definition of a Lipschitz continuous function is referred to the work by \citeauthor{khalil2002nonlinear} \citeyearpar{khalil2002nonlinear}.
+The definition of a Lipschitz continuous function follows the work of \citeauthor{khalil2002nonlinear} \citeyearpar{khalil2002nonlinear}.
 \begin{definition}
-(\textbf{Lipschitz continuous function}) A function $f:\mathbb{R}^d\rightarrow\mathbb{R}^K$, defined on some domain $dom(f)\subseteq \mathbb{R}^d$, is called $C$-Lipschitz continuous w.r.t. some $\alpha$-norm, if $\forall \boldsymbol{x}, \boldsymbol{y} \in dom(f):\left\| f(\boldsymbol{x})-f(\boldsymbol{y})\right\|_{\alpha}\leq C\left\| \boldsymbol{x}-\boldsymbol{y}\right\|_{\alpha}$. $C$ is called Lipschitz constant of $f$ and $0<C<\inf$.
+(\textbf{Lipschitz continuous function}) A function $f:\mathbb{R}^d\rightarrow\mathbb{R}^K$, defined on some domain $dom(f)\subseteq \mathbb{R}^d$, is called $C$-Lipschitz continuous w.r.t. some $\alpha$-norm, if $\forall \boldsymbol{x}, \boldsymbol{y} \in dom(f):\left\| f(\boldsymbol{x})-f(\boldsymbol{y})\right\|_{\alpha}\leq C\left\| \boldsymbol{x}-\boldsymbol{y}\right\|_{\alpha}$. $C$ is called the Lipschitz constant of $f$ and $0<C<\inf$.
 \end{definition}
 
 \begin{lemma}\label{lem:invertibility}(\textbf{Invertibility of Residual Units}) 
@@ -621,7 +658,7 @@ The definition of a Lipschitz continuous function is referred to the work by \ci
     Since $C < 1$, $G$ is a contraction mapping. According to the \textit{Banach Fixed-Point Theorem} \citep{Shukla2016}, $G$ has a unique fixed point $\mathbf{x}^*$ for every $\mathbf{y}$, implying $f$ is bijective.
 \end{proof}
 
-The residual block can be seen as an Euler discretization of an \ac{ODE} \citep{lu2020finitelayer, ruthotto2018deep, haber2017stable}, which is the foundation of continuous \acp{NF}. A simplified comparison between the residual flow, continuous flow and flow matching is illustrated in Figure~\ref{fig:illust_flow}.
+The residual block can be seen as an Euler discretization of an \ac{ODE} \citep{lu2020finitelayer, ruthotto2018deep, haber2017stable}, which is the foundation of continuous \acp{NF}. A simplified comparison between the residual flow, continuous flow, and flow matching is illustrated in Figure~\ref{fig:illust_flow}.
 
 \begin{figure}[htp!]
     \centering
@@ -645,7 +682,7 @@ The residual block can be seen as an Euler discretization of an \ac{ODE} \citep{
         \caption{Flow Matching}
         \label{fig:flowmatch}
     \end{subfigure}
-    \caption[Illustration of three Flows]{Illustration of the Residual Flow, Continuous Flow, and Flow Matching. The bottom point cloud is the base distribution in the latent space, while the top one in the star shape is the target distribution in the data space. The residual flow and continuous flow are trained from the data to latent space and sampled from latent to the data space, while the Flow Matching is trained by learning the vector field and sampled from the latent to the data space. The other direction is not applied by Flow Matching.}
+    \caption[Illustration of three Flows]{Illustration of the Residual Flow, Continuous Flow, and Flow Matching. The bottom point cloud is the base distribution in the latent space, while the top one in the star shape is the target distribution in the data space. The residual flow and continuous flow are trained from the data to latent space and sampled from latent to the data space, while Flow Matching is trained by learning the vector field and sampled from the latent to the data space. The reverse direction is not used by Flow Matching.}
     \label{fig:illust_flow}
 \end{figure}
 
@@ -655,125 +692,155 @@ When the transformation from latent space to data space is modeled by a continuo
 \subsubsection{Neural Ordinary Differential Equations}
 For a dynamical system with states $\boldsymbol{h}$, an \ac{ODE} is:
 \begin{equation}
-    \frac{d\boldsymbol{h}(t)}{dt} = f(\boldsymbol{h}(t), t; \boldsymbol{\theta}),
+    \frac{d\boldsymbol{h}(t)}{dt} = f(\boldsymbol{h}(t), t; \boldsymbol{\varphi}),
 \end{equation}
-where $\boldsymbol{\theta}$ denotes system parameters. When the \ac{ODE} is modeled by neural networks, it becomes a Neural \ac{ODE} \citep{chen2019node}. Given the initial state $\boldsymbol{h}(0)$, the final state $\boldsymbol{h}(T)$ is the solution of the initial value problem at the time step $T$ using a numerical solver. The loss function of training a Neural \ac{ODE} is:
+where $\boldsymbol{\varphi}$ denotes system parameters. When the \ac{ODE} is modeled by neural networks, it becomes a Neural \ac{ODE} \citep{chen2019node}. Given the initial state $\boldsymbol{h}(0)$, the final state $\boldsymbol{h}(T)$ is the solution of the initial value problem at the time step $T$ using a numerical solver. The loss function of training a Neural \ac{ODE} is:
 \begin{equation}
-    \mathcal{L}(\boldsymbol{h}(T))=\mathcal{L}(\int_0^Tf(\boldsymbol{h}(t), t; \boldsymbol{\theta})dt),
+    \mathcal{L}(\boldsymbol{h}(T))=\mathcal{L}(\int_0^Tf(\boldsymbol{h}(t), t; \boldsymbol{\varphi})dt),
 \end{equation}
-where $f$ is a neural network parameterized by $\boldsymbol{\theta}$.
+where $f$ is a neural network parameterized by $\boldsymbol{\varphi}$.
 A straightforward application of Neural \acp{ODE} is learning continuous time-series models. Moreover, when the time step is interpreted as architectural depth, the distributional transformation in \acp{NF} can also be constructed with a Neural \ac{ODE}. The Neural \ac{ODE} replaces an infinite number of transformations by change of variables with a single neural network, which represents the derivative of transformation at each depth. This enables more efficient and expressive probabilistic modeling and inference.
 
-We define a continuous \ac{NF} as a Neural \ac{ODE}:
+Taking $\mathcal{U}_\tau$ as the state variable at flow time $\tau$, we define a continuous \ac{NF} as a Neural \ac{ODE}:
 \begin{equation}
     \label{eq:cnfode}
-    \frac{d\boldsymbol{z}(t)}{dt}=f(\boldsymbol{z}(t),t;\boldsymbol{\theta}),
+    \frac{d\mathcal{U}_\tau}{d\tau}=f(\mathcal{U}_\tau,\tau;\boldsymbol{\varphi}),
 \end{equation}
-where $\boldsymbol{z}(t)$ follows the density $p(\boldsymbol{z}(t))$ at an instantaneous step $t\in[t_0, t_1]$. The \ac{NF} $f$ is parameterized by $\boldsymbol{\theta}$.
-To apply the Neural \ac{ODE} as continuous \acp{NF}, the function $f$ should be uniformly Lipschitz continuous in the states $\boldsymbol{z}(t)$ and continuous in depth $t$. 
+where $\mathcal{U}_\tau$ follows the density $p(\mathcal{U}_\tau)$ at an instantaneous step $\tau\in[\tau_0, \tau_1]$. The \ac{NF} $f$ is parameterized by $\boldsymbol{\varphi}$.
+To apply the Neural \ac{ODE} as continuous \acp{NF}, the function $f$ should be uniformly Lipschitz continuous in the states $\mathcal{U}_\tau$ and continuous in depth $\tau$. 
 
-The Lipschitz condition guarantees that there exists a unique solution curve for every initial condition $\boldsymbol{z}(0)$. This is known as the Picard–Lindel\"of theorem \citep{coddington1955theory}. Assuming the dynamics function $f$ is smooth, then it is a \textit{diffeomorphism}, which means we also get the same $\boldsymbol{z}(0)$ by running the \ac{ODE} backwards. Recalling the residual flows, where the Lipschitz constant must be smaller than 1 (see \ref{sec:resflow}), invertibility is ensured naturally by a smooth and Lipschitz continuous \ac{ODE}. In practice, neural networks with smooth continuous activation functions satisfy this requirement.
+The Lipschitz condition guarantees that there exists a unique solution curve for every initial condition $\mathcal{U}_0:=\boldsymbol{z}$. This is known as the Picard–Lindel\"of theorem \citep{coddington1955theory}. If the dynamics function $f$ is smooth, then it is a \textit{diffeomorphism}, which means we can recover the same $\mathcal{U}_0$ by running the \ac{ODE} backward. Recalling the residual flows, where the Lipschitz constant must be smaller than 1 (see \ref{sec:resflow}), invertibility is ensured naturally by a smooth and Lipschitz continuous \ac{ODE}. In practice, neural networks with smooth continuous activation functions satisfy this requirement.
 
 A central technical challenge in training continuous-depth networks lies in executing reverse-mode differentiation (backpropagation) through the ODE solver. Two primary strategies exist for this task. The first is the backward auto-differentiation (\textit{discretize-then-optimize}), which differentiates directly through the operations of the numerical solver. While this method is numerically stable and standard for stiff differential equations, it typically incurs a high memory cost as it requires storing intermediate states of the solver operations.
 
-To mitigate this memory bottleneck, the continuous adjoint method \citep{Bittner1963, adjoint1963, chen2019node} is often employed (\textit{optimize-then-discretize}). This method computes gradients by solving an augmented ODE backwards in time. Specifically, instead of storing intermediate states, the solver reconstructs the state trajectory backwards from the final time point, effectively re-solving the dynamics in reverse alongside the adjoint state. This approach reduces memory cost to $\mathcal{O}(1)$ with respect to integration time. However, because the system dynamics must be evaluated a second time during this reconstruction, it results in increased computational runtime. This trade-off makes the adjoint method ideal for high-dimensional variables and long sequences, but computationally slower for models with expensive architecture dynamics.
+To mitigate this memory bottleneck, the continuous adjoint method \citep{Bittner1963, adjoint1963, chen2019node} is often employed (\textit{optimize-then-discretize}). This method computes gradients by solving an augmented ODE backward in time. Specifically, instead of storing intermediate states, the solver reconstructs the state trajectory backward from the final time point, effectively re-solving the dynamics in reverse alongside the adjoint state. This approach reduces memory cost to $\mathcal{O}(1)$ with respect to integration time. However, because the system dynamics must be evaluated a second time during this reconstruction, it results in increased computational runtime. This trade-off makes the adjoint method ideal for high-dimensional variables and long sequences, but computationally slower for models with expensive architecture dynamics.
 
 \subsubsection{Continuous Normalizing Flows}
-Besides for the ODE \ref{eq:cnfode}, the log-density of states changes according to another \ac{ODE}, the \textbf{instantaneous change-of-variables formula} \citep{chen2019node}:
+In addition to the ODE \ref{eq:cnfode}, the log-density of states changes according to another \ac{ODE}, the \textbf{instantaneous change-of-variables formula} \citep{chen2019node}:
 \begin{equation}
     \label{eq:instchangeofvar}
-    \frac{\partial\log p(\boldsymbol{z}(t))}{\partial t}=-\text{Tr}(\frac{\partial f(\boldsymbol{z}(t),t;\boldsymbol{\theta})}{\partial\boldsymbol{z}(t)}).
+    \frac{\partial\log p(\mathcal{U}_\tau)}{\partial \tau}=-\text{Tr}(\frac{\partial f(\mathcal{U}_\tau,\tau;\boldsymbol{\varphi})}{\partial\mathcal{U}_\tau}).
 \end{equation}
 Directly calculating the trace is computationally expensive. For $B$ backward passes to get the diagonal, $\mathcal{O}(B)$ computational cost and $\mathcal{O}(B^2)$ memory cost are required. Alternatively, the trace can be approximated through Skilling-Hutchinson trace estimator \citep{Skilling1989,Hutchinson01011990,adams2018adams}:
 \begin{equation}
-    \text{Tr}(\frac{\partial f}{\partial \boldsymbol{z}(t)})=\mathbb{E}_{p(\boldsymbol{\epsilon})}[\boldsymbol{\epsilon}^T\frac{\partial f}{\partial \boldsymbol{z}(t)}\boldsymbol{\epsilon}],
+    \text{Tr}(\frac{\partial f}{\partial \mathcal{U}_\tau})=\mathbb{E}_{p(\boldsymbol{\epsilon})}[\boldsymbol{\epsilon}^T\frac{\partial f}{\partial \mathcal{U}_\tau}\boldsymbol{\epsilon}],
 \end{equation}
-where $\boldsymbol{\epsilon}$ is a noise vector sampled from a standard normal distribution and kept unchanged to maintain determinism of the \ac{ODE}. The part of vector-Jacobian product $\boldsymbol{\epsilon}^T\partial f/\partial \boldsymbol{z}(t)$ is computed with automatic differentiation. In this way, the computational cost is reduced to $\mathcal{O}(1)$ with respect to the number of backward pass (one backward pass for each trace approximation). And there is no need to store the full Jacobian matrix. The trade-off is that the estimator introduces variance, as it yields a stochastic approximation of the trace rather than the exact value; in practice, one or a few samples per step are typically sufficient to keep training stable.
+where $\boldsymbol{\epsilon}$ is a noise vector sampled from a standard normal distribution and kept unchanged to maintain determinism of the \ac{ODE}. The part of vector-Jacobian product $\boldsymbol{\epsilon}^T\partial f/\partial \mathcal{U}_\tau$ is computed with automatic differentiation. In this way, the computational cost is reduced to $\mathcal{O}(1)$ with respect to the number of backward passes (one backward pass for each trace approximation). There is no need to store the full Jacobian matrix. The trade-off is that the estimator introduces variance, as it yields a stochastic approximation of the trace rather than the exact value; in practice, one or a few samples per step are typically sufficient to keep training stable.
 
-For a continuous \ac{NF} between the data distribution $p(\boldsymbol{z}(t_1))=p_X(\boldsymbol{x})$ and the latent distribution $p(\boldsymbol{z}(t_0))=\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$, we define the augmented states as $[\boldsymbol{z}(t), \log p_X(\boldsymbol{x})-\log p(\boldsymbol{z}(t))]$. In the original formulation \citep{grathwohl2018ffjord}, the second term is $\log p(\boldsymbol{z}(t))$ itself; in that case, one must still calculate $\log p_X(\boldsymbol{x})-\log p(\boldsymbol{z}(t))$. The difference formulation used here yields a consistent form for both initial values and solutions. The total dynamics becomes:
+For a continuous \ac{NF} between the data distribution $p(\mathcal{U}_{1})=p_X(\boldsymbol{x})$ and the latent distribution $p(\mathcal{U}_0)=\mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$, we define the augmented states as $[\mathcal{U}_\tau, \log p_X(\boldsymbol{x})-\log p(\mathcal{U}_\tau)]$. In the original formulation \citep{grathwohl2018ffjord}, the second term is $\log p(\mathcal{U}_\tau)$ itself; in that case, one must still calculate $\log p_X(\boldsymbol{x})-\log p(\mathcal{U}_\tau)$. The difference-based formulation used here yields a consistent form for both initial values and solutions. The total dynamics becomes:
 \begin{equation}
-    \frac{d}{dt}\begin{bmatrix}
-        \boldsymbol{z}(t) \\
-        \log p_X(\boldsymbol{x}) - \log p(\boldsymbol{z}(t))
+    \frac{d}{d\tau}\begin{bmatrix}
+        \mathcal{U}_\tau \\
+        \log p_X(\boldsymbol{x}) - \log p(\mathcal{U}_\tau)
         \end{bmatrix}
         =
         \begin{bmatrix}
-        f(\boldsymbol{z}(t), t; \boldsymbol{\theta}) \\
-        \text{Tr}\left(\frac{\partial f}{\partial \boldsymbol{z}(t)}\right)
+        f(\mathcal{U}_\tau, \tau; \boldsymbol{\varphi}) \\
+        \text{Tr}\left(\frac{\partial f}{\partial \mathcal{U}_\tau}\right)
         \end{bmatrix}
 \end{equation}
 Then, building the continuous \ac{NF} is equivalent to solving the initial value problem \citep{grathwohl2018ffjord}:
 \begin{equation}
 \underbrace{\begin{bmatrix}
-\boldsymbol{z}(t_0) \\
-\log p_X(\boldsymbol{x}) - \log p(\boldsymbol{z}(t_0))
+\mathcal{U}_0 \\
+\log p_X(\boldsymbol{x}) - \log p(\mathcal{U}_0)
 \end{bmatrix}}_{\text{solutions}}
 =
 \underbrace{\begin{bmatrix}
-    \boldsymbol{z}(t_1)=\boldsymbol{x} \\
-\log p_X(\boldsymbol{x}) - \log p(\boldsymbol{z}(t_1))=0
+    \mathcal{U}_1=\boldsymbol{x} \\
+\log p_X(\boldsymbol{x}) - \log p(\mathcal{U}_1)=0
 \end{bmatrix}}_{\text{initial values}}
-+\int_{t_1}^{t_0}\underbrace{\begin{bmatrix}
-f(\boldsymbol{z}(t), t; \boldsymbol{\theta}) \\
-\text{Tr}\left(\frac{\partial f}{\partial \boldsymbol{z}(t)}\right)
-\end{bmatrix}}_{\text{dynamics}}dt.
++\int_{1}^{0}\underbrace{\begin{bmatrix}
+f(\mathcal{U}_\tau, \tau; \boldsymbol{\varphi}) \\
+\text{Tr}\left(\frac{\partial f}{\partial \mathcal{U}_\tau}\right)
+\end{bmatrix}}_{\text{dynamics}}d\tau.
 \end{equation}
-It is worth noting that the dynamics is backwards integrated from $t_1$ to $t_0$, meaning from the data side to the latent side. The time span can also be optimized to further improve the computational efficiency \citep{du2022toflow}.
+It is worth noting that the dynamics are integrated backward from $\tau=1$ to $\tau=0$, meaning from the data side to the latent side. The flow time span can also be optimized to further improve the computational efficiency \citep{du2022toflow}.
 
 Continuous \acp{NF} release the architectural constraints of discrete flows, allowing more flexible and expressive density estimation through the integration of Neural \acp{ODE}. This improved expressiveness, however, comes at a cost: computing the Jacobian trace and the associated ODE integrals is significantly more expensive than in stacked coupling flows.
 
 \subsection{Flow Matching}
 \label{sec:flowmatching}
-\ac{FM} \citep{lipman2023flowmatching} is a novel approach for training continuous \acp{NF}. The key idea is to learn a vector field that directly matches the step-by-step transport (infinitesimal transport) between the data distribution and the latent distribution. This is achieved by minimizing the expected squared error between the learned vector field and the true velocity field defined by the optimal transport plan. The optimal transport plan is normally a linear interpolation between the latent samples $\boldsymbol{z}(t_0)$ and the data samples $\boldsymbol{x}=\boldsymbol{z}(t_1)$:
+\ac{FM} \citep{lipman2023flowmatching} is a recent approach for training continuous \acp{NF}. The key idea is to learn a vector field that directly matches the stepwise transport (infinitesimal transport) between the data distribution and the latent distribution. This is achieved by minimizing the expected squared error between the learned vector field and the true velocity field defined by the optimal transport plan. The optimal transport plan is typically a linear interpolation between the latent samples $\mathcal{U}_0$ and the data samples $\boldsymbol{x}=\mathcal{U}_1$:
 \begin{equation}
-    \boldsymbol{v}^{OT}(\boldsymbol{z}(t), t) = \frac{\boldsymbol{z}(t_1)-\boldsymbol{z}(t_0)}{t_1 - t_0}.
+    \boldsymbol{v}^{OT}(\mathcal{U}_\tau, \tau) = \frac{\mathcal{U}_1-\mathcal{U}_0}{1 - 0}.
 \end{equation}
-Along this path, the marginal distribution at time $t$ is denoted $p_t(\boldsymbol{z})$. For the linear interpolation with $\boldsymbol{z}(t) = (1-t)\,\boldsymbol{z}_0 + t\,\boldsymbol{x}$, where $\boldsymbol{z}_0 \sim N(\boldsymbol{0}, \boldsymbol{I})$ (latent distribution) and $\boldsymbol{x} \sim p_X(\boldsymbol{x})$ (data distribution), $p_t(\boldsymbol{z})$ is the joint distribution through the interpolation:
+Along this path, the marginal distribution at flow time $\tau$ is denoted $p_t(\mathcal{U}_\tau)$. For the linear interpolation with $\mathcal{U}_\tau = (1-\tau)\,\mathcal{U}_0 + \tau\,\boldsymbol{x}$, where $\mathcal{U}_0 \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ (latent distribution) and $\boldsymbol{x} \sim p_X(\boldsymbol{x})$ (data distribution), $p_t(\mathcal{U}_\tau)$ is the joint distribution through the interpolation:
 \begin{equation}
-    p_t(\boldsymbol{z}) = (1-t)\,p(\boldsymbol{z}_0) + t\,p_X(\boldsymbol{x}).
+    p_t(\mathcal{U}_\tau) = (1-\tau)\,p(\mathcal{U}_0) + \tau\,p_X(\boldsymbol{x}).
 \end{equation}
-Thus, sampling $\boldsymbol{z} \sim p_t(\boldsymbol{z})$ amounts to drawing a random point on the transport path at time $t$. The training objective is formulated as:
+Thus, sampling $\mathcal{U}_\tau \sim p_t(\mathcal{U}_\tau)$ amounts to drawing a random point on the transport path at flow time $\tau$.  The training objective is formulated as:
 \begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}) = \mathbb{E}_{t\sim\mathcal{U}(0,1),\boldsymbol{z}\sim p_t(\boldsymbol{z})}\left[\left\|v_{\boldsymbol{\theta}}(\boldsymbol{z}(t), t) - \boldsymbol{v}^{OT}(\boldsymbol{z}(t), t)\right\|^2\right],
+    \mathcal{L}(\boldsymbol{\varphi}) = \mathbb{E}_{\tau\sim\mathbb{U}(0,1),\;\mathcal{U}_\tau\sim p_t(\mathcal{U}_\tau)}\left[\left\|v_{\boldsymbol{\varphi}}(\mathcal{U}_\tau, \tau) - \boldsymbol{v}^{OT}(\mathcal{U}_\tau, \tau)\right\|^2\right],
 \end{equation}
-where $v_{\boldsymbol{\theta}}(\boldsymbol{z}(t), t)$ is the learned vector field parameterized by $\boldsymbol{\theta}$, and $\boldsymbol{v}^{OT}(\boldsymbol{z}(t), t)$ is the true velocity field derived from the optimal transport plan. Simply put, the \ac{FM} loss regresses the vector field $\boldsymbol{v}^{OT}$ with a neural network $v_{\boldsymbol{\theta}}$. Upon reaching zero loss, the learned continuous \ac{NF} model will generate data samples by integrating the learned vector field from $t_0$ to $t_1$. 
+where $v_{\boldsymbol{\varphi}}(\mathcal{U}_\tau, \tau)$ is the learned vector field parameterized by $\boldsymbol{\varphi}$, and $\boldsymbol{v}^{OT}(\mathcal{U}_\tau, \tau)$ is the true velocity field derived from the optimal transport plan. Simply put, the \ac{FM} loss regresses the vector field $\boldsymbol{v}^{OT}$ with a neural network $v_{\boldsymbol{\varphi}}$. Upon reaching zero loss, the learned continuous \ac{NF} model will generate data samples by integrating the learned vector field from $\tau=0$ to $\tau=1$. 
 
-The main difference from other \acp{NF} is that \ac{FM} is not trained by maximizing likelihood via change of variables between distributions. Instead, it focuses on learning the vector field that defines the continuous transformation between distributions. This approach avoids the computational overhead of solving \acp{ODE} during training, making it more efficient and scalable to high-dimensional data. On the other hand, \ac{FM} cannot be directly applied to exact density estimation because it does not transform the data distribution into a known latent distribution. The sample density it generates is only an approximation of the data density. For exact estimation, \ac{FM} must invert the generative process via a backward \ac{ODE}, which makes it computationally heavier than the single-pass inference of other \acp{NF}.
+The main difference from other \acp{NF} is that \ac{FM} is not trained by maximizing likelihood via change of variables between distributions. Instead, it focuses on learning the vector field that defines the continuous transformation between distributions. This approach avoids the computational overhead of solving \acp{ODE} during training, making it more efficient and scalable to high-dimensional data. However, \ac{FM} cannot be directly applied to exact density estimation because it does not transform the data distribution into a known latent distribution. The sample density it generates is only an approximation of the data density. For exact estimation, \ac{FM} must invert the generative process via a backward \ac{ODE}, which makes it computationally heavier than the single-pass inference of other \acp{NF}.
 
-\subsection{Conditional Normalizing Flows}
-\label{sec:condnf}
-Such capabilities of estimating complex densities are desirable in Bayesian inference of the posterior distribution of variables given observations $p(\boldsymbol{x}|\boldsymbol{y})$. Similar to \ac{VAE}, amortized Bayesian inference \citep{radev2021diss} is applied in \ac{NF} to achieve a general posterior estimation across all data points. Obtaining the posterior distribution is represented by a conditional density transformation via a \ac{CNF}. The change of variables for a \ac{CNF} extends the standard one (\ref{eq:xnfz}) by the condition $\boldsymbol{y}$:
+\subsection{Diffusion Models}
+\label{sec:diffusionmodels}
+Diffusion models are another major family of \acp{DGM} and have gained increasing attention because of their extraordinary expressive power \citep{sohl2015deep,ho2020ddpm,song2021scorebased}. They are closely related to \ac{FM}: both define an artificial flow time along the transformation from a latent noise distribution to the data distribution, and both learn a neural field that drives samples from the source side to the data side. The main difference is that \ac{FM} learns a deterministic transport velocity $v_{\boldsymbol{\varphi}}(\mathcal{U}_\tau,\tau)$, whereas diffusion models usually learn the reverse of a stochastic noising process, either through a noise-prediction network or through a score field.
+
+In most diffusion-model literature, diffusion time is written in the opposite direction from the flow-matching convention in Section~\ref{sec:flowmatching}: the forward noising process starts from data at $t=0$ and ends at noise at $t=T$, while generation runs backward. To keep the notation consistent in this work, we use a scaled flow time $\tau\in[0,1]$ with $\tau=0$ denoting noise and $\tau=1$ denoting data.
+
+\ac{DDPM} \citep{ho2020ddpm} defines a discrete Markov chain that gradually adds Gaussian noise to data. The noise-adding process is
 \begin{equation}
-    p_{X|Y}(\boldsymbol{x}|\boldsymbol{y}) = p_{Z|Y}(f^{-1}(\boldsymbol{x},\boldsymbol{y})|\boldsymbol{y})\left|\det\frac{\partial f^{-1}(\boldsymbol{x},\boldsymbol{y})}{\partial\boldsymbol{x}}\right|,
+    q(\mathcal{U}_{\tau}|\mathcal{U}_{\tau-1}) = \mathcal{N}\left( \mathcal{U}_{\tau}; \sqrt{1-\beta_\tau} \mathcal{U}_{\tau-1}, \beta_\tau\boldsymbol{I} \right),
 \end{equation}
-where the mapping $f:Z\rightarrow X\times Y$ is bijective between $X$ and $Z$, and $\boldsymbol{z}=f^{-1}(\boldsymbol{x},\boldsymbol{y})$.
-
-Designing such a \ac{CNF} requires addressing two key considerations in advance: (1) how to manage the conditioned latent variables, and (2) how to incorporate conditions into the flow architecture while preserving invertibility. \citeauthor{winkler2023cnf} \citeyearpar{winkler2023cnf} proposed to build the conditional prior $p_{Z|Y}(\boldsymbol{z}|\boldsymbol{y})$ as a diagonal Gaussian:
+where $\beta_\tau$ is a prescribed noise schedule. After many steps, the distribution approaches a standard Gaussian. The generative model $\epsilon_{\boldsymbol{\varphi}}$ learns the reverse transition $p_{\boldsymbol{\varphi}}(\mathcal{U}_{\tau-1}|\mathcal{U}_{\tau})$ by predicting the added noise. The loss function is simply the mean-squared error between the predicted noise and the true noise:
 \begin{equation}
-    p_{Z|Y}(\boldsymbol{z}|\boldsymbol{y}) = \mathcal{N}({\boldsymbol{z}|\mu(\boldsymbol{y}), \text{diag}[\sigma^2(\boldsymbol{y})]}).
+    \mathcal{L}(\boldsymbol{\varphi}) = \mathbb{E}_{\tau\sim\mathbb{U}(0,1),\;\mathcal{U}_\tau\sim p_\tau(\mathcal{U}_\tau)}\left[\left\|\epsilon_{\boldsymbol{\varphi}}(\mathcal{U}_{\tau},\tau)-\epsilon\right\|^2\right].
 \end{equation}
-For simpler conditioning scenarios, incorporating the conditional prior could accelerate the transformation through leveraging the information from conditions. For complex conditions, summarizing the conditions through mean and variance may result in information loss, thereby degrading posterior estimation quality. This limitation likely explains why most existing work on \acp{CNF} adopts a standard Gaussian as the latent base distribution, bypassing the need for an explicitly conditioned prior and relying instead on the normalizing flows to capture conditional information.
+After training, the generative process is performed by sampling from the learned reverse transition $p_{\boldsymbol{\varphi}}(\mathcal{U}_{\tau-1}|\mathcal{U}_{\tau})$ from the noise side to the data side, where the noise is gradually removed.
 
-In terms of architectures of \acp{CNF}, a direct adaptation based on the \ac{INN} is the \ac{cINN} \citep{ardizzone2019cinn}. It takes the condition as augmented input to the neural networks. In cases of higher-dimensional conditions, such as images, \citeauthor{govinda2021cinn} \citeyearpar{govinda2021cinn} apply a staged \ac{cINN} coupled with a staged condition network, wherein the conditions are progressively processed, and each intermediate representation is fed into its corresponding \ac{cINN} block.
+\acp{SBM} extend this idea to continuous time and describe generation through \acp{SDE} \citep{song2021scorebased}. An \ac{SDE} that perturbs data into noise is defined as
+\begin{equation}
+    d\mathcal{U}_\tau
+    =
+    f(\mathcal{U}_\tau,\tau)d\tau
+    +
+    g(\tau)d\mathit{W}_\tau,
+    \quad
+    \mathcal{U}_0\sim p_X(\boldsymbol{x}),
+\end{equation}
+where $\tau$ denotes diffusion time in the standard noising direction, $f(\mathcal{U}_\tau,\tau)$ is the drift term, $g(\tau)$ is the diffusion coefficient, and $\mathit{W}_\tau$ is a standard Wiener process. In the reverse-time process, the drift term of the \ac{SDE} has to be compensated by a score function $\nabla_{\mathcal{U}_\tau}\log p_\tau(\mathcal{U}_\tau)$, which is learned by a neural network $s_{\boldsymbol{\varphi}}$. The generative process is then defined by the reverse-time \ac{SDE}:
+\begin{equation}
+    d\mathcal{U}_\tau = \left[f(\mathcal{U}_\tau,\tau)-g(\tau)^2\nabla_{\mathcal{U}_\tau}\log p_\tau(\mathcal{U}_\tau)\right]d\tau + g(\tau)d\mathit{W}_\tau.
+\end{equation}                                                                                                       
 
-In scenarios involving conditions in complex structures and target variables in low dimension, for example, parameter identification from observed time series signals, BayesFlow \citep{radev2020bayesflow} offers a general framework by extracting informative representations through a summary network and incorporating them, alongside the inputs, as augmented inputs to the \ac{cINN}. This framework is particularly well-suited for parameter identification from time series observations, where the summary network is typically chosen as a time series modeling architecture, such as \ac{RNN}. The architecture is illustrated in Figure~\ref{fig:bayesflow}. Both the summary network and \ac{cINN} are optimized together by minimizing the \ac{KL}-divergence between the true posterior density and the estimated one (similar to Equation~(\ref{eq:kl_nf})):
-\begin{multline}
-\label{eq:kl_cnf}
-D_{\text{KL}}(p_{X|Y}(\boldsymbol{x}|\boldsymbol{y})||p_{\boldsymbol{\theta},\boldsymbol{\phi}}(\boldsymbol{x}|\boldsymbol{y}))\approx const. - \\
-\frac{1}{M}\sum_{m=1}^{M}[\log p_{Z}(f_{\boldsymbol{\theta}}^{-1}(\boldsymbol{x}^{(m)}, h_{\boldsymbol{\phi}}(\boldsymbol{x}^{(m)})))+\log\left|\det\boldsymbol{J}_{f_{\boldsymbol{\theta}}^{-1}}(\boldsymbol{x}^{(m)},h_{\boldsymbol{\phi}}(\boldsymbol{x}^{(m)}))\right|],
-\end{multline}
-where $f$ is the \ac{cINN} parameterized by $\boldsymbol{\theta}$ and $h$ is the summary network parameterized by $\boldsymbol{\phi}$.
+Similar to the \ac{DDPM}, the training objective is to minimize the expected squared error between the learned score function and the true score function. Once the generative model $s_{\boldsymbol{\varphi}}$ is trained, generation is performed by integrating from the noise side toward the data side. 
 
-\begin{figure}[htp!]
+In contrast to \ac{FM}, diffusion models learn a stochastic generative process, which can represent more flexible intermediate distributions and often provides stronger mode coverage for complex data. However, this comes at a much higher computational cost, as both the iterative noise-removal procedure in \ac{DDPM} and the numerical \ac{SDE}-solving procedure in \acp{SBM} require many sequential function evaluations during sampling.
+
+\subsection{Stochastic Interpolant}\label{sec:background:si}
+The previously introduced \ac{FM} and diffusion models have a similar design. They both predefine a transformation from latent to data space, and then learn the transformation function. After training, new data samples are generated by integrating the learned function. This design is unified by the definition: Stochastic Interpolant \citep{albergo2025si}.
+
+Let $\mathcal{U}_\tau$ denote a trajectory-valued random variable defined over the artificial flow time interval $\tau\in[0,1]$. This variable is distinct from the physical state process $x_t$ used in dynamical systems, where $t$ denotes system time.
+\begin{definition}
+Given two probability density functions $p_0, p_1:\mathbb{R}^d\rightarrow\mathbb{R}_{\geq 0}$, a stochastic interpolant between $p_0$ and $p_1$ is a stochastic process $\mathcal{U}_\tau$ of the form
+\begin{equation}
+    \mathcal{U}_\tau = \mathcal{I}(\tau,\mathcal{U}_0,\mathcal{U}_1) + \gamma(\tau) \epsilon,\quad \epsilon \sim \mathcal{N}(0, \boldsymbol{I}_d),\quad \tau \in [0,1].
+\end{equation}
+Here,
+\begin{enumerate}
+    \item $\mathcal{I}(\tau,\mathcal{U}_0,\mathcal{U}_1)$ is a deterministic interpolation function satisfying $\mathcal{I}(0,\mathcal{U}_0,\mathcal{U}_1)=\mathcal{U}_0$ and $\mathcal{I}(1,\mathcal{U}_0,\mathcal{U}_1)=\mathcal{U}_1$, together with smoothness and regularity conditions that yield well-defined flow dynamics;
+    \item $\gamma(\tau)$ is a noise schedule satisfying $\gamma(0)=\gamma(1)=0$ and $\gamma(\tau)>0$ for $\tau\in(0,1)$, so that stochastic perturbations vanish at the endpoints and remain well behaved in the interior;
+    \item $\mathcal{U}_\tau$ has marginal distribution $p_\tau$ for each $\tau$, with $p_\tau$ continuously deforming from $p_0$ to $p_1$ as $\tau$ increases from $0$ to $1$;
+    \item $\mathcal{U}_0$ and $\mathcal{U}_1$ are random variables with distributions $p_0$ and $p_1$, respectively, and are independent of the noise $\epsilon$.
+\end{enumerate}
+\end{definition}
+
+\begin{figure}[ht]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/BayesFlow.pdf}
-    \caption[BayesFlow Architecture]{ The architecture of BayesFlow. The blue arrows indicate the forward direction for training BayesFlow, while the yellow arrows indicate the reverse direction for inference. The summary network extracts informative representations from the observations, which are then fed into the \ac{cINN} alongside the target variables.}
-    \label{fig:bayesflow}
+    \includegraphics[width=\textwidth]{figures/Stochastic_interpolant.pdf}
+    \caption[Schematic of the stochastic interpolant framework]{Schematic of the stochastic interpolant framework. The interpolation function $I$ and noise schedule $\gamma$ determine the stochastic process and its associated dynamics, thereby unifying several generative modeling frameworks.}
+    \label{fig:stochastic_interpolant}
 \end{figure}
-The joint optimization approach encourages the summary network to deliver maximally useful information to the \ac{cINN} thus improve the inference capability. In this work, we adopt the BayesFlow framework as a flexible and scalable solution for amortized Bayesian inference, adapting its summary network to accommodate diverse time series observations. This framework forms the foundation of our proposed methods for parameter identification, system dynamics modeling, and state estimation.
+
+This framework connects flow matching, continuous normalizing flows, diffusion models, score-based generative models, Schr\"{o}dinger bridges, and entropy-regularized optimal transport. Figure~\ref{fig:stochastic_interpolant} provides a schematic overview. Its flexibility makes it possible to design stochastic processes tailored to a specific application or data distribution.
 
 \section{From Bayesian Inference to Control}
-This section bridges the Bayesian inference methodologies discussed above to their practical applications in control engineering. We first review how Bayesian approaches are employed for system identification and state estimation. Next, we introduce \acf{MPC}, which is a widely used model-based control technique for optimal decision-making based on the system identification results. Finally, we discuss \acf{RL} as a data-driven control paradigm, highlighting its ability to learn control policies directly from interactions with the environment without requiring explicit system models. Together, these approaches illustrate the synergy between Bayesian inference and modern control strategies, enabling robust and adaptive solutions for complex dynamical systems.
+This section bridges the Bayesian inference methodologies discussed above to their practical applications in control engineering. We first review how Bayesian approaches are employed for system identification and state estimation. Next, we introduce \acf{MPC}, which is a widely used model-based control method for optimal decision-making based on the system identification results. Finally, we discuss \acf{RL} as a data-driven control paradigm, highlighting its ability to learn control policies directly from interactions with the environment without requiring explicit system models. Together, these approaches illustrate the synergy between Bayesian inference and modern control strategies, enabling robust and adaptive solutions for complex dynamical systems.
 
 \subsection{Bayesian System Identification}
 An essential goal of system modeling and identification is to provide a rigorous framework for predicting and controlling the future evolution of system outputs. For any control strategy, the decision-maker needs to predict how the system will behave under any possible control input. Consider a discrete-time dynamical system with inputs $\boldsymbol{u}_{n}$ and outputs $\boldsymbol{y}_{n}$ at time $t_n$. The system evolution is governed by a (possibly stochastic) transition function:
@@ -785,17 +852,17 @@ where $g$ is the system function, $\boldsymbol{\theta}$ are unknown parameters, 
     p(\mathcal{D}_{1:N}|\mathcal{D}_{0})=\prod _{n=1}^{N}p(\boldsymbol{y}_{n}|\boldsymbol{u}_{n}, \mathcal{D}_{0:(n-1)})p(\boldsymbol{u}_{n}|\mathcal{D}_{0:(n-1)}),
 \end{equation}
 where $\mathcal{D}_{n}=\{\boldsymbol{u}_{n}, \boldsymbol{y}_{n}\}$ denotes the input-output pair at time step $t_n$.
-The conditional probability density $p(\boldsymbol{u}_{n}|\mathcal{D}_{0:(n-1)})$ describes the process of determining the input $\boldsymbol{u}_{n}$ on the basis of the known past history. The left part $p(\boldsymbol{y}_{n}|\boldsymbol{u}_{n}, \mathcal{D}_{0:(n-1)})$ represents the dependence of the output on the corresponding input and the known past history, which can be interpreted as the system function $g$. Identifying this system consists of two steps: model selection and parameter identification. The process of finding the most plausible model from a group of candidates is model selection. Then, system identification focuses on inferring parameters of a chosen system model.
+The conditional probability density $p(\boldsymbol{u}_{n}|\mathcal{D}_{0:(n-1)})$ describes the process of determining the input $\boldsymbol{u}_{n}$ on the basis of the known past history. The left-hand term $p(\boldsymbol{y}_{n}|\boldsymbol{u}_{n}, \mathcal{D}_{0:(n-1)})$ represents the dependence of the output on the corresponding input and the known past history, which can be interpreted as the system function $g$. Identifying this system consists of two steps: model selection and parameter identification. The process of finding the most plausible model from a group of candidates is model selection. System identification then focuses on inferring the parameters of the chosen system model.
 \subsubsection{Bayesian Model Selection}
 Among different model structures $\{\mathcal{M}_i\}$, $i=1,\ldots,|\mathcal{M}|$, the probability density of the model $\mathcal{M}_i$ given the data $\mathcal{D}$ measures whether the model is suitable for the dataset, which can also be written using Bayes’ theorem:
 \begin{equation}
     p(\mathcal{M}_i|\mathcal{D})=\frac{p(\mathcal{D}|\mathcal{M}_i)p(\mathcal{M}_i)}{p(\mathcal{D})}.
 \end{equation}
-Model selection is also as known as model comparison. The relative probability density of two different models given same data $\mathcal{D}$ is:
+Model selection is also known as model comparison. The relative probability density of two different models given the same data $\mathcal{D}$ is:
 \begin{equation}
     \frac{p(\mathcal{M}_i|\mathcal{D})}{p(\mathcal{M}_j|\mathcal{D})} = \frac{p(\mathcal{D}|\mathcal{M}_i)p(\mathcal{M}_i)}{p(\mathcal{D}|\mathcal{M}_j)p(\mathcal{M}_j)}.
 \end{equation}
-Since a model has multiple undetermined parameters, the distribution $p(\mathcal{D}|\mathcal{M})$ is obtained by integral of all variants of parameters. The integral is usually untractable. Instead, \ac{DIC} \citep{Spiegelhalter2002,Spiegelhalter2014, li2025DIC} is applied as the model selection criterion. A deviance is defined as follows:
+Since a model has multiple undetermined parameters, the distribution $p(\mathcal{D}|\mathcal{M})$ is obtained by integrating over all parameter variants. This integral is usually intractable. Instead, \ac{DIC} \citep{Spiegelhalter2002,Spiegelhalter2014, li2025DIC} is applied as the model selection criterion. A deviance is defined as follows:
 \begin{equation}
     \text{dev}(\boldsymbol{\theta}) = -2\log p(\mathcal{D}|\boldsymbol{\theta}, \mathcal{M}),
 \end{equation}
@@ -815,7 +882,7 @@ The posterior $p(\boldsymbol{\theta}|\mathcal{D},\mathcal{M})$ is obtained by \a
 \ac{DIC} balances the goodness of fit (how well the model explains the data) and the model complexity (the number of parameters in the model). A lower \ac{DIC} value indicates better model fit for the given dataset. 
 
 \subsubsection{Bayesian Parameter Identification}
-For parameter identification, we restrict to a simpler model class where the output depends only on the current input and parameters, without explicit history dependence (i.e., a memoryless or static mapping). We define the chosen system model with unknown parameters $\boldsymbol{\theta}$:
+For parameter identification, we restrict the discussion to a simpler model class where the output depends only on the current input and parameters, without explicit history dependence (i.e., a memoryless or static mapping). We define the chosen system model with unknown parameters $\boldsymbol{\theta}$:
 \begin{equation}
     \boldsymbol{y}_n=f(\boldsymbol{u}_n, \boldsymbol{\theta})+\boldsymbol{\epsilon}_n.
 \end{equation}
@@ -827,11 +894,11 @@ Applying Bayes' rule (\ref{eq:bayes}), it becomes:
 \begin{equation}
     \boldsymbol{\theta}^*_{MAP}=\arg \max_{\boldsymbol{\theta}}\left[\prod_{n=1}^{N} p(\boldsymbol{y}_n|\boldsymbol{u}_n,\boldsymbol{\theta})\right]p(\boldsymbol{\theta}),
 \end{equation}
-where $\mathcal{D}=\{(\boldsymbol{u}_n,\boldsymbol{y}_n)\}_{n=1}^{N}$ and $p(\mathcal{D})$ is dropped off since it is a constant with respect to $\boldsymbol{\theta}$. The noise $\boldsymbol{\epsilon}_n$ is commonly assumed to be Gaussian. Thus, the distribution $p(\boldsymbol{y}_n|\boldsymbol{u}_n,\boldsymbol{\theta})$ has a closed form, which makes this term equivalent to a weighted mean squared error. The term of the prior density $p(\boldsymbol{\theta})$ performs as $L2$ regularization.
-On top of the estimate of parameters, the confidence interval of parameters can also be obtained from the posterior distribution.
+where $\mathcal{D}=\{(\boldsymbol{u}_n,\boldsymbol{y}_n)\}_{n=1}^{N}$ and $p(\mathcal{D})$ is dropped because it is constant with respect to $\boldsymbol{\theta}$. The noise $\boldsymbol{\epsilon}_n$ is commonly assumed to be Gaussian. Thus, the distribution $p(\boldsymbol{y}_n|\boldsymbol{u}_n,\boldsymbol{\theta})$ has a closed form, which makes this term equivalent to a weighted mean squared error. The prior density term $p(\boldsymbol{\theta})$ acts as $L2$ regularization.
+In addition to parameter estimates, confidence intervals for the parameters can also be obtained from the posterior distribution.
 
 \subsection{Bayesian State Estimation}
-Applying the estimated posterior of system parameters again as a prior, and updating the posterior with new data, this is the basic idea of Bayesian state estimation \citep{bayesestimation}. State estimation involves inference of the internal system states, which are not directly measurable. Expressing the state estimation problem in a probabilistic framework, the goal is to infer the posterior distribution of the states given observations $p(\boldsymbol{x}_{0:n}|\boldsymbol{y}_{1:n})$. Assuming a Markovian system, the posterior of the state chain is factorized as:
+The basic idea of Bayesian state estimation is to apply the estimated posterior of system parameters as a prior and update the posterior with new data \citep{bayesestimation}. State estimation involves inference of the internal system states, which are not directly measurable. Expressed in a probabilistic framework, the goal of state estimation is to infer the posterior distribution of the states given observations $p(\boldsymbol{x}_{0:n}|\boldsymbol{y}_{1:n})$. Assuming a Markovian system, the posterior of the state chain is factorized as:
 \begin{equation}
     \begin{split}
         p(\boldsymbol{x}_{0:n}|\boldsymbol{y}_{1:n})&=p(\boldsymbol{x}_{0:n}|\boldsymbol{y}_{n}, \boldsymbol{y}_{1:n-1})\\
@@ -840,18 +907,21 @@ Applying the estimated posterior of system parameters again as a prior, and upda
         &=\frac{p(\boldsymbol{y}_n|\boldsymbol{x}_n)\,\textcolor{Sepia}{p(\boldsymbol{x}_{n}|\boldsymbol{x}_{n-1})}}{p(\boldsymbol{y}_n|\boldsymbol{y}_{1:n-1})}\,\textcolor{Sepia}{p(\boldsymbol{x}_{0:n-1}|\boldsymbol{y}_{1:n-1})}, \quad\text{\textcolor{Sepia}{[recursion]}}
     \end{split}
 \end{equation}
-where $p(\boldsymbol{x}_{n}|\boldsymbol{x}_{n-1})$ is referred as \textit{evolution model}, or \textit{state transition model}, and $p(\boldsymbol{y}_n|\boldsymbol{x}_n)$ is called an \textit{observation model}, or \textit{measurement model}. The posterior $p(\boldsymbol{x}_{0:n-1}|\boldsymbol{y}_{1:n-1})$ is the result of the previous time step. The equation above describes a recursive process of state estimation. States are indexed $0:n$ (including the initial $\boldsymbol{x}_0$); observations $1:n$ (no observation at step zero). The prior $p(\boldsymbol{x}_0)$ is the base case of the recursion.
+where $p(\boldsymbol{x}_{n}|\boldsymbol{x}_{n-1})$ is referred to as \textit{evolution model}, or \textit{state transition model}, and $p(\boldsymbol{y}_n|\boldsymbol{x}_n)$ is called an \textit{observation model}, or \textit{measurement model}. The posterior $p(\boldsymbol{x}_{0:n-1}|\boldsymbol{y}_{1:n-1})$ is the result of the previous time step. Once the observation $\boldsymbol{y}_n$ is received, the term $p(\boldsymbol{y}_n|\boldsymbol{y}_{1:n-1})$ is a constant with respect to $\boldsymbol{x}_{0:n-1}$. Thus, it acts as a normalization factor. The equation above describes a recursive process of state estimation. States are indexed $0:n$ (including the initial $\boldsymbol{x}_0$); observations $1:n$ (no observation at step zero). The prior $p(\boldsymbol{x}_0)$ is the base case of the recursion.
 \subsubsection{Bayesian Filters}
 \label{sec:bayesfilter}
-Considering only one state $\boldsymbol{x}_{n}$ at a time, the problem is called marginal state estimation, or filtering. The equation becomes:
+When only one state $\boldsymbol{x}_{n}$ is considered at a time, the problem is called marginal state estimation, or filtering. The equation becomes:
 \begin{equation}
     \label{eq:bayesfilter}
     \begin{split}
         p(\boldsymbol{x}_{n}|\boldsymbol{y}_{1:n})&=\frac{\textcolor{blue}{p(\boldsymbol{y}_n|\boldsymbol{x}_n)}\,p(\boldsymbol{x}_{n}|\boldsymbol{y}_{1:n-1})}{p(\boldsymbol{y}_n|\boldsymbol{y}_{1:n-1})} \quad\text{\textcolor{blue}{[update]}}\\
-        &=\frac{p(\boldsymbol{y}_n|\boldsymbol{x}_n)}{p(\boldsymbol{y}_n|\boldsymbol{y}_{1:n-1})}\textcolor{ForestGreen}{\int p(\boldsymbol{x}_{n}|\boldsymbol{x}_{n-1})p(\boldsymbol{x}_{n-1}|\boldsymbol{y}_{1:n-1})d\boldsymbol{x}_{n-1}.} \quad\text{\textcolor{ForestGreen}{[prediction]}}
+        &=\frac{\textcolor{blue}{p(\boldsymbol{y}_n|\boldsymbol{x}_n)}}{p(\boldsymbol{y}_n|\boldsymbol{y}_{1:n-1})}\textcolor{ForestGreen}{\int p(\boldsymbol{x}_{n}|\boldsymbol{x}_{n-1})p(\boldsymbol{x}_{n-1}|\boldsymbol{y}_{1:n-1})d\boldsymbol{x}_{n-1}.} \quad\text{\textcolor{ForestGreen}{[prediction]}}.
     \end{split}
 \end{equation}
-Usually, calculation of the above equation is divided into two steps: prediction and update. In the prediction step, the result of state transition from $\boldsymbol{x}_{n-1}$ to $\boldsymbol{x}_n$ is computed through the evolution model. In the update step, the last observation likelihood $p(\boldsymbol{y}_n|\boldsymbol{x}_n)$ weights the predicted belief. These two steps build the Bayesian filtering methods: Kalman filters and particle filters \citep{chen_bayesian_2003}.
+From this equation, the terms with $\boldsymbol{y}_n$ (a new observation) are separated from the terms with $\boldsymbol{x}_{n-1}$ (the previous state). The first part is the update step, which incorporates the new observation $\boldsymbol{y}_n$ to refine the belief about the current state $\boldsymbol{x}_n$. The second part is the prediction step, which propagates the previous belief $p(\boldsymbol{x}_{n-1}|\boldsymbol{y}_{1:n-1})$ through the evolution model $p(\boldsymbol{x}_{n}|\boldsymbol{x}_{n-1})$ to predict the current state before considering the new observation. 
+
+These two steps form the basis of Bayesian filtering methods such as Kalman filters and particle filters \citep{chen_bayesian_2003}. The main challenge in this equation is to calculate the integral. For arbitrary probability distributions and system equations, this integral has no analytical (closed-form) solution. Therefore, some approximations and restrictions have to be made to make the filtering problem tractable. The most common approximations are linearization and Gaussian assumptions, which lead to the \ac{KF} and its variants. For more general cases, Monte Carlo methods are applied to approximate the integral, leading to \ac{PF}.
+
 
 The \ac{KF} \citep{kf1960} can be directly derived from Equation~(\ref{eq:bayesfilter}) under the assumptions of linear systems and Gaussian noise. For a linear system:
 \begin{subequations}
@@ -869,17 +939,33 @@ the iterative algorithm of filtering is:
 \end{align}
 \end{subequations}
 
-For nonlinear systems, the \acf{EKF} \citep{simon2006optimal} obtains the matrices $F_n$ and $H_n$ by linearizing the nonlinear functions at the current estimate, i.e., $F_n=\nabla_{\boldsymbol{x}} f_n|_{\boldsymbol{x}_n}$ and $H_n=\nabla_{\boldsymbol{x}} h_n|_{\boldsymbol{x}_n}$. In such a way, the \ac{EKF} can be considered as the first-order approximation to the optimal terms. This approximation, however, can introduce large errors, which may lead to suboptimal performance and sometimes divergence of the filter. The \acf{UKF} \citep{ukf2000} addressed the approximation issues by carefully choosing a minimal set of samples points, which are called \textit{sigma points}. The sigma points completely capture the mean and covariance of states, which are viewed as Gaussian random variables. The sample points are then propagated through the nonlinear functions, and the mean and covariance of the estimate are reconstructed from the transformed points. 
+For nonlinear systems, the \acf{EKF} \citep{simon2006optimal} obtains the matrices $F_n$ and $H_n$ by linearizing the nonlinear functions at the current estimate, i.e., $F_n=\nabla_{\boldsymbol{x}} f_n|_{\boldsymbol{x}_n}$ and $H_n=\nabla_{\boldsymbol{x}} h_n|_{\boldsymbol{x}_n}$. In such a way, the \ac{EKF} can be considered as the first-order approximation to the optimal terms. This approximation, however, can introduce large errors, which may lead to suboptimal performance and sometimes divergence of the filter. The \acf{UKF} \citep{ukf2000} addresses the approximation issues by carefully choosing a minimal set of sample points, which are called \textit{sigma points}. The sigma points completely capture the mean and covariance of states, which are treated as Gaussian random variables. These sample points are then propagated through the nonlinear functions, and the mean and covariance of the estimate are reconstructed from the transformed points. 
 
 Relaxing the assumptions on model linearity and Gaussian noise, \ac{PF} \citep{pf1993, Elfring2021-xf} is a more general Bayesian filtering method. The integral in Equation~(\ref{eq:bayesfilter}) is approximated through Monte Carlo estimation, yielding an average of all weighted particles. Each particle represents a possible state of the system, and its weight reflects the likelihood of that state given the observations. In the prediction step, each particle is propagated through the system dynamics. In the update step, weights are adjusted according to each particle based on the likelihood of the observation given the particle's state. Unlike Kalman filters, in each iteration of the \ac{PF}, a resampling step is included to avoid weight degeneracy, meaning that most particles carry very small weights over time. In the resampling step, particles are replaced with equally weighted ones, replicating high-weight particles and discarding low-weight ones.
 
-In summary, \ac{KF} is efficient and provides optimal state estimates for linear systems with Gaussian noise. \ac{EKF} extends \ac{KF} to nonlinear systems through linearization, but may suffer from approximation errors. \ac{UKF}, instead of linearization, applies sigma points to better capture the mean and covariance of the state distribution, leading to more accurate estimates for highly nonlinear systems. \ac{PF} is the most flexible, capable of handling arbitrary nonlinearities and non-Gaussian noise, but computationally expensive due to the need for numerous particles.
+Table~\ref{tab:bayesian-filters} summarizes the comparison of the three Bayesian filtering methods. The \ac{KF} is efficient and optimal for linear systems with Gaussian noise, while the \ac{EKF} and \ac{UKF} extend the applicability to nonlinear systems under Gaussian assumptions. The \ac{PF} provides a flexible framework for general nonlinear and non-Gaussian systems, albeit at a higher computational cost.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Comparison of Bayesian filtering methods.}
+    \label{tab:bayesian-filters}
+    \begin{tabular}{p{0.2\linewidth}p{0.3\linewidth}p{0.3\linewidth}}
+        \hline
+        Bayesian Filter & System Model & Noise  \\
+        \hline
+        \ac{KF} & linear & Gaussian  \\
+        \ac{EKF} / \ac{UKF} & nonlinear & Gaussian assumption \\
+        \ac{PF} & general & arbitrary \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \subsubsection{State-Space Models}
-For modeling system dynamics completely from data, \acfp{SSM} \citep{Durbin2012} are widely used. An \ac{SSM} consists of a latent state vector $\boldsymbol{x}_n$ and an observation vector $\boldsymbol{y}_n$. The state vector captures the internal dynamics of the system, while the observation vector represents the measurable outputs. $\boldsymbol{x}_n$ follows a Markov process, meaning that the previous state $\boldsymbol{x}_{n-1}$ carries all information to obtain the current state $\boldsymbol{x}_n$. $\boldsymbol{y}_n$ is solely dependent on the latent state $\boldsymbol{x}_n$. These assumptions lead to the following factorization of the joint distribution:
+When the evolution and observational models are unknown, Kalman filters can not be directly applied. \acfp{SSM} \citep{Durbin2012} are then used for modeling system dynamics entirely from data. An \ac{SSM} consists of a latent state vector $\boldsymbol{x}_n$ and an observation vector $\boldsymbol{y}_n$. The state vector captures the internal dynamics of the system, while the observation vector represents the measurable outputs. $\boldsymbol{x}_n$ follows a Markov process, meaning that the previous state $\boldsymbol{x}_{n-1}$ carries all information to obtain the current state $\boldsymbol{x}_n$. $\boldsymbol{y}_n$ depends only on the latent state $\boldsymbol{x}_n$. These assumptions lead to the following factorization of the joint distribution:
 \begin{equation}
     p(\boldsymbol{y}_{1:N}, \boldsymbol{x}_{0:N}) = p(\boldsymbol{x}_0) \prod_{n=1}^{N}p(\boldsymbol{x}_n|\boldsymbol{x}_{n-1})p(\boldsymbol{y}_n|\boldsymbol{x}_n).
 \end{equation}
+
 In the simplest case, the state transition distribution $p(\boldsymbol{x}_n|\boldsymbol{x}_{n-1})$ and the observation distribution $p(\boldsymbol{y}_n|\boldsymbol{x}_n)$ are assumed to be linear Gaussian models:
 \begin{subequations}
     \begin{gather}
@@ -888,14 +974,15 @@ In the simplest case, the state transition distribution $p(\boldsymbol{x}_n|\bol
         \boldsymbol{y}_n=\boldsymbol{H}\boldsymbol{x}_n+\boldsymbol{v}_n, \quad \boldsymbol{v}_n\sim\mathcal{N}(\boldsymbol{0},\Sigma_{v_n}).
     \end{gather}
 \end{subequations}
-In the previous section, we have shown estimation of states using Kalman filters with known system matrices ($\boldsymbol{F}$, $\boldsymbol{H}$) and noise covariance matrices ($\Sigma_{w_n}, \Sigma_{v_n}$). When these matrices are unknown, they can be estimated from data using the \ac{EM} algorithm \citep{Dempster1977}. The \ac{EM} algorithm iteratively maximizes the expected log-likelihood of the complete data (both observed and latent variables) given the current parameter estimates. The algorithm consists of two main steps:
+
+In the previous section, we showed state estimation using Kalman filters with known system matrices ($\boldsymbol{F}$, $\boldsymbol{H}$) and noise covariance matrices ($\Sigma_{w_n}, \Sigma_{v_n}$). When these matrices are unknown, they can be estimated from data using the \ac{EM} algorithm \citep{Dempster1977}. The \ac{EM} algorithm iteratively maximizes the expected log-likelihood of the complete data (both observed and latent variables) given the current parameter estimates. The algorithm consists of two main steps:
 \begin{itemize}[noitemsep,topsep=2pt]
     \item E-step: Compute the expectations of the latent states using the current parameter estimates:
     
     \begin{equation*}
         E_n=E[\boldsymbol{x}_n],\quad E_{n,n}=E[\boldsymbol{x}_n\boldsymbol{x}_n^T],\quad E_{n,n-1}=E[\boldsymbol{x}_n\boldsymbol{x}_{n-1}^T].
     \end{equation*}
-    The states come from running the Kalman filter (Equation~(\ref{eq:kalman_prediction}), (\ref{eq:kalman_update})) on the current parameters.
+    The states are obtained by running the Kalman filter (Equation~(\ref{eq:kalman_prediction}), (\ref{eq:kalman_update})) on the current parameters.
     
     \item M-step: Update parameters using the expectations:
     
@@ -909,7 +996,7 @@ In the previous section, we have shown estimation of states using Kalman filters
 The E-step and M-step are iterated until convergence. The \ac{EM} algorithm guarantees that the likelihood of the observed data does not decrease with each iteration, leading to convergence to a local maximum. Similar to Kalman filters, for nonlinear models, \acp{EKF} and \acp{UKF} are applied in the E-step; while for nonlinear and non-Gaussian \acp{SSM}, \acp{PF} are used to approximate the expectations in the E-step \citep{Durbin2000}.
 
 \subsubsection{Stochastic Differential Equations}
-A key strength of \acp{SSM} is that they explicitly model latent states and noise as distinct components, when this separation is well-posed, e.g., additive noise, identifiable structures. When we upgrade \acp{SSM} from discrete time to continuous time, \acfp{SDE} \citep{oksendal1985} are a natural choice for modeling the evolution of latent states. For a stochastic process $\mathit{X}(t)$ for variables $\boldsymbol{x}$, the general form of an \ac{SDE} is:
+A key strength of \acp{SSM} is that they explicitly model latent states and noise as distinct components, when this separation is well posed, for example under additive noise and identifiable structures. When we upgrade \acp{SSM} from discrete time to continuous time, \acfp{SDE} \citep{oksendal1985} are a natural choice for modeling the evolution of latent states. For a stochastic process $\mathit{X}(t)$ for variables $\boldsymbol{x}$, the general form of an \ac{SDE} is:
 \begin{equation}
     d\mathit{X}(t) = \mu(\mathit{X}(t), t)\,dt + \sigma(\mathit{X}(t), t)\,d\mathit{W}(t),
 \end{equation}
@@ -935,10 +1022,10 @@ where $d\mathit{X}(t)$ is the infinitesimal change in the state, $\mu(\mathit{X}
     \caption{\ac{MPC} and \ac{RL}.}
 \end{figure*}
 
-After investigating Bayesian system identification and state estimation, we now turn our attention to control strategies, meaning optimizing system inputs given target and system observations. Control methods can be broadly categorized into model-based and model-free approaches. Model-based control relies on an explicit model of the system dynamics to predict future states and optimize control actions accordingly. In contrast, model-free control approaches do not require a state transition model of the system, instead learning control strategies directly from interactions with the system. A prominent example of model-based control is \acf{MPC} \citep{mpcreview1989, mpcbook2020}. 
+After investigating Bayesian system identification and state estimation, we now turn our attention to control strategies, meaning the optimization of system inputs given target and system observations. Control methods can be broadly categorized into model-based and model-free approaches. Model-based control relies on an explicit model of the system dynamics to predict future states and optimize control actions accordingly. In contrast, model-free control approaches do not require a state transition model of the system, instead learning control strategies directly through interactions with the system. A prominent example of model-based control is \acf{MPC} \citep{mpcreview1989, mpcbook2020}. 
 
 \subsubsection{Nominal Model Predictive Control}
-A to-be-controlled system is at first modeled in discrete time steps:
+A system to be controlled is first modeled in discrete time:
 \begin{subequations}
 \begin{align}
     \label{eq:mpc_model}
@@ -970,7 +1057,7 @@ Figure~\ref{fig:mpc_timeline} illustrates the time dependency of the variables i
 
 The cost function consists of a sum of stage costs $\ell$ and a final cost function $L_f$. In the stage cost, weighting matrices $Q_y$ and $Q_u$ are used to balance the trade-off between tracking performance and control effort. The reference trajectory $\boldsymbol{y}^r$ represents the desired output over the prediction horizon. The constraints $g_j(\boldsymbol{x}_i, \boldsymbol{u}_i)\leq 0$ can represent physical limitations of the system or other operational constraints. A simplified schematic of \ac{MPC} is shown in Figure~\ref{fig:mpc}. 
 
-The optimization problem in \ac{MPC} can be solved using various numerical methods, such as sequential quadratic programming, interior-point methods, or gradient-based approaches \citep{Diehl2013}. The choice of method depends on the specific characteristics of the system model and constraints. The first step of the solution (Equation~(\ref{eq:mpc})) $\boldsymbol{u}^*_n$ is applied to the system, and the whole process is repeated at the next time step with updated state information. That's why \ac{MPC} is also known as receding horizon control \citep{Christophersen2007}.
+The optimization problem in \ac{MPC} can be solved using various numerical methods, such as sequential quadratic programming, interior-point methods, or gradient-based approaches \citep{Diehl2013}. The choice of method depends on the specific characteristics of the system model and constraints. The first step of the solution (Equation~(\ref{eq:mpc})) $\boldsymbol{u}^*_n$ is applied to the system, and the whole process is repeated at the next time step with updated state information. This is why \ac{MPC} is also known as receding horizon control \citep{Christophersen2007}.
 
 \subsubsection{Stochastic Model Predictive Control}
 Taking system uncertainties and disturbances into account, robust \ac{MPC} \citep{rmpc1987} aims to satisfy system stability and constraints despite uncertainties and disturbances. There exist several sound robust \ac{MPC} methods, including Min-Max\ac{MPC} \citep{RAIMONDO20095}, scenario \ac{MPC} \citep{Calafiore_2013}, and stochastic \ac{MPC} \citep{HEIRUNG2018158,smpc2016}. The Min-Max \ac{MPC} chooses control actions that minimize the worst possible cost under bounded disturbances. The scenario \ac{MPC} samples a finite number of random uncertainty realizations as scenarios and optimizes control actions that satisfy constraints for each scenario. Stochastic \ac{MPC} incorporates the probabilistic descriptions of uncertainties into a stochastic optimal control problem through defining chance constraints. A mathematical formulation of stochastic \ac{MPC} is as follows \citep{HEIRUNG2018158} :

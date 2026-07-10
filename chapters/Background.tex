@@ -789,7 +789,7 @@ In most diffusion-model literature, diffusion time is written in the opposite di
 \end{equation}
 where $\beta_\tau$ is a prescribed noise schedule. After many steps, the distribution approaches a standard Gaussian. The generative model $\epsilon_{\boldsymbol{\varphi}}$ learns the reverse transition $p_{\boldsymbol{\varphi}}(\mathcal{U}_{\tau-1}|\mathcal{U}_{\tau})$ by predicting the added noise. The loss function is simply the mean-squared error between the predicted noise and the true noise:
 \begin{equation}
-    \mathcal{L}(\boldsymbol{\varphi}) = \mathbb{E}_{\tau\sim\mathbb{U}(0,1),\;\mathcal{U}_\tau\sim p_\tau(\mathcal{U}_\tau)}\left[\left\|\epsilon_{\boldsymbol{\varphi}}(\mathcal{U}_{\tau},\tau)-\epsilon\right\|^2\right].
+    \mathcal{L}(\boldsymbol{\varphi}) = \mathbb{E}_{\tau\sim\mathbb{U}(0,1),\;\mathcal{U}_\tau\sim p_\tau(\mathcal{U}_\tau)}\left[\left\|\epsilon_{\boldsymbol{\varphi}}(\mathcal{U}_{\tau},\tau)-\epsilon\right\|^2\right], \epsilon\sim\mathcal{N}(0,\boldsymbol{I}).
 \end{equation}
 After training, the generative process is performed by sampling from the learned reverse transition $p_{\boldsymbol{\varphi}}(\mathcal{U}_{\tau-1}|\mathcal{U}_{\tau})$ from the noise side to the data side, where the noise is gradually removed.
 

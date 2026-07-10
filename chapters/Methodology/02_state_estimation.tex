@@ -516,13 +516,13 @@ with
 The corresponding derivatives are
 \begin{equation}
     \alpha'(\tau)=-1,\qquad \beta'(\tau)=1,\qquad
-    \dot{\sigma}(\tau)=\sigma_0(1-2\tau),
+    \sigma'(\tau)=\sigma_0(1-2\tau),
 \end{equation}
 which define the supervised target velocity
 \begin{equation}
     v^{*}
     =
-    \alpha'(\tau)\,\mathcal{U}_0+\beta'(\tau)\,\mathcal{U}_1+\dot{\sigma}(\tau)\epsilon.
+    \alpha'(\tau)\,\mathcal{U}_0+\beta'(\tau)\,\mathcal{U}_1+\sigma'(\tau)\epsilon.
     \label{eq:conditional_stochastic_interpolant_velocity_target}
 \end{equation}
 For the linear path, this target is the instantaneous direction of the noisy bridge from the source trajectory $\mathcal{U}_0$ to the target state trajectory $\mathcal{U}_1$.

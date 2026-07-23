@@ -78,3 +78,14 @@ __all__ = [
     "state_rmse",
     "state_mae",
 ]
+from bayesinf.applications.state_estimation.filtering_baselines import (
+    FilterResult,
+    bootstrap_particle_filter,
+    extended_kalman_filter,
+)
+
+__all__ += [
+    "FilterResult",
+    "bootstrap_particle_filter",
+    "extended_kalman_filter",
+]

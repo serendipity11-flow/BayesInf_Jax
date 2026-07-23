@@ -43,6 +43,7 @@ MarkupSafe==3.0.3
 matplotlib==3.10.9
 matplotlib-inline==0.2.1
 mistune==3.2.0
+mujoco==3.10.0
 ml_dtypes==0.5.4
 multiprocess==0.70.19
 nbclient==0.10.4
@@ -68,6 +69,7 @@ optax==0.2.8
 optimistix==0.1.0
 packaging==26.2
 pandas==3.0.2
+pyarrow==23.0.1
 pandocfilters==1.5.1
 parso==0.8.6
 pexpect==4.9.0

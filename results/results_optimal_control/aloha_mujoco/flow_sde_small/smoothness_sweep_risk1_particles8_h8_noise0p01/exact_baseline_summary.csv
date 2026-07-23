@@ -1,0 +1,2 @@
+episodes,final_normalized_rmse,cumulative_normalized_error,control_smoothness,final_normalized_rmse_std,cumulative_normalized_error_std,control_smoothness_std,mean_runtime_ms,mean_runtime_ms_std
+80,3.843457046151161,155.68041036128997,0.32705929819494484,2.058120805448669,72.64491359180788,0.054122475101354095,272.32586125739743,38.506743375519946

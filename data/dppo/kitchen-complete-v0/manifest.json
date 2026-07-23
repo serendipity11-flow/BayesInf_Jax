@@ -1,0 +1,33 @@
+{
+  "source": "official-dppo-kitchen-complete-v0",
+  "split_seed": 0,
+  "validation_fraction": 0.2,
+  "preprocessing": "preserved official DPPO full-dataset min/max normalization",
+  "train_episode_ids": [
+    0,
+    12,
+    4,
+    18,
+    7,
+    5,
+    17,
+    16,
+    8,
+    11,
+    6,
+    13,
+    9,
+    1,
+    15
+  ],
+  "validation_episode_ids": [
+    2,
+    10,
+    3,
+    14
+  ],
+  "train_episodes": 15,
+  "validation_episodes": 4,
+  "train_transitions": 2915,
+  "validation_transitions": 765
+}

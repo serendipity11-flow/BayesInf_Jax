@@ -1,0 +1,2 @@
+use_case,baseline,noise_type,n_eval,rmse_all,rmse_observed,rmse_unobserved,mae_all,coverage
+amortized_state_flow,ekf,gaussian,200,0.13398028910160065,0.13081732392311096,0.13647980988025665,0.09847109019756317,0.9833041666666666

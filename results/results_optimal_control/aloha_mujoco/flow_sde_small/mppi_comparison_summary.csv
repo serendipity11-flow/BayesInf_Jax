@@ -1,0 +1,3 @@
+horizon,plant_noise_std,model,final_normalized_rmse,cumulative_normalized_error,control_smoothness,mean_runtime_ms,final_normalized_rmse_std,cumulative_normalized_error_std,control_smoothness_std,mean_runtime_ms_std
+8,0.01,exact_mujoco,3.8441434770822527,155.77308475971222,0.324315588735044,306.36171914844056,2.048705,72.763015,0.048388,44.855324
+8,0.01,flow_sde,3.83258800432086,152.64785981178284,0.3664320852607489,14.138797018676996,2.003879,69.123420,0.037536,2.124035

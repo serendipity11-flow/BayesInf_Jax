@@ -1,0 +1,2 @@
+use_case,baseline,noise_type,n_eval,rmse_all,rmse_observed,rmse_unobserved,mae_all,coverage
+latent_ssm_flow,particle_filter,student_t,200,0.24143129587173462,0.22051218152046204,0.25912901759147644,0.1683712750673294,0.8273625

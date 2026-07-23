@@ -1,0 +1,154 @@
+{
+  "model": "ControlledRealNVPFlowSDE",
+  "dt": 0.02,
+  "velocity_augmented": false,
+  "particles": 64,
+  "diffusion_temperature": 1.0,
+  "test_episode_ids": [
+    59,
+    62,
+    71,
+    22,
+    66,
+    27,
+    64,
+    46,
+    9
+  ],
+  "nominal_rmse": 1.1204854249954224,
+  "particle_mean_rmse": 0.03165857493877411,
+  "particle_mean_mae": 0.013097675517201424,
+  "aggregate_r2": 0.9954855442047119,
+  "mean_predictive_std": 0.014429331757128239,
+  "per_joint": {
+    "left_waist": {
+      "rmse": 0.01612713187932968,
+      "mae": 0.010192935355007648
+    },
+    "left_shoulder": {
+      "rmse": 0.013302188366651535,
+      "mae": 0.010046877898275852
+    },
+    "left_elbow": {
+      "rmse": 0.009241084568202496,
+      "mae": 0.007011201698333025
+    },
+    "left_forearm_roll": {
+      "rmse": 0.006685036700218916,
+      "mae": 0.004689863882958889
+    },
+    "left_wrist_angle": {
+      "rmse": 0.011771387420594692,
+      "mae": 0.008749954402446747
+    },
+    "left_wrist_rotate": {
+      "rmse": 0.016759995371103287,
+      "mae": 0.011681043542921543
+    },
+    "left_gripper": {
+      "rmse": 0.078041210770607,
+      "mae": 0.03845580667257309
+    },
+    "right_waist": {
+      "rmse": 0.015353728085756302,
+      "mae": 0.01048317365348339
+    },
+    "right_shoulder": {
+      "rmse": 0.012539769522845745,
+      "mae": 0.009752483107149601
+    },
+    "right_elbow": {
+      "rmse": 0.008729403838515282,
+      "mae": 0.0064842053689062595
+    },
+    "right_forearm_roll": {
+      "rmse": 0.008951963856816292,
+      "mae": 0.006440785713493824
+    },
+    "right_wrist_angle": {
+      "rmse": 0.01403046865016222,
+      "mae": 0.010164720937609673
+    },
+    "right_wrist_rotate": {
+      "rmse": 0.01704907976090908,
+      "mae": 0.012311289086937904
+    },
+    "right_gripper": {
+      "rmse": 0.07692687958478928,
+      "mae": 0.03690324351191521
+    }
+  },
+  "calibration": [
+    {
+      "nominal_coverage": 0.5,
+      "empirical_coverage": 0.5011489140908754,
+      "coverage_error": 0.0011489140908753637,
+      "mean_interval_width": 0.01907420251961223
+    },
+    {
+      "nominal_coverage": 0.8,
+      "empirical_coverage": 0.7359509514279361,
+      "coverage_error": -0.06404904857206395,
+      "mean_interval_width": 0.035940834837444126
+    },
+    {
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.8135688342492878,
+      "coverage_error": -0.08643116575071219,
+      "mean_interval_width": 0.04558963265890992
+    },
+    {
+      "nominal_coverage": 0.95,
+      "empirical_coverage": 0.8579052701801201,
+      "coverage_error": -0.09209472981987987,
+      "mean_interval_width": 0.053545677513569666
+    }
+  ],
+  "episodes": [
+    {
+      "episode_id": 59,
+      "nominal_rmse": 1.1742511987686157,
+      "particle_mean_rmse": 0.019506188109517097
+    },
+    {
+      "episode_id": 62,
+      "nominal_rmse": 1.0941845178604126,
+      "particle_mean_rmse": 0.028389520943164825
+    },
+    {
+      "episode_id": 71,
+      "nominal_rmse": 1.1271748542785645,
+      "particle_mean_rmse": 0.034054871648550034
+    },
+    {
+      "episode_id": 22,
+      "nominal_rmse": 1.0201915502548218,
+      "particle_mean_rmse": 0.05849101394414902
+    },
+    {
+      "episode_id": 66,
+      "nominal_rmse": 1.1901036500930786,
+      "particle_mean_rmse": 0.030154109001159668
+    },
+    {
+      "episode_id": 27,
+      "nominal_rmse": 1.1327178478240967,
+      "particle_mean_rmse": 0.014580433256924152
+    },
+    {
+      "episode_id": 64,
+      "nominal_rmse": 1.065517783164978,
+      "particle_mean_rmse": 0.023679951205849648
+    },
+    {
+      "episode_id": 46,
+      "nominal_rmse": 1.1396301984786987,
+      "particle_mean_rmse": 0.013411691412329674
+    },
+    {
+      "episode_id": 9,
+      "nominal_rmse": 1.1307027339935303,
+      "particle_mean_rmse": 0.03728974610567093
+    }
+  ]
+}

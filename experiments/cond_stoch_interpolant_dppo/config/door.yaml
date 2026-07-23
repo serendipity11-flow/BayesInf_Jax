@@ -1,0 +1,44 @@
+environment: AdroitHandDoor-v1
+dataset: D4RL/door/human-v2
+reward: dense
+obs_dim: 39
+action_dim: 28
+horizon_steps: 4
+cond_steps: 1
+max_episode_steps: 200
+seeds: [0, 1, 2, 3, 4]
+eval_episodes: 50
+success_threshold: 0.8  # freeze after the DPPO pilot; never tune per method
+pretrain:
+  gradient_steps: 100000
+  batch_size: 128
+  learning_rate: 0.001
+  weight_decay: 0.000001
+dppo:
+  denoising_steps: 20
+  ft_denoising_steps: 10
+  clip_ploss_coef: 0.01
+  gamma_denoising: 0.99
+  min_sampling_denoising_std: 0.1
+  min_logprob_denoising_std: 0.1
+interpolant:
+  integration_steps: 5
+  bridge_sigma: 0.1
+  sampling_std: 0.1
+  hidden_size: 64
+  depth: 2
+  n_heads: 4
+  context_dim: 32
+  parameter_count: 226548
+ppo:
+  environment_steps: 840000
+  n_envs: 40
+  rollout_steps: 70
+  update_epochs: 10
+  batch_size: 5600
+  gamma: 0.99
+  gae_lambda: 0.95
+  actor_lr: 0.0001
+  critic_lr: 0.001
+  vf_coef: 0.5
+  target_kl: 1.0

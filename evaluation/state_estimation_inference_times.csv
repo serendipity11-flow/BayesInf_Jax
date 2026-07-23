@@ -1,0 +1,7 @@
+rank,method,posterior_samples,horizon,latency_ms_per_trajectory,trajectories_per_second
+1,ekf,100,100,3.081,324.57
+2,amortized,100,100,22.110,45.23
+3,pf,100,100,44.195,22.63
+4,flow_sde,100,101,49.938,20.02
+5,latent,100,100,82.932,12.06
+6,interpolant,100,101,8262.742,0.12

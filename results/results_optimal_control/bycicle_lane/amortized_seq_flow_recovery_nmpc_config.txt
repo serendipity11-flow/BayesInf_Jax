@@ -1,0 +1,13 @@
+dt=0.1
+velocity=8.0
+wheelbase=2.7
+delta_max=0.6108652381980153
+obs_history=20
+horizon=15
+obs_std=0.12
+lateral_gain=0.55
+heading_gain=1.4
+recovery_lateral_max=1.2
+recovery_heading_max=0.25
+mpc_iterations=80
+mpc_learning_rate=0.04

@@ -1,0 +1,2 @@
+horizon,plant_noise_std,model,final_normalized_rmse,cumulative_normalized_error,control_smoothness,mean_runtime_ms,final_normalized_rmse_std,cumulative_normalized_error_std,control_smoothness_std,mean_runtime_ms_std
+8,0.01,flow_sde,3.848511216044426,152.79497606754302,0.38762278519570825,6.254928370213342,2.012682442828159,69.2246555814812,0.055261713477498586,0.10042249079693602

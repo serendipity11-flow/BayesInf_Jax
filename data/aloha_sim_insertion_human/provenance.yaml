@@ -1,0 +1,17 @@
+schema_version: 1
+dataset: aloha_sim_insertion_human
+kind: imported_lerobot_snapshot
+source:
+  identifier: aloha_sim_insertion_human
+  namespace: unknown
+  revision: unknown
+  acquisition_command: unknown
+status: incomplete_source_provenance
+format: lerobot_v3_parquet
+statistics: {episodes: 50, rows: 25000, shards: 4}
+artifacts:
+  - {path: data/chunk-000/file-000.parquet, sha256: b56ca5d5cc69070b753b10578a8a0da6a4ec883e34bf9666b0c51c7c42b5c2b9}
+  - {path: data/chunk-000/file-001.parquet, sha256: 08a89503fe1dab024a0816d39a808edcce266696b8891210675b1b6ba8caa28e}
+  - {path: data/chunk-000/file-002.parquet, sha256: 1d65593f389d9446ddc84e6cfe8c18f38d1112652f7568b5a308234b58dfa750}
+  - {path: data/chunk-000/file-003.parquet, sha256: 54984c0d8b6e0b120ad31943c88bfda70c4a7c24b8fe00f7d1d7415e0c4993cd}
+consumer: bayesinf/applications/state_estimation/aloha_insertion_dataset.py

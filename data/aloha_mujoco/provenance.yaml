@@ -1,0 +1,14 @@
+schema_version: 1
+dataset: aloha_mujoco
+kind: generated_simulation
+generator: experiments/aloha_mujoco_flow/generate_simulator_data.py
+model: third_party/mujoco_menagerie/aloha/scene.xml
+runs:
+  - output: trajectories.parquet
+    command: python -m experiments.aloha_mujoco_flow.generate_simulator_data
+    parameters: {seed: 0, control_dt: 0.02, steps: 250, smooth_episodes: 48, nominal_episodes: 24, mppi_episodes: 8, positions_only: false, joint_disturbance: false}
+    sha256: 2faae52701bb37ab479e5b8555eeca7acc36f99143183f8bd9e3ec3539792089
+  - output: mujoco_random_lerobot_matched.parquet
+    command: python -m experiments.aloha_mujoco_flow.generate_simulator_data --output data/aloha_mujoco/mujoco_random_lerobot_matched.parquet --steps 499 --smooth-episodes 30 --nominal-episodes 15 --mppi-episodes 5 --positions-only --joint-disturbance
+    parameters: {seed: 0, control_dt: 0.02, steps: 499, smooth_episodes: 30, nominal_episodes: 15, mppi_episodes: 5, positions_only: true, joint_disturbance: true, innovation: gaussian_mixture, disturbance_rho: 0.98}
+    sha256: 9340e6cf8023fb5693bd52aa467c289c9fb0b3da3d1d949853d7addc085878a1

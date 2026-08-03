@@ -1,0 +1,12 @@
+schema_version: 1
+dataset: kitchen-complete-v0
+kind: split_external_dataset
+source: {path: ../official/kitchen-complete-v0, identifier: official-dppo-kitchen-complete-v0}
+generator: experiments/cond_stoch_interpolant_dppo/split_dppo_data.py
+command: python -m experiments.cond_stoch_interpolant_dppo.split_dppo_data --input data/dppo/official/kitchen-complete-v0/train.npz --normalization data/dppo/official/kitchen-complete-v0/normalization.npz --output data/dppo/kitchen-complete-v0 --validation-fraction 0.2 --seed 0 --source official-dppo-kitchen-complete-v0 --preserve-preprocessing
+parameters: {split_seed: 0, validation_fraction: 0.2, preprocessing: preserved_official_full_dataset_min_max}
+statistics: {train_episodes: 15, validation_episodes: 4, train_transitions: 2915, validation_transitions: 765}
+artifacts:
+  - {path: train.npz, sha256: ea1723d4b8bb252e98dab6d7dd67a80861e0831803b727c3d4617985d8b5c360}
+  - {path: val.npz, sha256: 8f9b92f3e0a565b4dcf7793df99e041bfc4ff0eabc19005fc390549ef69af54f}
+  - {path: normalization.npz, sha256: 4bc1107ba2d51c747d511ca0dcbe30972322e466509a2ecf1eefbff3f17a738a}

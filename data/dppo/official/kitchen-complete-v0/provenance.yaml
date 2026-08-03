@@ -1,0 +1,14 @@
+schema_version: 1
+dataset: official-kitchen-complete-v0
+kind: downloaded_external_dataset
+source:
+  project: irom-princeton/dppo
+  url: https://drive.google.com/drive/u/1/folders/18aqg7KIv-YNXohTsRR7Zmg-RyDtdhkLc
+  revision_or_download_date: unknown
+acquisition_helper: experiments/cond_stoch_interpolant_dppo/download_kitchen.py
+command: python -m experiments.cond_stoch_interpolant_dppo.download_kitchen --environment kitchen-complete-v0
+status: upstream_revision_not_recorded
+artifacts:
+  - {path: train.npz, sha256: af04739dcbf6ac55ebf08f22cf9d05058169fdb38d131d4f07c811387d9084ab}
+  - {path: val.npz, sha256: ef423294119533dd4d99cd9e9c6d933cd3cedf7ddf9070a66d603c05a24cffc2}
+  - {path: normalization.npz, sha256: 4bc1107ba2d51c747d511ca0dcbe30972322e466509a2ecf1eefbff3f17a738a}

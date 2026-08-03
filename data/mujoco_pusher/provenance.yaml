@@ -1,0 +1,10 @@
+schema_version: 1
+dataset: mujoco_pusher_pseudo_process
+kind: generated_simulation
+generator: experiments/mujoco_pusher_flowsde/generate_data.py
+model: experiments/mujoco_pusher_flowsde/pusher_passage.xml
+command: python -m experiments.mujoco_pusher_flowsde.generate_data --model experiments/mujoco_pusher_flowsde/pusher_passage.xml --output data/mujoco_pusher/pseudo_process.parquet --episodes 128 --steps 250 --seed 0 --exploration 0.7 --process-rho 0.97 --process-sigma 0.35 --lateral-bias 0.08 --regime-steps 50
+parameters: {episodes: 128, steps: 250, seed: 0, exploration: 0.7, process_rho: 0.97, process_sigma: 0.35, lateral_bias: 0.08, regime_steps: 50, dt: 0.02}
+statistics: {rows: 32000, state_dim: 12, action_dim: 3}
+artifacts:
+  - {path: pseudo_process.parquet, sha256: 821a14664deebd72409313a2e2907674a764ce8253f327891dc68937539ca793}

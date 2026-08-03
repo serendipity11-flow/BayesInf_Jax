@@ -1,0 +1,12 @@
+schema_version: 1
+dataset: door-human-v2
+kind: converted_external_dataset
+source: {provider: Minari, identifier: D4RL/door/human-v2, revision: unknown}
+generator: experiments/cond_stoch_interpolant_dppo/data.py
+command: python -m experiments.cond_stoch_interpolant_dppo.data --dataset D4RL/door/human-v2 --output data/dppo/door-human-v2 --validation-fraction 0.2 --seed 0
+parameters: {split_seed: 0, validation_fraction: 0.2, observation_normalization: training_mean_std, action_normalization: training_min_max}
+statistics: {train_episodes: 20, validation_episodes: 5, train_transitions: 5444, validation_transitions: 1285}
+artifacts:
+  - {path: train.npz, sha256: 1cecac9f69c7fdc6ce4a8799818b81be81cae68520da91203d16d46d60fdd968}
+  - {path: val.npz, sha256: 0e7b6423c1722c9e5f0ac27fec83f3a45fcfba07f4aca0fe1d24a575310882d8}
+  - {path: normalization.npz, sha256: 9ae28104c104e70236bdf69c0f44bb4ae4b4a7932617d1dea54c4d9625249ced}

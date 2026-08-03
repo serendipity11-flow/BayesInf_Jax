@@ -11,7 +11,10 @@ __pycache__/
 wandb/
 
 # Generated datasets and experiment outputs
-data/
+data/**
+!data/**/
+!data/**/README.md
+!data/**/provenance.yaml
 results/
 
 # Checkpoints and logs

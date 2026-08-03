@@ -56,14 +56,17 @@ export MPLCONFIGDIR="${TMPDIR:-/tmp}/matplotlib-${USER}-${SLURM_ARRAY_JOB_ID}-${
 export MUJOCO_GL=egl
 mkdir -p "$MPLCONFIGDIR"
 
-if "$HOME/myenv_312/bin/python" -c 'import sys' >/dev/null 2>&1; then
-    PYTHON="$HOME/myenv_312/bin/python"
-else
-    PYTHON="$(command -v python3.12 || true)"
-fi
-if [[ -z "$PYTHON" ]]; then
-    PYTHON="$(find /usr/bin /usr/local/bin -maxdepth 1 -name 'python3.12' -type f 2>/dev/null | head -1)"
-fi
+PYTHON=""
+for candidate in \
+    "$HOME/myenv_312/bin/python" \
+    /usr/bin/python3.12 \
+    /usr/local/bin/python3.12
+do
+    if [[ -x "$candidate" ]] && "$candidate" -c 'import sys' >/dev/null 2>&1; then
+        PYTHON="$candidate"
+        break
+    fi
+done
 if [[ -z "$PYTHON" ]]; then
     echo "No working Python 3.12 interpreter found on $(hostname)" >&2
     exit 127

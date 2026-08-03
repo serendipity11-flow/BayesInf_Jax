@@ -21,6 +21,7 @@ import jax.random as jr
 import optax
 
 from .cond_stoch_interpolant import CondStochInterpolantPolicy
+from .dppo_diffusion_jax import DPPODiffusionPolicy
 
 
 @dataclass(frozen=True)
@@ -129,7 +130,7 @@ def _clip_coefficients(steps: int, config: DPPOConfig, dtype) -> jnp.ndarray:
 
 
 def dppo_loss(
-    policy: CondStochInterpolantPolicy,
+    policy: CondStochInterpolantPolicy | DPPODiffusionPolicy,
     critic: ValueCritic,
     batch: RolloutBatch,
     config: DPPOConfig,
@@ -207,7 +208,7 @@ def bc_update(
 
 
 class DPPOTrainState(NamedTuple):
-    policy: CondStochInterpolantPolicy
+    policy: CondStochInterpolantPolicy | DPPODiffusionPolicy
     critic: ValueCritic
     actor_optimizer_state: optax.OptState
     critic_optimizer_state: optax.OptState
@@ -226,10 +227,11 @@ def make_dppo_state(
         optax.adamw(actor_learning_rate, weight_decay=0.0),
     )
     critic_optimizer = optax.adamw(critic_learning_rate, weight_decay=0.0)
-    # Only the velocity field is fine-tuned.  The informative source and its
-    # encoder remain the fixed initial inner-MDP distribution, matching DPPO's
-    # treatment of its Gaussian initial state.
-    actor_state = actor_optimizer.init(eqx.filter(policy.vel_net, eqx.is_array))
+    # SI fine-tunes only the velocity field, freezing its informative source.
+    # Diffusion fine-tunes its noise-prediction network; its Gaussian source
+    # has no parameters. This is the matched trainable actor split.
+    actor = policy.vel_net if hasattr(policy, "vel_net") else policy.network
+    actor_state = actor_optimizer.init(eqx.filter(actor, eqx.is_array))
     critic_state = critic_optimizer.init(eqx.filter(critic, eqx.is_array))
     return (
         DPPOTrainState(policy, critic, actor_state, critic_state, jnp.array(0)),
@@ -246,23 +248,33 @@ def dppo_update(
     batch: RolloutBatch,
     config: DPPOConfig,
 ) -> tuple[DPPOTrainState, DPPOMetrics]:
+    is_interpolant = hasattr(state.policy, "vel_net")
+    current_actor = (
+        state.policy.vel_net if is_interpolant else state.policy.network
+    )
+
+    def replace_actor(policy, actor):
+        if is_interpolant:
+            return eqx.tree_at(lambda model: model.vel_net, policy, actor)
+        return eqx.tree_at(lambda model: model.network, policy, actor)
+
     def objective(models):
-        velocity, critic = models
-        policy = eqx.tree_at(lambda model: model.vel_net, state.policy, velocity)
+        actor, critic = models
+        policy = replace_actor(state.policy, actor)
         return dppo_loss(policy, critic, batch, config)
 
-    (_, metrics), (velocity_grad, critic_grad) = eqx.filter_value_and_grad(
+    (_, metrics), (actor_grad, critic_grad) = eqx.filter_value_and_grad(
         objective, has_aux=True
-    )((state.policy.vel_net, state.critic))
+    )((current_actor, state.critic))
     actor_updates, actor_optimizer_state = actor_optimizer.update(
-        velocity_grad, state.actor_optimizer_state, state.policy.vel_net
+        actor_grad, state.actor_optimizer_state, current_actor
     )
     critic_updates, critic_optimizer_state = critic_optimizer.update(
         critic_grad, state.critic_optimizer_state, state.critic
     )
-    velocity = eqx.apply_updates(state.policy.vel_net, actor_updates)
+    actor = eqx.apply_updates(current_actor, actor_updates)
     critic = eqx.apply_updates(state.critic, critic_updates)
-    policy = eqx.tree_at(lambda model: model.vel_net, state.policy, velocity)
+    policy = replace_actor(state.policy, actor)
     return (
         DPPOTrainState(
             policy,

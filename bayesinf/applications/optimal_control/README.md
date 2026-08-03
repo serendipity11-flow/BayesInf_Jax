@@ -121,6 +121,36 @@ contexts seen by the encoder. Next-state labels stay clean, and the residual is
 formed from the noisy current state to the clean next state. This is denoising
 input augmentation, not label-noise augmentation.
 
+### Jackal obstacle avoidance
+
+The Jackal implementation uses the causal controlled transition
+
+```text
+p(x[t+1] | x[t-H+1:t], u[t])
+x = [world_x, world_y, sin(yaw), cos(yaw), v, omega]
+u = [v_command, omega_command]
+```
+
+Train first with the included simulator smoke test:
+
+```bash
+python -m bayesinf.applications.optimal_control.train_jackal_dynamics \
+  --epochs 30 --history 5 --rollout-steps 5
+```
+
+For robot data, export an NPZ with `states` shaped `(episodes,T+1,6)` and
+`actions` shaped `(episodes,T,2)`, then pass `--data jackal.npz`. An action at
+index `t` must be the command active between state timestamps `t` and `t+1`;
+interpolate odometry to the command clock before exporting.
+
+At control time, construct `obstacle_cost(goal, obstacles)` where each obstacle
+is `(x, y, radius)`, then use `CEMStochasticMPC` or `MPPIController` with
+`action_low=[0,-1.5]`, `action_high=[1,1.5]`. Keep the latest five state samples
+and four prior commands, call `controller.command(history, prior_commands,key)`,
+publish only the returned first command, and repeat at 10 Hz. The MPC
+`risk_weight` should be positive (start at `1.0`) so candidates with uncertain
+collision outcomes are rejected.
+
 ### Evaluation protocol
 
 Segment NLL is measured on held-out segments. Open-loop evaluation supplies

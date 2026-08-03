@@ -58,33 +58,63 @@ class CEMStochasticMPC:
         self.model, self.stage_cost, self.config = model, stage_cost, config
         self.low, self.high = jnp.asarray(action_low), jnp.asarray(action_high)
         self.mean = jnp.zeros((config.horizon, self.low.size))
+        n_elite = max(1, int(config.num_candidates * config.elite_fraction))
+
+        # Compile the complete optimizer.  Keeping sampling, scoring, elite
+        # selection, and distribution updates in one scan avoids a device
+        # round-trip for every CEM iteration.
+        def optimize(x_history, u_history, previous_mean, key):
+            mean = jnp.concatenate(
+                [previous_mean[1:], previous_mean[-1:]], axis=0
+            )
+            std = jnp.full_like(mean, config.initial_std)
+
+            def iteration(carry, iteration_key):
+                current_mean, current_std = carry
+                sample_key, rollout_key = jr.split(iteration_key)
+                candidates = jnp.clip(
+                    current_mean + current_std * jr.normal(
+                        sample_key,
+                        (config.num_candidates,) + current_mean.shape,
+                    ),
+                    self.low, self.high,
+                )
+                costs = _candidate_cost(
+                    self.model, x_history, u_history, candidates,
+                    jr.split(rollout_key, config.num_candidates),
+                    config.num_particles, self.stage_cost,
+                    config.risk_weight, config.smoothness_weight,
+                    config.smoothness_scale,
+                )
+                # top_k is a partial selection, avoiding a full O(N log N)
+                # argsort when only the elite candidates are needed.
+                _, elite_indices = jax.lax.top_k(-costs, n_elite)
+                elite = candidates[elite_indices]
+                next_mean = jnp.mean(elite, axis=0)
+                next_std = jnp.maximum(jnp.std(elite, axis=0), config.min_std)
+                return (next_mean, next_std), None
+
+            (mean, _), _ = jax.lax.scan(
+                iteration, (mean, std), jr.split(key, config.iterations)
+            )
+            return jnp.clip(mean, self.low, self.high)
+
+        self._optimize = jax.jit(optimize)
+        # Retain the scoring kernel for callers that use it for diagnostics.
+        self._cost = jax.jit(lambda x_history, u_history, candidates, keys:
+            _candidate_cost(
+                self.model, x_history, u_history, candidates, keys,
+                self.config.num_particles, self.stage_cost,
+                self.config.risk_weight, self.config.smoothness_weight,
+                self.config.smoothness_scale,
+            ))
 
     def reset(self):
         self.mean = jnp.zeros_like(self.mean)
 
     def command(self, x_history: Array, u_history: Array,
                 key: jr.PRNGKey) -> Tuple[Array, Array]:
-        cfg = self.config
-        mean = jnp.concatenate([self.mean[1:], self.mean[-1:]], axis=0)
-        std = jnp.broadcast_to(cfg.initial_std, mean.shape)
-        iteration_keys = jr.split(key, cfg.iterations)
-        n_elite = max(1, int(cfg.num_candidates * cfg.elite_fraction))
-        for iteration_key in iteration_keys:
-            sample_key, rollout_key = jr.split(iteration_key)
-            candidates = jnp.clip(
-                mean + std * jr.normal(sample_key, (cfg.num_candidates,) + mean.shape),
-                self.low, self.high,
-            )
-            costs = _candidate_cost(
-                self.model, x_history, u_history, candidates,
-                jr.split(rollout_key, cfg.num_candidates), cfg.num_particles,
-                self.stage_cost, cfg.risk_weight, cfg.smoothness_weight,
-                cfg.smoothness_scale,
-            )
-            elite = candidates[jnp.argsort(costs)[:n_elite]]
-            mean = jnp.mean(elite, axis=0)
-            std = jnp.maximum(jnp.std(elite, axis=0), cfg.min_std)
-        self.mean = jnp.clip(mean, self.low, self.high)
+        self.mean = self._optimize(x_history, u_history, self.mean, key)
         return self.mean[0], self.mean.copy()
 
 

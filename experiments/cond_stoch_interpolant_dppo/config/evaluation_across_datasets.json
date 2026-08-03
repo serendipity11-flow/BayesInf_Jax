@@ -1,0 +1,60 @@
+{
+  "root": ".",
+  "output": "results/results_optimal_control/generative_policy_evaluation",
+  "expected_seeds": 3,
+  "final_checkpoint_window": 5,
+  "tasks": {
+    "door": {
+      "env_id": "AdroitHandDoor-v2",
+      "registration_modules": ["gymnasium_robotics"],
+      "env_kwargs": {"max_episode_steps": 300},
+      "normalization": "data/dppo/door-human-v2/normalization.npz",
+      "success_key": "success",
+      "deterministic": true,
+      "reset_seeds": [
+        1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009,
+        1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019,
+        1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029,
+        1030, 1031, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039,
+        1040, 1041, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049
+      ],
+      "video_fps": 20
+    },
+    "kitchen_complete": {
+      "env_id": "kitchen-complete-v0",
+      "registration_modules": ["d4rl"],
+      "normalization": "data/dppo/kitchen-complete-v0/normalization.npz",
+      "success_key": "success",
+      "deterministic": true,
+      "reset_seeds": [
+        1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009,
+        1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019,
+        1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029,
+        1030, 1031, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039,
+        1040, 1041, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049
+      ],
+      "success_return_threshold": 4,
+      "subtasks": {
+        "microwave": "completed_tasks.microwave",
+        "kettle": "completed_tasks.kettle",
+        "light_switch": "completed_tasks.light_switch",
+        "slide_cabinet": "completed_tasks.slide_cabinet"
+      },
+      "video_fps": 20
+    }
+  },
+  "methods": {
+    "CondStochInterpolant": {
+      "checkpoint_globs": [
+        "results/results_optimal_control/{task}/si_informative/seed*/pretrain/checkpoint",
+        "results/results_optimal_control/{task}/si_informative/seed*/finetune/**/checkpoint"
+      ]
+    },
+    "DPPO": {
+      "checkpoint_globs": [
+        "results/results_optimal_control/{task}/dppo_jax/seed*/pretrain/checkpoint",
+        "results/results_optimal_control/{task}/dppo_jax/seed*/finetune/**/checkpoint"
+      ]
+    }
+  }
+}

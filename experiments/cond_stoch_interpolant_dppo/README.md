@@ -62,10 +62,40 @@ MUJOCO_GL=egl .venv-door/bin/python \
   -m experiments.cond_stoch_interpolant_dppo.check_env
 ```
 
-Verified with the lock file: dense `AdroitHandDoor-v1`, observation `(39,)`,
-action `(28,)`, episode horizon 200, and binary `info["success"]`.  The sparse
-ID is `AdroitHandDoorSparse-v1`; it is not used.  Gymnasium-Robotics warns that
-the dense v1 reward changed without an ID bump, hence the strict package lock.
+Before training, verify that the prepared demonstrations and the installed
+online environment satisfy the same runtime contract:
+
+```bash
+MUJOCO_GL=egl .venv-door/bin/python \
+  -m experiments.cond_stoch_interpolant_dppo.check_door_compatibility
+```
+
+The command exits nonzero on shape, action-bound, episode-horizon,
+reset-observation-support, reward, or `info["success"]` incompatibilities.
+
+### Matched Door pipeline
+
+Submit the complete three-seed comparison as one dependency chain:
+
+```bash
+bash experiments/cond_stoch_interpolant_dppo/submit_door_pipeline.sh
+```
+
+The pretraining array runs both the stochastic-interpolant and diffusion
+policies for 100,000 matched gradient steps on seeds 0--2. The dependent
+fine-tuning array applies the same DPPO settings to both policies for exactly
+840,000 primitive environment steps per seed. The final job evaluates every
+pretraining and fine-tuning checkpoint on the same 50 reset seeds and writes
+`episodes.csv`, `checkpoints.csv`, `final_results.csv`, `flags.csv`, plots, and
+`results.md` under
+`results/results_optimal_control/door/generative_policy_evaluation`.
+
+Verified with the lock file: fixed dense `AdroitHandDoor-v2`, observation
+`(39,)`, action `(28,)`, an explicit 300-step wrapper matching the offline
+episodes, and binary `info["success"]`. Gymnasium-Robotics 1.2.1--1.4.2 changed
+the dense v1 reward without an ID bump. The requirements pin the exact upstream
+revision containing v2 because a 1.4.3 wheel has not yet been published. This
+avoids the broken v1 contract while retaining Python 3.12 and NumPy 2 support.
 
 The official DPPO data list has no Door artifact.  Convert the Minari
 D4RL-derived human demonstrations:
@@ -162,7 +192,7 @@ JAX_PLATFORMS=cpu MUJOCO_GL=egl /home/zhangyi/myenv_312/bin/python -m \
   --data data/dppo/door-human-v2 \
   --checkpoint results/dppo_jax/door/seed0/checkpoint \
   --output results/dppo_jax/door/seed0-finetune \
-  --env AdroitHandDoor-v1 --obs-dim 39 --action-dim 28 --seed 0
+  --env AdroitHandDoor-v2 --obs-dim 39 --action-dim 28 --seed 0
 ```
 
 Deterministic evaluation:
@@ -173,7 +203,7 @@ JAX_PLATFORMS=cpu MUJOCO_GL=egl /home/zhangyi/myenv_312/bin/python -m \
   --data data/dppo/door-human-v2 \
   --checkpoint results/dppo_jax/door/seed0-finetune/checkpoint \
   --output results/dppo_jax/door/seed0-eval \
-  --env AdroitHandDoor-v1 --obs-dim 39 --action-dim 28 --eval-episodes 50
+  --env AdroitHandDoor-v2 --obs-dim 39 --action-dim 28 --eval-episodes 50
 ```
 
 The JAX update uses the full collected inner-transition batch per compiled
@@ -208,6 +238,24 @@ python -m experiments.cond_stoch_interpolant_dppo.metrics raw_metrics.csv \
 python -m experiments.cond_stoch_interpolant_dppo.plot raw_metrics.csv \
   --output learning_curves.png
 ```
+
+For checkpoint evaluation across every configured dataset, method, seed, and
+training stage, use the manifest-driven harness:
+
+```bash
+JAX_PLATFORMS=cpu MUJOCO_GL=egl /home/zhangyi/myenv_312/bin/python -m \
+  experiments.cond_stoch_interpolant_dppo.evaluate_across_datasets \
+  --manifest experiments/cond_stoch_interpolant_dppo/config/evaluation_across_datasets.json
+```
+
+The manifest is the extension point for another experiment: add a task with
+its environment registration module, normalization file, success semantics,
+fixed reset seeds, and optional subtask keys. Checkpoint patterns remain
+method-level and may use `{task}` and `{method}` placeholders. The evaluator
+writes per-episode and per-checkpoint CSV files, final seed aggregates, flags
+for missing stages or insufficient seeds, success curves, a Markdown table,
+and optional GIFs. A one-episode pipeline check can be run with `--episodes 1`;
+use `--record-episodes 1` only when the environment supports RGB rendering.
 
 ## Remaining gate before scientific claims
 

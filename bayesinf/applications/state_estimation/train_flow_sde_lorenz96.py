@@ -39,10 +39,13 @@ from bayesinf.applications.state_estimation.flow_sde import (
     make_step_realnvp_pathwise,
 )
 from bayesinf.applications.state_estimation.lorenz96_dataset import (
-    generate_lorenz96_dataset,
-    train_val_test_split,
     lorenz96_rhs,
 )
+from bayesinf.applications.state_estimation.dataset_selection import (
+    add_dataset_arguments,
+    load_selected_dataset,
+)
+from bayesinf.applications.state_estimation.evaluation_plots import save_state_estimation_plots
 
 
 # ---------------------------------------------------------------------------
@@ -50,6 +53,7 @@ from bayesinf.applications.state_estimation.lorenz96_dataset import (
 # ---------------------------------------------------------------------------
 
 parser = argparse.ArgumentParser(description="Train RealNVPFlowSDE on Lorenz-96")
+add_dataset_arguments(parser)
 parser.add_argument("--train",            action="store_true")
 parser.add_argument("--test",             action="store_true")
 # Dataset
@@ -125,6 +129,12 @@ parser.add_argument("--rollout_warmup_epochs", type=int, default=0,
                     help="Train without auxiliary rollout loss for this many initial epochs")
 parser.add_argument("--rollout_window", type=int, default=0,
                     help="Random contiguous rollout-loss window length; 0 uses full horizon")
+parser.add_argument("--transition_loss_weight", type=float, default=0.0,
+                    help="Weight of exact one-step RealNVP transition NLL, including Jacobian.")
+parser.add_argument("--exclude_control_from_diffusion", action="store_true",
+                    help="Mask control channels only for the normalizing-flow diffusion context.")
+parser.add_argument("--experiment_tag", type=str, default="",
+                    help="Optional checkpoint suffix for settings not otherwise encoded in the model name.")
 parser.add_argument("--kl_weight",        type=float, default=1e-3,
                     help="Deprecated; retained for launch-script compatibility.")
 parser.add_argument("--continuity_loss_weight", type=float, default=0.1,
@@ -156,15 +166,22 @@ parser.add_argument("--sampler",          type=str,   default="heun",
                     choices=("euler", "heun", "reversible_heun", "midpoint",
                              "milstein", "adaptive_euler", "rk4"),
                     help="Inference sampler / solver")
+parser.add_argument("--results_dir",      type=str, default=None)
+parser.add_argument("--plot_eval",        action="store_true")
+parser.add_argument("--eval_chunk_size", type=int, default=32)
 args = parser.parse_args()
 args.pathwise = True
+if args.flow_type == "realnvp":
+    # RealNVP applies nonlinear transition noise and therefore cannot be
+    # represented by a Diffrax ControlTerm.
+    args.use_custom_solver = True
 
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 
-results_dir = os.path.join(project_root, "results", "results_state_estimation")
+results_dir = args.results_dir or os.path.join(project_root, "results", "results_state_estimation")
 os.makedirs(results_dir, exist_ok=True)
 
 def _parse_tuple(s):
@@ -204,6 +221,13 @@ if args.rollout_loss_weight != 0.0:
         _robust_tag += f"_rwnd{args.rollout_window}"
 if args.continuity_loss_weight != 0.0:
     _robust_tag += f"_cw{args.continuity_loss_weight:g}"
+if args.transition_loss_weight != 0.0:
+    _robust_tag += f"_tnll{args.transition_loss_weight:g}"
+if args.exclude_control_from_diffusion:
+    _robust_tag += "_nou_nf"
+if args.experiment_tag:
+    safe_tag = args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
+    _robust_tag += f"_{safe_tag}"
 if args.initial_state_mode == "inferred" and args.init_loss_weight != 0.0:
     _robust_tag += f"_iw{args.init_loss_weight:g}"
 if args.use_multiple_shooting and args.seg_length_start != args.seg_length:
@@ -235,36 +259,21 @@ if args.train and os.environ.get("WANDB_DISABLED", "").lower() not in ("1", "tru
 # Dataset
 # ---------------------------------------------------------------------------
 
-d_x = args.N
-d_y = args.N // args.obs_interval
-
 k_data, k_model, k_train = jr.split(jr.PRNGKey(args.seed), 3)
 
-print(
-    f"Generating Lorenz-96 data  "
-    f"(N={args.N}, obs_interval={args.obs_interval}, noise={args.obs_noise_type}) …"
-)
-data = generate_lorenz96_dataset(
+train_data, val_data, test_data, d_x, d_y_obs, d_u, data_tag = load_selected_dataset(
+    args,
     k_data,
-    n_samples       = args.n_samples,
-    horizon         = args.horizon,
-    N               = args.N,
-    obs_interval    = args.obs_interval,
-    obs_std         = args.obs_std,
-    obs_noise_type  = args.obs_noise_type,
-    obs_df          = args.obs_df if args.obs_noise_type == "student_t" else None,
-    gmm_weights     = gmm_weights if args.obs_noise_type == "gmm" else None,
-    gmm_offsets     = gmm_offsets if args.obs_noise_type == "gmm" else None,
-    gmm_stds        = gmm_stds    if args.obs_noise_type == "gmm" else None,
-    dt              = args.dt,
-    F               = args.F_lorenz,
-    spinup_steps    = args.spinup_steps,
-    d_u             = 1,
+    obs_noise_type=args.obs_noise_type,
+    obs_df=args.obs_df if args.obs_noise_type == "student_t" else None,
+    gmm_weights=gmm_weights if args.obs_noise_type == "gmm" else None,
+    gmm_offsets=gmm_offsets if args.obs_noise_type == "gmm" else None,
+    gmm_stds=gmm_stds if args.obs_noise_type == "gmm" else None,
+    clean_initial_state=True,
 )
-train_data, val_data, test_data = train_val_test_split(
-    data, jr.fold_in(k_data, 1),
-    train_frac=args.train_frac, val_frac=args.val_frac,
-)
+d_y = d_y_obs + d_u
+model_tag = f"{'RealNVP' if args.flow_type == 'realnvp' else 'NICE'}FlowSDE_{data_tag}_{_train_mode}{_robust_tag}"
+save_path = os.path.join(results_dir, f"{model_tag}.pt")
 
 n_train    = train_data["x"].shape[0]
 n_val      = val_data["x"].shape[0]
@@ -295,7 +304,10 @@ print(f"Norm stats: x mean≈{x_mean.mean():.2f} std≈{x_std.mean():.2f} | "
 def _normalize(d):
     return {
         "x": jnp.array((d["x"] - x_mean) / x_std),
-        "y": jnp.array((d["y"] - y_mean) / y_std),
+        "y": jnp.concatenate([
+            jnp.array((d["y"] - y_mean) / y_std),
+            jnp.array(d["u"]),
+        ], axis=-1),
         "x0": jnp.array((d["x0"] - x_mean) / x_std),
     }
 
@@ -303,7 +315,10 @@ train_data = _normalize(train_data)
 val_data   = _normalize(val_data)
 # Keep test_data raw for final metrics; normalize on the fly during sampling.
 x_test_raw = np.array(test_data["x"])   # (M_test, H, d_x)  original scale
-y_test_norm = jnp.array((test_data["y"] - y_mean) / y_std)
+y_test_norm = jnp.concatenate([
+    jnp.array((test_data["y"] - y_mean) / y_std),
+    jnp.array(test_data["u"]),
+], axis=-1)
 x_test_norm = jnp.array((test_data["x"] - x_mean) / x_std)
 x0_test_norm = jnp.array((test_data["x0"] - x_mean) / x_std)
 
@@ -315,11 +330,17 @@ x0_test_norm = jnp.array((test_data["x0"] - x_mean) / x_std)
 _F   = args.F_lorenz
 _xm  = jnp.array(x_mean)
 _xs  = jnp.array(x_std)
-physics_fn = lambda z: lorenz96_rhs(_xm + _xs * z, _F) / _xs
+physics_fn = (
+    (lambda z: lorenz96_rhs(_xm + _xs * z, _F) / _xs)
+    if args.dataset == "lorenz96"
+    else None
+)
 
 model = RealNVPFlowSDE(
     d_x           = d_x,
     d_y           = d_y,
+    d_u           = d_u,
+    exclude_control_from_diffusion = args.exclude_control_from_diffusion,
     d_c           = args.d_c,
     d_hidden_enc  = args.d_hidden_enc,
     d_hidden      = args.d_hidden,
@@ -341,8 +362,12 @@ print(
     f"d_hidden={args.d_hidden}  depth={args.depth}  "
     f"flow={args.flow_type}  diffusion_hidden={args.d_hidden_diffusion}  layers="
     f"{args.n_realnvp_layers if args.flow_type == 'realnvp' else args.n_nice_layers}\n"
-    f"  training=transition_nll  solver={args.solver}  backend={_solver_backend}"
+    f"  training=pathwise"
+    f"{'+transition_nll' if args.transition_loss_weight else ''}"
+    f"  solver={args.solver}  backend={_solver_backend}"
 )
+if args.exclude_control_from_diffusion:
+    print(f"  control routing: deterministic drift only (masked from flow context, d_u={d_u})")
 
 
 # ---------------------------------------------------------------------------
@@ -374,20 +399,37 @@ def eval_pathwise(model, x, y, key, seg_length, solver_name, use_custom_solver,
                   rollout_loss_weight, kl_weight, continuity_loss_weight,
                   init_loss_weight, infer_initial, rollout_num_ensemble,
                   rollout_loss_type, rollout_energy_beta,
-                  rollout_uncertainty_weight, rollout_window):
+                  rollout_uncertainty_weight, rollout_window,
+                  transition_loss_weight):
     path_loss = model.nll_pathwise(
         x, y, key, seg_length, solver_name, use_custom_solver,
         kl_weight=kl_weight, continuity_weight=continuity_loss_weight,
         init_loss_weight=init_loss_weight, infer_initial=infer_initial,
     )
-    if rollout_loss_weight == 0.0:
-        return path_loss
-    rollout_loss = model.rollout_loss(
-        x, y, jr.fold_in(key, 29), solver_name, use_custom_solver, infer_initial,
-        rollout_num_ensemble, rollout_loss_type, rollout_energy_beta,
-        rollout_uncertainty_weight, rollout_window
-    )
-    return path_loss + rollout_loss_weight * rollout_loss
+    total_loss = path_loss
+    if transition_loss_weight != 0.0:
+        def one_transition_nll(xi, yi):
+            drift_context = model.encode_observation_stride(
+                yi, model.observation_stride
+            )
+            diffusion_context = model.encode_diffusion_stride(
+                yi, model.observation_stride
+            )
+            return model.transition_nll(
+                xi, drift_context, diffusion_context,
+                jnp.asarray(0.0, xi.dtype), model.time_step
+            )
+
+        transition_loss = jnp.mean(jax.vmap(one_transition_nll)(x, y))
+        total_loss = total_loss + transition_loss_weight * transition_loss
+    if rollout_loss_weight != 0.0:
+        rollout_loss = model.rollout_loss(
+            x, y, jr.fold_in(key, 29), solver_name, use_custom_solver,
+            infer_initial, rollout_num_ensemble, rollout_loss_type,
+            rollout_energy_beta, rollout_uncertainty_weight, rollout_window
+        )
+        total_loss = total_loss + rollout_loss_weight * rollout_loss
+    return total_loss
 
 
 # ---------------------------------------------------------------------------
@@ -443,6 +485,11 @@ if args.train:
             f"warmup={max(0, args.rollout_warmup_epochs)} epoch(s)  "
             f"window={args.rollout_window if args.rollout_window > 0 else 'full'}"
         )
+    if args.transition_loss_weight != 0.0:
+        print(
+            f"  Exact RealNVP transition NLL weight: "
+            f"{args.transition_loss_weight} (base density + flow Jacobian)"
+        )
     print(f"  Path-wise training  solver={args.solver}  backend={_solver_backend}")
 
     rng = k_train
@@ -481,7 +528,7 @@ if args.train:
                     args.init_loss_weight, infer_initial,
                     args.rollout_num_ensemble, args.rollout_loss_type,
                     args.rollout_energy_beta, args.rollout_uncertainty_weight,
-                    args.rollout_window,
+                    args.rollout_window, args.transition_loss_weight,
                 )
                 epoch_losses.append(float(loss))
 
@@ -502,6 +549,7 @@ if args.train:
                 infer_initial, args.rollout_num_ensemble,
                 args.rollout_loss_type, args.rollout_energy_beta,
                 args.rollout_uncertainty_weight, args.rollout_window,
+                args.transition_loss_weight,
             ))
 
             if val_loss < best_val_loss:
@@ -560,7 +608,7 @@ if args.test or args.train:
     # Posterior samples: start from first state of each test trajectory.
     # sample_posterior(y_i, x0_i, key, n_particles) -> (n_particles, H, d_x)
     # We vmap this across the test set in chunks to avoid OOM.
-    chunk     = 32
+    chunk     = args.eval_chunk_size
     all_samps = []
 
     @eqx.filter_jit
@@ -616,6 +664,17 @@ if args.test or args.train:
     print(f"  RMSE posterior mean: {rmse_all:.4f}")
     print(f"  MAE  posterior mean: {mae_all:.4f}")
     print(f"  Coverage @ 90% CI:   {coverage * 100:.1f}%")
+    if args.plot_eval:
+        save_state_estimation_plots(
+            results_dir,
+            "realnvp_flow_sde"
+            + (f"_{args.obs_noise_type}" if args.obs_noise_type != "gaussian" else "")
+            + ("_nou_nf" if args.exclude_control_from_diffusion else "")
+            + (f"_{safe_tag}" if args.experiment_tag else ""),
+            x_test_raw,
+            np.asarray(test_data["y"]),
+            all_samps,
+        )
 
     try:
         import wandb

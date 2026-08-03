@@ -88,11 +88,13 @@ def full_horizon_metrics(model, episodes, actions, indices, history,
     squared_error, rows = [], []
     # Equinox partitions array-valued module leaves from static structure;
     # plain jax.jit would try to hash the bound model's JAX arrays.
-    rollout = eqx.filter_jit(model.rollout_deterministic)
+    rollout = eqx.filter_jit(model.rollout_deterministic_history)
     for i in indices:
         x = jnp.asarray((episodes[i] - np.asarray(x_mean)) / np.asarray(x_std))
         u = jnp.asarray((actions[i] - np.asarray(u_mean)) / np.asarray(u_std))
-        prediction = rollout(x[:history], u[history - 1:])
+        prediction = rollout(
+            x[:history], u[:history - 1], u[history - 1:]
+        )
         target = x[history:]
         error = np.asarray((prediction - target) * x_std)
         squared_error.append(error ** 2)

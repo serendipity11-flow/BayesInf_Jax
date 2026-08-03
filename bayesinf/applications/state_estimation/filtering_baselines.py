@@ -92,6 +92,73 @@ def extended_kalman_filter(
     return FilterResult(means, covs)
 
 
+def unscented_kalman_filter(
+    y: jnp.ndarray,
+    x0: jnp.ndarray,
+    H: jnp.ndarray,
+    *,
+    dt: float,
+    F: float = 8.0,
+    obs_std: float = 0.5,
+    process_std: float = 0.05,
+    initial_std: float = 0.0,
+    alpha: float = 0.5,
+    beta: float = 2.0,
+    kappa: float = 0.0,
+) -> FilterResult:
+    """Run a scaled unscented Kalman filter with the exact RK4 transition."""
+    if obs_std <= 0 or process_std < 0 or initial_std < 0 or alpha <= 0:
+        raise ValueError("Noise scales must be valid and alpha positive")
+    y, x0, single = _as_batch(jnp.asarray(y), jnp.asarray(x0))
+    H = jnp.asarray(H)
+    n, dy = x0.shape[-1], y.shape[-1]
+    if H.shape != (dy, n):
+        raise ValueError(f"H must have shape {(dy, n)}, got {H.shape}")
+
+    lam = alpha**2 * (n + kappa) - n
+    scale = n + lam
+    wm = jnp.full(2 * n + 1, 1.0 / (2.0 * scale), dtype=x0.dtype)
+    wc = wm.at[0].set(lam / scale + (1.0 - alpha**2 + beta))
+    wm = wm.at[0].set(lam / scale)
+    eye = jnp.eye(n, dtype=x0.dtype)
+    Q = process_std**2 * eye
+    R = obs_std**2 * jnp.eye(dy, dtype=x0.dtype)
+
+    def sigma_points(mean, covariance):
+        root = jnp.linalg.cholesky(scale * (covariance + 1e-7 * eye))
+        offsets = root.T
+        return jnp.concatenate((mean[None], mean + offsets, mean - offsets), axis=0)
+
+    def one_sequence(obs, initial):
+        def step(carry, measurement):
+            mean, covariance = carry
+            sigma = sigma_points(mean, covariance)
+            propagated = jax.vmap(lambda point: rk4_step(point, dt, F))(sigma)
+            pred_mean = jnp.sum(wm[:, None] * propagated, axis=0)
+            dx = propagated - pred_mean
+            pred_cov = jnp.einsum("s,si,sj->ij", wc, dx, dx) + Q
+
+            obs_sigma = propagated @ H.T
+            obs_mean = jnp.sum(wm[:, None] * obs_sigma, axis=0)
+            dz = obs_sigma - obs_mean
+            innovation_cov = jnp.einsum("s,si,sj->ij", wc, dz, dz) + R
+            cross_cov = jnp.einsum("s,si,sj->ij", wc, dx, dz)
+            gain = jnp.linalg.solve(innovation_cov, cross_cov.T).T
+            mean = pred_mean + gain @ (measurement - obs_mean)
+            covariance = pred_cov - gain @ innovation_cov @ gain.T
+            covariance = 0.5 * (covariance + covariance.T)
+            return (mean, covariance), (mean, covariance)
+
+        init_cov = initial_std**2 * eye
+        _, (means, covs) = jax.lax.scan(step, (initial, init_cov), obs)
+        return means, covs
+
+    means, covs = jax.vmap(one_sequence)(y, x0)
+    if single:
+        means, covs = means[0], covs[0]
+    return FilterResult(means, covs)
+
+
 def _observation_log_likelihood(
     residual: jnp.ndarray,
     noise_type: str,

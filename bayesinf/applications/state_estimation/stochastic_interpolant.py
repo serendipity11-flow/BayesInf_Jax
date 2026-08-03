@@ -497,15 +497,17 @@ class StochasticInterpolantSE(eqx.Module):
         y:       jnp.ndarray,   # (T, d_y)
         key:     jr.PRNGKey,
         seg_len: int,
+        segment_stride: int = 0,
     ) -> jnp.ndarray:
         T      = x.shape[0]
-        n_segs = (T - 1) // seg_len
+        stride = segment_stride if segment_stride > 0 else seg_len
+        n_segs = (T - seg_len - 1) // stride + 1
         L      = seg_len + 1
 
         c_full = self.encoder(y)
         mu_full, log_sigma_full = self.inference_net(y, c_full)
 
-        seg_starts = (jnp.arange(n_segs) * seg_len).astype(jnp.int32)
+        seg_starts = (jnp.arange(n_segs) * stride).astype(jnp.int32)
 
         x_segs      = jax.vmap(lambda s: jax.lax.dynamic_slice(x,          (s, 0), (L, self.d_x)))(seg_starts)
         mu_segs = jax.vmap(lambda s: jax.lax.dynamic_slice(mu_full, (s, 0), (L, self.d_x)))(seg_starts)
@@ -522,15 +524,17 @@ class StochasticInterpolantSE(eqx.Module):
         y:       jnp.ndarray,
         key:     jr.PRNGKey,
         seg_len: int,
+        segment_stride: int = 0,
     ):
         T      = x.shape[0]
-        n_segs = (T - 1) // seg_len
+        stride = segment_stride if segment_stride > 0 else seg_len
+        n_segs = (T - seg_len - 1) // stride + 1
         L      = seg_len + 1
 
         c_full = self.encoder(y)
         mu_full, log_sigma_full = self.inference_net(y, c_full)
 
-        seg_starts = (jnp.arange(n_segs) * seg_len).astype(jnp.int32)
+        seg_starts = (jnp.arange(n_segs) * stride).astype(jnp.int32)
 
         x_segs      = jax.vmap(lambda s: jax.lax.dynamic_slice(x,          (s, 0), (L, self.d_x)))(seg_starts)
         mu_segs = jax.vmap(lambda s: jax.lax.dynamic_slice(mu_full, (s, 0), (L, self.d_x)))(seg_starts)
@@ -541,20 +545,24 @@ class StochasticInterpolantSE(eqx.Module):
         vals = jax.vmap(self._loss_seg_components)(x_segs, mu_segs, log_sigma_segs, c_segs, keys)
         return tuple(jnp.mean(v) for v in vals)
 
-    def loss_ms_batch(self, x, y, key, seg_len):
+    def loss_ms_batch(self, x, y, key, seg_len, segment_stride=0):
         """Batch multiple-shooting loss."""
         B    = x.shape[0]
         keys = jr.split(key, B)
         return jnp.mean(jax.vmap(
-            lambda xi, yi, ki: self.loss_ms_single(xi, yi, ki, seg_len)
+            lambda xi, yi, ki: self.loss_ms_single(
+                xi, yi, ki, seg_len, segment_stride
+            )
         )(x, y, keys))
 
-    def loss_ms_batch_components(self, x, y, key, seg_len):
+    def loss_ms_batch_components(self, x, y, key, seg_len, segment_stride=0):
         """Batch multiple-shooting loss plus diagnostic components."""
         B    = x.shape[0]
         keys = jr.split(key, B)
         vals = jax.vmap(
-            lambda xi, yi, ki: self.loss_ms_single_components(xi, yi, ki, seg_len)
+            lambda xi, yi, ki: self.loss_ms_single_components(
+                xi, yi, ki, seg_len, segment_stride
+            )
         )(x, y, keys)
         return tuple(jnp.mean(v) for v in vals)
 
@@ -751,12 +759,15 @@ def make_step_si_ms(
     y_batch:   jnp.ndarray,
     key:       jr.PRNGKey,
     seg_len:   int,
+    segment_stride: int,
     opt_state,
     optimizer,
 ):
     """Multiple-shooting training step."""
     def loss_fn(m):
-        total, l_flow, l_score, l_source = m.loss_ms_batch_components(x_batch, y_batch, key, seg_len)
+        total, l_flow, l_score, l_source = m.loss_ms_batch_components(
+            x_batch, y_batch, key, seg_len, segment_stride
+        )
         return total, (l_flow, l_score, l_source)
     (loss, components), grads = eqx.filter_value_and_grad(loss_fn, has_aux=True)(model)
     updates, opt_state_new = optimizer.update(grads, opt_state, model)

@@ -224,11 +224,12 @@ class SDEDriftNet(eqx.Module):
         depth:        int,
         time_emb_dim: int,
         key:          jr.PRNGKey,
+        output_dim:    int | None = None,
     ):
         self.time_emb = SinusoidalEmb(time_emb_dim)
         self.net = eqx.nn.MLP(
             in_size    = d_x + d_c + time_emb_dim,
-            out_size   = d_x,
+            out_size   = d_x if output_dim is None else output_dim,
             width_size = d_hidden,
             depth      = depth,
             activation = jax.nn.gelu,
@@ -354,7 +355,7 @@ class RealNVPDiffusionNet(eqx.Module):
         self.layers = tuple(
             RealNVPDiffusionLayer(
                 d_x, d_c, d_hidden, time_emb_dim, flip=(i % 2 == 1),
-                alpha=alpha, key=keys[i]
+                alpha=alpha, key=keys[i],
             )
             for i in range(n_layers)
         )
@@ -630,6 +631,8 @@ class RealNVPFlowSDE(eqx.Module):
     diffusion:  RealNVPDiffusionNet | NICEDiffusionNet
     d_x:        int    = eqx.field(static=True)
     d_y:        int    = eqx.field(static=True)
+    d_u:        int    = eqx.field(static=True)
+    exclude_control_from_diffusion: bool = eqx.field(static=True)
     physics_fn: object = eqx.field(static=True, default=None)
     flow_type:  str = eqx.field(static=True, default="realnvp")
     observation_stride: int = eqx.field(static=True, default=1)
@@ -639,6 +642,8 @@ class RealNVPFlowSDE(eqx.Module):
         self,
         d_x:           int,
         d_y:           int,
+        d_u:           int   = 0,
+        exclude_control_from_diffusion: bool = False,
         d_c:           int   = 64,
         d_hidden_enc:  int   = 64,
         d_hidden:      int   = 128,
@@ -657,6 +662,10 @@ class RealNVPFlowSDE(eqx.Module):
     ):
         self.d_x        = d_x
         self.d_y        = d_y
+        self.d_u        = d_u
+        self.exclude_control_from_diffusion = exclude_control_from_diffusion
+        if d_u < 0 or d_u > d_y:
+            raise ValueError(f"d_u must be between 0 and d_y; got d_u={d_u}, d_y={d_y}.")
         self.physics_fn = physics_fn
         self.flow_type = flow_type.lower()
         if observation_stride < 1:
@@ -696,6 +705,12 @@ class RealNVPFlowSDE(eqx.Module):
         )
         return sparse_context[context_idx]
 
+    def encode_diffusion_stride(self, y: jnp.ndarray, stride: int) -> jnp.ndarray:
+        """Encode stochastic context with control channels masked when requested."""
+        if self.exclude_control_from_diffusion and self.d_u:
+            y = y.at[..., -self.d_u:].set(0.0)
+        return self.encode_observation_stride(y, stride)
+
     def infer_z0(
         self,
         y_seg: jnp.ndarray,
@@ -719,21 +734,25 @@ class RealNVPFlowSDE(eqx.Module):
             0.5 * standardized**2 + jnp.log(sigma) + 0.5 * jnp.log(2.0 * jnp.pi)
         )
 
-    def transition_nll(self, x_seg, c_seg, t_start, dt):
+    def transition_nll(self, x_seg, c_drift_seg, c_diffusion_seg, t_start, dt):
         times = t_start + jnp.arange(x_seg.shape[0] - 1) * dt
 
-        def one_step(x0, x1, c0, t0):
-            drift = self.drift(x0, c0, t0)
+        def one_step(x0, x1, c_drift0, c_diffusion0, t0):
+            drift = self.drift(x0, c_drift0, t0)
             if self.physics_fn is not None:
                 drift = drift + self.physics_fn(x0)
             normalized_residual = (x1 - x0 - drift * dt) / jnp.sqrt(dt)
-            eps, log_det = self.diffusion.inverse_and_log_det(normalized_residual, x0, c0, t0)
+            eps, log_det = self.diffusion.inverse_and_log_det(
+                normalized_residual, x0, c_diffusion0, t0
+            )
             base_nll = 0.5 * jnp.sum(eps**2) + 0.5 * self.d_x * jnp.log(2.0 * jnp.pi)
             time_log_det = 0.5 * self.d_x * jnp.log(dt)   # ← FIXED sign
             # log_det from inverse_and_log_det is now -log|det dT/deps| → correct
             return (base_nll + log_det + time_log_det) / self.d_x
 
-        losses = jax.vmap(one_step)(x_seg[:-1], x_seg[1:], c_seg[:-1], times)
+        losses = jax.vmap(one_step)(
+            x_seg[:-1], x_seg[1:], c_drift_seg[:-1], c_diffusion_seg[:-1], times
+        )
         return jnp.mean(losses)
 
     # ------------------------------------------------------------------
@@ -888,6 +907,7 @@ class RealNVPFlowSDE(eqx.Module):
         T   = x.shape[0]
         dt0 = self.time_step
         c   = self.encode_observation_stride(y, self.observation_stride)
+        c_diffusion = self.encode_diffusion_stride(y, self.observation_stride)
 
         n_segs   = (T - 1) // seg_length
         k_seg_root, k_init_root = jr.split(key, 2)        # ← independent keys
@@ -916,7 +936,10 @@ class RealNVPFlowSDE(eqx.Module):
                 z0 = z0 + shooting_noise_std * jr.normal(jr.fold_in(init_keys[k], 101), z0.shape)
 
             # ← Use x_pred for the reconstruction loss (was discarded before)
-            x_pred = self._integrate_custom(z0, ts_seg, c, seg_keys[k], solver_name)
+            x_pred = self._integrate_custom(
+                z0, ts_seg, c, seg_keys[k], solver_name,
+                c_diffusion=c_diffusion,
+            )
             total_recon = total_recon + jnp.mean((x_pred - x[s:e]) ** 2)
 
             if prev_end is not None and continuity_weight > 0.0:
@@ -963,10 +986,11 @@ class RealNVPFlowSDE(eqx.Module):
         key:            jr.PRNGKey,
         solver_name:    str,
         diffusion_temp: float = 1.0,
+        c_diffusion:    jnp.ndarray | None = None,
     ) -> jnp.ndarray:
         """Backward-compatible alias for the shared stochastic solver path."""
         return self._integrate_stochastic_solver(
-            z0, ts, c, key, solver_name, diffusion_temp
+            z0, ts, c, key, solver_name, diffusion_temp, c_diffusion
         )
 
     def _integrate_stochastic_solver(
@@ -977,9 +1001,12 @@ class RealNVPFlowSDE(eqx.Module):
         key:            jr.PRNGKey,
         solver_name:    str,
         diffusion_temp: float = 1.0,
+        c_diffusion:    jnp.ndarray | None = None,
     ) -> jnp.ndarray:
         """Integrate using solver implementations from stochastic_solvers.py."""
         solver = get_stochastic_solver(solver_name)
+        if c_diffusion is None:
+            c_diffusion = c
         eps_steps = jr.normal(key, (ts.shape[0] - 1, self.d_x))
         dt0 = ts[1] - ts[0]
         bm = StepNoisePath(eps_steps, ts[0], dt0)
@@ -988,7 +1015,7 @@ class RealNVPFlowSDE(eqx.Module):
             return self._custom_drift(z, c, t)
 
         def diffuse_fn(t, z, eps):
-            return self._custom_diffusion(eps, z, c, t, diffusion_temp)
+            return self._custom_diffusion(eps, z, c_diffusion, t, diffusion_temp)
 
         def step(z, t_pair):
             t0, t1 = t_pair
@@ -1046,6 +1073,7 @@ class RealNVPFlowSDE(eqx.Module):
         dt0 = self.time_step
         ts = jnp.arange(T, dtype=x.dtype) * dt0
         c = self.encode_observation_stride(y, self.observation_stride)
+        c_diffusion = self.encode_diffusion_stride(y, self.observation_stride)
 
         init_key, sde_key = jr.split(key)
         if loss_type == "mse":
@@ -1058,7 +1086,9 @@ class RealNVPFlowSDE(eqx.Module):
                     "RealNVP rollout loss requires --use_custom_solver; "
                     "Diffrax ControlTerm cannot represent nonlinear flow noise."
                 )
-            pred = self._integrate_stochastic_solver(z0, ts, c, sde_key, solver_name)
+            pred = self._integrate_stochastic_solver(
+                z0, ts, c, sde_key, solver_name, c_diffusion=c_diffusion
+            )
             return jnp.mean((pred - x) ** 2)
 
         if not use_custom_solver:
@@ -1076,7 +1106,9 @@ class RealNVPFlowSDE(eqx.Module):
         sde_keys = jr.split(sde_key, num_ensemble)
 
         def integrate_one(z0, k):
-            return self._integrate_stochastic_solver(z0, ts, c, k, solver_name)
+            return self._integrate_stochastic_solver(
+                z0, ts, c, k, solver_name, c_diffusion=c_diffusion
+            )
 
         preds = jax.vmap(integrate_one)(z0s, sde_keys)
         if loss_type == "energy_score":
@@ -1222,6 +1254,7 @@ class RealNVPFlowSDE(eqx.Module):
         T   = y.shape[0]
         stride = self.observation_stride if observation_stride is None else observation_stride
         c = self.encode_observation_stride(y, stride)
+        c_diffusion = self.encode_diffusion_stride(y, stride)
         # y and the returned trajectory correspond to x[1:T+1], while x0 is
         # the state immediately before them. Integrate one additional interval
         # and discard the supplied initial state from the returned path.
@@ -1235,7 +1268,8 @@ class RealNVPFlowSDE(eqx.Module):
             else:
                 z0 = x0
             path = self._integrate_custom(
-                z0, ts, c, k_sde, solver_name, diffusion_temp
+                z0, ts, c, k_sde, solver_name, diffusion_temp,
+                c_diffusion=c_diffusion,
             )
             return path[1:]
         
@@ -1285,6 +1319,7 @@ def make_step_realnvp_pathwise(
     rollout_energy_beta: float = 1.0,
     rollout_uncertainty_weight: float = 0.5,
     rollout_window: int = 0,
+    transition_loss_weight: float = 0.0,
 ):
     """
     Path-wise training step.
@@ -1304,14 +1339,33 @@ def make_step_realnvp_pathwise(
             shooting_noise_std, kl_weight, continuity_weight, init_loss_weight,
             infer_initial
         )
-        if rollout_loss_weight == 0.0:
-            return path_loss
-        rollout_loss = m.rollout_loss(
-            x_batch, y_batch, jr.fold_in(key, 29), solver_name, use_custom_solver,
-            infer_initial, rollout_num_ensemble, rollout_loss_type,
-            rollout_energy_beta, rollout_uncertainty_weight, rollout_window
-        )
-        return path_loss + rollout_loss_weight * rollout_loss
+        total_loss = path_loss
+        if transition_loss_weight != 0.0:
+            def one_transition_nll(xi, yi):
+                drift_context = m.encode_observation_stride(
+                    yi, m.observation_stride
+                )
+                diffusion_context = m.encode_diffusion_stride(
+                    yi, m.observation_stride
+                )
+                return m.transition_nll(
+                    xi, drift_context, diffusion_context,
+                    jnp.asarray(0.0, xi.dtype), m.time_step
+                )
+
+            transition_loss = jnp.mean(
+                jax.vmap(one_transition_nll)(x_batch, y_batch)
+            )
+            total_loss = total_loss + transition_loss_weight * transition_loss
+        if rollout_loss_weight != 0.0:
+            rollout_loss = m.rollout_loss(
+                x_batch, y_batch, jr.fold_in(key, 29), solver_name,
+                use_custom_solver, infer_initial, rollout_num_ensemble,
+                rollout_loss_type, rollout_energy_beta,
+                rollout_uncertainty_weight, rollout_window
+            )
+            total_loss = total_loss + rollout_loss_weight * rollout_loss
+        return total_loss
 
     loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
     updates, opt_state_new = optimizer.update(grads, opt_state, model)

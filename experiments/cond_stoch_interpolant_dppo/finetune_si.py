@@ -53,7 +53,7 @@ def denormalize_action(action, norm):
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--env", default="AdroitHandDoor-v1")
+    p.add_argument("--env", default="AdroitHandDoor-v2")
     p.add_argument("--checkpoint", type=Path, required=True)
     p.add_argument("--normalization", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
@@ -184,4 +184,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

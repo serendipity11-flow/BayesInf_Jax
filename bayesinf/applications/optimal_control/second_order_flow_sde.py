@@ -40,7 +40,7 @@ class SecondOrderControlledRealNVPFlowSDE(eqx.Module):
     state_dim: int = eqx.field(static=True)
     control_dim: int = eqx.field(static=True)
     dt: float = eqx.field(static=True)
-    diffusion_condition_on_control: bool = eqx.field(static=True, default=False)
+    diffusion_condition_on_control: bool = eqx.field(static=True, default=True)
     velocity_to_position_scale: jnp.ndarray
     velocity_to_position_bias: jnp.ndarray
 
@@ -48,12 +48,13 @@ class SecondOrderControlledRealNVPFlowSDE(eqx.Module):
                  depth=2, diffusion_hidden=64, flow_layers=4,
                  time_emb_dim=16, realnvp_alpha=3.0, dt=0.02,
                  velocity_to_position_scale=None,
-                 velocity_to_position_bias=None):
+                 velocity_to_position_bias=None,
+                 diffusion_condition_on_control=True):
         self.position_dim = position_dim
         self.state_dim = 2 * position_dim
         self.control_dim = control_dim
         self.dt = float(dt)
-        self.diffusion_condition_on_control = False
+        self.diffusion_condition_on_control = diffusion_condition_on_control
         if velocity_to_position_scale is None:
             velocity_to_position_scale = jnp.ones(position_dim)
         if velocity_to_position_bias is None:
@@ -65,11 +66,19 @@ class SecondOrderControlledRealNVPFlowSDE(eqx.Module):
             position_dim, control_dim, hidden_size, depth,
             time_emb_dim, acceleration_key,
         )
-        # q is passed as z_state and v as context: g(epsilon; q, v, t).
+        # q is passed as z_state and [v,u] as context:
+        # g(epsilon; q, v, u, t).
         self.diffusion = RealNVPDiffusionNet(
-            position_dim, position_dim, diffusion_hidden, flow_layers,
+            position_dim,
+            position_dim + (control_dim if diffusion_condition_on_control else 0),
+            diffusion_hidden, flow_layers,
             time_emb_dim, diffusion_key, alpha=realnvp_alpha,
         )
+
+    def _diffusion_context(self, velocity, control):
+        if self.diffusion_condition_on_control:
+            return jnp.concatenate([velocity, control])
+        return velocity
 
     def transition_nll(self, z0, u0, z1, time):
         dt = jnp.asarray(self.dt, dtype=z0.dtype)
@@ -79,9 +88,10 @@ class SecondOrderControlledRealNVPFlowSDE(eqx.Module):
             q0, v0 = a[:d], a[d:]
             v1 = b[d:]
             residual = (v1 - v0 - self.acceleration(a, control, t) * dt) / jnp.sqrt(dt)
-            centre = self.diffusion.apply(jnp.zeros(d), q0, v0, t)
+            context = self._diffusion_context(v0, control)
+            centre = self.diffusion.apply(jnp.zeros(d), q0, context, t)
             epsilon, log_det = self.diffusion.inverse_and_log_det(
-                residual + centre, q0, v0, t
+                residual + centre, q0, context, t
             )
             base = 0.5 * jnp.sum(epsilon ** 2) + 0.5 * d * jnp.log(2 * jnp.pi)
             return (base + log_det + 0.5 * d * jnp.log(dt)) / d
@@ -90,6 +100,13 @@ class SecondOrderControlledRealNVPFlowSDE(eqx.Module):
             z0.reshape(-1, self.state_dim), u0.reshape(-1, self.control_dim),
             z1.reshape(-1, self.state_dim), time.reshape(-1),
         ))
+
+    def noisy_transition_nll(self, z0, u0, z1, time, key,
+                             state_noise_std=0.0, control_noise_std=0.0):
+        kx, ku = jr.split(key)
+        noisy_z = z0 + state_noise_std * jr.normal(kx, z0.shape)
+        noisy_u = u0 + control_noise_std * jr.normal(ku, u0.shape)
+        return self.transition_nll(noisy_z, noisy_u, z1, time)
 
     def deterministic_rollout(self, z0, controls, start_step=0):
         dt = jnp.asarray(self.dt, dtype=z0.dtype)
@@ -130,10 +147,11 @@ class SecondOrderControlledRealNVPFlowSDE(eqx.Module):
 
         def diffusion_fn(t, z, epsilon):
             q, v = z[:d], z[d:]
+            context = self._diffusion_context(v, control_at(t))
             zero = jnp.zeros_like(epsilon)
             noise = (self.diffusion.apply(
-                epsilon * diffusion_temperature, q, v, t
-            ) - self.diffusion.apply(zero, q, v, t))
+                epsilon * diffusion_temperature, q, context, t
+            ) - self.diffusion.apply(zero, q, context, t))
             return jnp.concatenate([jnp.zeros(d, dtype=z.dtype), noise])
 
         def step(z, k):
@@ -154,8 +172,10 @@ class SecondOrderControlledRealNVPFlowSDE(eqx.Module):
                                segment_length=16, n_particles=4,
                                solver_name="heun", shooting_noise_std=0.01,
                                control_noise_std=0.01,
+                               path_weight=1.0,
                                uncertainty_weight=0.5,
-                               continuity_weight=0.1):
+                               continuity_weight=0.1,
+                               state_loss_weights=None):
         window_steps = controls.shape[1]
         if window_steps % segment_length:
             raise ValueError("window steps must be divisible by segment length")
@@ -195,7 +215,8 @@ class SecondOrderControlledRealNVPFlowSDE(eqx.Module):
             scores, continuity = jax.vmap(segment_loss)(
                 starts, u_segments, targets, times, keys
             )
-            return jnp.mean(scores) + continuity_weight * jnp.mean(continuity)
+            return (path_weight * jnp.mean(scores)
+                    + continuity_weight * jnp.mean(continuity))
 
         return jnp.mean(jax.vmap(trajectory_loss)(
             states, controls, start_steps, batch_keys

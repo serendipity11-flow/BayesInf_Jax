@@ -40,10 +40,13 @@ from bayesinf.applications.state_estimation.latent_ssm_flow import (
     build_latent_ssm_flow,
 )
 from bayesinf.applications.state_estimation.lorenz96_dataset import (
-    generate_lorenz96_dataset,
-    train_val_test_split,
     state_rmse,
 )
+from bayesinf.applications.state_estimation.dataset_selection import (
+    add_dataset_arguments,
+    load_selected_dataset,
+)
+from bayesinf.applications.state_estimation.evaluation_plots import save_state_estimation_plots
 
 
 # ---------------------------------------------------------------------------
@@ -51,6 +54,7 @@ from bayesinf.applications.state_estimation.lorenz96_dataset import (
 # ---------------------------------------------------------------------------
 
 parser = argparse.ArgumentParser(description="Train LatentSSMFlow on Lorenz-96")
+add_dataset_arguments(parser)
 parser.add_argument("--train",             action="store_true")
 parser.add_argument("--test",              action="store_true")
 parser.add_argument("--flow_type",         type=str,   default="realnvp",
@@ -60,8 +64,13 @@ parser.add_argument("--horizon",           type=int,   default=100)
 parser.add_argument("--N",                 type=int,   default=12)
 parser.add_argument("--obs_interval",      type=int,   default=2)
 parser.add_argument("--obs_std",           type=float, default=0.5)
+parser.add_argument("--obs_noise_type",    choices=("gaussian", "student_t", "gmm"),
+                    default="student_t")
 parser.add_argument("--obs_df",            type=float, default=5.0,
                     help="Student-t degrees of freedom for obs noise")
+parser.add_argument("--gmm_weights",        default="0.70,0.15,0.15")
+parser.add_argument("--gmm_offsets",        default="0.0,2.5,-2.5")
+parser.add_argument("--gmm_stds",           default="0.50,1.50,1.50")
 parser.add_argument("--dt",                type=float, default=0.02)
 parser.add_argument("--F_lorenz",          type=float, default=8.0)
 parser.add_argument("--spinup_steps",      type=int,   default=500)
@@ -80,6 +89,10 @@ parser.add_argument("--local_window_prev_only", action="store_true",
 parser.add_argument("--seg_len",           type=int,   default=5,
                     help="Segment horizon into chunks of seg_len for efficiency "
                          "(0 = no segmentation, use full horizon)")
+parser.add_argument("--segment_stride",    type=int, default=0,
+                    help="Sliding training-segment stride; 0 is non-overlapping.")
+parser.add_argument("--full_horizon_eval", action="store_true",
+                    help="Evaluate from one initial state without true segment boundaries.")
 parser.add_argument("--d_enc",             type=int,   default=64)
 parser.add_argument("--d_out",             type=int,   default=96)
 parser.add_argument("--gru_hidden",        type=int,   default=64)
@@ -110,6 +123,8 @@ parser.add_argument("--ssm_noise",         type=float, default=1.0,
                          "1.0 (2× obs_std) widens the SSM prior and improves coverage. "
                          "Only used when --fix_ssm is set.")
 parser.add_argument("--seed",              type=int,   default=0)
+parser.add_argument("--experiment_tag", type=str, default="",
+                    help="Optional checkpoint suffix for distinguishing runs.")
 # Entropy regularization
 parser.add_argument("--lambda_ent",        type=float, default=0.0,
                     help="Entropy regularization weight (0 = disabled).")
@@ -118,6 +133,9 @@ parser.add_argument("--n_ent_samples",     type=int,   default=4,
 parser.add_argument("--ent_warmup_frac",   type=float, default=0.3,
                     help="Fraction of total training steps over which lambda_ent "
                          "warms up linearly from 0 to --lambda_ent.")
+parser.add_argument("--results_dir",        type=str, default=None)
+parser.add_argument("--plot_eval",          action="store_true")
+parser.add_argument("--eval_samples",       type=int, default=5)
 args = parser.parse_args()
 
 
@@ -125,7 +143,7 @@ args = parser.parse_args()
 # Paths
 # ---------------------------------------------------------------------------
 
-results_dir = "/home/zhangyi/bayesinf_jax/results/results_state_estimation"
+results_dir = args.results_dir or "/home/zhangyi/bayesinf_jax/results/results_state_estimation"
 os.makedirs(results_dir, exist_ok=True)
 
 _seg = args.seg_len
@@ -139,6 +157,8 @@ _ent_tag  = f"_ent{args.lambda_ent}" if args.lambda_ent > 0 else ""
 _enc_tag  = f"_enc{args.encoder_type}" if args.encoder_type != "transformer" else ""
 _lw_tag   = "_lwp" if args.local_window and args.local_window_prev_only else ("_lw" if args.local_window else "")
 model_tag = f"LatentSSMFlow_{args.flow_type}{_ssm_tag}{_enc_tag}{_lw_tag}{_ent_tag}_{data_tag}"
+if args.experiment_tag:
+    model_tag += "_" + args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
 save_path = os.path.join(results_dir, f"{model_tag}.pt")
 
 
@@ -146,46 +166,34 @@ save_path = os.path.join(results_dir, f"{model_tag}.pt")
 # Wandb (optional)
 # ---------------------------------------------------------------------------
 
-if not args.test:
+if not args.test and os.environ.get("WANDB_DISABLED", "").lower() not in ("1", "true", "yes"):
     try:
         import wandb
         wandb.init(project="State_Estimation", name=model_tag)
-    except ImportError:
-        pass
+    except Exception as exc:
+        print(f"W&B disabled: {exc}")
 
 
 # ---------------------------------------------------------------------------
 # Dataset
 # ---------------------------------------------------------------------------
 
-d_x = args.N
-d_y = args.N // args.obs_interval
-d_u = 1
-
 k_data, k_model, k_train = jr.split(jr.PRNGKey(args.seed), 3)
 
-noise_desc = f"Student-t(df={args.obs_df})" if args.obs_df else "Gaussian"
-print(
-    f"Generating Lorenz-96 data  "
-    f"(N={args.N}, obs_interval={args.obs_interval}, noise={noise_desc}) …"
-)
-data = generate_lorenz96_dataset(
+train_data, val_data, test_data, d_x, d_y, d_u, data_tag = load_selected_dataset(
+    args,
     k_data,
-    n_samples    = args.n_samples,
-    horizon      = args.horizon,
-    N            = args.N,
-    obs_interval = args.obs_interval,
-    obs_std      = args.obs_std,
-    obs_df       = args.obs_df,
-    dt           = args.dt,
-    F            = args.F_lorenz,
-    spinup_steps = args.spinup_steps,
-    d_u          = d_u,
+    obs_noise_type=args.obs_noise_type,
+    obs_df=args.obs_df,
+    gmm_weights=tuple(float(v) for v in args.gmm_weights.split(",")),
+    gmm_offsets=tuple(float(v) for v in args.gmm_offsets.split(",")),
+    gmm_stds=tuple(float(v) for v in args.gmm_stds.split(",")),
+    clean_initial_state=True,
 )
-train_data, val_data, test_data = train_val_test_split(
-    data, jr.fold_in(k_data, 1),
-    train_frac=args.train_frac, val_frac=args.val_frac,
-)
+model_tag = f"LatentSSMFlow_{args.flow_type}{_ssm_tag}{_enc_tag}{_lw_tag}{_ent_tag}_{data_tag}"
+if args.experiment_tag:
+    model_tag += "_" + args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
+save_path = os.path.join(results_dir, f"{model_tag}.pt")
 
 n_train = train_data["x"].shape[0]
 n_val   = val_data["x"].shape[0]
@@ -203,7 +211,7 @@ print(
 # Segmentation helper  (same as AmortizedStateFlow)
 # ---------------------------------------------------------------------------
 
-def segment_batch(x, y, u, x0, seg_len):
+def segment_batch(x, y, u, x0, seg_len, segment_stride=0):
     """
     Split (M, H, *) → (M*n_segs, seg_len, *) with correct x0 per segment.
     x0 for segment s > 0 is the true state at the last step of segment s-1.
@@ -211,6 +219,23 @@ def segment_batch(x, y, u, x0, seg_len):
     M, H, D_x = x.shape
     D_y = y.shape[-1]
     D_u = u.shape[-1]
+    stride = segment_stride if segment_stride > 0 else seg_len
+    starts = tuple(range(0, H - seg_len + 1, stride))
+    if not starts:
+        raise ValueError(f"seg_len={seg_len} exceeds horizon={H}")
+    if stride != seg_len:
+        x_out = jnp.stack([x[:, s : s + seg_len] for s in starts], axis=1)
+        y_out = jnp.stack([y[:, s : s + seg_len] for s in starts], axis=1)
+        u_out = jnp.stack([u[:, s : s + seg_len] for s in starts], axis=1)
+        x0_out = jnp.stack(
+            [x0 if s == 0 else x[:, s - 1] for s in starts], axis=1
+        )
+        return (
+            x_out.reshape(M * len(starts), seg_len, D_x),
+            y_out.reshape(M * len(starts), seg_len, D_y),
+            u_out.reshape(M * len(starts), seg_len, D_u),
+            x0_out.reshape(M * len(starts), D_x),
+        )
     n_segs = H // seg_len
     H_eff  = n_segs * seg_len
 
@@ -301,7 +326,7 @@ use_seg = args.seg_len > 0 and args.horizon > args.seg_len
 if use_seg:
     val_x, val_y, val_u, val_x0 = segment_batch(
         val_data["x"], val_data["y"], val_data["u"], val_data["x0"],
-        args.seg_len,
+        args.seg_len, args.segment_stride,
     )
 else:
     val_x, val_y, val_u, val_x0 = (
@@ -396,7 +421,9 @@ if args.train:
                 ub  = shuffled["u"][s:e]
                 x0b = shuffled["x0"][s:e]
                 if use_seg:
-                    xb, yb, ub, x0b = segment_batch(xb, yb, ub, x0b, args.seg_len)
+                    xb, yb, ub, x0b = segment_batch(
+                        xb, yb, ub, x0b, args.seg_len, args.segment_stride
+                    )
 
                 # Linearly warm up lambda_ent from 0 → args.lambda_ent
                 eff_lam = jnp.float32(
@@ -440,16 +467,17 @@ if args.train:
                 postfix["lam"] = f"{float(eff_lam):.3f}"
             pbar.set_postfix(**postfix)
 
-            try:
-                import wandb
-                log_dict = {"loss": mean_loss, "val_loss": val_loss}
-                if args.lambda_ent > 0:
-                    log_dict["ent_reg"]   = mean_ent
-                    log_dict["lam_ent"]   = float(eff_lam)
-                    log_dict["nll"]       = mean_loss - float(eff_lam) * mean_ent
-                wandb.log(log_dict)
-            except ImportError:
-                pass
+            if os.environ.get("WANDB_DISABLED", "").lower() not in ("1", "true", "yes"):
+                try:
+                    import wandb
+                    log_dict = {"loss": mean_loss, "val_loss": val_loss}
+                    if args.lambda_ent > 0:
+                        log_dict["ent_reg"] = mean_ent
+                        log_dict["lam_ent"] = float(eff_lam)
+                        log_dict["nll"] = mean_loss - float(eff_lam) * mean_ent
+                    wandb.log(log_dict)
+                except Exception:
+                    pass
 
             if args.patience > 0 and patience_counter >= args.patience:
                 print(f"\nEarly stopping at epoch {epoch + 1}")
@@ -477,7 +505,7 @@ if args.test or args.train:
         keys = jr.split(key, y.shape[0])
         return jax.vmap(
             lambda yi, ui, x0i, ki: model.sample_posterior(
-                yi, ui, x0i, ki, n_samples=5,
+                yi, ui, x0i, ki, n_samples=args.eval_samples,
             )
         )(y, u, x0, keys)
 
@@ -491,7 +519,7 @@ if args.test or args.train:
             .reshape(n_test, n_draws, n_segs * seg_len, D_x)
         )
 
-    if use_seg:
+    if use_seg and not args.full_horizon_eval:
         test_x, test_y, test_u, test_x0 = segment_batch(
             test_data["x"], test_data["y"], test_data["u"], test_data["x0"],
             args.seg_len,
@@ -517,9 +545,23 @@ if args.test or args.train:
     samps_t = samps.transpose(1, 0, 2, 3)   # (S, M_test, T, d_x)
     test_rmse = float(jnp.mean(state_rmse(test_data["x"][:, :h_eff_test], jnp.array(samps_t))))
     print(f"Test RMSE (posterior mean vs true): {test_rmse:.4f}")
+    if args.plot_eval:
+        save_state_estimation_plots(
+            results_dir,
+            "latent_ssm_flow"
+            + (f"_{args.obs_noise_type}" if args.obs_noise_type != "gaussian" else "")
+            + (
+                "_" + args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
+                if args.experiment_tag else ""
+            ),
+            test_data["x"][:, :h_eff_test],
+            test_data["y"][:, :h_eff_test],
+            samps,
+        )
 
-    try:
-        import wandb
-        wandb.log({"test_rmse": test_rmse})
-    except ImportError:
-        pass
+    if os.environ.get("WANDB_DISABLED", "").lower() not in ("1", "true", "yes"):
+        try:
+            import wandb
+            wandb.log({"test_rmse": test_rmse})
+        except Exception:
+            pass

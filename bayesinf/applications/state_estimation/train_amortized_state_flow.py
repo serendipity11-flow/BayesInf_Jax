@@ -26,15 +26,19 @@ from bayesinf.applications.state_estimation.amortized_state_flow import (
     state_flow_loss,
 )
 from bayesinf.applications.state_estimation.lorenz96_dataset import (
-    generate_lorenz96_dataset,
-    train_val_test_split,
     state_rmse,
 )
+from bayesinf.applications.state_estimation.dataset_selection import (
+    add_dataset_arguments,
+    load_selected_dataset,
+)
+from bayesinf.applications.state_estimation.evaluation_plots import save_state_estimation_plots
 
 # -----------------------------------------------------------------------------
 # Argument parsing
 # -----------------------------------------------------------------------------
 parser = argparse.ArgumentParser(description="Train AmortizedStateFlow on Lorenz-96")
+add_dataset_arguments(parser)
 parser.add_argument("--train", action="store_true", help="Run training")
 parser.add_argument("--test", action="store_true", help="Load checkpoint and run test eval only")
 parser.add_argument("--flow_type", type=str, default="realnvp", choices=("realnvp", "nsf", "maf", "fm", "sbm"))
@@ -42,6 +46,12 @@ parser.add_argument("--horizon", type=int, default=100, help="Trajectory window 
 parser.add_argument("--N", type=int, default=12, help="Lorenz-96 state dimension")
 parser.add_argument("--obs_interval", type=int, default=2, help="Observe every obs_interval-th state")
 parser.add_argument("--obs_std", type=float, default=0.5, help="Observation noise std")
+parser.add_argument("--obs_noise_type", choices=("gaussian", "student_t", "gmm"),
+                    default="gaussian")
+parser.add_argument("--obs_df", type=float, default=4.0)
+parser.add_argument("--gmm_weights", default="0.70,0.15,0.15")
+parser.add_argument("--gmm_offsets", default="0.0,2.5,-2.5")
+parser.add_argument("--gmm_stds", default="0.50,1.50,1.50")
 parser.add_argument("--dt", type=float, default=0.02, help="Integration time step")
 parser.add_argument("--F", type=float, default=8.0, help="Lorenz-96 forcing")
 parser.add_argument("--spinup_steps", type=int, default=500, help="Spinup steps before slicing windows")
@@ -67,7 +77,14 @@ parser.add_argument("--seg_len", type=int, default=5,
                          "Reshapes (M,H,*) -> (M*n_segs, seg_len, *) before the model, "
                          "reducing Transformer attention from O(H^2) to O(seg_len^2) and "
                          "increasing batch parallelism. 0 = disabled.")
+parser.add_argument("--segment_stride", type=int, default=0,
+                    help="Sliding segment stride; 0 uses non-overlapping segments.")
 parser.add_argument("--seed", type=int, default=0)
+parser.add_argument("--experiment_tag", type=str, default="",
+                    help="Optional checkpoint suffix for distinguishing runs.")
+parser.add_argument("--results_dir", type=str, default=None)
+parser.add_argument("--plot_eval", action="store_true")
+parser.add_argument("--eval_samples", type=int, default=5)
 args = parser.parse_args()
 
 train = args.train
@@ -97,46 +114,45 @@ patience = args.patience
 _seg = args.seg_len
 _seg_label = f"seg{_seg}" if _seg > 0 and horizon > _seg else f"h{horizon}"
 data_set = f"lorenz96_N{N}_{_seg_label}_obs{obs_interval}"
-if obs_std > 0:
-    data_set += f"_noise_{obs_std}"
 
 # Results dir for state estimation experiments
-results_dir = "/home/zhangyi/bayesinf_jax/results/results_state_estimation"
+results_dir = args.results_dir or "/home/zhangyi/bayesinf_jax/results/results_state_estimation"
 os.makedirs(results_dir, exist_ok=True)
 save_path_pt = os.path.join(results_dir, f"AmortizedStateFlow_{flow_type}_{data_set}.pt")
+if args.experiment_tag:
+    safe_tag = args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
+    save_path_pt = os.path.join(
+        results_dir, f"AmortizedStateFlow_{flow_type}_{data_set}_{safe_tag}.pt"
+    )
 
 # Wandb (when not test)
-if not test:
+if not test and os.environ.get("WANDB_DISABLED", "").lower() not in ("1", "true", "yes"):
     try:
         import wandb
         wandb.init(project="State_Estimation", name=f"AmortizedStateFlow_{flow_type}_{data_set}")
-    except ImportError:
-        pass
+    except Exception as exc:
+        print(f"W&B disabled: {exc}")
 
 # -----------------------------------------------------------------------------
 # Data: generate once, split train/val/test
 # -----------------------------------------------------------------------------
-D_y = N // obs_interval
-d_u = 1
-
 train_key = jr.PRNGKey(args.seed)
 k_data, k_model, k_train = jr.split(train_key, 3)
-data = generate_lorenz96_dataset(
-    k_data,
-    n_samples=n_samples,
-    horizon=horizon,
-    N=N,
-    obs_interval=obs_interval,
-    obs_std=obs_std,
-    dt=dt,
-    F=F,
-    spinup_steps=spinup_steps,
-    trajectory_length=None,
-    d_u=d_u,
+train_data, val_data, test_data, N, D_y, d_u, data_set = load_selected_dataset(
+    args, k_data,
+    obs_noise_type=args.obs_noise_type,
+    obs_df=args.obs_df,
+    gmm_weights=tuple(float(v) for v in args.gmm_weights.split(",")),
+    gmm_offsets=tuple(float(v) for v in args.gmm_offsets.split(",")),
+    gmm_stds=tuple(float(v) for v in args.gmm_stds.split(",")),
 )
-train_data, val_data, test_data = train_val_test_split(
-    data, jr.fold_in(k_data, 1), train_frac=train_frac, val_frac=val_frac
-)
+data_set = data_set.replace(f"_h{horizon}", f"_{_seg_label}")
+save_path_pt = os.path.join(results_dir, f"AmortizedStateFlow_{flow_type}_{data_set}.pt")
+if args.experiment_tag:
+    safe_tag = args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
+    save_path_pt = os.path.join(
+        results_dir, f"AmortizedStateFlow_{flow_type}_{data_set}_{safe_tag}.pt"
+    )
 n_train = train_data["x"].shape[0]
 n_val = val_data["x"].shape[0]
 n_test = test_data["x"].shape[0]
@@ -154,7 +170,7 @@ def shuffle_batch(data_dict, key):
     }
 
 
-def segment_batch(x, y, u, x0, seg_len):
+def segment_batch(x, y, u, x0, seg_len, segment_stride=0):
     """
     Split horizon-H windows into non-overlapping segments of length seg_len.
 
@@ -184,6 +200,23 @@ def segment_batch(x, y, u, x0, seg_len):
     M, H, D_x = x.shape
     D_y = y.shape[-1]
     D_u = u.shape[-1]
+    stride = segment_stride if segment_stride > 0 else seg_len
+    starts = tuple(range(0, H - seg_len + 1, stride))
+    if not starts:
+        raise ValueError(f"seg_len={seg_len} exceeds horizon={H}")
+    if stride != seg_len:
+        x_out = jnp.stack([x[:, s : s + seg_len] for s in starts], axis=1)
+        y_out = jnp.stack([y[:, s : s + seg_len] for s in starts], axis=1)
+        u_out = jnp.stack([u[:, s : s + seg_len] for s in starts], axis=1)
+        x0_out = jnp.stack(
+            [x0 if s == 0 else x[:, s - 1] for s in starts], axis=1
+        )
+        return (
+            x_out.reshape(M * len(starts), seg_len, D_x),
+            y_out.reshape(M * len(starts), seg_len, D_y),
+            u_out.reshape(M * len(starts), seg_len, D_u),
+            x0_out.reshape(M * len(starts), D_x),
+        )
     n_segs = H // seg_len
     H_eff  = n_segs * seg_len
 
@@ -269,9 +302,13 @@ if train:
     seg_len = args.seg_len
     use_seg = seg_len > 0 and horizon > seg_len
     if use_seg:
-        n_segs = horizon // seg_len
-        print(f"Segmentation enabled: horizon={horizon} -> {n_segs} segments of {seg_len} steps "
-              f"(effective batch size {batch_size * n_segs})")
+        stride = args.segment_stride if args.segment_stride > 0 else seg_len
+        n_segs = (horizon - seg_len) // stride + 1
+        print(
+            f"Segmentation enabled: horizon={horizon} -> {n_segs} segments of "
+            f"{seg_len} steps (stride={stride}, effective batch size "
+            f"{batch_size * n_segs})"
+        )
 
     print(f"Starting AmortizedStateFlow ({flow_type}) training on {data_set}. Max epochs: {max_epochs}")
     print(f"Train: {n_train}, val: {n_val}, test: {n_test}, batch_size: {batch_size}, batches/epoch: {n_batches_per_epoch}")
@@ -279,7 +316,8 @@ if train:
     # Pre-segment validation data once (avoids repeated reshape each epoch)
     if use_seg:
         val_x, val_y, val_u, val_x0 = segment_batch(
-            val_data["x"], val_data["y"], val_data["u"], val_data["x0"], seg_len
+            val_data["x"], val_data["y"], val_data["u"], val_data["x0"],
+            seg_len, args.segment_stride
         )
     else:
         val_x, val_y, val_u, val_x0 = val_data["x"], val_data["y"], val_data["u"], val_data["x0"]
@@ -298,7 +336,9 @@ if train:
                 ub  = shuffled["u"][start:end]
                 x0b = shuffled["x0"][start:end]
                 if use_seg:
-                    xb, yb, ub, x0b = segment_batch(xb, yb, ub, x0b, seg_len)
+                    xb, yb, ub, x0b = segment_batch(
+                        xb, yb, ub, x0b, seg_len, args.segment_stride
+                    )
                 k_b = jr.fold_in(k_batch, b)
                 model, opt_state, loss = make_step(
                     model, xb, yb, ub, x0b, k_b, opt_state
@@ -315,11 +355,12 @@ if train:
             else:
                 patience_counter += 1
             pstep.set_postfix(loss=mean_loss, val_loss=val_loss, best=best_val_loss, patience=patience_counter)
-            try:
-                import wandb
-                wandb.log({"loss": mean_loss, "val_loss": val_loss})
-            except ImportError:
-                pass
+            if os.environ.get("WANDB_DISABLED", "").lower() not in ("1", "true", "yes"):
+                try:
+                    import wandb
+                    wandb.log({"loss": mean_loss, "val_loss": val_loss})
+                except Exception:
+                    pass
             if patience > 0 and patience_counter >= patience:
                 print(f"\nEarly stopping at epoch {i}")
                 break
@@ -338,13 +379,24 @@ if n_test > 0:
     sample_key = jr.PRNGKey(0)
     test_samples = inference_model.sample(
         test_data["y"], test_data["u"], test_data["x0"],
-        key=sample_key, num_samples=5, prior=args.prior,
+        key=sample_key, num_samples=args.eval_samples, prior=args.prior,
     )
     test_rmse = float(jnp.mean(state_rmse(test_data["x"], test_samples)))
     print(f"Test RMSE (posterior mean vs true): {test_rmse:.4f}")
+    if args.plot_eval:
+        save_state_estimation_plots(
+            results_dir,
+            f"amortized_{flow_type}"
+            + (f"_{args.obs_noise_type}" if args.obs_noise_type != "gaussian" else "")
+            + (f"_{safe_tag}" if args.experiment_tag else ""),
+            test_data["x"],
+            test_data["y"],
+            np.asarray(test_samples).transpose(1, 0, 2, 3),
+        )
     if not test:
-        try:
-            import wandb
-            wandb.log({"test_rmse": test_rmse})
-        except ImportError:
-            pass
+        if os.environ.get("WANDB_DISABLED", "").lower() not in ("1", "true", "yes"):
+            try:
+                import wandb
+                wandb.log({"test_rmse": test_rmse})
+            except Exception:
+                pass

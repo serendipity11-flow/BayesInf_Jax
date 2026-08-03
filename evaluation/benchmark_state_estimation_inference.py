@@ -42,13 +42,14 @@ from bayesinf.applications.state_estimation.amortized_state_flow import Amortize
 from bayesinf.applications.state_estimation.filtering_baselines import (
     bootstrap_particle_filter,
     extended_kalman_filter,
+    unscented_kalman_filter,
 )
 from bayesinf.applications.state_estimation.flow_sde import RealNVPFlowSDE
 from bayesinf.applications.state_estimation.latent_ssm_flow import LatentSSMFlow
 from bayesinf.applications.state_estimation.stochastic_interpolant import StochasticInterpolantSE
 
 
-ALL_METHODS = ("ekf", "pf", "amortized", "latent", "flow_sde", "interpolant")
+ALL_METHODS = ("ekf", "ukf", "pf", "amortized", "latent", "flow_sde", "interpolant")
 
 
 class CalibratedStochasticInterpolantSE(StochasticInterpolantSE):
@@ -266,6 +267,18 @@ def main():
                 # Draw from every filtering marginal N(m_t, P_t). These have
                 # the same (B, P, T, D) materialized shape as PF particles,
                 # but are not temporally correlated trajectory draws.
+                eye = jnp.eye(a.state_dim, dtype=result.covariance.dtype)
+                chol = jnp.linalg.cholesky(result.covariance + 1e-6 * eye)
+                eps = jr.normal(
+                    k, (a.batch_size, a.particles, a.horizon, a.state_dim),
+                    dtype=result.mean.dtype,
+                )
+                return result.mean[:, None] + jnp.einsum("btij,bptj->bpti", chol, eps)
+            samples = a.particles
+        elif method == "ukf":
+            @jax.jit
+            def run(k):
+                result = unscented_kalman_filter(y, x0, H, dt=a.dt)
                 eye = jnp.eye(a.state_dim, dtype=result.covariance.dtype)
                 chol = jnp.linalg.cholesky(result.covariance + 1e-6 * eye)
                 eps = jr.normal(

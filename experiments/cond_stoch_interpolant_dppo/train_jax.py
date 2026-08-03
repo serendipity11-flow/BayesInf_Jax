@@ -245,20 +245,26 @@ def make_envs(args):
         gym.register_envs(gymnasium_robotics)
     def factory(index):
         def make():
-            env = gym.make(args.env)
+            kwargs = {}
+            if getattr(args, "max_episode_steps", None) is not None:
+                kwargs["max_episode_steps"] = args.max_episode_steps
+            env = gym.make(args.env, **kwargs)
             env.reset(seed=args.seed + index)
             return env
         return make
     return ChunkVectorEnv([factory(i) for i in range(args.n_envs)])
 
 
-def collect_rollout(policy, critic, envs, history, normalizer, args, key):
+def collect_rollout(
+    policy, critic, envs, history, normalizer, args, key,
+    sample_policy, transition_log_prob, critic_values,
+):
     states, chains, log_probs, rewards, terminated, values = [], [], [], [], [], []
     for _ in range(args.rollout_steps):
         state = jnp.asarray(history)
         key, sample_key = jr.split(key)
-        sample = policy.sample(state, sample_key)
-        old_log_prob = policy.transition_log_prob(state, sample.chain)
+        sample = sample_policy(policy, state, sample_key)
+        old_log_prob = transition_log_prob(policy, state, sample.chain)
         chunk_reward = np.zeros(args.n_envs, dtype=np.float32)
         chunk_done = np.zeros(args.n_envs, dtype=bool)
         active = np.ones(args.n_envs, dtype=bool)
@@ -281,7 +287,7 @@ def collect_rollout(policy, critic, envs, history, normalizer, args, key):
                 break
         states.append(state); chains.append(sample.chain)
         log_probs.append(old_log_prob); rewards.append(chunk_reward)
-        terminated.append(chunk_done); values.append(critic.batch(state))
+        terminated.append(chunk_done); values.append(critic_values(critic, state))
         # Reset completed environments at the action-chunk boundary and clear
         # their history so the next policy call sees only the new episode.
         if np.any(chunk_done):
@@ -291,7 +297,7 @@ def collect_rollout(policy, critic, envs, history, normalizer, args, key):
                 normalized[chunk_done, None], args.cond_steps, axis=1
             )
     following = jnp.asarray(history)
-    next_value = critic.batch(following)
+    next_value = critic_values(critic, following)
     reward_array = jnp.asarray(np.stack(rewards))
     value_array = jnp.stack(values)
     terminal_array = jnp.asarray(np.stack(terminated))
@@ -316,11 +322,6 @@ def collect_rollout(policy, critic, envs, history, normalizer, args, key):
 
 
 def finetune(args):
-    if args.policy == "dppo":
-        raise NotImplementedError(
-            "JAX DPPO online fine-tuning requires the frozen/base actor split; "
-            "pretraining and evaluation are supported in this runner."
-        )
     key = jr.PRNGKey(args.seed)
     key, policy_key, critic_key = jr.split(key, 3)
     policy = load_policy(args.checkpoint, args, policy_key)
@@ -348,11 +349,25 @@ def finetune(args):
     history = np.repeat(
         normalized[:, None], args.cond_steps, axis=1
     )
+    # Reuse compiled rollout kernels. Without these wrappers, every environment
+    # chunk pays Python tracing/dispatch overhead for the complete inner MDP.
+    sample_policy = eqx.filter_jit(
+        lambda policy_, states_, key_: policy_.sample(states_, key_)
+    )
+    transition_log_prob = eqx.filter_jit(
+        lambda policy_, states_, chain_: policy_.transition_log_prob(
+            states_, chain_
+        )
+    )
+    critic_values = eqx.filter_jit(
+        lambda critic_, states_: critic_.batch(states_)
+    )
     env_steps = 0
     start = time.perf_counter()
     for iteration in range(1, args.iterations + 1):
         batch, history, key, mean_reward = collect_rollout(
-            state.policy, state.critic, envs, history, normalizer, args, key
+            state.policy, state.critic, envs, history, normalizer, args, key,
+            sample_policy, transition_log_prob, critic_values,
         )
         for _ in range(args.update_epochs):
             state, metrics = dppo_update(
@@ -373,6 +388,12 @@ def finetune(args):
             "nfe": state.policy.nfe, "seed": args.seed,
         })
         print(iteration, env_steps, mean_reward, float(metrics.total_loss))
+        if args.checkpoint_every and iteration % args.checkpoint_every == 0:
+            save_policy(
+                args.output / "checkpoints" / f"iteration_{iteration:04d}"
+                / "checkpoint",
+                state.policy, args, state.critic,
+            )
     save_policy(args.output / "checkpoint", state.policy, args, state.critic)
     envs.close()
 
@@ -384,7 +405,10 @@ def evaluate(args):
         gym.register_envs(gymnasium_robotics)
     policy = load_policy(args.checkpoint, args, jr.PRNGKey(args.seed))
     normalizer = Normalizer(args.data / "normalization.npz")
-    env = gym.make(args.env)
+    kwargs = {}
+    if args.max_episode_steps is not None:
+        kwargs["max_episode_steps"] = args.max_episode_steps
+    env = gym.make(args.env, **kwargs)
     returns, successes, lengths, latencies = [], [], [], []
     for episode in range(args.eval_episodes):
         observation, _ = env.reset(seed=args.seed + episode)
@@ -444,7 +468,8 @@ def parser():
     p.add_argument("--data", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--checkpoint", type=Path)
-    p.add_argument("--env", default="AdroitHandDoor-v1")
+    p.add_argument("--env", default="AdroitHandDoor-v2")
+    p.add_argument("--max-episode-steps", type=int)
     p.add_argument("--obs-dim", type=int, required=True)
     p.add_argument("--action-dim", type=int, required=True)
     p.add_argument("--horizon", type=int, default=4)
@@ -469,6 +494,10 @@ def parser():
     p.add_argument("--weight-decay", type=float, default=1e-6)
     p.add_argument("--log-every", type=int, default=1000)
     p.add_argument("--iterations", type=int, default=301)
+    p.add_argument(
+        "--checkpoint-every", type=int, default=10,
+        help="Save a fine-tuning policy/critic checkpoint every N iterations; 0 disables.",
+    )
     p.add_argument("--n-envs", type=int, default=40)
     p.add_argument("--rollout-steps", type=int, default=70)
     p.add_argument("--update-epochs", type=int, default=10)

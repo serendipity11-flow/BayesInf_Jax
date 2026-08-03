@@ -6,7 +6,7 @@ import json
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--env", default="AdroitHandDoor-v1")
+    p.add_argument("--env", default="AdroitHandDoor-v2")
     p.add_argument("--seed", type=int, default=0)
     args = p.parse_args()
     import gymnasium as gym
@@ -33,4 +33,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

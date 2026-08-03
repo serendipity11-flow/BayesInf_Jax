@@ -1,0 +1,36 @@
+category,dataset,method,latency_ms,timing_unit,cases_per_timed_call,particles_per_case,horizon,notes
+parameter_identification,linear,BNN,7.953997496515512,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,linear,VAE,0.1346619985997676,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,linear,DDPM,62.78311656787992,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,linear,SBM,37.02685665339232,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,linear,FM,2.026190795004368,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,linear,RealNVP,0.2134031616151332,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,linear,NSF,0.2531114779412746,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,multi_modal,BNN,7.679812479764223,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,multi_modal,VAE,0.1362877339124679,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,multi_modal,DDPM,61.83062683790922,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,multi_modal,SBM,35.09286878630519,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,multi_modal,FM,1.856543179601431,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,multi_modal,RealNVP,0.165982749313116,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+parameter_identification,multi_modal,NSF,0.1806328259408474,ms/test_case,200,100,,JIT-warmed median full-batch sampling time / 200 cases; each case returns 100 posterior samples
+state_estimation,lorenz96_N12,ekf,3.081,ms/input_trajectory,8,100,100,JIT-warmed synchronized median batch time / 8 input trajectories
+state_estimation,lorenz96_N12,ukf,3.243,ms/input_trajectory,8,100,100,JIT-warmed synchronized median batch time / 8 input trajectories
+state_estimation,lorenz96_N12,amortized_realnvp,22.11,ms/input_trajectory,8,100,100,JIT-warmed synchronized median batch time / 8 input trajectories
+state_estimation,lorenz96_N12,pf,44.195,ms/input_trajectory,8,100,100,JIT-warmed synchronized median batch time / 8 input trajectories
+state_estimation,lorenz96_N12,flow_sde,49.938,ms/input_trajectory,8,100,101,JIT-warmed synchronized median batch time / 8 input trajectories
+state_estimation,lorenz96_N12,latent,82.932,ms/input_trajectory,8,100,100,JIT-warmed synchronized median batch time / 8 input trajectories
+state_estimation,lorenz96_N12,amortized_flow_matching,143.028,ms/input_trajectory,8,100,100,JIT-warmed synchronized median batch time / 8 input trajectories
+state_estimation,lorenz96_N12,interpolant,8262.742,ms/input_trajectory,8,100,101,JIT-warmed synchronized median batch time / 8 input trajectories
+open_loop_dynamics,aloha_mujoco,controlled_flow_sde,64.51639160513878,ms/control_sequence,8,100,100,JIT-warmed synchronized rollout; per particle trajectory = 0.645164 ms
+closed_loop_mppi,aloha_mujoco,exact_mujoco,99.42884363182304,ms/MPC_command,1,,2,mean over 80 episodes; first JIT command excluded; between-episode std=11.740178 ms
+closed_loop_mppi,aloha_mujoco,flow_sde,6.841502180840406,ms/MPC_command,1,8,2,mean over 80 episodes; first JIT command excluded; between-episode std=0.161341 ms
+closed_loop_mppi,aloha_mujoco,exact_mujoco,152.40196164490447,ms/MPC_command,1,,4,mean over 80 episodes; first JIT command excluded; between-episode std=21.948826 ms
+closed_loop_mppi,aloha_mujoco,flow_sde,6.778858744332359,ms/MPC_command,1,8,4,mean over 80 episodes; first JIT command excluded; between-episode std=0.206581 ms
+closed_loop_mppi,aloha_mujoco,exact_mujoco,207.09228568658645,ms/MPC_command,1,,6,mean over 80 episodes; first JIT command excluded; between-episode std=28.651968 ms
+closed_loop_mppi,aloha_mujoco,flow_sde,6.7331345467310815,ms/MPC_command,1,8,6,mean over 80 episodes; first JIT command excluded; between-episode std=0.251550 ms
+closed_loop_mppi,aloha_mujoco,exact_mujoco,274.10058395212724,ms/MPC_command,1,,8,mean over 80 episodes; first JIT command excluded; between-episode std=38.160735 ms
+closed_loop_mppi,aloha_mujoco,flow_sde,6.656410190690723,ms/MPC_command,1,8,8,mean over 80 episodes; first JIT command excluded; between-episode std=0.158773 ms
+closed_loop_mppi,aloha_mujoco,exact_mujoco,329.8307060289921,ms/MPC_command,1,,10,mean over 80 episodes; first JIT command excluded; between-episode std=47.615263 ms
+closed_loop_mppi,aloha_mujoco,flow_sde,6.517509795311424,ms/MPC_command,1,8,10,mean over 80 episodes; first JIT command excluded; between-episode std=0.194187 ms
+closed_loop_mppi,aloha_mujoco,exact_mujoco,378.0695304171079,ms/MPC_command,1,,12,mean over 80 episodes; first JIT command excluded; between-episode std=65.327150 ms
+closed_loop_mppi,aloha_mujoco,flow_sde,6.430058408942488,ms/MPC_command,1,8,12,mean over 80 episodes; first JIT command excluded; between-episode std=0.259706 ms

@@ -4,6 +4,7 @@ import jax.random as jr
 from bayesinf.applications.state_estimation.filtering_baselines import (
     bootstrap_particle_filter,
     extended_kalman_filter,
+    unscented_kalman_filter,
 )
 from bayesinf.applications.state_estimation.lorenz96_dataset import (
     generate_lorenz96_dataset,
@@ -25,6 +26,14 @@ def test_ekf_shapes_and_finite_covariance():
     assert r.covariance.shape == (2, 5, 4, 4)
     assert bool(jnp.all(jnp.isfinite(r.mean)))
     assert bool(jnp.all(jnp.diagonal(r.covariance, axis1=-2, axis2=-1) >= 0))
+
+
+def test_ukf_shapes_and_finite_covariance():
+    d = _data()
+    r = unscented_kalman_filter(d["y"], d["x0"], d["H"], dt=.01, obs_std=.1)
+    assert r.mean.shape == (2, 5, 4)
+    assert r.covariance.shape == (2, 5, 4, 4)
+    assert bool(jnp.all(jnp.isfinite(r.mean)))
 
 
 def test_particle_filter_supports_non_gaussian_noise():

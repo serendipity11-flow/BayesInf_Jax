@@ -1,11 +1,11 @@
-environment: AdroitHandDoor-v1
+environment: AdroitHandDoor-v2
 dataset: D4RL/door/human-v2
 reward: dense
 obs_dim: 39
 action_dim: 28
 horizon_steps: 4
 cond_steps: 1
-max_episode_steps: 200
+max_episode_steps: 300
 seeds: [0, 1, 2, 3, 4]
 eval_episodes: 50
 success_threshold: 0.8  # freeze after the DPPO pilot; never tune per method

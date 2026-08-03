@@ -43,7 +43,7 @@ ea1723d4b8bb252e98dab6d7dd67a80861e0831803b727c3d4617985d8b5c360  kitchen-comple
 * minimum trajectory length and exact four-step chunk counts;
 * official DPPO `StitchedSequenceDataset` loading for all four NPZs;
 * CondStochInterpolant forward/backward loss on every split;
-* live `AdroitHandDoor-v1` reset and step.
+* live `AdroitHandDoor-v2` reset and step.
 
 The Kitchen simulator itself is not installed in the Door environment because
 DPPO requires its conflicting legacy D4RL/Gym dependencies to remain isolated.

@@ -6,19 +6,36 @@ import jax.numpy as jnp
 import jax.random as jr
 import numpy as np
 import pandas as pd
+from pyarrow.lib import ArrowInvalid
 
 
 def load_episodes(path: Path):
-    frame = pd.read_parquet(
-        path, columns=["observation.state", "action", "episode_index", "frame_index"]
-    ).sort_values(["episode_index", "frame_index"])
+    # Pandas does not consistently expose Parquet columns for an empty read.
+    # Read next_state optimistically for transition datasets, then fall back to
+    # the observation-only ALOHA format.
+    columns = ["observation.state", "action", "episode_index", "frame_index"]
+    try:
+        frame = pd.read_parquet(path, columns=columns + ["next_state"])
+        has_next_state = True
+    except (ArrowInvalid, KeyError, ValueError):
+        frame = pd.read_parquet(path, columns=columns)
+        has_next_state = False
+    frame = frame.sort_values(["episode_index", "frame_index"])
     states, actions, ids = [], [], []
     for episode_id, episode in frame.groupby("episode_index", sort=True):
         x = np.stack(episode["observation.state"].to_numpy()).astype(np.float32)
         u = np.stack(episode["action"].to_numpy()).astype(np.float32)
         if len(x) < 2 or len(x) != len(u):
             raise ValueError(f"invalid episode {episode_id}: x={x.shape}, u={u.shape}")
-        states.append(x); actions.append(u[:-1]); ids.append(int(episode_id))
+        if has_next_state:
+            final_state = np.asarray(
+                episode["next_state"].iloc[-1], dtype=np.float32
+            )[None]
+            x = np.concatenate([x, final_state], axis=0)
+            episode_actions = u
+        else:
+            episode_actions = u[:-1]
+        states.append(x); actions.append(episode_actions); ids.append(int(episode_id))
     if not states:
         raise ValueError(f"no episodes found in {path}")
     state_dim, control_dim = states[0].shape[1], actions[0].shape[1]
@@ -27,6 +44,23 @@ def load_episodes(path: Path):
     if any(u.shape[1] != control_dim for u in actions):
         raise ValueError("inconsistent action dimensions")
     return states, actions, np.asarray(ids), state_dim, control_dim
+
+
+def load_transition_auxiliary(path: Path, column: str, episode_ids):
+    """Load a per-transition label aligned with episodes from ``load_episodes``."""
+    frame = pd.read_parquet(
+        path, columns=[column, "episode_index", "frame_index"]
+    ).sort_values(["episode_index", "frame_index"])
+    grouped = {int(key): value for key, value in frame.groupby("episode_index")}
+    auxiliary = []
+    for episode_id in episode_ids:
+        if int(episode_id) not in grouped:
+            raise ValueError(f"missing {column} values for episode {episode_id}")
+        values = np.stack(grouped[int(episode_id)][column].to_numpy()).astype(
+            np.float32
+        )
+        auxiliary.append(values)
+    return auxiliary
 
 
 def split_episode_indices(n_episodes, seed):

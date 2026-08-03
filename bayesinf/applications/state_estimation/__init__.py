@@ -48,6 +48,13 @@ from bayesinf.applications.state_estimation.lorenz96_dataset import (
     state_rmse,
     state_mae,
 )
+from bayesinf.applications.state_estimation.aloha_insertion_dataset import (
+    AlohaInsertionMetadata,
+    denormalize_aloha_state,
+    load_aloha_insertion_dataset,
+    read_aloha_insertion_parquet,
+    split_episode_ids,
+)
 
 __all__ = [
     "RealNVPFlowSDE",
@@ -77,6 +84,11 @@ __all__ = [
     "train_val_test_split",
     "state_rmse",
     "state_mae",
+    "AlohaInsertionMetadata",
+    "denormalize_aloha_state",
+    "load_aloha_insertion_dataset",
+    "read_aloha_insertion_parquet",
+    "split_episode_ids",
 ]
 from bayesinf.applications.state_estimation.filtering_baselines import (
     FilterResult,

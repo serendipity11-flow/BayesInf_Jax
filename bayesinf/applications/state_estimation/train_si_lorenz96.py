@@ -47,10 +47,13 @@ from bayesinf.applications.state_estimation.stochastic_interpolant import (
     make_step_si_ms,
 )
 from bayesinf.applications.state_estimation.lorenz96_dataset import (
-    generate_lorenz96_dataset,
-    train_val_test_split,
     lorenz96_rhs,
 )
+from bayesinf.applications.state_estimation.dataset_selection import (
+    add_dataset_arguments,
+    load_selected_dataset,
+)
+from bayesinf.applications.state_estimation.evaluation_plots import save_state_estimation_plots
 
 
 class CalibratedStochasticInterpolantSE(StochasticInterpolantSE):
@@ -160,6 +163,7 @@ class CalibratedStochasticInterpolantSE(StochasticInterpolantSE):
 # ---------------------------------------------------------------------------
 
 parser = argparse.ArgumentParser(description="Train StochasticInterpolantSE on Lorenz-96")
+add_dataset_arguments(parser)
 parser.add_argument("--train",          action="store_true")
 parser.add_argument("--test",           action="store_true")
 # Dataset
@@ -217,6 +221,8 @@ parser.add_argument("--ms",             action="store_true",
 parser.add_argument("--seg_len",        type=int,   default=20,
                     help="Segment length for multiple-shooting training. "
                          "Best when (horizon-1) %% seg_len == 0.")
+parser.add_argument("--segment_stride", type=int, default=0,
+                    help="Multiple-shooting segment stride; 0 uses seg_len.")
 parser.add_argument("--batch_size",     type=int,   default=64)
 parser.add_argument("--max_epochs",     type=int,   default=500)
 parser.add_argument("--learning_rate",  type=float, default=3e-4)
@@ -224,6 +230,8 @@ parser.add_argument("--grad_norm",      type=float, default=1.0)
 parser.add_argument("--weight_decay",   type=float, default=1e-4)
 parser.add_argument("--patience",       type=int,   default=40)
 parser.add_argument("--seed",           type=int,   default=0)
+parser.add_argument("--experiment_tag", type=str, default="",
+                    help="Optional checkpoint suffix for distinguishing runs.")
 parser.add_argument("--wandb",          action="store_true",
                     help="Enable wandb logging. Disabled by default so training works on restricted nodes.")
 # Inference
@@ -234,6 +242,9 @@ parser.add_argument("--sampler",        type=str,   default="sde",
                     choices=("sde", "ode", "segmented"))
 parser.add_argument("--seg_len_eval",   type=int,   default=20,
                     help="Segment length for segmented inference")
+parser.add_argument("--results_dir",    type=str, default=None)
+parser.add_argument("--plot_eval",      action="store_true")
+parser.add_argument("--eval_chunk_size", type=int, default=32)
 args = parser.parse_args()
 
 
@@ -257,7 +268,7 @@ def _check_seg_len(T, seg_len, name):
 # Paths and tags
 # ---------------------------------------------------------------------------
 
-results_dir = os.path.join(project_root, "results", "results_state_estimation")
+results_dir = args.results_dir or os.path.join(project_root, "results", "results_state_estimation")
 os.makedirs(results_dir, exist_ok=True)
 
 gmm_weights = _parse_tuple(args.gmm_weights)
@@ -270,7 +281,12 @@ if _noise_tag == "gmm":
 elif _noise_tag == "student_t":
     _noise_tag = f"studt{args.obs_df}"
 
-_train_tag = f"ms{args.seg_len}" if args.ms else "full"
+_stride_tag = (
+    f"s{args.segment_stride}"
+    if args.ms and args.segment_stride > 0 and args.segment_stride != args.seg_len
+    else ""
+)
+_train_tag = f"ms{args.seg_len}{_stride_tag}" if args.ms else "full"
 _interp_tag = "lin" if args.interpolant_type == "linear" else "cos"
 model_tag  = (
     f"SI"
@@ -302,36 +318,22 @@ if args.train and args.wandb:
 # Dataset
 # ---------------------------------------------------------------------------
 
-d_x = args.N
-d_y = args.N // args.obs_interval
-
 k_data, k_model, k_train = jr.split(jr.PRNGKey(args.seed), 3)
 
-print(
-    f"Generating Lorenz-96 data  "
-    f"(N={args.N}, obs_interval={args.obs_interval}, noise={args.obs_noise_type}) ..."
-)
-data = generate_lorenz96_dataset(
+train_data, val_data, test_data, d_x, d_y_obs, d_u, data_tag = load_selected_dataset(
+    args,
     k_data,
-    n_samples      = args.n_samples,
-    horizon        = args.horizon,
-    N              = args.N,
-    obs_interval   = args.obs_interval,
-    obs_std        = args.obs_std,
-    obs_noise_type = args.obs_noise_type,
-    obs_df         = args.obs_df if args.obs_noise_type == "student_t" else None,
-    gmm_weights    = gmm_weights if args.obs_noise_type == "gmm" else None,
-    gmm_offsets    = gmm_offsets if args.obs_noise_type == "gmm" else None,
-    gmm_stds       = gmm_stds    if args.obs_noise_type == "gmm" else None,
-    dt             = args.dt,
-    F              = args.F_lorenz,
-    spinup_steps   = args.spinup_steps,
-    d_u            = 1,
+    obs_noise_type=args.obs_noise_type,
+    obs_df=args.obs_df if args.obs_noise_type == "student_t" else None,
+    gmm_weights=gmm_weights if args.obs_noise_type == "gmm" else None,
+    gmm_offsets=gmm_offsets if args.obs_noise_type == "gmm" else None,
+    gmm_stds=gmm_stds if args.obs_noise_type == "gmm" else None,
 )
-train_data, val_data, test_data = train_val_test_split(
-    data, jr.fold_in(k_data, 1),
-    train_frac=args.train_frac, val_frac=args.val_frac,
-)
+d_y = d_y_obs + d_u
+model_tag = f"SI_{data_tag}_dc{args.d_c}_dh{args.d_hidden}_{_train_tag}"
+if args.experiment_tag:
+    model_tag += "_" + args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
+save_path = os.path.join(results_dir, f"{model_tag}.pt")
 
 n_train    = train_data["x"].shape[0]
 n_val      = val_data["x"].shape[0]
@@ -370,13 +372,19 @@ print(
 def _normalize(d):
     return {
         "x": jnp.array((d["x"] - x_mean) / x_std),
-        "y": jnp.array((d["y"] - y_mean) / y_std),
+        "y": jnp.concatenate([
+            jnp.array((d["y"] - y_mean) / y_std),
+            jnp.array(d["u"]),
+        ], axis=-1),
     }
 
 train_data  = _normalize(train_data)
 val_data    = _normalize(val_data)
 x_test_raw  = np.array(test_data["x"])
-y_test_norm = jnp.array((test_data["y"] - y_mean) / y_std)
+y_test_norm = jnp.concatenate([
+    jnp.array((test_data["y"] - y_mean) / y_std),
+    jnp.array(test_data["u"]),
+], axis=-1)
 x_test_norm = jnp.array((test_data["x"] - x_mean) / x_std)
 
 
@@ -434,8 +442,8 @@ def _eval_loss_full(model, x, y, key):
     return model.loss(x, y, key)
 
 @eqx.filter_jit
-def _eval_loss_ms(model, x, y, key, seg_len):
-    return model.loss_ms_batch(x, y, key, seg_len)
+def _eval_loss_ms(model, x, y, key, seg_len, segment_stride):
+    return model.loss_ms_batch(x, y, key, seg_len, segment_stride)
 
 
 # ---------------------------------------------------------------------------
@@ -487,7 +495,8 @@ if args.train:
 
                 if args.ms:
                     model, opt_state, loss, components = make_step_si_ms(
-                        model, xb, yb, k_step, args.seg_len, opt_state, optimizer
+                    model, xb, yb, k_step, args.seg_len, args.segment_stride,
+                    opt_state, optimizer
                     )
                 else:
                     model, opt_state, loss, components = make_step_si(
@@ -507,7 +516,8 @@ if args.train:
             rng, k_val = jr.split(rng)
             if args.ms:
                 val_loss = float(_eval_loss_ms(
-                    model, val_data["x"], val_data["y"], k_val, args.seg_len
+                    model, val_data["x"], val_data["y"], k_val, args.seg_len,
+                    args.segment_stride
                 ))
             else:
                 val_loss = float(_eval_loss_full(
@@ -603,7 +613,7 @@ if args.test or args.train:
         return jax.vmap(fn)(y_chunk, keys)   # (B, n_p, T', d_x)
 
     M_test    = x_test_raw.shape[0]
-    chunk     = 32
+    chunk     = args.eval_chunk_size
     k_test    = jr.PRNGKey(999)
     all_samps = []
 
@@ -640,6 +650,19 @@ if args.test or args.train:
     print(f"  RMSE posterior mean: {rmse_all:.4f}")
     print(f"  MAE  posterior mean: {mae_all:.4f}")
     print(f"  Coverage @ 90% CI:   {coverage * 100:.1f}%")
+    if args.plot_eval:
+        save_state_estimation_plots(
+            results_dir,
+            "conditional_stochastic_interpolant"
+            + (f"_{args.obs_noise_type}" if args.obs_noise_type != "gaussian" else "")
+            + (
+                "_" + args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
+                if args.experiment_tag else ""
+            ),
+            x_ref,
+            np.asarray(test_data["y"])[:, :T_eval],
+            all_samps[:, :, :T_eval],
+        )
 
     if args.wandb:
         try:

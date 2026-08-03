@@ -9,7 +9,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .mujoco_aloha import DEFAULT_XML, MujocoAlohaPlant
+from .mujoco_aloha import (
+    DEFAULT_XML,
+    CorrelatedJointDisturbance,
+    JointDisturbanceConfig,
+    MujocoAlohaPlant,
+)
 
 
 def smooth_random_actions(rng, steps, neutral, low, high, scale=0.12, rho=0.96):
@@ -60,11 +65,28 @@ def generate(args):
     rows, episode_meta = [], []
     modes = (["smooth"] * args.smooth_episodes + ["nominal"] * args.nominal_episodes
              + ["mppi_perturbed"] * args.mppi_episodes)
+    disturbance_config = JointDisturbanceConfig(
+        rho=args.disturbance_rho,
+        sigma_z=args.sigma_z,
+        sigma_ind=args.sigma_ind,
+        innovation=args.innovation,
+        mixture_probability=args.mixture_probability,
+        mixture_scale=args.mixture_scale,
+        student_df=args.student_df,
+        sigma_free=args.sigma_free,
+        sigma_contact=args.sigma_contact,
+        contact_force_reference=args.contact_force_reference,
+    )
     for episode_id, mode in enumerate(modes):
         gain = rng.uniform(*args.gain_scale_range)
         damping = rng.uniform(*args.damping_scale_range)
         plant = MujocoAlohaPlant(
             args.xml, args.control_dt, gain_scale=gain, damping_scale=damping
+        )
+        disturbance = (
+            CorrelatedJointDisturbance(disturbance_config, rng)
+            if args.joint_disturbance
+            else None
         )
         initial_scale = args.initial_noise_fraction * (plant.action_high - plant.action_low)
         state = plant.reset(position_noise=initial_scale, rng=rng)
@@ -88,17 +110,33 @@ def generate(args):
                     args.mppi_candidates, args.mppi_exploration,
                 )
                 plan[0] = action
+            contact_intensity = plant.contact_intensity(args.contact_force_reference)
+            disturbance_torque = (
+                disturbance.sample(contact_intensity)
+                if disturbance is not None
+                else np.zeros(plant.action_dim, dtype=np.float32)
+            )
             rows.append({
-                "observation.state": state.astype(np.float32, copy=True),
+                "observation.state": (
+                    state[:14] if args.positions_only else state
+                ).astype(np.float32, copy=True),
                 "action": np.asarray(action, dtype=np.float32),
+                "disturbance_torque": disturbance_torque,
+                "contact_intensity": np.float32(contact_intensity),
                 "episode_index": episode_id, "frame_index": step,
             })
-            state = plant.step(action)
+            state = plant.step(action, disturbance_torque)
         # Terminal row keeps the existing episode loader's state/action alignment;
         # its action is discarded by load_episodes.
         rows.append({
-            "observation.state": state.astype(np.float32, copy=True),
+            "observation.state": (
+                state[:14] if args.positions_only else state
+            ).astype(np.float32, copy=True),
             "action": np.asarray(commands[-1], dtype=np.float32),
+            "disturbance_torque": np.zeros(plant.action_dim, dtype=np.float32),
+            "contact_intensity": np.float32(
+                plant.contact_intensity(args.contact_force_reference)
+            ),
             "episode_index": episode_id, "frame_index": args.steps,
         })
         episode_meta.append({"episode": episode_id, "mode": mode,
@@ -107,8 +145,21 @@ def generate(args):
     pd.DataFrame(rows).to_parquet(args.output, index=False)
     metadata = {
         **{k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
-        "state": "14 actuator-associated qpos followed by 14 qvel",
+        "state": (
+            "14 actuator-associated qpos"
+            if args.positions_only
+            else "14 actuator-associated qpos followed by 14 qvel"
+        ),
         "action": "14 Menagerie joint-position actuator controls",
+        "disturbance_torque": (
+            "14 generalized joint torques subtracted through qfrc_applied before mj_step"
+        ),
+        "disturbance_modes": disturbance.L.tolist() if args.joint_disturbance else None,
+        "disturbance": {
+            **vars(disturbance_config),
+            "enabled": bool(args.joint_disturbance),
+            "contact_scale": "sigma_free + r*(sigma_contact-sigma_free)",
+        },
         "episodes": episode_meta,
     }
     with args.output.with_suffix(".json").open("w") as handle:
@@ -126,6 +177,11 @@ def parser():
     p.add_argument("--smooth-episodes", type=int, default=48)
     p.add_argument("--nominal-episodes", type=int, default=24)
     p.add_argument("--mppi-episodes", type=int, default=8)
+    p.add_argument(
+        "--positions-only",
+        action="store_true",
+        help="Export only the 14 actuator joint positions, omitting qvel.",
+    )
     p.add_argument("--initial-noise-fraction", type=float, default=0.03)
     p.add_argument("--perturbation-fraction", type=float, default=0.015)
     p.add_argument("--gain-scale-range", type=float, nargs=2, default=(1.0, 1.0))
@@ -134,6 +190,21 @@ def parser():
     p.add_argument("--mppi-candidates", type=int, default=24)
     p.add_argument("--mppi-every", type=int, default=5)
     p.add_argument("--mppi-exploration", type=float, default=0.04)
+    p.add_argument("--joint-disturbance", action="store_true")
+    p.add_argument(
+        "--innovation",
+        choices=("gaussian", "gaussian_mixture", "student_t"),
+        default="gaussian_mixture",
+    )
+    p.add_argument("--disturbance-rho", type=float, default=0.98)
+    p.add_argument("--sigma-z", type=float, default=1.0)
+    p.add_argument("--sigma-ind", type=float, default=0.05)
+    p.add_argument("--mixture-probability", type=float, default=0.05)
+    p.add_argument("--mixture-scale", type=float, default=5.0)
+    p.add_argument("--student-df", type=float, default=4.0)
+    p.add_argument("--sigma-free", type=float, default=1.0)
+    p.add_argument("--sigma-contact", type=float, default=3.0)
+    p.add_argument("--contact-force-reference", type=float, default=50.0)
     return p
 
 

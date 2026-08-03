@@ -166,7 +166,9 @@ plt.rcParams.update({
 
 results_dir = os.path.join(project_root, "results", "results_state_estimation")
 d_x = args.N
-d_y = args.N // args.obs_interval
+d_y_obs = args.N // args.obs_interval
+d_u = 1
+d_y = d_y_obs + d_u
 
 def _parse_tuple(s):
     return tuple(float(x) for x in s.split(","))
@@ -261,7 +263,7 @@ _, _, test_data = train_val_test_split(
 )
 x_test_raw = np.array(test_data["x"])   # (M_test, H, d_x)  original scale
 x0_test_raw = np.array(test_data["x0"]) # state immediately before x[:, 0]
-y_test_raw = np.array(test_data["y"])   # (M_test, H, d_y)
+y_test_raw = np.array(test_data["y"])   # (M_test, H, d_y_obs)
 M_test     = x_test_raw.shape[0]
 n_eval     = min(args.n_eval, M_test)
 n_plot     = min(args.n_plot_seqs, n_eval)
@@ -285,13 +287,16 @@ if not os.path.exists(norm_stats_path):
 ns     = np.load(norm_stats_path)
 x_mean = ns["x_mean"]   # (d_x,)
 x_std  = ns["x_std"]
-y_mean = ns["y_mean"]   # (d_y,)
+y_mean = ns["y_mean"]   # (d_y_obs,)
 y_std  = ns["y_std"]
 print(f"Norm stats loaded: x mean≈{x_mean.mean():.2f} std≈{x_std.mean():.2f}")
 
 x_test = jnp.array((x_test_raw - x_mean) / x_std)   # normalised
 x0_test = jnp.array((x0_test_raw - x_mean) / x_std)
-y_test = jnp.array((y_test_raw - y_mean) / y_std)
+y_test = jnp.concatenate([
+    jnp.array((y_test_raw - y_mean) / y_std),
+    jnp.array(test_data["u"]),
+], axis=-1)
 
 
 # ---------------------------------------------------------------------------

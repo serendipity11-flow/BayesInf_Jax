@@ -23,50 +23,193 @@ from bayesinf.applications.state_estimation.stochastic_solvers import (
     StepNoisePath,
     get_solver,
 )
+from .pusher_geometry import pusher_contact_features
+
+
+ARM_INDICES = jnp.asarray((0, 1, 2, 6, 7, 8))
+OBJECT_INDICES = jnp.asarray((3, 4, 5, 9, 10, 11))
+
+
+class SplitRealNVPDiffusionNet(eqx.Module):
+    """Independent invertible noise heads for arm and object coordinates."""
+
+    arm: RealNVPDiffusionNet
+    object: RealNVPDiffusionNet
+    feature_dim: int = eqx.field(static=True)
+    d_x: int = eqx.field(static=True, default=12)
+
+    def __init__(self, control_dim, feature_dim, hidden, layers, time_dim, key,
+                 alpha):
+        arm_key, object_key = jr.split(key)
+        context_dim = control_dim + 6 + feature_dim
+        self.arm = RealNVPDiffusionNet(
+            6, context_dim, hidden, layers, time_dim, arm_key, alpha=alpha
+        )
+        self.object = RealNVPDiffusionNet(
+            6, context_dim, hidden, layers, time_dim, object_key, alpha=alpha
+        )
+        self.feature_dim = feature_dim
+
+    def _parts(self, state, context):
+        control = context[:-self.feature_dim] if self.feature_dim else context
+        features = context[-self.feature_dim:] if self.feature_dim else context[:0]
+        arm_state, object_state = state[ARM_INDICES], state[OBJECT_INDICES]
+        return (arm_state, object_state,
+                jnp.concatenate((control, object_state, features)),
+                jnp.concatenate((control, arm_state, features)))
+
+    @staticmethod
+    def _merge(arm, object):
+        out = jnp.zeros((12,), dtype=arm.dtype)
+        return out.at[ARM_INDICES].set(arm).at[OBJECT_INDICES].set(object)
+
+    def apply(self, eps, state, context, time):
+        arm_state, object_state, arm_context, object_context = self._parts(
+            state, context
+        )
+        return self._merge(
+            self.arm.apply(eps[ARM_INDICES], arm_state, arm_context, time),
+            self.object.apply(
+                eps[OBJECT_INDICES], object_state, object_context, time
+            ),
+        )
+
+    def inverse_and_log_det(self, value, state, context, time):
+        arm_state, object_state, arm_context, object_context = self._parts(
+            state, context
+        )
+        arm, arm_logdet = self.arm.inverse_and_log_det(
+            value[ARM_INDICES], arm_state, arm_context, time
+        )
+        obj, obj_logdet = self.object.inverse_and_log_det(
+            value[OBJECT_INDICES], object_state, object_context, time
+        )
+        return self._merge(arm, obj), arm_logdet + obj_logdet
 
 
 class ControlledRealNVPFlowSDE(eqx.Module):
     """Euler--Maruyama controlled FlowSDE with exact transition density."""
 
-    drift: SDEDriftNet
-    diffusion: RealNVPDiffusionNet
+    drift_full: SDEDriftNet | None
+    drift_arm: SDEDriftNet | None
+    drift_object: SDEDriftNet | None
+    diffusion: RealNVPDiffusionNet | SplitRealNVPDiffusionNet
     state_dim: int = eqx.field(static=True)
     control_dim: int = eqx.field(static=True)
     dt: float = eqx.field(static=True)
     diffusion_condition_on_control: bool = eqx.field(static=True)
+    object_drift_no_control: bool = eqx.field(static=True)
+    separate_dynamics_heads: bool = eqx.field(static=True)
+    use_contact_geometry: bool = eqx.field(static=True)
+    geometry_temperature: float = eqx.field(static=True)
+    state_mean: jax.Array
+    state_std: jax.Array
+    geometry_mean: jax.Array
+    geometry_std: jax.Array
 
     def __init__(self, state_dim, control_dim, key, *, hidden_size=64, depth=2,
                  diffusion_hidden=64, flow_layers=4, time_emb_dim=16,
                  realnvp_alpha=3.0, dt=0.02,
-                 diffusion_condition_on_control=True):
+                 diffusion_condition_on_control=True,
+                 object_drift_no_control=False, separate_dynamics_heads=False,
+                 use_contact_geometry=False, geometry_temperature=0.02,
+                 state_mean=None, state_std=None, geometry_mean=None,
+                 geometry_std=None):
         if dt <= 0:
             raise ValueError("dt must be positive")
         self.state_dim = state_dim
         self.control_dim = control_dim
         self.dt = float(dt)
         self.diffusion_condition_on_control = bool(diffusion_condition_on_control)
+        self.object_drift_no_control = bool(object_drift_no_control)
+        self.separate_dynamics_heads = bool(separate_dynamics_heads)
+        self.use_contact_geometry = bool(use_contact_geometry)
+        self.geometry_temperature = float(geometry_temperature)
+        self.state_mean = jnp.zeros(state_dim) if state_mean is None else jnp.asarray(state_mean)
+        self.state_std = jnp.ones(state_dim) if state_std is None else jnp.asarray(state_std)
+        self.geometry_mean = jnp.zeros(5) if geometry_mean is None else jnp.asarray(geometry_mean)
+        self.geometry_std = jnp.ones(5) if geometry_std is None else jnp.asarray(geometry_std)
+        if (self.separate_dynamics_heads or self.use_contact_geometry) and state_dim != 12:
+            raise ValueError("split heads/contact geometry require the 12-D pusher state")
         drift_key, diffusion_key = jr.split(key)
-        self.drift = SDEDriftNet(
-            state_dim, control_dim, hidden_size, depth, time_emb_dim, drift_key
+        feature_dim = 5 if self.use_contact_geometry else 0
+        if self.object_drift_no_control or self.separate_dynamics_heads:
+            if state_dim != 12:
+                raise ValueError(
+                    "object_drift_no_control requires the 12-D pusher state"
+                )
+            arm_key, object_key = jr.split(drift_key)
+            self.drift_full = None
+            self.drift_arm = SDEDriftNet(
+                state_dim + feature_dim, control_dim, hidden_size, depth, time_emb_dim,
+                arm_key, output_dim=6,
+            )
+            self.drift_object = SDEDriftNet(
+                state_dim + feature_dim,
+                0 if self.object_drift_no_control else control_dim,
+                hidden_size, depth, time_emb_dim,
+                object_key, output_dim=6,
+            )
+        else:
+            self.drift_full = SDEDriftNet(
+                state_dim + feature_dim, control_dim, hidden_size, depth, time_emb_dim,
+                drift_key,
+            )
+            self.drift_arm = None
+            self.drift_object = None
+        diffusion_control_dim = control_dim if self.diffusion_condition_on_control else 0
+        if self.separate_dynamics_heads:
+            self.diffusion = SplitRealNVPDiffusionNet(
+                diffusion_control_dim, feature_dim, diffusion_hidden,
+                flow_layers, time_emb_dim, diffusion_key, realnvp_alpha,
+            )
+        else:
+            self.diffusion = RealNVPDiffusionNet(
+                state_dim, diffusion_control_dim + feature_dim,
+                diffusion_hidden, flow_layers,
+                time_emb_dim, diffusion_key, alpha=realnvp_alpha,
+            )
+
+    def geometry_features(self, state):
+        physical = state * self.state_std + self.state_mean
+        raw = pusher_contact_features(
+            physical, temperature=self.geometry_temperature
         )
-        self.diffusion = RealNVPDiffusionNet(
-            state_dim, control_dim if self.diffusion_condition_on_control else 0,
-            diffusion_hidden, flow_layers,
-            time_emb_dim, diffusion_key, alpha=realnvp_alpha,
-        )
+        return (raw - self.geometry_mean) / self.geometry_std
+
+    def _augmented_state(self, state):
+        if not self.use_contact_geometry:
+            return state
+        return jnp.concatenate((state, self.geometry_features(state)))
+
+    def drift(self, state, control, time):
+        augmented = self._augmented_state(state)
+        if not (self.object_drift_no_control or self.separate_dynamics_heads):
+            return self.drift_full(augmented, control, time)
+        arm = self.drift_arm(augmented, control, time)
+        object_control = (jnp.empty((0,), dtype=control.dtype)
+                          if self.object_drift_no_control else control)
+        obj = self.drift_object(augmented, object_control, time)
+        # State order is [q_arm, q_object, v_arm, v_object].
+        return jnp.concatenate([arm[:3], obj[:3], arm[3:], obj[3:]])
 
     def _diffusion_context(self, control):
-        if self.diffusion_condition_on_control:
-            return control
-        return jnp.empty((0,), dtype=control.dtype)
+        context = (control if self.diffusion_condition_on_control
+                   else jnp.empty((0,), dtype=control.dtype))
+        return context
+
+    def _diffusion_context_for_state(self, state, control):
+        context = self._diffusion_context(control)
+        if self.use_contact_geometry:
+            context = jnp.concatenate((context, self.geometry_features(state)))
+        return context
 
     def transition_nll(self, x0, u0, x1, time):
         """Mean exact Euler transition NLL for arrays ending in state_dim."""
         dt = jnp.asarray(self.dt, dtype=x0.dtype)
-
         def one(a, control, b, t):
             residual = (b - a - self.drift(a, control, t) * dt) / jnp.sqrt(dt)
-            diffusion_context = self._diffusion_context(control)
+            diffusion_context = self._diffusion_context_for_state(a, control)
             # Centre the invertible transform at epsilon=0. This makes the
             # deterministic/stochastic decomposition identifiable: the flow
             # cannot hide deterministic motion in coupling-layer translations.
@@ -127,7 +270,7 @@ class ControlledRealNVPFlowSDE(eqx.Module):
             step = jnp.clip(jnp.rint(t / dt).astype(jnp.int32) - start_step,
                             0, len(controls) - 1)
             u = controls[step]
-            diffusion_context = self._diffusion_context(u)
+            diffusion_context = self._diffusion_context_for_state(x, u)
             zero = jnp.zeros_like(epsilon)
             return (self.diffusion.apply(
                         epsilon * diffusion_temperature, x, diffusion_context, t
@@ -153,21 +296,40 @@ class ControlledRealNVPFlowSDE(eqx.Module):
                                segment_length=16, n_particles=4,
                                solver_name="heun", shooting_noise_std=0.01,
                                control_noise_std=0.01,
+                               path_weight=1.0,
                                uncertainty_weight=0.5,
-                               continuity_weight=0.1):
+                               continuity_weight=0.1,
+                               state_loss_weights=None,
+                               temporal_loss_weights=None,
+                               contact_weight=1.0,
+                               contact_center=0.5,
+                               contact_width=0.15):
         """Pathwise energy score over stochastic multiple-shooting segments.
 
         ``states`` has shape (B, W+1, dx), ``controls`` (B, W, du), and W
         must be divisible by ``segment_length``. Each segment is integrated by
         the selected stochastic solver instead of evaluating one-step NLL.
+        Optional ``temporal_loss_weights`` has shape (B, W) and is loss-only
+        supervision; it is not passed to drift or diffusion networks.
         """
         window_steps = controls.shape[1]
         if window_steps % segment_length:
             raise ValueError("window steps must be divisible by segment length")
         n_segments = window_steps // segment_length
+        weights = (
+            jnp.ones((self.state_dim,), dtype=states.dtype)
+            if state_loss_weights is None
+            else jnp.asarray(state_loss_weights, dtype=states.dtype)
+        )
         batch_keys = jr.split(key, states.shape[0])
+        supplied_temporal_weights = temporal_loss_weights is not None
+        if temporal_loss_weights is None:
+            temporal_loss_weights = jnp.ones(
+                controls.shape[:2], dtype=states.dtype
+            )
 
-        def trajectory_loss(x, u, first_step, trajectory_key):
+        def trajectory_loss(x, u, first_step, trajectory_key,
+                            trajectory_temporal_weights):
             control_key, shooting_key = jr.split(trajectory_key)
             if control_noise_std > 0:
                 u = u + control_noise_std * jr.normal(control_key, u.shape)
@@ -182,8 +344,23 @@ class ControlledRealNVPFlowSDE(eqx.Module):
                 n_segments, segment_length, self.control_dim
             )
             segment_starts = first_step + jnp.arange(n_segments) * segment_length
+            relative_time = (
+                jnp.arange(window_steps, dtype=states.dtype) + 1
+            ) / window_steps
+            temporal_weights = 1.0 + (contact_weight - 1.0) * jnp.exp(
+                -0.5 * ((relative_time - contact_center) / contact_width) ** 2
+            )
+            if supplied_temporal_weights:
+                # Privileged labels may shape the training loss, but are never
+                # part of the learned dynamics interface or inference inputs.
+                temporal_weights *= trajectory_temporal_weights
+            temporal_weights /= jnp.mean(temporal_weights)
+            temporal_weights = temporal_weights.reshape(
+                n_segments, segment_length
+            )
 
-            def segment_loss(x0, segment_controls, target, segment_start, seg_key):
+            def segment_loss(x0, segment_controls, target, segment_start,
+                             time_weights, seg_key):
                 init_key, path_key = jr.split(seg_key)
                 if shooting_noise_std > 0:
                     x0 = x0 + shooting_noise_std * jr.normal(init_key, x0.shape)
@@ -191,23 +368,33 @@ class ControlledRealNVPFlowSDE(eqx.Module):
                     x0, segment_controls, path_key, n_particles,
                     segment_start, 1.0, solver_name,
                 )
-                accuracy = jnp.mean(jnp.sqrt(
-                    jnp.sum((paths - target[None]) ** 2, axis=-1) + 1e-6
-                ))
+                accuracy_by_time = jnp.mean(jnp.sqrt(
+                    jnp.sum(
+                        weights * (paths - target[None]) ** 2, axis=-1
+                    ) + 1e-6
+                ), axis=0)
                 pairwise = paths[:, None] - paths[None, :]
-                spread = jnp.mean(jnp.sqrt(
-                    jnp.sum(pairwise ** 2, axis=-1) + 1e-6
-                ))
+                spread_by_time = jnp.mean(jnp.sqrt(
+                    jnp.sum(weights * pairwise ** 2, axis=-1) + 1e-6
+                ), axis=(0, 1))
+                accuracy = jnp.mean(time_weights * accuracy_by_time)
+                spread = jnp.mean(time_weights * spread_by_time)
                 continuity = jnp.mean(
-                    (jnp.mean(paths[:, -1], axis=0) - target[-1]) ** 2
+                    weights * (
+                        jnp.mean(paths[:, -1], axis=0) - target[-1]
+                    ) ** 2
                 )
                 return accuracy - uncertainty_weight * spread, continuity
 
             scores, continuities = jax.vmap(segment_loss)(
-                state_starts, control_segments, targets, segment_starts, segment_keys
+                state_starts, control_segments, targets, segment_starts,
+                temporal_weights, segment_keys,
             )
-            return jnp.mean(scores) + continuity_weight * jnp.mean(continuities)
+            return (
+                path_weight * jnp.mean(scores)
+                + continuity_weight * jnp.mean(continuities)
+            )
 
         return jnp.mean(jax.vmap(trajectory_loss)(
-            states, controls, start_steps, batch_keys
+            states, controls, start_steps, batch_keys, temporal_loss_weights
         ))

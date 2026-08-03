@@ -10,9 +10,15 @@ __pycache__/
 # Experiment tracking
 wandb/
 
-# Model checkpoints
+# Generated datasets and experiment outputs
+data/
+results/
+
+# Checkpoints and logs
+*.eqx
+*.npz
+*.parquet
 *.pt
 *.pth
-
-# Logs
-slurm-*.out
+*.out
+*.err

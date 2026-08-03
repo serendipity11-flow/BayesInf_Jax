@@ -25,3 +25,6 @@ results/
 *.pth
 *.out
 *.err
+
+# This repository intentionally versions the curated dataset snapshots.
+!data/**

@@ -1,0 +1,428 @@
+{
+  "xml": "third_party/mujoco_menagerie/aloha/scene.xml",
+  "output": "/home/zhangyi/bayesinf_jax/data/aloha_mujoco/mujoco_random_lerobot_matched.parquet",
+  "seed": 0,
+  "control_dt": 0.02,
+  "steps": 499,
+  "smooth_episodes": 30,
+  "nominal_episodes": 15,
+  "mppi_episodes": 5,
+  "positions_only": true,
+  "initial_noise_fraction": 0.03,
+  "perturbation_fraction": 0.015,
+  "gain_scale_range": [
+    1.0,
+    1.0
+  ],
+  "damping_scale_range": [
+    1.0,
+    1.0
+  ],
+  "mppi_horizon": 8,
+  "mppi_candidates": 24,
+  "mppi_every": 5,
+  "mppi_exploration": 0.04,
+  "joint_disturbance": true,
+  "innovation": "gaussian_mixture",
+  "disturbance_rho": 0.98,
+  "sigma_z": 1.0,
+  "sigma_ind": 0.05,
+  "mixture_probability": 0.05,
+  "mixture_scale": 5.0,
+  "student_df": 4.0,
+  "sigma_free": 1.0,
+  "sigma_contact": 3.0,
+  "contact_force_reference": 50.0,
+  "state": "14 actuator-associated qpos",
+  "action": "14 Menagerie joint-position actuator controls",
+  "disturbance_torque": "14 generalized joint torques subtracted through qfrc_applied before mj_step",
+  "disturbance_modes": [
+    [
+      0.26726123690605164,
+      0.26726123690605164,
+      -0.2314550280570984
+    ],
+    [
+      0.26726123690605164,
+      0.26726123690605164,
+      -0.2314550280570984
+    ],
+    [
+      0.26726123690605164,
+      0.26726123690605164,
+      -0.2314550280570984
+    ],
+    [
+      0.26726123690605164,
+      0.26726123690605164,
+      -0.2314550280570984
+    ],
+    [
+      0.26726123690605164,
+      0.26726123690605164,
+      0.30860671401023865
+    ],
+    [
+      0.26726123690605164,
+      0.26726123690605164,
+      0.30860671401023865
+    ],
+    [
+      0.26726123690605164,
+      0.26726123690605164,
+      0.30860671401023865
+    ],
+    [
+      0.26726123690605164,
+      -0.26726123690605164,
+      -0.2314550280570984
+    ],
+    [
+      0.26726123690605164,
+      -0.26726123690605164,
+      -0.2314550280570984
+    ],
+    [
+      0.26726123690605164,
+      -0.26726123690605164,
+      -0.2314550280570984
+    ],
+    [
+      0.26726123690605164,
+      -0.26726123690605164,
+      -0.2314550280570984
+    ],
+    [
+      0.26726123690605164,
+      -0.26726123690605164,
+      0.30860671401023865
+    ],
+    [
+      0.26726123690605164,
+      -0.26726123690605164,
+      0.30860671401023865
+    ],
+    [
+      0.26726123690605164,
+      -0.26726123690605164,
+      0.30860671401023865
+    ]
+  ],
+  "disturbance": {
+    "latent_dim": 3,
+    "rho": 0.98,
+    "sigma_z": 1.0,
+    "sigma_ind": 0.05,
+    "innovation": "gaussian_mixture",
+    "mixture_probability": 0.05,
+    "mixture_scale": 5.0,
+    "student_df": 4.0,
+    "sigma_free": 1.0,
+    "sigma_contact": 3.0,
+    "contact_force_reference": 50.0,
+    "enabled": true,
+    "contact_scale": "sigma_free + r*(sigma_contact-sigma_free)"
+  },
+  "episodes": [
+    {
+      "episode": 0,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 1,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 2,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 3,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 4,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 5,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 6,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 7,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 8,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 9,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 10,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 11,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 12,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 13,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 14,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 15,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 16,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 17,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 18,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 19,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 20,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 21,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 22,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 23,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 24,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 25,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 26,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 27,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 28,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 29,
+      "mode": "smooth",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 30,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 31,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 32,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 33,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 34,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 35,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 36,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 37,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 38,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 39,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 40,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 41,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 42,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 43,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 44,
+      "mode": "nominal",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 45,
+      "mode": "mppi_perturbed",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 46,
+      "mode": "mppi_perturbed",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 47,
+      "mode": "mppi_perturbed",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 48,
+      "mode": "mppi_perturbed",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    },
+    {
+      "episode": 49,
+      "mode": "mppi_perturbed",
+      "gain_scale": 1.0,
+      "damping_scale": 1.0
+    }
+  ]
+}

@@ -39,7 +39,8 @@ fi
 echo "job_id=$SLURM_JOB_ID host=$(hostname) python=$PYTHON"
 nvidia-smi || true
 
+EVALUATION_MANIFEST="${EVALUATION_MANIFEST:-experiments/cond_stoch_interpolant_dppo/config/evaluation_door.json}"
+
 "$PYTHON" -m \
   experiments.cond_stoch_interpolant_dppo.evaluate_across_datasets \
-  --manifest \
-  experiments/cond_stoch_interpolant_dppo/config/evaluation_door.json
+  --manifest "$EVALUATION_MANIFEST"

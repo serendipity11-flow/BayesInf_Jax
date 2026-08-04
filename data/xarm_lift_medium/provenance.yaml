@@ -1,9 +1,0 @@
-schema_version: 1
-dataset: xarm_lift_medium
-kind: imported_lerobot_snapshot
-source: {identifier: xarm_lift_medium, namespace: unknown, revision: unknown, acquisition_command: unknown}
-status: incomplete_source_provenance
-format: parquet
-statistics: {episodes: 800, rows: 20000}
-artifacts:
-  - {path: train-0000.parquet, sha256: 3648546141a69b011cff8702419ba4842e56aec24b13fca88bd9579c43782814}

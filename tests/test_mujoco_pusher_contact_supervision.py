@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 
-from bayesinf.applications.optimal_control.aloha_data import (
+from experiments.aloha_optimal_control.data import (
     load_episodes,
     load_transition_auxiliary,
 )
-from bayesinf.applications.optimal_control.train_aloha_flow_sde import (
+from experiments.aloha_optimal_control.train_flow_sde import (
     contact_temporal_weights,
     trajectory_windows,
 )
@@ -56,3 +56,14 @@ def test_contact_temporal_weights_emphasize_high_force_and_have_unit_mean():
     assert np.all(weights > 0)
     np.testing.assert_allclose(weights.mean(), 1.0, rtol=1e-5)
     assert weights[0, 1] > weights[0, 2] > weights[0, 0]
+
+
+def test_contact_weight_persists_into_post_contact_motion():
+    force = np.zeros((1, 6, 3), dtype=np.float32)
+    force[0, 2, 0] = 10.0
+    weights = np.asarray(contact_temporal_weights(
+        force, np.ones(3), post_contact_steps=2
+    ))
+
+    assert weights[0, 2] == weights[0, 3] == weights[0, 4]
+    assert weights[0, 4] > weights[0, 5]

@@ -1,19 +1,11 @@
-"""Amortized optimal-control experiments."""
+"""Reusable learned-dynamics, policy, and MPC architecture."""
 
-from .bicycle_dataset import BicycleConfig, generate_dataset
 from .amortized_seq_flow import AmortizedSeqFlow
-from .mpc_kalman import (
-    ConstrainedLateralMPC,
-    LateralKalmanFilter,
-    LinearLateralMPC,
-    MPCConfig,
-    NonlinearLateralMPC,
-)
 from .sampling_mpc import (
     CEMStochasticMPC, MPPIController, SamplingMPCConfig,
 )
 from .gradient_based_mpc import BraxGradientMPC, GradientMPC, GradientMPCConfig
-from .so100 import SO100Config, joint_tracking_cost
+from .conditional_flow_sde import ConditionalRealNVP, FlowSDE, GaussianSDE
 from .cond_stoch_interpolant import (
     CondStochInterpolantPolicy,
     ConditionalGaussianBase,
@@ -53,12 +45,10 @@ except ModuleNotFoundError:
     GRULatentSSMFlow = None
 
 __all__ = [
-    "AmortizedSeqFlow", "BicycleConfig", "generate_dataset",
-    "ConstrainedLateralMPC", "LinearLateralMPC", "NonlinearLateralMPC",
-    "LateralKalmanFilter", "MPCConfig",
+    "AmortizedSeqFlow",
     "ControlledLatentSSMFlow", "CEMStochasticMPC", "MPPIController",
-    "SamplingMPCConfig", "GradientMPC", "GradientMPCConfig", "BraxGradientMPC", "SO100Config",
-    "joint_tracking_cost",
+    "SamplingMPCConfig", "GradientMPC", "GradientMPCConfig", "BraxGradientMPC",
+    "ConditionalRealNVP", "FlowSDE", "GaussianSDE",
     "GRULatentSSMFlow",
     "CondStochInterpolantPolicy", "ConditionalGaussianBase",
     "ConditionalVelocity", "InterpolantSample",

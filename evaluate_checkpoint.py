@@ -20,7 +20,7 @@ project_root = current_dir
 sys.path.insert(0, project_root)
 
 from bayesinf.applications.state_estimation.flow_sde import RealNVPFlowSDE
-from bayesinf.applications.state_estimation.lorenz96_dataset import (
+from experiments.lorenz96_state_estimation.utils.dataset import (
     generate_lorenz96_dataset,
     train_val_test_split,
     lorenz96_rhs,

@@ -17,9 +17,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from bayesinf.applications.optimal_control.aloha_data import load_episodes, split_episode_indices
+from experiments.aloha_optimal_control.data import load_episodes, split_episode_indices
 from bayesinf.applications.optimal_control.sampling_mpc import MPPIController, SamplingMPCConfig
-from bayesinf.applications.optimal_control.train_aloha_flow_sde import build_model
+from experiments.aloha_optimal_control.train_flow_sde import build_model
 from .mujoco_aloha import DEFAULT_XML, MujocoAlohaPlant
 
 

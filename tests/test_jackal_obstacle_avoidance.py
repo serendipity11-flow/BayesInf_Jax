@@ -1,7 +1,7 @@
 import jax.numpy as jnp
 import jax.random as jr
 
-from bayesinf.applications.optimal_control.jackal_obstacle_avoidance import (
+from experiments.jackal_obstacle_avoidance.model import (
     JackalConfig, generate_identification_data, minimum_clearance, nominal_step,
     obstacle_cost, state_from_pose, transition_windows, yaw_from_state,
 )

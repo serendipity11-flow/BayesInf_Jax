@@ -29,7 +29,7 @@ echo "CUDA devices: $CUDA_VISIBLE_DEVICES"
 
 for FLOW_TYPE in realnvp nsf fm; do
     echo "Training AmortizedStateFlow: flow_type=${FLOW_TYPE}, seg_len=25"
-    $PYTHON -m bayesinf.applications.state_estimation.train_amortized_state_flow \
+    $PYTHON -m experiments.lorenz96_state_estimation.train_amortized_state_flow \
         --train \
         --flow_type "${FLOW_TYPE}" \
         --encoder_type transformer \

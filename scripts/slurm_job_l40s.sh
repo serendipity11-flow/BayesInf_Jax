@@ -23,7 +23,7 @@ python3.12 -c "import sys; print(sys.path)"
 
 for FLOW_TYPE in fm realnvp nsf; do
     echo "Training PointwiseStateFlow: flow_type=${FLOW_TYPE}, encoder=transformer, seg_len=25"
-    python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+    python3.12 -m experiments.lorenz96_state_estimation.train_pointwise_state_flow \
         --train \
         --flow_type "${FLOW_TYPE}" \
         --encoder_type transformer \

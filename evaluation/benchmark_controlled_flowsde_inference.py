@@ -17,7 +17,7 @@ import jax.numpy as jnp
 import jax.random as jr
 import numpy as np
 
-from bayesinf.applications.optimal_control.train_aloha_flow_sde import build_model
+from experiments.aloha_optimal_control.train_flow_sde import build_model
 
 
 def main() -> None:

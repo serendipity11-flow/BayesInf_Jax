@@ -1,5 +1,5 @@
 import jax.numpy as jnp
-from bayesinf.applications.optimal_control.aloha_gradient_mpc_comparison import (
+from experiments.aloha_optimal_control.gradient_mpc_comparison import (
     SecondOrderServo,
 )
 from bayesinf.applications.optimal_control.gradient_based_mpc import (

@@ -3,7 +3,7 @@ import jax.numpy as jnp
 import jax.random as jr
 
 from bayesinf.applications.optimal_control.gru_latent_ssm_flow import GRULatentSSMFlow
-from bayesinf.applications.optimal_control.train_aloha_mobile_dynamics import (
+from experiments.aloha_optimal_control.train_mobile_dynamics import (
     make_segments,
     split_episode_indices,
 )

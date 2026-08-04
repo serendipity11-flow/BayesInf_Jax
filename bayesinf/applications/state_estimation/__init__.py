@@ -40,21 +40,6 @@ from bayesinf.applications.state_estimation.latent_ssm_flow import (
     _flow_fwd_single,
     _flow_inv_single,
 )
-from bayesinf.applications.state_estimation.lorenz96_dataset import (
-    lorenz96_rhs,
-    integrate_lorenz96,
-    generate_lorenz96_dataset,
-    train_val_test_split,
-    state_rmse,
-    state_mae,
-)
-from bayesinf.applications.state_estimation.aloha_insertion_dataset import (
-    AlohaInsertionMetadata,
-    denormalize_aloha_state,
-    load_aloha_insertion_dataset,
-    read_aloha_insertion_parquet,
-    split_episode_ids,
-)
 
 __all__ = [
     "RealNVPFlowSDE",
@@ -78,26 +63,17 @@ __all__ = [
     "build_latent_ssm_flow",
     "_flow_fwd_single",
     "_flow_inv_single",
-    "lorenz96_rhs",
-    "integrate_lorenz96",
-    "generate_lorenz96_dataset",
-    "train_val_test_split",
-    "state_rmse",
-    "state_mae",
-    "AlohaInsertionMetadata",
-    "denormalize_aloha_state",
-    "load_aloha_insertion_dataset",
-    "read_aloha_insertion_parquet",
-    "split_episode_ids",
 ]
 from bayesinf.applications.state_estimation.filtering_baselines import (
     FilterResult,
     bootstrap_particle_filter,
     extended_kalman_filter,
+    unscented_kalman_filter,
 )
 
 __all__ += [
     "FilterResult",
     "bootstrap_particle_filter",
     "extended_kalman_filter",
+    "unscented_kalman_filter",
 ]

@@ -21,7 +21,7 @@ export PYTHONNOUSERSITE=1
 export PYTHONPATH=/home/zhangyi/bayesinf_jax:$PYTHONPATH
 python3.12 -c "import sys; print(sys.path)"
 
-python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+python3.12 -m experiments.lorenz96_state_estimation.train_pointwise_state_flow \
     --train \
     --flow_type fm \
     --encoder_type transformer \
@@ -30,7 +30,7 @@ python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow 
     --grad_norm 1.0 \
     --patience 30 \
 
-python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+python3.12 -m experiments.lorenz96_state_estimation.train_pointwise_state_flow \
     --train \
     --flow_type fm \
     --encoder_type transformer \
@@ -39,7 +39,7 @@ python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow 
     --grad_norm 1.0 \
     --patience 30 \
 
-python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+python3.12 -m experiments.lorenz96_state_estimation.train_pointwise_state_flow \
     --train \
     --flow_type fm \
     --encoder_type transformer \
@@ -48,7 +48,7 @@ python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow 
     --grad_norm 1.0 \
     --patience 30 \
 
-python3.12 -m bayesinf.applications.state_estimation.train_pointwise_state_flow \
+python3.12 -m experiments.lorenz96_state_estimation.train_pointwise_state_flow \
     --train \
     --flow_type fm \
     --encoder_type transformer \

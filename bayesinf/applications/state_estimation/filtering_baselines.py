@@ -1,22 +1,15 @@
-"""Classical filtering baselines for the Lorenz-96 state-estimation tasks.
-
-The EKF is intended for the Gaussian-observation AmortizedStateFlow experiment.
-The bootstrap particle filter supports the heavy-tailed and multimodal noise used
-by LatentSSMFlow, FlowSDE, and the conditional stochastic interpolant.
-"""
+"""Model-agnostic extended/unscented Kalman and particle filters."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from collections.abc import Callable
 from typing import Optional, Sequence
 
 import jax
 import jax.numpy as jnp
 import jax.random as jr
 from jax.scipy.special import gammaln, logsumexp
-
-from .lorenz96_dataset import rk4_step
-
 
 @dataclass
 class FilterResult:
@@ -40,19 +33,13 @@ def extended_kalman_filter(
     y: jnp.ndarray,
     x0: jnp.ndarray,
     H: jnp.ndarray,
+    transition: Callable[[jnp.ndarray], jnp.ndarray],
     *,
-    dt: float,
-    F: float = 8.0,
     obs_std: float = 0.5,
     process_std: float = 0.05,
     initial_std: float = 0.0,
 ) -> FilterResult:
-    """Run an EKF using the exact RK4 map and its automatic Jacobian.
-
-    Observations correspond to states one transition after ``x0``, matching
-    :func:`generate_lorenz96_dataset`. Joseph's covariance update is used for
-    numerical stability.
-    """
+    """Run an EKF using a supplied transition and its automatic Jacobian."""
     if obs_std <= 0 or process_std < 0 or initial_std < 0:
         raise ValueError("obs_std must be positive and state-noise scales non-negative")
     y, x0, single = _as_batch(jnp.asarray(y), jnp.asarray(x0))
@@ -61,7 +48,6 @@ def extended_kalman_filter(
     if H.shape != (dy, n):
         raise ValueError(f"H must have shape {(dy, n)}, got {H.shape}")
 
-    transition = lambda x: rk4_step(x, dt, F)
     jacobian = jax.jacfwd(transition)
     eye = jnp.eye(n, dtype=x0.dtype)
     Q = process_std**2 * eye
@@ -96,9 +82,8 @@ def unscented_kalman_filter(
     y: jnp.ndarray,
     x0: jnp.ndarray,
     H: jnp.ndarray,
+    transition: Callable[[jnp.ndarray], jnp.ndarray],
     *,
-    dt: float,
-    F: float = 8.0,
     obs_std: float = 0.5,
     process_std: float = 0.05,
     initial_std: float = 0.0,
@@ -133,7 +118,7 @@ def unscented_kalman_filter(
         def step(carry, measurement):
             mean, covariance = carry
             sigma = sigma_points(mean, covariance)
-            propagated = jax.vmap(lambda point: rk4_step(point, dt, F))(sigma)
+            propagated = jax.vmap(transition)(sigma)
             pred_mean = jnp.sum(wm[:, None] * propagated, axis=0)
             dx = propagated - pred_mean
             pred_cov = jnp.einsum("s,si,sj->ij", wc, dx, dx) + Q
@@ -194,9 +179,8 @@ def bootstrap_particle_filter(
     x0: jnp.ndarray,
     H: jnp.ndarray,
     key: jax.Array,
+    transition: Callable[[jnp.ndarray], jnp.ndarray],
     *,
-    dt: float,
-    F: float = 8.0,
     obs_std: float = 0.5,
     process_std: float = 0.05,
     initial_std: float = 0.0,
@@ -229,7 +213,7 @@ def bootstrap_particle_filter(
         def step(carry, measurement):
             particles, step_key = carry
             step_key, noise_key, sample_key = jr.split(step_key, 3)
-            particles = jax.vmap(lambda p: rk4_step(p, dt, F))(particles)
+            particles = jax.vmap(transition)(particles)
             particles = particles + process_std * jr.normal(noise_key, particles.shape)
             residual = measurement[None, :] - particles @ H.T
             logw = _observation_log_likelihood(

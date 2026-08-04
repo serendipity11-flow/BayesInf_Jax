@@ -47,6 +47,7 @@ from bayesinf.applications.state_estimation.filtering_baselines import (
 from bayesinf.applications.state_estimation.flow_sde import RealNVPFlowSDE
 from bayesinf.applications.state_estimation.latent_ssm_flow import LatentSSMFlow
 from bayesinf.applications.state_estimation.stochastic_interpolant import StochasticInterpolantSE
+from experiments.lorenz96_state_estimation.utils.dataset import rk4_step
 
 
 ALL_METHODS = ("ekf", "ukf", "pf", "amortized", "latent", "flow_sde", "interpolant")
@@ -258,12 +259,13 @@ def main():
     u = jnp.zeros((a.batch_size, a.horizon, 1))
     H = jnp.eye(a.state_dim)[:: a.obs_interval]
     rows = []
+    transition = lambda state: rk4_step(state, a.dt, 8.0)
 
     for method in a.methods:
         if method == "ekf":
             @jax.jit
             def run(k):
-                result = extended_kalman_filter(y, x0, H, dt=a.dt)
+                result = extended_kalman_filter(y, x0, H, transition)
                 # Draw from every filtering marginal N(m_t, P_t). These have
                 # the same (B, P, T, D) materialized shape as PF particles,
                 # but are not temporally correlated trajectory draws.
@@ -278,7 +280,7 @@ def main():
         elif method == "ukf":
             @jax.jit
             def run(k):
-                result = unscented_kalman_filter(y, x0, H, dt=a.dt)
+                result = unscented_kalman_filter(y, x0, H, transition)
                 eye = jnp.eye(a.state_dim, dtype=result.covariance.dtype)
                 chol = jnp.linalg.cholesky(result.covariance + 1e-6 * eye)
                 eps = jr.normal(
@@ -289,7 +291,7 @@ def main():
             samples = a.particles
         elif method == "pf":
             run = jax.jit(lambda k: bootstrap_particle_filter(
-                y, x0, H, k, dt=a.dt, num_particles=a.particles, noise_type="gmm"
+                y, x0, H, k, transition, num_particles=a.particles, noise_type="gmm"
             ).particles)
             samples = a.particles
         elif method == "amortized":

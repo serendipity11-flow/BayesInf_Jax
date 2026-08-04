@@ -26,7 +26,7 @@ else
 fi
 echo "Using Python: $PYTHON  ($(${PYTHON} --version))"
 
-$PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96 \
+$PYTHON -m experiments.lorenz96_state_estimation.train_latent_ssm_flow \
     --train \
     --flow_type realnvp \
     --fix_ssm \
@@ -43,7 +43,7 @@ $PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96
     --patience 50 \
     --max_epochs 2000
 
-$PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96 \
+$PYTHON -m experiments.lorenz96_state_estimation.train_latent_ssm_flow \
     --train \
     --flow_type realnvp \
     --fix_ssm \
@@ -60,7 +60,7 @@ $PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96
     --patience 50 \
     --max_epochs 2000
 
-$PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96 \
+$PYTHON -m experiments.lorenz96_state_estimation.train_latent_ssm_flow \
     --train \
     --flow_type realnvp \
     --fix_ssm \
@@ -77,7 +77,7 @@ $PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96
     --patience 50 \
     --max_epochs 2000
 
-$PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96 \
+$PYTHON -m experiments.lorenz96_state_estimation.train_latent_ssm_flow \
     --train \
     --flow_type realnvp \
     --fix_ssm \
@@ -94,7 +94,7 @@ $PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96
     --patience 50 \
     --max_epochs 2000
 
-$PYTHON -m bayesinf.applications.state_estimation.train_latent_ssm_flow_lorenz96 \
+$PYTHON -m experiments.lorenz96_state_estimation.train_latent_ssm_flow \
     --train \
     --flow_type realnvp \
     --fix_ssm \

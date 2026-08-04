@@ -34,7 +34,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
-from bayesinf.applications.state_estimation.lorenz96_dataset import (
+from experiments.lorenz96_state_estimation.utils.dataset import (
     generate_lorenz96_dataset,
     train_val_test_split,
 )

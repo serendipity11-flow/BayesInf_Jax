@@ -3,10 +3,13 @@ import jax.random as jr
 import numpy as np
 
 from bayesinf.applications.optimal_control import (
-    AmortizedSeqFlow, BicycleConfig, ConstrainedLateralMPC, LinearLateralMPC,
-    LateralKalmanFilter, generate_dataset,
+    AmortizedSeqFlow,
 )
-from bayesinf.applications.optimal_control.amortized_seq_flow import control_aware_loss
+from experiments.lane_keeping.losses import control_aware_loss
+from experiments.lane_keeping.dataset import BicycleConfig, generate_dataset
+from experiments.lane_keeping.mpc_kalman import (
+    ConstrainedLateralMPC, LateralKalmanFilter, LinearLateralMPC,
+)
 
 
 def test_dataset_and_flow_shapes_and_constraints():

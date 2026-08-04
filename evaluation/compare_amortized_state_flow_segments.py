@@ -39,7 +39,7 @@ sys.path.insert(0, PROJECT_ROOT)
 from bayesinf.applications.state_estimation.amortized_state_flow import (  # noqa: E402
     AmortizedStateFlow,
 )
-from bayesinf.applications.state_estimation.lorenz96_dataset import (  # noqa: E402
+from experiments.lorenz96_state_estimation.utils.dataset import (  # noqa: E402
     generate_lorenz96_dataset,
     train_val_test_split,
 )

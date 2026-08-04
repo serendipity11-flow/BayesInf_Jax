@@ -14,6 +14,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import jax.random as jr
+from collections.abc import Callable
 
 from bayesinf.applications.state_estimation.flow_sde import (
     RealNVPDiffusionNet,
@@ -23,9 +24,6 @@ from bayesinf.applications.state_estimation.stochastic_solvers import (
     StepNoisePath,
     get_solver,
 )
-from .pusher_geometry import pusher_contact_features
-
-
 ARM_INDICES = jnp.asarray((0, 1, 2, 6, 7, 8))
 OBJECT_INDICES = jnp.asarray((3, 4, 5, 9, 10, 11))
 
@@ -100,7 +98,9 @@ class ControlledRealNVPFlowSDE(eqx.Module):
     diffusion_condition_on_control: bool = eqx.field(static=True)
     object_drift_no_control: bool = eqx.field(static=True)
     separate_dynamics_heads: bool = eqx.field(static=True)
+    coupled_six_state_flows: bool = eqx.field(static=True)
     use_contact_geometry: bool = eqx.field(static=True)
+    geometry_feature_fn: Callable | None = eqx.field(static=True)
     geometry_temperature: float = eqx.field(static=True)
     state_mean: jax.Array
     state_std: jax.Array
@@ -112,7 +112,9 @@ class ControlledRealNVPFlowSDE(eqx.Module):
                  realnvp_alpha=3.0, dt=0.02,
                  diffusion_condition_on_control=True,
                  object_drift_no_control=False, separate_dynamics_heads=False,
+                 coupled_six_state_flows=False,
                  use_contact_geometry=False, geometry_temperature=0.02,
+                 geometry_feature_fn=None,
                  state_mean=None, state_std=None, geometry_mean=None,
                  geometry_std=None):
         if dt <= 0:
@@ -123,17 +125,37 @@ class ControlledRealNVPFlowSDE(eqx.Module):
         self.diffusion_condition_on_control = bool(diffusion_condition_on_control)
         self.object_drift_no_control = bool(object_drift_no_control)
         self.separate_dynamics_heads = bool(separate_dynamics_heads)
+        self.coupled_six_state_flows = bool(coupled_six_state_flows)
         self.use_contact_geometry = bool(use_contact_geometry)
+        self.geometry_feature_fn = geometry_feature_fn
         self.geometry_temperature = float(geometry_temperature)
         self.state_mean = jnp.zeros(state_dim) if state_mean is None else jnp.asarray(state_mean)
         self.state_std = jnp.ones(state_dim) if state_std is None else jnp.asarray(state_std)
         self.geometry_mean = jnp.zeros(5) if geometry_mean is None else jnp.asarray(geometry_mean)
         self.geometry_std = jnp.ones(5) if geometry_std is None else jnp.asarray(geometry_std)
-        if (self.separate_dynamics_heads or self.use_contact_geometry) and state_dim != 12:
+        if (self.separate_dynamics_heads or self.coupled_six_state_flows
+                or self.use_contact_geometry) and state_dim != 12:
             raise ValueError("split heads/contact geometry require the 12-D pusher state")
+        if self.coupled_six_state_flows and self.use_contact_geometry:
+            raise ValueError("coupled six-state flows use explicit cross-state coupling")
+        if self.use_contact_geometry and self.geometry_feature_fn is None:
+            raise ValueError("use_contact_geometry requires geometry_feature_fn")
         drift_key, diffusion_key = jr.split(key)
         feature_dim = 5 if self.use_contact_geometry else 0
-        if self.object_drift_no_control or self.separate_dynamics_heads:
+        if self.coupled_six_state_flows:
+            arm_key, object_key = jr.split(drift_key)
+            self.drift_full = None
+            # Robot flow: r_t plus (u_t, o_t). Object flow: o_t plus
+            # (u_t, r_t, predicted robot drift). Both remain jointly trained.
+            self.drift_arm = SDEDriftNet(
+                6, control_dim + 6, hidden_size, depth, time_emb_dim,
+                arm_key, output_dim=6,
+            )
+            self.drift_object = SDEDriftNet(
+                6, control_dim + 12, hidden_size, depth, time_emb_dim,
+                object_key, output_dim=6,
+            )
+        elif self.object_drift_no_control or self.separate_dynamics_heads:
             if state_dim != 12:
                 raise ValueError(
                     "object_drift_no_control requires the 12-D pusher state"
@@ -158,7 +180,7 @@ class ControlledRealNVPFlowSDE(eqx.Module):
             self.drift_arm = None
             self.drift_object = None
         diffusion_control_dim = control_dim if self.diffusion_condition_on_control else 0
-        if self.separate_dynamics_heads:
+        if self.separate_dynamics_heads or self.coupled_six_state_flows:
             self.diffusion = SplitRealNVPDiffusionNet(
                 diffusion_control_dim, feature_dim, diffusion_hidden,
                 flow_layers, time_emb_dim, diffusion_key, realnvp_alpha,
@@ -172,7 +194,7 @@ class ControlledRealNVPFlowSDE(eqx.Module):
 
     def geometry_features(self, state):
         physical = state * self.state_std + self.state_mean
-        raw = pusher_contact_features(
+        raw = self.geometry_feature_fn(
             physical, temperature=self.geometry_temperature
         )
         return (raw - self.geometry_mean) / self.geometry_std
@@ -184,6 +206,19 @@ class ControlledRealNVPFlowSDE(eqx.Module):
 
     def drift(self, state, control, time):
         augmented = self._augmented_state(state)
+        if self.coupled_six_state_flows:
+            robot_state = state[ARM_INDICES]
+            object_state = state[OBJECT_INDICES]
+            robot = self.drift_arm(
+                robot_state, jnp.concatenate((control, object_state)), time
+            )
+            obj = self.drift_object(
+                object_state,
+                jnp.concatenate((control, robot_state, robot)), time,
+            )
+            return jnp.zeros_like(state).at[ARM_INDICES].set(robot).at[
+                OBJECT_INDICES
+            ].set(obj)
         if not (self.object_drift_no_control or self.separate_dynamics_heads):
             return self.drift_full(augmented, control, time)
         arm = self.drift_arm(augmented, control, time)
@@ -291,6 +326,93 @@ class ControlledRealNVPFlowSDE(eqx.Module):
             x0, controls, particle_key, start_step,
             diffusion_temperature, solver_name,
         ))(jr.split(key, n_particles))
+
+    def coupled_multiple_shooting_losses(
+            self, states, controls, start_steps, key, *, segment_length=10,
+            n_particles=2, solver_name="heun", shooting_noise_std=0.01,
+            control_noise_std=0.01, path_weight=1.0, object_path_weight=1.0,
+            uncertainty_weight=0.5,
+            continuity_weight=0.1, object_temporal_weights=None):
+        """Robot/object energy scores from one shared stochastic rollout."""
+        if self.state_dim != 12:
+            raise ValueError("coupled losses require the 12-D robot/object state")
+        window_steps = controls.shape[1]
+        if window_steps % segment_length:
+            raise ValueError("window steps must be divisible by segment length")
+        n_segments = window_steps // segment_length
+        if object_temporal_weights is None:
+            object_temporal_weights = jnp.ones(
+                controls.shape[:2], dtype=states.dtype
+            )
+        object_temporal_weights = (
+            object_temporal_weights
+            / (jnp.mean(object_temporal_weights, axis=1, keepdims=True) + 1e-6)
+        )
+        batch_keys = jr.split(key, states.shape[0])
+
+        def trajectory_losses(x, u, first_step, trajectory_key, object_weights):
+            control_key, shooting_key = jr.split(trajectory_key)
+            if control_noise_std > 0:
+                u = u + control_noise_std * jr.normal(control_key, u.shape)
+            state_starts = x[:-1].reshape(
+                n_segments, segment_length, self.state_dim
+            )[:, 0]
+            targets = x[1:].reshape(
+                n_segments, segment_length, self.state_dim
+            )
+            control_segments = u.reshape(
+                n_segments, segment_length, self.control_dim
+            )
+            segment_starts = first_step + jnp.arange(n_segments) * segment_length
+            object_weights = object_weights.reshape(n_segments, segment_length)
+
+            def segment_losses(x0, segment_controls, target, segment_start,
+                               object_time_weights, segment_key):
+                init_key, path_key = jr.split(segment_key)
+                if shooting_noise_std > 0:
+                    x0 = x0 + shooting_noise_std * jr.normal(init_key, x0.shape)
+                paths = self.sample_rollout(
+                    x0, segment_controls, path_key, n_particles,
+                    segment_start, 1.0, solver_name,
+                )
+
+                def group_score(indices, time_weights, group_path_weight):
+                    group_paths = paths[..., indices]
+                    group_target = target[..., indices]
+                    accuracy_by_time = jnp.mean(jnp.sqrt(
+                        jnp.sum((group_paths - group_target[None]) ** 2,
+                                axis=-1) + 1e-6
+                    ), axis=0)
+                    pairwise = group_paths[:, None] - group_paths[None, :]
+                    spread_by_time = jnp.mean(jnp.sqrt(
+                        jnp.sum(pairwise ** 2, axis=-1) + 1e-6
+                    ), axis=(0, 1))
+                    score = jnp.mean(time_weights * (
+                        accuracy_by_time - uncertainty_weight * spread_by_time
+                    ))
+                    continuity = jnp.mean(
+                        (jnp.mean(group_paths[:, -1], axis=0)
+                         - group_target[-1]) ** 2
+                    )
+                    return group_path_weight * score + continuity_weight * continuity
+
+                return (
+                    group_score(ARM_INDICES, jnp.ones_like(object_time_weights),
+                                path_weight),
+                    group_score(OBJECT_INDICES, object_time_weights,
+                                object_path_weight),
+                )
+
+            robot, obj = jax.vmap(segment_losses)(
+                state_starts, control_segments, targets, segment_starts,
+                object_weights, jr.split(shooting_key, n_segments),
+            )
+            return jnp.mean(robot), jnp.mean(obj)
+
+        robot, obj = jax.vmap(trajectory_losses)(
+            states, controls, start_steps, batch_keys, object_temporal_weights
+        )
+        return jnp.mean(robot), jnp.mean(obj)
 
     def multiple_shooting_loss(self, states, controls, start_steps, key, *,
                                segment_length=16, n_particles=4,

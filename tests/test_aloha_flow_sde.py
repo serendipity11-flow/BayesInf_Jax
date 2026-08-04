@@ -5,7 +5,7 @@ import jax.random as jr
 from bayesinf.applications.optimal_control.controlled_flow_sde import (
     ControlledRealNVPFlowSDE,
 )
-from bayesinf.applications.optimal_control.pusher_geometry import (
+from experiments.mujoco_pusher_optimal_control.geometry import (
     pusher_contact_features,
 )
 
@@ -108,6 +108,7 @@ def test_split_heads_and_geometry_support_drift_and_diffusion_rollout():
         12, 3, jr.PRNGKey(40), hidden_size=8, depth=1,
         diffusion_hidden=8, flow_layers=2, time_emb_dim=4,
         separate_dynamics_heads=True, use_contact_geometry=True,
+        geometry_feature_fn=pusher_contact_features,
     )
     drift = model.drift(jnp.zeros(12), jnp.zeros(3), jnp.asarray(0.0))
     paths = model.sample_rollout(
@@ -116,3 +117,20 @@ def test_split_heads_and_geometry_support_drift_and_diffusion_rollout():
     assert drift.shape == (12,)
     assert paths.shape == (2, 2, 12)
     assert jnp.all(jnp.isfinite(paths))
+
+
+def test_coupled_six_state_flows_roll_out_and_object_depends_on_robot_flow():
+    model = ControlledRealNVPFlowSDE(
+        12, 3, jr.PRNGKey(50), hidden_size=8, depth=1,
+        diffusion_hidden=8, flow_layers=2, time_emb_dim=4,
+        coupled_six_state_flows=True,
+    )
+    state = jr.normal(jr.PRNGKey(51), (12,))
+    drift = model.drift(state, jnp.ones(3), jnp.asarray(0.0))
+    paths = model.sample_rollout(
+        state, jnp.zeros((2, 3)), jr.PRNGKey(52), n_particles=2
+    )
+    assert drift.shape == (12,)
+    assert paths.shape == (2, 2, 12)
+    assert jnp.all(jnp.isfinite(paths))
+    assert model.drift_arm.net.in_size != model.drift_object.net.in_size

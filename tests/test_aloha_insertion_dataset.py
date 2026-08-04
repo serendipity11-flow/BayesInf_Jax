@@ -6,7 +6,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from bayesinf.applications.state_estimation.aloha_insertion_dataset import (
+from experiments.aloha_state_estimation.utils.dataset import (
     denormalize_aloha_state,
     generate_pseudo_process_trajectory,
     load_aloha_insertion_dataset,

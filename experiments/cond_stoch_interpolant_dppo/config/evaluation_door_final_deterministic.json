@@ -8,7 +8,7 @@
       "env_id": "AdroitHandDoor-v2",
       "registration_modules": ["gymnasium_robotics"],
       "env_kwargs": {"max_episode_steps": 300},
-      "normalization": "data/dppo/door-human-v2/normalization.npz",
+      "normalization": "data/door-expert-v2-100/normalization.npz",
       "success_key": "success",
       "deterministic": true,
       "reset_seeds": [
@@ -22,10 +22,18 @@
     }
   },
   "methods": {
-    "StochasticInterpolant-DPPO": {
+    "StochasticInterpolant-SDE-DPPO": {
+      "sampler": "sde",
       "checkpoint_globs": [
-        "results/results_optimal_control/{task}/si_dppo_v2/seed*/pretrain/checkpoint",
-        "results/results_optimal_control/{task}/si_dppo_v2/seed*/finetune/checkpoint"
+        "results/results_optimal_control/{task}/si_analytic_dppo_v4/seed*/pretrain/checkpoint",
+        "results/results_optimal_control/{task}/si_analytic_dppo_v4/seed*/finetune/**/checkpoint"
+      ]
+    },
+    "StochasticInterpolant-ODE-DPPO": {
+      "sampler": "ode",
+      "checkpoint_globs": [
+        "results/results_optimal_control/{task}/si_analytic_dppo_v4/seed*/pretrain/checkpoint",
+        "results/results_optimal_control/{task}/si_analytic_dppo_v4/seed*/finetune/checkpoint"
       ]
     },
     "DiffusionPolicy-DPPO": {

@@ -1,9 +1,12 @@
 environment: AdroitHandDoor-v2
-dataset: D4RL/door/human-v2
+dataset: D4RL/door/expert-v2
+dataset_path: data/door-expert-v2-100
+dataset_episodes: 100
 reward: dense
 obs_dim: 39
 action_dim: 28
 horizon_steps: 4
+execution_horizon: 4
 cond_steps: 1
 max_episode_steps: 300
 seeds: [0, 1, 2, 3, 4]
@@ -22,14 +25,20 @@ dppo:
   min_sampling_denoising_std: 0.1
   min_logprob_denoising_std: 0.1
 interpolant:
-  integration_steps: 5
+  integration_steps: 50
   bridge_sigma: 0.1
   sampling_std: 0.1
-  hidden_size: 64
+  score_sigma_floor: 0.02
+  sde_eta: 0.05
+  path_loss_weight: 0.1
+  path_loss_steps: 10
+  hidden_size: 52
   depth: 2
   n_heads: 4
   context_dim: 32
-  parameter_count: 226548
+  parameter_count: 144048
+  source: fixed_standard_gaussian
+  bc_success_gate: 0.5
 ppo:
   environment_steps: 840000
   n_envs: 40

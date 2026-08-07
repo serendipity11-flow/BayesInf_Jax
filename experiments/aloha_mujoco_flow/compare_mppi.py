@@ -70,12 +70,16 @@ class FlowSDEDynamicsAdapter:
     def sample_rollout(self, state_history, previous_controls, future_controls, key,
                        n_particles=1, start_step=0, diffusion_temperature=1.0):
         del previous_controls
-        x0 = (jnp.asarray(state_history[-1]) - self.x_mean) / self.x_std
+        normalized_history = (
+            jnp.asarray(state_history) - self.x_mean
+        ) / self.x_std
+        x0 = normalized_history[-1]
         controls = (jnp.asarray(future_controls) - self.u_mean) / self.u_std
         paths = self.model.sample_rollout(
             x0, controls, key, n_particles=n_particles,
             start_step=start_step, diffusion_temperature=diffusion_temperature,
             solver_name=self.solver_name,
+            state_history=normalized_history[:-1],
         )
         return paths * self.x_std + self.x_mean
 

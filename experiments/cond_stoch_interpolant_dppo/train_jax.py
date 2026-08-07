@@ -69,18 +69,27 @@ def create_policy(args, key):
             sampling_std_floor=args.sampling_std,
             logprob_std_floor=args.sampling_std,
         )
+    is_sde_v2 = args.policy == "csi_sde"
     return CondStochInterpolantPolicy(
         args.obs_dim, args.action_dim, args.horizon, key,
         cond_steps=args.cond_steps,
         integration_steps=args.integration_steps,
-        informative_base=not args.gaussian_base,
+        informative_base=False if is_sde_v2 else not args.gaussian_base,
         sigma_0=args.sigma_0,
         sampling_std=args.sampling_std,
+        score_sigma_floor=getattr(args, "score_sigma_floor", .02),
+        sde_eta=getattr(args, "sde_eta", .05),
+        path_loss_weight=getattr(args, "path_loss_weight", 0.0),
+        path_loss_steps=getattr(args, "path_loss_steps", 10),
         hidden_size=args.hidden_size,
         depth=args.depth,
         time_dim=args.time_dim,
         context_dim=args.context_dim,
         n_heads=args.n_heads,
+        score_head_width=getattr(args, "score_head_width", 0) if is_sde_v2 else 0,
+        score_loss_weight=getattr(args, "score_loss_weight", 0.0) if is_sde_v2 else 0.0,
+        score_correction_scale=getattr(args, "score_correction_scale", .1),
+        sampler_matched_sde=is_sde_v2,
     )
 
 
@@ -103,11 +112,13 @@ def append_csv(path: Path, row):
         writer.writerow(row)
 
 
-def save_policy(path: Path, policy, args, critic=None):
+def save_policy(path: Path, policy, args, critic=None, base_policy=None):
     path.mkdir(parents=True, exist_ok=True)
     eqx.tree_serialise_leaves(path / "policy.eqx", policy)
     if critic is not None:
         eqx.tree_serialise_leaves(path / "critic.eqx", critic)
+    if base_policy is not None:
+        eqx.tree_serialise_leaves(path / "base_policy.eqx", base_policy)
     config = {key: value for key, value in vars(args).items()
               if isinstance(value, (str, int, float, bool)) or value is None}
     (path / "config.json").write_text(json.dumps(config, indent=2) + "\n")
@@ -151,10 +162,21 @@ def pretrain(args):
         if step == 1 or step % args.log_every == 0 or step == args.gradient_steps:
             now = time.perf_counter()
             key, val_key = jr.split(key)
-            val_loss = state.policy.loss(val_actions, val_states, val_key)
+            if isinstance(state.policy, CondStochInterpolantPolicy):
+                val_loss, val_velocity_loss, val_path_loss = (
+                    state.policy.loss_components(val_actions, val_states, val_key)
+                )
+                val_score_loss = jnp.asarray(jnp.nan)
+            else:
+                val_loss = state.policy.loss(val_actions, val_states, val_key)
+                val_velocity_loss = val_score_loss = jnp.asarray(jnp.nan)
+                val_path_loss = jnp.asarray(jnp.nan)
             append_csv(args.output / "pretrain_metrics.csv", {
                 "gradient_step": step, "train_loss": float(loss),
                 "validation_loss": float(val_loss),
+                "validation_velocity_loss": float(val_velocity_loss),
+                "validation_score_loss": float(val_score_loss),
+                "validation_path_loss": float(val_path_loss),
                 "wall_seconds": time.perf_counter() - start,
                 "interval_seconds": now - previous_log_time,
                 "updates_per_second": (
@@ -268,7 +290,7 @@ def collect_rollout(
         chunk_reward = np.zeros(args.n_envs, dtype=np.float32)
         chunk_done = np.zeros(args.n_envs, dtype=bool)
         active = np.ones(args.n_envs, dtype=bool)
-        for action_step in range(args.horizon):
+        for action_step in range(args.execution_horizon):
             raw_action = normalizer.action(np.asarray(sample.actions[:, action_step]))
             stepped = active.copy()
             observation, reward, term, trunc, _ = envs.step_masked(
@@ -302,7 +324,7 @@ def collect_rollout(
     value_array = jnp.stack(values)
     terminal_array = jnp.asarray(np.stack(terminated))
     advantage, returns = generalized_advantage_estimate(
-        reward_array, value_array, next_value, terminal_array,
+        reward_array * args.reward_scale, value_array, next_value, terminal_array,
         gamma=args.gamma, gae_lambda=args.gae_lambda,
     )
     flatten = lambda value: value.reshape((-1,) + value.shape[2:])
@@ -341,6 +363,8 @@ def finetune(args):
         clip_ploss_coef_rate=args.clip_rate,
         vf_coef=args.vf_coef, target_kl=args.target_kl,
         reward_horizon=args.horizon,
+        ft_denoising_steps=args.ft_denoising_steps,
+        bc_reference_coef=args.bc_reference_coef,
     )
     normalizer = Normalizer(args.data / "normalization.npz")
     envs = make_envs(args)
@@ -351,14 +375,26 @@ def finetune(args):
     )
     # Reuse compiled rollout kernels. Without these wrappers, every environment
     # chunk pays Python tracing/dispatch overhead for the complete inner MDP.
-    sample_policy = eqx.filter_jit(
-        lambda policy_, states_, key_: policy_.sample(states_, key_)
-    )
-    transition_log_prob = eqx.filter_jit(
-        lambda policy_, states_, chain_: policy_.transition_log_prob(
-            states_, chain_
+    if isinstance(state.policy, DPPODiffusionPolicy):
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_hybrid(
+                states_, key_, state.base_policy, args.ft_denoising_steps
+            )
         )
-    )
+        transition_log_prob = eqx.filter_jit(
+            lambda policy_, states_, chain_: policy_.hybrid_transition_log_prob(
+                states_, chain_, state.base_policy, args.ft_denoising_steps
+            )
+        )
+    else:
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample(states_, key_)
+        )
+        transition_log_prob = eqx.filter_jit(
+            lambda policy_, states_, chain_: policy_.transition_log_prob(
+                states_, chain_
+            )
+        )
     critic_values = eqx.filter_jit(
         lambda critic_, states_: critic_.batch(states_)
     )
@@ -374,7 +410,7 @@ def finetune(args):
                 state, actor_optimizer, critic_optimizer, batch, config
             )
             if float(metrics.approx_kl) > args.target_kl: break
-        env_steps += args.rollout_steps * args.n_envs * args.horizon
+        env_steps += args.rollout_steps * args.n_envs * args.execution_horizon
         append_csv(args.output / "finetune_metrics.csv", {
             "iteration": iteration, "environment_steps": env_steps,
             "mean_chunk_reward": mean_reward,
@@ -384,6 +420,7 @@ def finetune(args):
             "approx_kl": float(metrics.approx_kl),
             "clip_fraction": float(metrics.clip_fraction),
             "ratio": float(metrics.ratio),
+            "bc_reference_loss": float(metrics.bc_reference_loss),
             "wall_seconds": time.perf_counter() - start,
             "nfe": state.policy.nfe, "seed": args.seed,
         })
@@ -392,9 +429,12 @@ def finetune(args):
             save_policy(
                 args.output / "checkpoints" / f"iteration_{iteration:04d}"
                 / "checkpoint",
-                state.policy, args, state.critic,
+                state.policy, args, state.critic, state.base_policy,
             )
-    save_policy(args.output / "checkpoint", state.policy, args, state.critic)
+    save_policy(
+        args.output / "checkpoint", state.policy, args, state.critic,
+        state.base_policy,
+    )
     envs.close()
 
 
@@ -425,7 +465,7 @@ def evaluate(args):
             )
             jax.block_until_ready(sample.actions)
             latencies.append(1e3 * (time.perf_counter() - start))
-            for action_step in range(args.horizon):
+            for action_step in range(args.execution_horizon):
                 raw_action = normalizer.action(np.asarray(sample.actions[0, action_step]))
                 observation, reward, terminated, truncated, info = env.step(raw_action)
                 history = history[1:] + [normalizer.observation(observation)]
@@ -464,7 +504,7 @@ def evaluate(args):
 def parser():
     p = argparse.ArgumentParser()
     p.add_argument("mode", choices=("pretrain", "finetune", "evaluate"))
-    p.add_argument("--policy", choices=("interpolant", "dppo"), default="interpolant")
+    p.add_argument("--policy", choices=("interpolant", "csi_sde", "dppo"), default="interpolant")
     p.add_argument("--data", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--checkpoint", type=Path)
@@ -473,16 +513,26 @@ def parser():
     p.add_argument("--obs-dim", type=int, required=True)
     p.add_argument("--action-dim", type=int, required=True)
     p.add_argument("--horizon", type=int, default=4)
+    p.add_argument(
+        "--execution-horizon", type=int,
+        help="Actions executed before replanning (defaults to --horizon).",
+    )
     p.add_argument("--cond-steps", type=int, default=1)
-    p.add_argument("--integration-steps", type=int, default=5)
+    p.add_argument("--integration-steps", type=int, default=50)
     p.add_argument("--denoising-steps", type=int, default=20)
+    p.add_argument("--ft-denoising-steps", type=int, default=10)
     p.add_argument("--gaussian-base", action="store_true")
     p.add_argument("--sigma-0", type=float, default=.1)
     p.add_argument("--sampling-std", type=float, default=.1)
-    # 64x2 gives 226,548 total SI parameters for Door, closely matching the
-    # official DPPO MLP actor's 211,904 parameters.  The previous 256x3
-    # transformer had 4.89M parameters and was not a fair efficiency baseline.
-    p.add_argument("--hidden-size", type=int, default=64)
+    p.add_argument("--score-sigma-floor", type=float, default=.02)
+    p.add_argument("--sde-eta", type=float, default=.05)
+    p.add_argument("--path-loss-weight", type=float, default=0.0)
+    p.add_argument("--path-loss-steps", type=int, default=10)
+    p.add_argument("--score-head-width", type=int, default=0)
+    p.add_argument("--score-loss-weight", type=float, default=0.0)
+    p.add_argument("--score-correction-scale", type=float, default=.1)
+    # Fixed-source, velocity-only CSI at width 52 has 144,048 Door parameters.
+    p.add_argument("--hidden-size", type=int, default=52)
     p.add_argument("--depth", type=int, default=2)
     p.add_argument("--time-dim", type=int, default=16)
     p.add_argument("--context-dim", type=int, default=32)
@@ -514,12 +564,21 @@ def parser():
     p.add_argument("--clip-rate", type=float, default=3)
     p.add_argument("--vf-coef", type=float, default=.5)
     p.add_argument("--target-kl", type=float, default=1)
+    p.add_argument("--bc-reference-coef", type=float, default=0.0)
+    p.add_argument(
+        "--reward-scale", type=float, default=1.0,
+        help="Scale environment rewards before GAE/value targets.",
+    )
     p.add_argument("--eval-episodes", type=int, default=50)
     return p
 
 
 if __name__ == "__main__":
     args = parser().parse_args()
+    if args.execution_horizon is None:
+        args.execution_horizon = args.horizon
+    if not 1 <= args.execution_horizon <= args.horizon:
+        raise SystemExit("--execution-horizon must be in [1, --horizon]")
     if args.mode == "pretrain":
         pretrain(args)
     elif args.mode == "finetune":

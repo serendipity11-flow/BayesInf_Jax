@@ -15,6 +15,9 @@ from bayesinf.applications.optimal_control import (
     make_bc_state,
     make_dppo_state,
 )
+from bayesinf.applications.optimal_control.dppo_diffusion_jax import (
+    DPPODiffusionPolicy,
+)
 
 
 def models():
@@ -72,6 +75,91 @@ def test_bc_and_dppo_compiled_updates_are_finite():
     assert jnp.allclose(metrics.ratio, 1, atol=1e-5)
     assert jnp.allclose(metrics.approx_kl, 0, atol=1e-5)
     assert metrics.clip_fraction == 0
+
+
+def test_interpolant_analytic_score_and_ode_sde_are_finite():
+    policy = CondStochInterpolantPolicy(
+        6, 3, 4, jr.PRNGKey(39), integration_steps=3,
+        informative_base=False, hidden_size=16, depth=1, time_dim=8,
+    )
+    states = jr.normal(jr.PRNGKey(40), (4, 1, 6))
+    actions = jr.normal(jr.PRNGKey(41), (4, 4, 3))
+    total, velocity, path = policy.loss_components(
+        actions, states, jr.PRNGKey(42)
+    )
+    assert jnp.isfinite(total)
+    assert jnp.isfinite(velocity)
+    assert path == 0
+    assert jnp.allclose(total, velocity)
+
+    ode = policy.sample_ode(states, jr.PRNGKey(43))
+    sde = policy.sample_sde(states, jr.PRNGKey(44))
+    expected_chain = (4, policy.integration_steps + 1, 4, 3)
+    assert ode.actions.shape == sde.actions.shape == (4, 4, 3)
+    assert ode.chain.shape == sde.chain.shape == expected_chain
+    assert jnp.all(jnp.isfinite(ode.actions))
+    assert jnp.all(jnp.isfinite(sde.actions))
+    log_prob = policy.transition_log_prob(states, sde.chain)
+    assert log_prob.shape == (4, policy.integration_steps, 4, 3)
+    assert jnp.all(jnp.isfinite(log_prob))
+
+    context, mean, _ = policy._features(states[0])
+    score = policy._actual_score(actions[0], mean, context, jnp.asarray(0.0))
+    assert jnp.allclose(score, -actions[0], atol=1e-5)
+
+
+def test_interpolant_energy_path_loss_and_heun_samplers():
+    policy = CondStochInterpolantPolicy(
+        6, 3, 4, jr.PRNGKey(46), integration_steps=3,
+        informative_base=False, hidden_size=16, depth=1, time_dim=8,
+        path_loss_weight=0.1, path_loss_steps=2,
+    )
+    states = jr.normal(jr.PRNGKey(47), (2, 1, 6))
+    actions = jr.normal(jr.PRNGKey(48), (2, 4, 3))
+    total, velocity, path = policy.loss_components(
+        actions, states, jr.PRNGKey(49)
+    )
+    assert jnp.isfinite(total) and jnp.isfinite(path)
+    assert jnp.allclose(total, velocity + 0.1 * path)
+    ode = policy.sample_ode_heun(states, jr.PRNGKey(50))
+    sde = policy.sample_sde_heun(states, jr.PRNGKey(51))
+    assert ode.chain.shape == sde.chain.shape == (2, 4, 4, 3)
+    assert jnp.all(jnp.isfinite(ode.actions))
+    assert jnp.all(jnp.isfinite(sde.actions))
+
+
+def test_diffusion_bc_updates_network_but_not_analytical_schedule():
+    policy = DPPODiffusionPolicy(6, 3, 4, jr.PRNGKey(30), denoising_steps=5)
+    states = jr.normal(jr.PRNGKey(31), (4, 1, 6))
+    actions = jr.normal(jr.PRNGKey(32), (4, 4, 3))
+    state, optimizer = make_bc_state(policy)
+    updated, loss = bc_update(
+        state, optimizer, actions, states, jr.PRNGKey(33)
+    )
+
+    assert jnp.isfinite(loss)
+    for name in (
+        "betas", "alphas", "alphas_cumprod", "alphas_cumprod_prev",
+        "sqrt_alphas_cumprod", "sqrt_one_minus_alphas_cumprod",
+        "sqrt_recip_alphas_cumprod", "sqrt_recipm1_alphas_cumprod",
+        "posterior_coef1", "posterior_coef2", "posterior_log_variance",
+    ):
+        assert jnp.array_equal(getattr(policy, name), getattr(updated.policy, name))
+    old_network = jax.tree_util.tree_leaves(eqx.filter(policy.network, eqx.is_array))
+    new_network = jax.tree_util.tree_leaves(
+        eqx.filter(updated.policy.network, eqx.is_array)
+    )
+    assert any(not jnp.array_equal(old, new)
+               for old, new in zip(old_network, new_network))
+
+
+def test_diffusion_ddim_supports_strided_inference_grid():
+    policy = DPPODiffusionPolicy(6, 3, 4, jr.PRNGKey(34), denoising_steps=20)
+    states = jnp.zeros((2, 1, 6))
+    sample = policy.sample_ddim(states, jr.PRNGKey(35), inference_steps=5)
+    assert sample.actions.shape == (2, 4, 3)
+    assert sample.chain.shape == (2, 6, 4, 3)
+    assert jnp.all(jnp.isfinite(sample.actions))
 
 
 def test_dppo_freezes_source_and_updates_velocity():

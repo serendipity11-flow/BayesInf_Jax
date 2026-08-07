@@ -223,6 +223,106 @@ class DPPODiffusionPolicy(eqx.Module):
         actions = final if clip is None else jnp.clip(final, -clip, clip)
         return DiffusionSample(actions, chain)
 
+    def sample_ddim(self, states, key, *, inference_steps=None, clip=1.0):
+        """Deterministic DDIM sampling on a strided subset of the trained grid.
+
+        This is intended for behavior-cloning evaluation, not PPO: strided
+        DDIM transitions do not use the Markov-chain likelihood consumed by
+        :meth:`transition_log_prob`.
+        """
+        self._check_states(states)
+        steps = self.denoising_steps if inference_steps is None else int(inference_steps)
+        if not 1 <= steps <= self.denoising_steps:
+            raise ValueError(
+                f"inference_steps must be in [1, {self.denoising_steps}]"
+            )
+        batch = len(states)
+        initial = jr.normal(key, (batch, self.horizon, self.action_dim))
+        # Integer linspace includes both endpoints and is strictly descending
+        # when steps <= the length of the trained diffusion grid.
+        times = jnp.linspace(
+            self.denoising_steps - 1, 0, steps, dtype=jnp.int32
+        )
+        previous_times = jnp.concatenate([times[1:], -jnp.ones((1,), jnp.int32)])
+
+        def step(x, pair):
+            time, previous_time = pair
+            time_batch = jnp.full((batch,), time)
+            predicted_noise = jax.vmap(self.network)(x, time_batch, states)
+            alpha = self.alphas_cumprod[time]
+            alpha_previous = jnp.where(
+                previous_time >= 0,
+                self.alphas_cumprod[jnp.maximum(previous_time, 0)],
+                1.0,
+            )
+            reconstructed = (
+                x - jnp.sqrt(1.0 - alpha) * predicted_noise
+            ) / jnp.sqrt(alpha)
+            reconstructed = jnp.clip(
+                reconstructed, -self.denoised_clip, self.denoised_clip
+            )
+            following = (
+                jnp.sqrt(alpha_previous) * reconstructed
+                + jnp.sqrt(1.0 - alpha_previous) * predicted_noise
+            )
+            return following, following
+
+        final, generated = jax.lax.scan(step, initial, (times, previous_times))
+        chain = jnp.concatenate(
+            [initial[:, None], jnp.swapaxes(generated, 0, 1)], axis=1
+        )
+        actions = final if clip is None else jnp.clip(final, -clip, clip)
+        return DiffusionSample(actions, chain)
+
+    def sample_hybrid(
+        self, states, key, base_policy, ft_denoising_steps, *,
+        deterministic=False, clip=1.0,
+    ):
+        """Sample with a frozen base for early and RL actor for late steps."""
+        self._check_states(states)
+        batch = len(states)
+        key, initial_key = jr.split(key)
+        initial = jr.normal(initial_key, (batch, self.horizon, self.action_dim))
+        keys = jr.split(key, self.denoising_steps)
+        times = jnp.arange(self.denoising_steps - 1, -1, -1)
+
+        def step(x, inputs):
+            time, noise_key = inputs
+            time_batch = jnp.full((batch,), time)
+            ft_mean, ft_log_variance = jax.vmap(self._mean_log_variance)(
+                x, time_batch, states
+            )
+            base_mean, base_log_variance = jax.vmap(base_policy._mean_log_variance)(
+                x, time_batch, states
+            )
+            use_finetuned = time < ft_denoising_steps
+            mean = jnp.where(use_finetuned, ft_mean, base_mean)
+            log_variance = jnp.where(
+                use_finetuned, ft_log_variance, base_log_variance
+            )
+            std = jnp.exp(.5 * log_variance)[:, None, None]
+            if deterministic:
+                std = jnp.where(time == 0, 0.0, jnp.maximum(std, 1e-3))
+            else:
+                std = jnp.maximum(std, self.sampling_std_floor)
+            following = mean + std * jr.normal(noise_key, x.shape)
+            return following, following
+
+        final, generated = jax.lax.scan(step, initial, (times, keys))
+        chain = jnp.concatenate(
+            [initial[:, None], jnp.swapaxes(generated, 0, 1)], axis=1
+        )
+        actions = final if clip is None else jnp.clip(final, -clip, clip)
+        return DiffusionSample(actions, chain)
+
+    def hybrid_transition_log_prob(
+        self, states, chain, base_policy, ft_denoising_steps,
+    ):
+        """Likelihood for only the late transitions controlled by the actor."""
+        first = self.denoising_steps - ft_denoising_steps
+        indices = jnp.arange(first, self.denoising_steps)
+        return self.transition_log_prob(states, chain, indices)
+
     def transition_log_prob(self, states, chain, indices=None):
         self._check_states(states)
         if indices is None:

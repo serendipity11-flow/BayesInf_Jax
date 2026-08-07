@@ -4,6 +4,13 @@ This directory is a reproducible, **result-free** benchmark scaffold.  It does
 not contain invented scores.  Raw per-seed CSVs are the source of truth; tables
 and plots are generated only from those CSVs.
 
+## Door experiment scope
+
+The Door benchmark is **Adroit-only**: `AdroitHandDoor-v2`, a 39-dimensional
+state observation, and a 28-dimensional hand action. It uses 100 trajectories
+from `D4RL/door/expert-v2`. Alternate robot embodiments and end-effector control
+interfaces are outside this experiment's scope.
+
 ## What the official baseline does (pinned audit)
 
 The reference code is `irom-princeton/dppo` commit
@@ -26,10 +33,10 @@ The reference code is `irom-princeton/dppo` commit
 
 The SI uses
 
-`I_t = (1-t)x0 + t*x1 + sigma*sqrt(2t(1-t))*z`
+`I_t = (1-t)x0 + t*x1 + sigma*t*(1-t)*z`
 
-and regresses its analytic time derivative.  `x0` is sampled either from a
-state-conditioned diagonal Gaussian or, for the Door ablation, N(0,I).
+and regresses its analytic time derivative. For Door, `x0` is sampled from the
+fixed distribution N(0,I).
 Sampling is a K-step Euler--Maruyama chain.  Its Gaussian transitions give
 tractable log likelihoods for PPO.
 
@@ -38,18 +45,28 @@ encoder, 16-D sinusoidal time embedding, and 3x256 residual trunk.  Always
 record `parameter_count.json`; the informative base adds parameters, while the
 velocity/diffusion backbones are capacity matched.
 
-The native JAX policy reuses transformer classes from state estimation.  Its
-matched configuration is width 64, depth 2, four heads, and context dimension
-32.  On Door this has 226,548 parameters total (105,120 encoder + 12,408
-informative base + 109,020 velocity), versus 211,904 in the official
-Door-sized DPPO MLP actor.  Do not use the old 256x3 transformer configuration:
-at 4,891,764 parameters it is 23.1 times the DPPO actor and invalidates a
-compute-efficiency comparison.
+The native JAX policy reuses transformer classes from state estimation. Its
+fixed-Gaussian-source configuration is width 52, depth 2, four heads, and
+context dimension 32. The encoder and velocity head total 144,048 parameters,
+versus 211,904 in the official Door-sized DPPO MLP actor. Parameter counts must
+be reported with results.
 
-The state-conditioned base is learned during BC and frozen during PPO.  This is
-deliberate: DPPO treats its initial Gaussian draw as an inner-MDP state, not an
-inner action.  Freezing `q` keeps the number of policy actions and the PPO
-credit assignment identical.  It remains stochastic during collection.
+CSI behavior cloning trains velocity matching only. Its source is fixed
+`N(0,I)` and has no learned parameters. The marginal score is recovered from
+the velocity and schedule identity documented in `cond_stoch_interpolant.py`;
+there is no score head or score loss. Use manifest sampler `"ode"` for
+deterministic velocity transport and `"sde"` for analytic-score
+Euler--Maruyama sampling. Door uses 50 integration steps. The submission chain
+evaluates BC first and launches DPPO only if mean CSI-ODE success is at least
+50 percent.
+
+The `si_analytic_path_v5` BC ablation supplements velocity matching with a
+two-sample energy score on differentiable 10-step action-chunk endpoints. Its
+weight is 0.1. This directly penalizes endpoint mismatch while the pairwise
+term discourages mode collapse. Evaluation compares Euler and Heun ODE/SDE
+sampling and sweeps SDE eta without changing checkpoint weights. Heun is an
+inference ablation only; PPO continues to use Euler transitions because their
+Gaussian likelihood is explicit.
 
 ## Door setup and verified interface
 
@@ -82,9 +99,12 @@ bash experiments/cond_stoch_interpolant_dppo/submit_door_pipeline.sh
 ```
 
 The pretraining array runs both the stochastic-interpolant and diffusion
-policies for 100,000 matched gradient steps on seeds 0--2. The dependent
-fine-tuning array applies the same DPPO settings to both policies for exactly
-840,000 primitive environment steps per seed. The final job evaluates every
+policies for 100,000 matched gradient steps on seeds 0--2. A dependent CSI-ODE
+BC job then evaluates all three seeds on the same 50 resets. It exits nonzero
+when mean success is below 50%, so the DPPO dependency is never released for a
+failed behavior-cloning policy. After a passing gate, the fine-tuning array
+applies the same DPPO settings to both policies for exactly 840,000 primitive
+environment steps per seed. The final job evaluates every
 pretraining and fine-tuning checkpoint on the same 50 reset seeds and writes
 `episodes.csv`, `checkpoints.csv`, `final_results.csv`, `flags.csv`, plots, and
 `results.md` under
@@ -102,7 +122,8 @@ D4RL-derived human demonstrations:
 
 ```bash
 .venv-door/bin/python -m experiments.cond_stoch_interpolant_dppo.data \
-  --dataset D4RL/door/human-v2 --output data/dppo/door-human-v2
+  --dataset D4RL/door/expert-v2 --output data/door-expert-v2-100 \
+  --max-episodes 100
 ```
 
 The converter preserves episode boundaries and writes DPPO-compatible
@@ -143,7 +164,7 @@ SI BC is explicitly gradient-step matched:
 
 ```bash
 python -m experiments.cond_stoch_interpolant_dppo.pretrain \
-  --data data/dppo/door-human-v2/train.npz \
+  --data data/door-expert-v2-100/train.npz \
   --output results/cond_stoch_interpolant_dppo/door/si_informative/seed0/pretrain \
   --method si_informative --obs-dim 39 --action-dim 28 --seed 0
 ```
@@ -153,7 +174,7 @@ Fine-tune through the same two-layer objective:
 ```bash
 python -m experiments.cond_stoch_interpolant_dppo.finetune_si \
   --checkpoint results/cond_stoch_interpolant_dppo/door/si_informative/seed0/pretrain/state.pt \
-  --normalization data/dppo/door-human-v2/normalization.npz \
+  --normalization data/door-expert-v2-100/normalization.npz \
   --output results/cond_stoch_interpolant_dppo/door/si_informative/seed0/finetune \
   --method si_informative --seed 0
 ```
@@ -178,7 +199,7 @@ Pretrain:
 ```bash
 JAX_PLATFORMS=cpu /home/zhangyi/myenv_312/bin/python -m \
   experiments.cond_stoch_interpolant_dppo.train_jax pretrain \
-  --data data/dppo/door-human-v2 --output results/dppo_jax/door/seed0 \
+  --data data/door-expert-v2-100 --output results/dppo_jax/door/seed0 \
   --obs-dim 39 --action-dim 28 --seed 0
 ```
 
@@ -189,7 +210,7 @@ learning rates 1e-4/1e-3):
 ```bash
 JAX_PLATFORMS=cpu MUJOCO_GL=egl /home/zhangyi/myenv_312/bin/python -m \
   experiments.cond_stoch_interpolant_dppo.train_jax finetune \
-  --data data/dppo/door-human-v2 \
+  --data data/door-expert-v2-100 \
   --checkpoint results/dppo_jax/door/seed0/checkpoint \
   --output results/dppo_jax/door/seed0-finetune \
   --env AdroitHandDoor-v2 --obs-dim 39 --action-dim 28 --seed 0
@@ -200,11 +221,27 @@ Deterministic evaluation:
 ```bash
 JAX_PLATFORMS=cpu MUJOCO_GL=egl /home/zhangyi/myenv_312/bin/python -m \
   experiments.cond_stoch_interpolant_dppo.train_jax evaluate \
-  --data data/dppo/door-human-v2 \
+  --data data/door-expert-v2-100 \
   --checkpoint results/dppo_jax/door/seed0-finetune/checkpoint \
   --output results/dppo_jax/door/seed0-eval \
   --env AdroitHandDoor-v2 --obs-dim 39 --action-dim 28 --eval-episodes 50
 ```
+
+Prediction and execution horizons are separate.  Pass, for example,
+`--horizon 16 --execution-horizon 8 --cond-steps 2` to replan after the first
+eight actions of every 16-action chunk.  Existing Door runs retain their
+matched four-action setting.  The evaluator also accepts per-method
+`"execution_horizon"`, `"inference_steps"`, and `"sampler": "ddim"` manifest
+keys.  SI checkpoints can be evaluated on a different Euler grid because the
+grid has no learned parameters; diffusion checkpoints use deterministic,
+strided DDIM and therefore require `inference_steps` not to exceed the trained
+noise schedule.
+
+Evaluation reports mean squared action jerk (the second finite difference),
+mean primitive steps among successful episodes, and latency per generated
+chunk.  It retains the legacy `action_smoothness` episode column as an alias
+for downstream compatibility, but that value now has the documented jerk
+semantics.
 
 The JAX update uses the full collected inner-transition batch per compiled
 update instead of PyTorch's shuffled flattened-inner-step minibatches.  This is

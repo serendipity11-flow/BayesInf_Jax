@@ -65,8 +65,19 @@ def pusher_contact_features(state, *, temperature=0.02):
     relative_normal_velocity = jnp.dot(
         tip_velocity - object_point_velocity, normal_world
     )
+    tangent_world = jnp.asarray((-normal_world[1], normal_world[0]))
+    relative_tangent_velocity = jnp.dot(
+        tip_velocity - object_point_velocity, tangent_world
+    )
+    moment_arm_normal = (
+        contact_arm[0] * normal_local[1]
+        - contact_arm[1] * normal_local[0]
+    )
     proximity = jax.nn.sigmoid(-signed_distance / temperature)
     return jnp.concatenate((
         jnp.asarray((signed_distance, relative_normal_velocity, proximity)),
         normal_local,
+        jnp.asarray((relative_tangent_velocity,)),
+        contact_arm,
+        jnp.asarray((moment_arm_normal,)),
     ))

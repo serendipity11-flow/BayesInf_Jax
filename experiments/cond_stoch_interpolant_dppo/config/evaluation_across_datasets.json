@@ -8,7 +8,7 @@
       "env_id": "AdroitHandDoor-v2",
       "registration_modules": ["gymnasium_robotics"],
       "env_kwargs": {"max_episode_steps": 300},
-      "normalization": "data/dppo/door-human-v2/normalization.npz",
+      "normalization": "data/door-expert-v2-100/normalization.npz",
       "success_key": "success",
       "deterministic": true,
       "reset_seeds": [

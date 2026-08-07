@@ -123,7 +123,7 @@ def check_prepared_dataset(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", type=Path,
-                        default=Path("data/dppo/door-human-v2"))
+                        default=Path("data/door-expert-v2-100"))
     parser.add_argument("--env", default="AdroitHandDoor-v2")
     parser.add_argument("--max-episode-steps", type=int, default=300)
     parser.add_argument("--allow-incompatible", action="store_true",

@@ -19,12 +19,16 @@ from .data import (
 
 
 PUSHER_STATE_NAMES = (
-    [f"q_{index}" for index in range(1, 7)]
-    + [f"qdot_{index}" for index in range(1, 7)]
+    ["arm_joint_1", "arm_joint_2", "arm_joint_3",
+     "object_x", "object_y", "object_yaw",
+     "arm_joint_velocity_1", "arm_joint_velocity_2", "arm_joint_velocity_3",
+     "object_velocity_x", "object_velocity_y", "object_yaw_rate"]
 )
 PUSHER_PLOT_LABELS = (
-    [rf"$q_{index}$" for index in range(1, 7)]
-    + [rf"$\dot{{q}}_{index}$" for index in range(1, 7)]
+    [r"Arm $q_1$", r"Arm $q_2$", r"Arm $q_3$",
+     r"Object $x$", r"Object $y$", r"Object $\psi$",
+     r"Arm $\dot q_1$", r"Arm $\dot q_2$", r"Arm $\dot q_3$",
+     r"Object $v_x$", r"Object $v_y$", r"Object $\dot\psi$"]
 )
 
 
@@ -80,13 +84,15 @@ def evaluate(args):
                 # Ground truth is used only by this diagnostic, never by the
                 # deployable open-loop model.
                 nominal_parts.append(np.asarray(deterministic(
-                    x[start], u[start:stop], start_step=start
+                    x[start], u[start:stop], start_step=start,
+                    state_history=x[max(0, start - model.object_history_steps):start],
                 )))
                 sample_parts.append(np.asarray(stochastic(
                     x[start], u[start:stop],
                     jr.PRNGKey(args.eval_seed + order * 1000 + segment),
                     args.particles, start_step=start,
                     diffusion_temperature=args.diffusion_temperature,
+                    state_history=x[max(0, start - model.object_history_steps):start],
                 )))
             nominal_n = jnp.asarray(np.concatenate(nominal_parts, axis=0))
             samples_n = jnp.asarray(np.concatenate(sample_parts, axis=1))

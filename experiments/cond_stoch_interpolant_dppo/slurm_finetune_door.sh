@@ -16,7 +16,7 @@
 set -euo pipefail
 
 PROJECT_ROOT=/home/zhangyi/bayesinf_jax
-DATA_DIR="$PROJECT_ROOT/data/dppo/door-human-v2"
+DATA_DIR="$PROJECT_ROOT/data/door-expert-v2-100"
 SEEDS=3
 METHOD_INDEX=$((SLURM_ARRAY_TASK_ID / SEEDS))
 SEED=$((SLURM_ARRAY_TASK_ID % SEEDS))
@@ -24,9 +24,12 @@ SEED=$((SLURM_ARRAY_TASK_ID % SEEDS))
 case "$METHOD_INDEX" in
     0)
         POLICY=interpolant
-        METHOD_DIR=si_dppo_v2
-        CHECKPOINT="$PROJECT_ROOT/results/results_optimal_control/door/si_dppo_v2/seed$SEED/pretrain/checkpoint"
-        POLICY_ARGS=(--integration-steps 5 --hidden-size 64 --depth 2
+        METHOD_DIR=si_analytic_dppo_v4
+        CHECKPOINT="$PROJECT_ROOT/results/results_optimal_control/door/si_analytic_dppo_v4/seed$SEED/pretrain/checkpoint"
+        POLICY_ARGS=(--integration-steps 50 --gaussian-base
+                     --sigma-0 0.1 --sampling-std 0.1
+                     --score-sigma-floor 0.02 --sde-eta 0.05
+                     --hidden-size 52 --depth 2
                      --time-dim 16 --context-dim 32 --n-heads 4)
         ;;
     1)

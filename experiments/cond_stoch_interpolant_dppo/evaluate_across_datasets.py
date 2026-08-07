@@ -50,6 +50,9 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
 
 def mean_std(values) -> tuple[float, float]:
     values = np.asarray([value for value in values if value != ""], dtype=float)
+    values = values[np.isfinite(values)]
+    if not len(values):
+        return float("nan"), float("nan")
     return (
         (float(np.mean(values)), float(np.std(values, ddof=1)))
         if len(values) > 1
@@ -87,7 +90,7 @@ def discover_checkpoints(
                     "environment_steps",
                     iteration * int(config.get("n_envs", 0))
                     * int(config.get("rollout_steps", 0))
-                    * int(config.get("horizon", 0)),
+                    * int(config.get("execution_horizon", config.get("horizon", 0))),
                 )
             )
             found.append(Checkpoint(
@@ -97,15 +100,25 @@ def discover_checkpoints(
     return found
 
 
-def load_checkpoint(checkpoint: Checkpoint):
+def load_checkpoint(checkpoint: Checkpoint, method: dict | None = None):
     config = json.loads((checkpoint.path / "config.json").read_text())
     config.setdefault("policy", "interpolant")
     config.setdefault("denoising_steps", 20)
-    config.setdefault("integration_steps", 5)
+    config.setdefault("integration_steps", 50)
+    if method and config.get("policy") != "dppo" and "inference_steps" in method:
+        config["integration_steps"] = int(method["inference_steps"])
+    if method and config.get("policy") != "dppo" and "sde_eta" in method:
+        config["sde_eta"] = float(method["sde_eta"])
     args = SimpleNamespace(**config)
     policy = create_policy(args, jr.PRNGKey(checkpoint.seed))
     policy = eqx.tree_deserialise_leaves(checkpoint.path / "policy.eqx", policy)
-    return policy, config
+    base_policy = None
+    if (checkpoint.path / "base_policy.eqx").exists():
+        base_policy = create_policy(args, jr.PRNGKey(checkpoint.seed))
+        base_policy = eqx.tree_deserialise_leaves(
+            checkpoint.path / "base_policy.eqx", base_policy
+        )
+    return policy, base_policy, config
 
 
 def make_environment(task: dict, record: bool):
@@ -138,19 +151,78 @@ def evaluate_checkpoint(
 ) -> tuple[list[dict], dict]:
     import imageio.v2 as imageio
 
-    policy, config = load_checkpoint(checkpoint)
+    policy, base_policy, config = load_checkpoint(checkpoint, method)
     normalizer = Normalizer(Path(task["normalization"]))
-    deterministic = bool(task.get("deterministic", True))
+    deterministic = bool(
+        method.get("deterministic", task.get("deterministic", True))
+    )
     reset_seeds = task["reset_seeds"]
     rows, call_latencies, action_latencies = [], [], []
+    execution_horizon = int(
+        method.get(
+            "execution_horizon",
+            task.get("execution_horizon", config.get("execution_horizon", config["horizon"])),
+        )
+    )
+    if not 1 <= execution_horizon <= int(config["horizon"]):
+        raise ValueError(
+            f"execution_horizon must be in [1, {config['horizon']}], got "
+            f"{execution_horizon}"
+        )
 
     # Compile/warm up outside all timing measurements.
     env = make_environment(task, record_episodes > 0)
-    sample_policy = eqx.filter_jit(
-        lambda policy_, states_, key_: policy_.sample(
-            states_, key_, deterministic=deterministic
+    inference_steps = int(method.get("inference_steps", policy.nfe))
+    sampler = method.get("sampler")
+    if sampler == "sde":
+        deterministic = False
+    if sampler == "ddim":
+        if config.get("policy") != "dppo":
+            raise ValueError("DDIM sampler requires a diffusion checkpoint")
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_ddim(
+                states_, key_, inference_steps=inference_steps
+            )
         )
-    )
+    elif sampler == "ode":
+        if config.get("policy") == "dppo":
+            raise ValueError("ODE sampler requires an interpolant checkpoint")
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_ode(states_, key_)
+        )
+    elif sampler == "ode_heun":
+        if config.get("policy") == "dppo":
+            raise ValueError("ODE sampler requires an interpolant checkpoint")
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_ode_heun(states_, key_)
+        )
+    elif sampler == "sde":
+        if config.get("policy") == "dppo":
+            raise ValueError("SDE sampler requires an interpolant checkpoint")
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_sde(states_, key_)
+        )
+    elif sampler == "sde_heun":
+        if config.get("policy") == "dppo":
+            raise ValueError("SDE sampler requires an interpolant checkpoint")
+        deterministic = False
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_sde_heun(states_, key_)
+        )
+    elif base_policy is not None and config.get("policy") == "dppo":
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_hybrid(
+                states_, key_, base_policy,
+                int(config.get("ft_denoising_steps", 10)),
+                deterministic=deterministic,
+            )
+        )
+    else:
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample(
+                states_, key_, deterministic=deterministic
+            )
+        )
     warm_observation, _ = env.reset(seed=int(reset_seeds[0]))
     warm_history = np.repeat(
         normalizer.observation(warm_observation)[None], config["cond_steps"], axis=0
@@ -166,8 +238,10 @@ def evaluate_checkpoint(
         history = [normalizer.observation(observation)] * config["cond_steps"]
         key = jr.PRNGKey(int(reset_seed) + 1_000_000 * checkpoint.seed)
         episode_return, success, length = 0.0, False, 0
-        smoothness = 0.0
+        squared_jerk_sum = 0.0
+        jerk_count = 0
         previous_action = None
+        previous_delta = None
         subtask_success = {name: False for name in task.get("subtasks", {})}
         frames = []
         if episode_index < record_episodes:
@@ -183,7 +257,7 @@ def evaluate_checkpoint(
             call_ms = 1e3 * (time.perf_counter() - call_start)
             call_latencies.append(call_ms)
             executed = 0
-            for action_index in range(config["horizon"]):
+            for action_index in range(execution_horizon):
                 action = normalizer.action(np.asarray(sample.actions[0, action_index]))
                 observation, reward, terminated, truncated, info = env.step(action)
                 executed += 1
@@ -191,7 +265,11 @@ def evaluate_checkpoint(
                 episode_return += float(reward)
                 length += 1
                 if previous_action is not None:
-                    smoothness += float(np.sum((action - previous_action) ** 2))
+                    delta = action - previous_action
+                    if previous_delta is not None:
+                        squared_jerk_sum += float(np.mean((delta - previous_delta) ** 2))
+                        jerk_count += 1
+                    previous_delta = delta
                 previous_action = action.copy()
                 success_value = info_value(
                     info, task.get("success_key", "success"), None
@@ -216,8 +294,15 @@ def evaluate_checkpoint(
             "checkpoint": str(checkpoint.path), "episode": episode_index,
             "reset_seed": reset_seed, "return": episode_return,
             "success": int(success), "length": length,
-            "action_smoothness": smoothness, "nfe": policy.nfe,
-            "deterministic": deterministic,
+            "action_jerk": (
+                squared_jerk_sum / jerk_count if jerk_count else 0.0
+            ),
+            # Compatibility alias for existing downstream CSV consumers.
+            "action_smoothness": (
+                squared_jerk_sum / jerk_count if jerk_count else 0.0
+            ),
+            "execution_horizon": execution_horizon, "nfe": inference_steps,
+            "sampler": sampler or "default", "deterministic": deterministic,
         }
         row.update({f"subtask_{name}": int(value)
                     for name, value in subtask_success.items()})
@@ -256,7 +341,7 @@ def summarize_checkpoint(rows: list[dict]) -> dict:
     }
     for source, target in (
         ("return", "return"), ("success", "success_rate"),
-        ("action_smoothness", "action_smoothness"),
+        ("action_jerk", "action_jerk"),
     ):
         summary[f"{target}_mean"], summary[f"{target}_std"] = mean_std(
             [row[source] for row in rows]
@@ -265,6 +350,14 @@ def summarize_checkpoint(rows: list[dict]) -> dict:
         if key.startswith("subtask_"):
             summary[f"{key}_rate"] = float(np.mean([row[key] for row in rows]))
     summary["episodes"] = len(rows)
+    successful_lengths = [row["length"] for row in rows if row["success"]]
+    if successful_lengths:
+        summary["successful_length_mean"], summary["successful_length_std"] = (
+            mean_std(successful_lengths)
+        )
+    else:
+        summary["successful_length_mean"] = float("nan")
+        summary["successful_length_std"] = float("nan")
     return summary
 
 
@@ -293,7 +386,8 @@ def aggregate_final(
             per_seed.append({
                 metric: float(np.mean([row[metric] for row in candidates]))
                 for metric in (
-                    "success_rate_mean", "return_mean", "action_smoothness_mean",
+                    "success_rate_mean", "return_mean", "action_jerk_mean",
+                    "successful_length_mean", "latency_call_ms_mean",
                     "latency_action_ms_mean", "evaluation_wall_seconds", "nfe",
                 )
             })
@@ -351,8 +445,8 @@ def plot_learning_curves(summaries: list[dict], output: Path) -> None:
 def markdown_table(rows: list[dict]) -> str:
     lines = [
         "| Task | Method | Stage | Seeds | Success | Return | NFE | "
-        "Latency/action ms | Smoothness |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+        "Steps to success | Latency/chunk ms | Action jerk |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     def formatted(row, metric, digits=3):
         return f"{row[metric + '_mean']:.{digits}f} ± {row[metric + '_std']:.{digits}f}"
@@ -360,8 +454,10 @@ def markdown_table(rows: list[dict]) -> str:
         lines.append(
             f"| {row['task']} | {row['method']} | {row['stage']} | {row['seeds']} | "
             f"{formatted(row, 'success_rate_mean')} | {formatted(row, 'return_mean')} | "
-            f"{formatted(row, 'nfe', 1)} | {formatted(row, 'latency_action_ms_mean')} | "
-            f"{formatted(row, 'action_smoothness_mean')} |"
+            f"{formatted(row, 'nfe', 1)} | "
+            f"{formatted(row, 'successful_length_mean')} | "
+            f"{formatted(row, 'latency_call_ms_mean')} | "
+            f"{formatted(row, 'action_jerk_mean')} |"
         )
     return "\n".join(lines) + "\n"
 

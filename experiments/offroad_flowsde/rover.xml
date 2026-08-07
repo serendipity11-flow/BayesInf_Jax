@@ -1,0 +1,25 @@
+<mujoco model="offroad_rover">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.005" gravity="0 0 -9.81" integrator="RK4"/>
+  <default>
+    <geom condim="6" friction="1.0 0.02 0.002" solref="0.01 1"/>
+    <joint damping="0.08" armature="0.01"/>
+    <motor ctrllimited="true" ctrlrange="-1 1"/>
+  </default>
+  <worldbody>
+    <light pos="0 0 8" dir="0 0 -1"/>
+    <geom name="ground" type="plane" size="25 25 0.1" rgba="0.18 0.22 0.16 1"/>
+    <body name="rover" pos="0 0 0.30">
+      <freejoint name="root"/>
+      <geom name="chassis" type="box" size="0.32 0.22 0.07" mass="4.0" rgba="0.15 0.3 0.7 1"/>
+      <body name="fl" pos="0.23 0.25 -0.08" quat="0.7071 0.7071 0 0"><joint name="fl_joint" axis="0 0 1"/><geom type="cylinder" size="0.10 0.04" mass="0.25"/></body>
+      <body name="fr" pos="0.23 -0.25 -0.08" quat="0.7071 0.7071 0 0"><joint name="fr_joint" axis="0 0 1"/><geom type="cylinder" size="0.10 0.04" mass="0.25"/></body>
+      <body name="rl" pos="-0.23 0.25 -0.08" quat="0.7071 0.7071 0 0"><joint name="rl_joint" axis="0 0 1"/><geom type="cylinder" size="0.10 0.04" mass="0.25"/></body>
+      <body name="rr" pos="-0.23 -0.25 -0.08" quat="0.7071 0.7071 0 0"><joint name="rr_joint" axis="0 0 1"/><geom type="cylinder" size="0.10 0.04" mass="0.25"/></body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="fl_motor" joint="fl_joint" gear="3.5"/><motor name="fr_motor" joint="fr_joint" gear="3.5"/>
+    <motor name="rl_motor" joint="rl_joint" gear="3.5"/><motor name="rr_motor" joint="rr_joint" gear="3.5"/>
+  </actuator>
+</mujoco>

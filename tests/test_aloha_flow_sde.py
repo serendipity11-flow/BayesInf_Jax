@@ -92,7 +92,7 @@ def test_pusher_geometry_distance_and_proximity_are_hand_checked():
     features = pusher_contact_features(far, temperature=0.02)
     assert jnp.allclose(features[0], 0.215, atol=1e-6)
     assert features[2] < 1e-4
-    assert jnp.allclose(features[3:], jnp.asarray([-1., 0.]))
+    assert jnp.allclose(features[3:5], jnp.asarray([-1., 0.]))
 
     # Put the left cuboid face exactly at the tip centre: overlap equals the
     # pusher radius and the smooth proximity is close to one.
@@ -101,6 +101,24 @@ def test_pusher_geometry_distance_and_proximity_are_hand_checked():
     assert jnp.allclose(overlap_features[0], -0.055, atol=1e-6)
     assert overlap_features[2] > 0.9
     assert jnp.all(jnp.isfinite(jax.jacrev(pusher_contact_features)(overlap)))
+
+
+def test_extended_geometry_and_contact_experts_support_yaw_dynamics():
+    model = ControlledRealNVPFlowSDE(
+        12, 3, jr.PRNGKey(38), hidden_size=8, depth=1,
+        diffusion_hidden=8, flow_layers=2, time_emb_dim=4,
+        separate_dynamics_heads=True, use_contact_geometry=True,
+        geometry_feature_dim=9, contact_gated_object_drift=True,
+        geometry_feature_fn=pusher_contact_features,
+    )
+    state = jnp.asarray([0., 0., 0., .23, .03, .2] + [0.] * 6)
+    features = pusher_contact_features(state)
+    drift = model.drift(state, jnp.zeros(3), jnp.asarray(0.0))
+    assert features.shape == (9,)
+    assert jnp.all(jnp.isfinite(features))
+    assert model.drift_object_contact is not None
+    assert drift.shape == (12,)
+    assert jnp.all(jnp.isfinite(drift))
 
 
 def test_split_heads_and_geometry_support_drift_and_diffusion_rollout():
@@ -116,6 +134,34 @@ def test_split_heads_and_geometry_support_drift_and_diffusion_rollout():
     )
     assert drift.shape == (12,)
     assert paths.shape == (2, 2, 12)
+    assert jnp.all(jnp.isfinite(paths))
+
+
+def test_object_flow_uses_causal_state_history():
+    model = ControlledRealNVPFlowSDE(
+        12, 3, jr.PRNGKey(45), hidden_size=8, depth=1,
+        diffusion_hidden=8, flow_layers=2, time_emb_dim=4,
+        separate_dynamics_heads=True, object_history_steps=3,
+    )
+    states = jr.normal(jr.PRNGKey(46), (2, 6, 12)) * 0.05
+    controls = jr.normal(jr.PRNGKey(47), (2, 5, 3)) * 0.05
+    histories = model.sequence_histories(states)
+    times = jnp.broadcast_to(jnp.arange(5) * 0.02, (2, 5))
+    loss = model.transition_nll(
+        states[:, :-1], controls, states[:, 1:], times, histories
+    )
+    paths = model.sample_rollout(
+        states[0, -1], controls[0], jr.PRNGKey(48), n_particles=2,
+        state_history=states[0, -4:-1],
+    )
+    shooting_loss = model.multiple_shooting_loss(
+        states, controls, jnp.array([0, 10]), jr.PRNGKey(49),
+        segment_length=5, n_particles=2,
+    )
+    assert histories.shape == (2, 5, 3, 12)
+    assert jnp.isfinite(loss)
+    assert jnp.isfinite(shooting_loss)
+    assert paths.shape == (2, 5, 12)
     assert jnp.all(jnp.isfinite(paths))
 
 

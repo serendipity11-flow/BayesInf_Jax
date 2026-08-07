@@ -105,10 +105,19 @@ def build_model(args, state_dim, control_dim):
         diffusion_condition_on_control=not getattr(
             args, "diffusion_no_control", False
         ),
+        diffusion_condition_on_geometry=not getattr(
+            args, "diffusion_no_geometry", False
+        ),
         object_drift_no_control=getattr(args, "object_drift_no_control", False),
         separate_dynamics_heads=getattr(args, "separate_dynamics_heads", False),
         coupled_six_state_flows=getattr(args, "coupled_six_state_flows", False),
         use_contact_geometry=getattr(args, "use_contact_geometry", False),
+        object_history_steps=getattr(args, "object_history_steps", 0),
+        kinematic_position_drift=getattr(args, "kinematic_position_drift", False),
+        geometry_feature_dim=getattr(args, "geometry_feature_dim", 5),
+        contact_gated_object_drift=getattr(
+            args, "contact_gated_object_drift", False
+        ),
         geometry_feature_fn=pusher_contact_features,
         geometry_temperature=getattr(args, "geometry_temperature", 0.02),
         state_mean=getattr(args, "model_state_mean", None),
@@ -223,12 +232,13 @@ def run(args):
         geometry = np.asarray(jax.vmap(
             lambda state: pusher_contact_features(
                 state, temperature=args.geometry_temperature
-            )
+            )[:args.geometry_feature_dim]
         )(jnp.asarray(train_states)))
         args.geometry_mean = geometry.mean(0).tolist()
         args.geometry_std = np.maximum(geometry.std(0), 1e-4).tolist()
     else:
-        args.geometry_mean, args.geometry_std = [0.0] * 5, [1.0] * 5
+        args.geometry_mean = [0.0] * args.geometry_feature_dim
+        args.geometry_std = [1.0] * args.geometry_feature_dim
     args.model_state_mean = np.asarray(stats[0]).tolist()
     args.model_state_std = np.asarray(stats[1]).tolist()
     contact_force_scale = None
@@ -273,11 +283,10 @@ def run(args):
     )
     opt_state = optimizer.init(eqx.filter(model, eqx.is_inexact_array))
 
+    # Keep every state in the deployable path objective. Contact labels only
+    # change temporal emphasis; they must not remove object states from the
+    # ordinary trajectory loss.
     base_state_loss_weights = state_loss_weights
-    if contact_forces is not None:
-        # Privileged objectives exclusively supervise object path error here;
-        # generative transition NLL still identifies the full diffusion.
-        base_state_loss_weights = base_state_loss_weights.at[OBJECT_INDICES].set(0.0)
 
     def make_train_step(n_particles):
         @eqx.filter_jit
@@ -318,6 +327,7 @@ def run(args):
                         uncertainty_weight=args.uncertainty_weight,
                         continuity_weight=args.continuity_weight,
                         state_loss_weights=current_state_loss_weights,
+                        temporal_loss_weights=intensity,
                     )
                     object_path = jnp.asarray(0.0)
                 times = (
@@ -328,20 +338,29 @@ def run(args):
                     jr.fold_in(noise_key, 71),
                     state_noise_std=args.state_noise_std,
                     control_noise_std=args.control_noise_std,
+                    state_history=m.sequence_histories(bx),
                 )
                 x_flat = bx[:, :-1].reshape(-1, state_dim)
                 u_flat = bu.reshape(-1, control_dim)
                 target_flat = bx[:, 1:].reshape(-1, state_dim)
-                drift = jax.vmap(m.drift)(
-                    x_flat, u_flat, times.reshape(-1)
-                )
+                histories = m.sequence_histories(bx)
+                if histories is None:
+                    drift = jax.vmap(m.drift)(
+                        x_flat, u_flat, times.reshape(-1)
+                    )
+                else:
+                    drift = jax.vmap(m.drift)(
+                        x_flat, u_flat, times.reshape(-1),
+                        histories.reshape(-1, m.object_history_steps, state_dim),
+                    )
                 predicted = x_flat + args.dt * drift
                 weighted_mse = jnp.mean(
                     current_state_loss_weights * (predicted - target_flat) ** 2
                 )
                 object_error = jnp.mean(
-                    (predicted[:, OBJECT_INDICES]
-                     - target_flat[:, OBJECT_INDICES]) ** 2, axis=-1
+                    current_state_loss_weights[OBJECT_INDICES]
+                    * (predicted[:, OBJECT_INDICES]
+                       - target_flat[:, OBJECT_INDICES]) ** 2, axis=-1
                 )
                 intensity_flat = intensity.reshape(-1)
                 contact_loss = jnp.sum(
@@ -410,23 +429,37 @@ def run(args):
                 path_weight=args.path_weight,
                 uncertainty_weight=args.uncertainty_weight,
                 continuity_weight=args.continuity_weight,
+                state_loss_weights=base_state_loss_weights,
+                temporal_loss_weights=intensity,
             )
             object_path = jnp.asarray(0.0)
         times = (vstart[:, None] + jnp.arange(vu.shape[1])[None, :]) * args.dt
         transition = current_model.transition_nll(
-            vx[:, :-1], vu, vx[:, 1:], times
+            vx[:, :-1], vu, vx[:, 1:], times,
+            current_model.sequence_histories(vx),
         )
         flat_x = vx[:, :-1].reshape(-1, state_dim)
         flat_u = vu.reshape(-1, control_dim)
         target = vx[:, 1:].reshape(-1, state_dim)
-        prediction = flat_x + args.dt * jax.vmap(current_model.drift)(
-            flat_x, flat_u, times.reshape(-1)
-        )
+        histories = current_model.sequence_histories(vx)
+        if histories is None:
+            drift = jax.vmap(current_model.drift)(
+                flat_x, flat_u, times.reshape(-1)
+            )
+        else:
+            drift = jax.vmap(current_model.drift)(
+                flat_x, flat_u, times.reshape(-1),
+                histories.reshape(
+                    -1, current_model.object_history_steps, state_dim
+                ),
+            )
+        prediction = flat_x + args.dt * drift
         weighted_mse = jnp.mean(
             base_state_loss_weights * (prediction - target) ** 2
         )
         object_error = jnp.mean(
-            (prediction[:, OBJECT_INDICES] - target[:, OBJECT_INDICES]) ** 2,
+            base_state_loss_weights[OBJECT_INDICES]
+            * (prediction[:, OBJECT_INDICES] - target[:, OBJECT_INDICES]) ** 2,
             axis=-1,
         )
         contact_loss = jnp.sum(
@@ -625,6 +658,8 @@ def parser():
     p.add_argument("--realnvp-alpha", type=float, default=3.0)
     p.add_argument("--diffusion-no-control", action="store_true",
                    help="Condition g on (epsilon, x, t), while f still uses (x, u, t).")
+    p.add_argument("--diffusion-no-geometry", action="store_true",
+                   help="Keep contact geometry in drift but exclude it from diffusion.")
     p.add_argument("--object-drift-no-control", action="store_true",
                    help="Remove direct control from q4:6/v4:6 drift outputs.")
     p.add_argument("--separate-dynamics-heads", action="store_true",
@@ -634,6 +669,14 @@ def parser():
     p.add_argument("--use-contact-geometry", action="store_true",
                    help="Condition dynamics on inference-safe pusher/object geometry.")
     p.add_argument("--geometry-temperature", type=float, default=0.02)
+    p.add_argument("--geometry-feature-dim", type=int, choices=(5, 9), default=5,
+                   help="Use basic 5-D or torque-aware extended 9-D geometry.")
+    p.add_argument("--contact-gated-object-drift", action="store_true",
+                   help="Blend free/contact object drift experts using proximity.")
+    p.add_argument("--object-history-steps", type=int, default=0,
+                   help="Prior full states conditioning only the object drift/flow head.")
+    p.add_argument("--kinematic-position-drift", action="store_true",
+                   help="Enforce normalized dq/dt=v for 12-D [q,v] pusher states.")
     p.add_argument("--velocity-augmented", action="store_true",
                    help="Use structured state [q,v], dq=v and stochastic dv.")
     p.add_argument("--state-is-position-velocity", action="store_true",

@@ -35,6 +35,8 @@ class DPPOConfig:
     vf_coef: float = 0.5
     target_kl: float = 1.0
     reward_horizon: int = 4
+    ft_denoising_steps: int = 10
+    bc_reference_coef: float = 0.0
     normalize_advantage: bool = True
     logprob_min: float = -5.0
     logprob_max: float = 2.0
@@ -56,6 +58,7 @@ class DPPOMetrics(NamedTuple):
     approx_kl: jnp.ndarray
     clip_fraction: jnp.ndarray
     ratio: jnp.ndarray
+    bc_reference_loss: jnp.ndarray
 
 
 class ValueCritic(eqx.Module):
@@ -134,9 +137,25 @@ def dppo_loss(
     critic: ValueCritic,
     batch: RolloutBatch,
     config: DPPOConfig,
+    base_policy=None,
 ) -> tuple[jnp.ndarray, DPPOMetrics]:
     """Joint actor/critic objective matching official DPPO conventions."""
-    new_log_probs = policy.transition_log_prob(batch.states, batch.chains)
+    reference_log_probs = None
+    if isinstance(policy, DPPODiffusionPolicy) and base_policy is not None:
+        new_log_probs = policy.hybrid_transition_log_prob(
+            batch.states, batch.chains, base_policy, config.ft_denoising_steps
+        )
+        first = policy.denoising_steps - config.ft_denoising_steps
+        reference_log_probs = base_policy.transition_log_prob(
+            batch.states, batch.chains,
+            jnp.arange(first, policy.denoising_steps),
+        )
+    else:
+        new_log_probs = policy.transition_log_prob(batch.states, batch.chains)
+        if base_policy is not None:
+            reference_log_probs = base_policy.transition_log_prob(
+                batch.states, batch.chains
+            )
     new_log_probs = jnp.clip(
         new_log_probs, config.logprob_min, config.logprob_max
     )
@@ -150,18 +169,33 @@ def dppo_loss(
     old_log_probs = jnp.mean(
         old_log_probs[:, :, :reward_horizon], axis=(-1, -2)
     )
+    if reference_log_probs is None or config.bc_reference_coef == 0:
+        bc_reference_loss = jnp.asarray(0.0, dtype=new_log_probs.dtype)
+    else:
+        reference_log_probs = jnp.clip(
+            reference_log_probs, config.logprob_min, config.logprob_max
+        )
+        reference_log_probs = jnp.mean(
+            reference_log_probs[:, :, :reward_horizon], axis=(-1, -2)
+        )
+        # A sampled transition log-ratio penalty anchors the actor to the
+        # frozen BC transition kernel without requiring model-specific KL code.
+        bc_reference_loss = jnp.mean(
+            (new_log_probs - jax.lax.stop_gradient(reference_log_probs)) ** 2
+        )
     advantages = batch.advantages
     if config.normalize_advantage:
         advantages = (advantages - jnp.mean(advantages)) / (
             jnp.std(advantages) + 1e-8
         )
+    inner_steps = new_log_probs.shape[1]
     discounts = config.gamma_denoising ** jnp.arange(
-        policy.integration_steps - 1, -1, -1, dtype=advantages.dtype
+        inner_steps - 1, -1, -1, dtype=advantages.dtype
     )
     inner_advantages = advantages[:, None] * discounts[None]
     log_ratio = new_log_probs - old_log_probs
     ratio = jnp.exp(log_ratio)
-    clip = _clip_coefficients(policy.integration_steps, config, ratio.dtype)
+    clip = _clip_coefficients(inner_steps, config, ratio.dtype)
     unclipped = -inner_advantages * ratio
     clipped = -inner_advantages * jnp.clip(ratio, 1.0 - clip, 1.0 + clip)
     policy_loss = jnp.mean(jnp.maximum(unclipped, clipped))
@@ -170,9 +204,13 @@ def dppo_loss(
     value_loss = 0.5 * jnp.mean((predicted_values - batch.returns) ** 2)
     approx_kl = jnp.mean((ratio - 1.0) - log_ratio)
     clip_fraction = jnp.mean(jnp.abs(ratio - 1.0) > clip[None])
-    total = policy_loss + config.vf_coef * value_loss
+    total = (
+        policy_loss + config.vf_coef * value_loss
+        + config.bc_reference_coef * bc_reference_loss
+    )
     return total, DPPOMetrics(
-        total, policy_loss, value_loss, approx_kl, clip_fraction, jnp.mean(ratio)
+        total, policy_loss, value_loss, approx_kl, clip_fraction,
+        jnp.mean(ratio), bc_reference_loss,
     )
 
 
@@ -184,8 +222,14 @@ class BCTrainState(NamedTuple):
 
 def make_bc_state(policy, learning_rate=1e-3, weight_decay=1e-6):
     optimizer = optax.adamw(learning_rate, weight_decay=weight_decay)
+    # The DDPM schedule and posterior coefficients are analytical constants,
+    # but are stored as JAX arrays on DPPODiffusionPolicy.  Initialising AdamW
+    # over the complete policy would therefore train (and independently
+    # corrupt) those constants.  Diffusion BC optimises only the noise network;
+    # SI BC still optimises its complete learned policy.
+    optimized = policy.network if isinstance(policy, DPPODiffusionPolicy) else policy
     return BCTrainState(
-        policy, optimizer.init(eqx.filter(policy, eqx.is_array)), jnp.array(0)
+        policy, optimizer.init(eqx.filter(optimized, eqx.is_array)), jnp.array(0)
     ), optimizer
 
 
@@ -197,18 +241,31 @@ def bc_update(
     observations: jnp.ndarray,
     key: jr.PRNGKey,
 ) -> tuple[BCTrainState, jnp.ndarray]:
-    loss, gradients = eqx.filter_value_and_grad(
-        lambda model: model.loss(actions, observations, key)
-    )(state.policy)
+    is_diffusion = isinstance(state.policy, DPPODiffusionPolicy)
+    optimized = state.policy.network if is_diffusion else state.policy
+
+    def objective(model):
+        policy = (
+            eqx.tree_at(lambda item: item.network, state.policy, model)
+            if is_diffusion else model
+        )
+        return policy.loss(actions, observations, key)
+
+    loss, gradients = eqx.filter_value_and_grad(objective)(optimized)
     updates, optimizer_state = optimizer.update(
-        gradients, state.optimizer_state, state.policy
+        gradients, state.optimizer_state, optimized
     )
-    policy = eqx.apply_updates(state.policy, updates)
+    optimized = eqx.apply_updates(optimized, updates)
+    policy = (
+        eqx.tree_at(lambda item: item.network, state.policy, optimized)
+        if is_diffusion else optimized
+    )
     return BCTrainState(policy, optimizer_state, state.step + 1), loss
 
 
 class DPPOTrainState(NamedTuple):
     policy: CondStochInterpolantPolicy | DPPODiffusionPolicy
+    base_policy: CondStochInterpolantPolicy | DPPODiffusionPolicy
     critic: ValueCritic
     actor_optimizer_state: optax.OptState
     critic_optimizer_state: optax.OptState
@@ -234,7 +291,7 @@ def make_dppo_state(
     actor_state = actor_optimizer.init(eqx.filter(actor, eqx.is_array))
     critic_state = critic_optimizer.init(eqx.filter(critic, eqx.is_array))
     return (
-        DPPOTrainState(policy, critic, actor_state, critic_state, jnp.array(0)),
+        DPPOTrainState(policy, policy, critic, actor_state, critic_state, jnp.array(0)),
         actor_optimizer,
         critic_optimizer,
     )
@@ -261,7 +318,7 @@ def dppo_update(
     def objective(models):
         actor, critic = models
         policy = replace_actor(state.policy, actor)
-        return dppo_loss(policy, critic, batch, config)
+        return dppo_loss(policy, critic, batch, config, state.base_policy)
 
     (_, metrics), (actor_grad, critic_grad) = eqx.filter_value_and_grad(
         objective, has_aux=True
@@ -278,6 +335,7 @@ def dppo_update(
     return (
         DPPOTrainState(
             policy,
+            state.base_policy,
             critic,
             actor_optimizer_state,
             critic_optimizer_state,

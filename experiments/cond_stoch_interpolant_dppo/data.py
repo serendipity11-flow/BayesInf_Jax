@@ -72,12 +72,17 @@ def convert(
     output: Path,
     validation_fraction: float = 0.2,
     seed: int = 0,
+    max_episodes: int | None = None,
 ) -> None:
     import minari
 
+    if max_episodes is not None and max_episodes < 2:
+        raise ValueError("max_episodes must be at least two")
     dataset = minari.load_dataset(dataset_id, download=True)
     episodes = []
-    for ep in dataset.iterate_episodes():
+    for episode_index, ep in enumerate(dataset.iterate_episodes()):
+        if max_episodes is not None and episode_index >= max_episodes:
+            break
         # Minari has T+1 observations and T actions.
         n = len(ep.actions)
         observations = ep.observations
@@ -91,14 +96,25 @@ def convert(
             "rewards": np.asarray(ep.rewards, dtype=np.float32),
             "terminals": np.asarray(ep.terminations, dtype=bool),
         })
+    if max_episodes is not None and len(episodes) < max_episodes:
+        raise ValueError(
+            f"dataset contains only {len(episodes)} episodes; "
+            f"requested {max_episodes}"
+        )
     split_and_write(episodes, output, validation_fraction, seed, dataset_id)
 
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--dataset", default="D4RL/door/human-v2")
-    p.add_argument("--output", type=Path, default=Path("data/dppo/door-human-v2"))
+    p.add_argument("--dataset", default="D4RL/door/expert-v2")
+    p.add_argument("--output", type=Path, default=Path("data/door-expert-v2-100"))
     p.add_argument("--validation-fraction", type=float, default=0.2)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument(
+        "--max-episodes", type=int, default=100,
+        help="Use exactly the first N source episodes before the seeded split.",
+    )
     a = p.parse_args()
-    convert(a.dataset, a.output, a.validation_fraction, a.seed)
+    convert(
+        a.dataset, a.output, a.validation_fraction, a.seed, a.max_episodes
+    )

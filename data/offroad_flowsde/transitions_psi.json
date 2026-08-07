@@ -1,0 +1,20 @@
+{
+  "episodes": 500,
+  "steps": 300,
+  "state_dim": 7,
+  "state_order": [
+    "x",
+    "y",
+    "psi",
+    "v_long",
+    "v_lat",
+    "yaw_rate",
+    "wheel_slip"
+  ],
+  "action_order": [
+    "throttle",
+    "steering"
+  ],
+  "yaw": "continuous unwrapped",
+  "seed": 0
+}

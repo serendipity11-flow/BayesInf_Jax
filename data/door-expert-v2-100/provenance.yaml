@@ -1,0 +1,15 @@
+source: D4RL/door/expert-v2
+source_registry: Minari
+source_total_episodes: 5000
+selected_episodes: first 100
+split_seed: 0
+validation_fraction: 0.2
+train_episodes: 80
+validation_episodes: 20
+train_transitions: 16000
+validation_transitions: 4000
+sha256:
+  manifest.json: f1d5cc5f01bf74e2f1fbb1446a3233799b4178d7f8c64633251cad1562baa5ab
+  normalization.npz: d47796f5c35bf7b933d98f100122f1b248d729c6a4dedb4f2cf383b3c64c2f18
+  train.npz: 01b30139c88356d943f728019c67941360f0e11dccb86fa255315798d1f2bb2c
+  val.npz: b1e75ba9c177c3f4159238f58187e46e7494628d47cba6b6de0d50422a79ca16

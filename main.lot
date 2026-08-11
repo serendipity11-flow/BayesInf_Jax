@@ -12,5 +12,7 @@
 \contentsline {table}{\numberline {IV.2}{\ignorespaces Performance Benchmarking of Deep Bayesian Inference Methods}}{67}{table.caption.116}%
 \contentsline {table}{\numberline {IV.3}{\ignorespaces Characteristics Comparison of Deep Generative Models for Parameter Identification}}{75}{table.caption.121}%
 \contentsline {table}{\numberline {IV.4}{\ignorespaces Multimodal Modeling Comparison}}{89}{figure.caption.139}%
+\contentsline {table}{\numberline {IV.5}{\ignorespaces Performance of CondStochInterpolant for different values of $\sigma _0$.}}{118}{table.caption.165}%
+\contentsline {table}{\numberline {IV.6}{\ignorespaces Quantitative comparison of the state estimation methods.}}{119}{table.caption.169}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

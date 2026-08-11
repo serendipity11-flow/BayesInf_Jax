@@ -31,22 +31,23 @@
 \contentsline {figure}{\numberline {IV.16}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{89}{figure.caption.139}%
 \contentsline {figure}{\numberline {IV.17}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{90}{figure.caption.141}%
 \contentsline {figure}{\numberline {IV.18}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{93}{figure.caption.142}%
-\contentsline {figure}{\numberline {IV.19}{\ignorespaces AmortizedSeqFlow Segment-Length Metrics}}{94}{figure.caption.143}%
-\contentsline {figure}{\numberline {IV.20}{\ignorespaces AmortizedSeqFlow Segment-Length Trajectories}}{95}{figure.caption.144}%
+\contentsline {figure}{\numberline {IV.19}{\ignorespaces AmortizedSeqFlow Segment-Length Metrics}}{95}{figure.caption.143}%
+\contentsline {figure}{\numberline {IV.20}{\ignorespaces AmortizedSeqFlow Segment-Length Trajectories}}{96}{figure.caption.144}%
 \contentsline {figure}{\numberline {IV.21}{\ignorespaces Architecture of Latent State Space Model Flow.}}{97}{figure.caption.147}%
-\contentsline {figure}{\numberline {IV.22}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Metrics}}{99}{figure.caption.149}%
-\contentsline {figure}{\numberline {IV.23}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Trajectories}}{100}{figure.caption.150}%
-\contentsline {figure}{\numberline {IV.24}{\ignorespaces LatentSSMFlow Full-Horizon Uncertainty Distribution}}{101}{figure.caption.151}%
-\contentsline {figure}{\numberline {IV.25}{\ignorespaces Computational graph of FlowSDE}}{105}{figure.caption.157}%
-\contentsline {figure}{\numberline {IV.26}{\ignorespaces Performance of FlowSDE}}{110}{figure.caption.158}%
-\contentsline {figure}{\numberline {IV.27}{\ignorespaces Multimodality of FlowSDE}}{111}{figure.caption.159}%
-\contentsline {figure}{\numberline {IV.28}{\ignorespaces Trajectory Reconstruction of FlowSDE}}{112}{figure.caption.160}%
+\contentsline {figure}{\numberline {IV.22}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Metrics}}{100}{figure.caption.149}%
+\contentsline {figure}{\numberline {IV.23}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Trajectories}}{101}{figure.caption.150}%
+\contentsline {figure}{\numberline {IV.24}{\ignorespaces LatentSSMFlow Full-Horizon Uncertainty Distribution}}{102}{figure.caption.151}%
+\contentsline {figure}{\numberline {IV.25}{\ignorespaces Computational graph of NormFlowSDE}}{105}{figure.caption.157}%
+\contentsline {figure}{\numberline {IV.26}{\ignorespaces Performance of NormFlowSDE}}{111}{figure.caption.158}%
+\contentsline {figure}{\numberline {IV.27}{\ignorespaces Multimodality of NormFlowSDE}}{112}{figure.caption.159}%
+\contentsline {figure}{\numberline {IV.28}{\ignorespaces Trajectory Reconstruction of NormFlowSDE}}{113}{figure.caption.160}%
 \contentsline {figure}{\numberline {IV.29}{\ignorespaces Computational graph of Conditional Stochastic Interpolant}}{114}{figure.caption.161}%
 \contentsline {figure}{\numberline {IV.30}{\ignorespaces Performance of CondStochInterpolant}}{116}{figure.caption.162}%
-\contentsline {figure}{\numberline {IV.31}{\ignorespaces Multimodality of CondStochInterpolant}}{116}{figure.caption.163}%
-\contentsline {figure}{\numberline {IV.32}{\ignorespaces Trajectory Reconstruction of CondStochInterpolant}}{117}{figure.caption.164}%
-\contentsline {figure}{\numberline {IV.33}{\ignorespaces Amortized Sequence Flow for Control}}{120}{figure.caption.166}%
-\contentsline {figure}{\numberline {IV.34}{\ignorespaces LatentSSMFlow and FlowSDE for Control}}{121}{figure.caption.167}%
-\contentsline {figure}{\numberline {IV.35}{\ignorespaces CondStochInterpolant for Control}}{123}{figure.caption.169}%
+\contentsline {figure}{\numberline {IV.31}{\ignorespaces Multimodality of CondStochInterpolant}}{117}{figure.caption.163}%
+\contentsline {figure}{\numberline {IV.32}{\ignorespaces Trajectory Reconstruction of CondStochInterpolant}}{118}{figure.caption.164}%
+\contentsline {figure}{\numberline {IV.33}{\ignorespaces Amortized Sequence Flow for Control}}{122}{figure.caption.173}%
+\contentsline {figure}{\numberline {IV.34}{\ignorespaces LatentSSMFlow for Control}}{124}{figure.caption.175}%
+\contentsline {figure}{\numberline {IV.35}{\ignorespaces NormFlowSDE for MPPI}}{126}{figure.caption.176}%
+\contentsline {figure}{\numberline {IV.36}{\ignorespaces CondStochInterpolant for Control}}{127}{figure.caption.178}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

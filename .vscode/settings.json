@@ -52,5 +52,6 @@
   ],
 
   // 👇 choose default recipe
-  "latex-workshop.latex.recipe.default": "lastUsed"
+  "latex-workshop.latex.recipe.default": "lastUsed",
+  "latex-workshop.latex.autoBuild.run": "never"
 }

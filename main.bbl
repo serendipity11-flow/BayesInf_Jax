@@ -1,4 +1,4 @@
-\begin{thebibliography}{198}
+\begin{thebibliography}{206}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -77,6 +77,11 @@ A.L. Barker, D.E. Brown, and W.N. Martin.
 \newblock \doi{https://doi.org/10.1016/0898-1221(95)00156-S}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/089812219500156S}.
 
+\bibitem[Bartosh et~al.(2025)Bartosh, Vetrov, and Naesseth]{bartosh2025sdematching}
+Grigory Bartosh, Dmitry Vetrov, and Christian~A. Naesseth.
+\newblock {SDE Matching}: Scalable and simulation-free training of latent stochastic differential equations.
+\newblock \emph{arXiv preprint arXiv:2502.02472}, 2025.
+
 \bibitem[Behrmann et~al.(2019)Behrmann, Grathwohl, Chen, Duvenaud, and Jacobsen]{behrmann2019ires}
 Jens Behrmann, Will Grathwohl, Ricky T.~Q. Chen, David Duvenaud, and Jörn-Henrik Jacobsen.
 \newblock Invertible residual networks, 2019.
@@ -116,6 +121,11 @@ L.~Bittner.
 \newblock ISSN 1521-4001.
 \newblock \doi{10.1002/zamm.19630431023}.
 \newblock URL \url{http://dx.doi.org/10.1002/zamm.19630431023}.
+
+\bibitem[Black et~al.(2024)Black, Janner, Du, Kostrikov, and Levine]{black2024trainingdiffusionmodelsreinforcement}
+Kevin Black, Michael Janner, Yilun Du, Ilya Kostrikov, and Sergey Levine.
+\newblock Training diffusion models with reinforcement learning, 2024.
+\newblock URL \url{https://arxiv.org/abs/2305.13301}.
 
 \bibitem[Blei et~al.(2017)Blei, Kucukelbir, and McAuliffe]{Blei_2017}
 David~M. Blei, Alp Kucukelbir, and Jon~D. McAuliffe.
@@ -565,9 +575,14 @@ Hassan~K Khalil and Jessy~W Grizzle.
 \newblock \emph{Nonlinear systems}, volume~3.
 \newblock Prentice hall Upper Saddle River, NJ, 2002.
 
-\bibitem[Kidger et~al.(2021)Kidger, Foster, Li, Oberhauser, and Lyons]{kidger2021neuralsdesinfinitedimensionalgans}
+\bibitem[Kidger et~al.(2021{\natexlab{a}})Kidger, Foster, Li, and Lyons]{kidger2021efficient}
+Patrick Kidger, James Foster, Xuechen Li, and Terry Lyons.
+\newblock Efficient and accurate gradients for neural sdes.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~34, 2021{\natexlab{a}}.
+
+\bibitem[Kidger et~al.(2021{\natexlab{b}})Kidger, Foster, Li, Oberhauser, and Lyons]{kidger2021neuralsdesinfinitedimensionalgans}
 Patrick Kidger, James Foster, Xuechen Li, Harald Oberhauser, and Terry Lyons.
-\newblock Neural sdes as infinite-dimensional gans, 2021.
+\newblock Neural sdes as infinite-dimensional gans, 2021{\natexlab{b}}.
 \newblock URL \url{https://arxiv.org/abs/2102.03657}.
 
 \bibitem[Kingma and Dhariwal(2018)]{kingma2018glow}
@@ -768,6 +783,12 @@ Thomas~M. Moerland, Joost Broekens, Aske Plaat, and Catholijn~M. Jonker.
 \newblock Model-based reinforcement learning: A survey, 2022.
 \newblock URL \url{https://arxiv.org/abs/2006.16712}.
 
+\bibitem[Morningstar et~al.(2021)Morningstar, Vikram, Ham, Gallagher, and Dillon]{morningstar21b}
+Warren Morningstar, Sharad Vikram, Cusuh Ham, Andrew Gallagher, and Joshua Dillon.
+\newblock Automatic differentiation variational inference with mixtures.
+\newblock In Arindam Banerjee and Kenji Fukumizu, editors, \emph{Proceedings of The 24th International Conference on Artificial Intelligence and Statistics}, volume 130 of \emph{Proceedings of Machine Learning Research}, pages 3250--3258. PMLR, 13--15 Apr 2021.
+\newblock URL \url{https://proceedings.mlr.press/v130/morningstar21b.html}.
+
 \bibitem[Murphy(2022)]{pml1Book}
 Kevin~P. Murphy.
 \newblock \emph{Probabilistic Machine Learning: An introduction}.
@@ -927,6 +948,12 @@ Quentin Rouxel, Clemente Donoso, Fei Chen, Serena Ivaldi, and Jean-Baptiste Mour
 \newblock Extremum flow matching for offline goal conditioned reinforcement learning, 2025.
 \newblock URL \url{https://arxiv.org/abs/2505.19717}.
 
+\bibitem[Rubinstein(1999)]{rubinstein1999cem}
+Reuven~Y. Rubinstein.
+\newblock The cross-entropy method for combinatorial and continuous optimization.
+\newblock \emph{Methodology and Computing in Applied Probability}, 1\penalty0 (2):\penalty0 127--190, 1999.
+\newblock \doi{10.1023/A:1010091220143}.
+
 \bibitem[Ruthotto and Haber(2018)]{ruthotto2018deep}
 Lars Ruthotto and Eldad Haber.
 \newblock Deep neural networks motivated by partial differential equations, 2018.
@@ -969,6 +996,12 @@ Daniele Silvestro and Tobias Andermann.
 Dan Simon.
 \newblock \emph{Optimal state estimation: Kalman, H $\infty$, and nonlinear approaches}.
 \newblock John Wiley \& Sons, 2006.
+
+\bibitem[Skafte et~al.(2019)Skafte, J\o~rgensen, and Hauberg]{NEURIPS2019_07211688}
+Nicki Skafte, Martin J\o~rgensen, and S\o~ren Hauberg.
+\newblock Reliable training and estimation of variance networks.
+\newblock In H.~Wallach, H.~Larochelle, A.~Beygelzimer, F.~d\textquotesingle Alch\'{e}-Buc, E.~Fox, and R.~Garnett, editors, \emph{Advances in Neural Information Processing Systems}, volume~32. Curran Associates, Inc., 2019.
+\newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/2019/file/07211688a0869d995947a8fb11b215d6-Paper.pdf}.
 
 \bibitem[Skilling(1989)]{Skilling1989}
 John Skilling.
@@ -1097,6 +1130,12 @@ Junjie Wen, Minjie Zhu, Yichen Zhu, Zhibin Tang, Jinming Li, Zhongyi Zhou, Cheng
 \newblock Diffusion-vla: Generalizable and interpretable robot foundation model via self-generated reasoning, 2025.
 \newblock URL \url{https://arxiv.org/abs/2412.03293}.
 
+\bibitem[Williams et~al.(2017)Williams, Aldrich, and Theodorou]{williams2017mppi}
+Grady Williams, Andrew Aldrich, and Evangelos~A. Theodorou.
+\newblock Model predictive path integral control: From theory to parallel computation.
+\newblock \emph{Journal of Guidance, Control, and Dynamics}, 40\penalty0 (2):\penalty0 344--357, 2017.
+\newblock \doi{10.2514/1.G001921}.
+
 \bibitem[Winkler et~al.(2023)Winkler, Worrall, Hoogeboom, and Welling]{winkler2023cnf}
 Christina Winkler, Daniel Worrall, Emiel Hoogeboom, and Max Welling.
 \newblock Learning likelihoods with conditional normalizing flows, 2023.
@@ -1144,26 +1183,31 @@ Jice Zeng, Michael~D. Todd, and Zhen Hu.
 \newblock \doi{10.1007/s13349-022-00638-5}.
 \newblock URL \url{https://doi.org/10.1007/s13349-022-00638-5}.
 
-\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Liu, Fan, Liu, Zeng, and Liu]{2025flowpolicy}
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Viktorov, Jung, and Pitler]{zhang2025efficient}
+Jianxin Zhang, Josh Viktorov, Doosan Jung, and Emily Pitler.
+\newblock Efficient training of neural stochastic differential equations by matching finite dimensional distributions.
+\newblock In \emph{International Conference on Learning Representations}, 2025{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Liu, Fan, Liu, Zeng, and Liu]{2025flowpolicy}
 Qinglun Zhang, Zhen Liu, Haoqiang Fan, Guanghui Liu, Bing Zeng, and Shuaicheng Liu.
 \newblock Flowpolicy: Enabling fast and robust 3d flow-based policy via consistency flow matching for robot manipulation.
-\newblock \emph{Proceedings of the AAAI Conference on Artificial Intelligence}, 39\penalty0 (14):\penalty0 14754--14762, Apr. 2025{\natexlab{a}}.
+\newblock \emph{Proceedings of the AAAI Conference on Artificial Intelligence}, 39\penalty0 (14):\penalty0 14754--14762, Apr. 2025{\natexlab{b}}.
 \newblock \doi{10.1609/aaai.v39i14.33617}.
 \newblock URL \url{https://ojs.aaai.org/index.php/AAAI/article/view/33617}.
 
-\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Zhang, and Gu]{zhang2025energyweightedflowmatchingoffline}
+\bibitem[Zhang et~al.(2025{\natexlab{c}})Zhang, Zhang, and Gu]{zhang2025energyweightedflowmatchingoffline}
 Shiyuan Zhang, Weitong Zhang, and Quanquan Gu.
-\newblock Energy-weighted flow matching for offline reinforcement learning, 2025{\natexlab{b}}.
+\newblock Energy-weighted flow matching for offline reinforcement learning, 2025{\natexlab{c}}.
 \newblock URL \url{https://arxiv.org/abs/2503.04975}.
 
-\bibitem[Zhang et~al.(2025{\natexlab{c}})Zhang, Yu, Su, and Wang]{zhang2025reinflowfinetuningflowmatching}
+\bibitem[Zhang et~al.(2025{\natexlab{d}})Zhang, Yu, Su, and Wang]{zhang2025reinflowfinetuningflowmatching}
 Tonghe Zhang, Chao Yu, Sichang Su, and Yu~Wang.
-\newblock Reinflow: Fine-tuning flow matching policy with online reinforcement learning, 2025{\natexlab{c}}.
+\newblock Reinflow: Fine-tuning flow matching policy with online reinforcement learning, 2025{\natexlab{d}}.
 \newblock URL \url{https://arxiv.org/abs/2505.22094}.
 
-\bibitem[Zhang et~al.(2025{\natexlab{d}})Zhang, Yu, Zhang, Guang, Hui, Long, Wang, Yu, and Ding]{zhang2025sacflow}
+\bibitem[Zhang et~al.(2025{\natexlab{e}})Zhang, Yu, Zhang, Guang, Hui, Long, Wang, Yu, and Ding]{zhang2025sacflow}
 Yixian Zhang, Shu'ang Yu, Tonghe Zhang, Mo~Guang, Haojia Hui, Kaiwen Long, Yu~Wang, Chao Yu, and Wenbo Ding.
-\newblock Sac flow: Sample-efficient reinforcement learning of flow-based policies via velocity-reparameterized sequential modeling, 2025{\natexlab{d}}.
+\newblock Sac flow: Sample-efficient reinforcement learning of flow-based policies via velocity-reparameterized sequential modeling, 2025{\natexlab{e}}.
 \newblock URL \url{https://arxiv.org/abs/2509.25756}.
 
 \bibitem[Zhang et~al.(2023)Zhang, Zhu, Zhang, and Gao]{ZHANG2023106424}

@@ -27,7 +27,7 @@ To introduce temporal structure into the latent variables, we use a Wiener proce
 This simplicity comes at a cost. Because each segment is processed as an independent set of observations, the method largely discards the temporal structure of the state trajectory because long-range dependencies are not modeled. This segmented formulation becomes problematic over long horizons because a dynamical trajectory should be initialized only once and then propagated continuously through time, with observations correcting the evolving state rather than repeatedly reinitializing the state at every segment boundary. AmortizedSeqFlow is therefore most appropriate when the underlying dynamics are relatively smooth and only weakly dependent over time. It is less suitable when the dynamics are strongly nonlinear or when the observations are substantially noisy.
 
 \paragraph{Numerical Results}
-We first evaluate AmortizedSeqFlow under different segment lengths on the partially observed Lorenz-96 system. The dataset contains $2000$ independent trajectories with horizon $[0s,2s]$, time step $dt=0.02s$, and $101$ steps. For each sequence, we perturb a reference initial state with Gaussian noise. We then simulate the Lorenz–96 system for 500 warm-up steps and discard this warm-up trajectory. The state reached after warm-up is used as the recorded 100-step sequence, which is in chaotic regime of the lorenz96-system. The observation matrix selects every second state coordinate and the others remain unobserved. The observation noise is Gaussian with standard deviation $0.5$ ($\mathcal{N}(0, 0.5^2)$). The data are split into $1600$ training trajectories, $200$ validation trajectories, and $200$ test trajectories.
+We first evaluate AmortizedSeqFlow under different segment lengths on the partially observed Lorenz-96 system. The dataset contains $2000$ independent trajectories with horizon $[0\,\mathrm{s},2\,\mathrm{s}]$, time step $dt=0.02\,\mathrm{s}$, and $101$ steps. For each sequence, we perturb a reference initial state with Gaussian noise. We then simulate the Lorenz–96 system for 500 warm-up steps and discard this warm-up trajectory. The state reached after warm-up is used as the recorded 100-step sequence, which is in chaotic regime of the lorenz96-system. The observation matrix selects every second state coordinate and the others remain unobserved. The observation noise is Gaussian with standard deviation $0.5$ ($\mathcal{N}(0, 0.5^2)$). The data are split into $1600$ training trajectories, $200$ validation trajectories, and $200$ test trajectories.
 
 Since this method applies the flow independently to each observation segment, it is not expected to scale well to long windows. The purpose of this experiment is therefore to assess to what extent this simple amortized construction can still estimate states precisely as the segment length increases without repeatedly reinitializing the states. Figure~\ref{fig:amortized_seq_flow_segment_metrics} summarizes the quantitative performance, while Figure~\ref{fig:amortized_seq_flow_segment_trajectories} shows representative reconstructed trajectories.
 
@@ -624,26 +624,35 @@ The trajectory reconstructions in Figure~\ref{fig:si_trajectories} provide a mor
 
 Overall, the results show that CondStochInterpolant as a state estimator achieves a favorable balance between reconstruction accuracy, uncertainty calibration, and posterior diversity under multimodal observation noise.
 
-Besides, we also compare the performance of CondStochInterpolant with different scales of the stochastic term $\sigma_0$ (Eq.~\ref{eq:csi_linear_path}) in the refinement \ac{SDE}. The results are summarized in Table~\ref{tab:si_g0_comparison}. 
-
 \begin{table}[htbp]
     \centering
-    \caption{Performance of CondStochInterpolant for different values of $\sigma_0$.}
-    \label{tab:si_g0_comparison}
-    \begin{tabular}{@{}rrrrr@{}}
-        \toprule
-        $\sigma_0$ & \makecell{RMSE\\all} & \makecell{RMSE\\obs.} & \makecell{RMSE\\unobs.} & \makecell{90\%\\coverage} \\
-        \midrule
-        0.00 & 0.790 & 0.661 & 0.913 & 36.4\% \\
-        0.10 & 2.510 & 2.447 & 2.587 & 53.0\% \\
-        0.25 & 2.434 & 2.309 & 2.566 & 64.2\% \\
-        0.50 & 2.321 & 2.161 & 2.483 & 60.9\% \\
-        1.00 & \textbf{0.516} & \textbf{0.412} & \textbf{0.615} & \textbf{90.5\%} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{minipage}[t]{0.45\textwidth}
+        \vspace{0pt}
+        \centering
+        \caption{Performance of CondStochInterpolant for different values of $\sigma_0$.}
+        \label{tab:si_g0_comparison}
+        \small
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{@{}rrrr@{}}
+            \toprule
+            $\sigma_0$ & \makecell{RMSE\\all} & MAE & \makecell{90\%\\coverage} \\
+            \midrule
+            0.00 & 0.839 & 0.646 & 30.7\% \\
+            0.10 & 1.085 & 0.815 & 23.8\% \\
+            0.25 & 1.048 & 0.787 & 27.1\% \\
+            0.50 & 0.779 & 0.569 & 36.9\% \\
+            1.00 & \textbf{0.506} & \textbf{0.379} & \textbf{90.6\%} \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.51\textwidth}
+        \vspace{0pt}
+        We also compare the performance of CondStochInterpolant for different scales of the stochastic term $\sigma_0$ in the refinement \ac{SDE} (Eq.~\ref{eq:csi_linear_path}). The results are summarized in Table~\ref{tab:si_g0_comparison}.
 
-The results demonstrate that pure flow matching ($\sigma_0=0$) is insufficient for reliable posterior state estimation. When $\sigma_0=0$, the model remains deterministic and attains a moderate RMSE of 0.790, but its 90\% coverage drops to only 36.4\%, indicating severely under-dispersed uncertainty estimates. Introducing stochasticity improves the coverage probability and also accuracy.
+        Pure flow matching ($\sigma_0=0$) is insufficient for reliable posterior state estimation. Although the deterministic model attains a moderate RMSE, its 90\% coverage drops to only 36.4\%, indicating severely under-dispersed uncertainty estimates. Introducing stochasticity improves both the coverage probability and the estimation accuracy.
+    \end{minipage}
+\end{table}
 
 \subsection{Summary of State Estimation Methods}
 

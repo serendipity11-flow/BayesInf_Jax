@@ -13,6 +13,7 @@ This section introduces the necessary foundational concepts and methodologies fo
 To maintain clarity throughout this document, we adopt the following notation:
 
 \begin{table}[htbp!]
+\small
 \centering
 \renewcommand{\arraystretch}{1.5}
 \begin{tabularx}{0.9\textwidth}{>{\bfseries}l X}
@@ -84,65 +85,97 @@ The "Markov Chain" aspect indicates that these algorithms generate a sequence of
 This concept is analogous to the steady-state behavior of a dynamical system. Typically, a dynamical system undergoes a transient phase before settling into an equilibrium where the states remain constant. In \ac{MCMC}, while the variables continue to move, their probability distribution reaches a steady state. If we interpret the probability density as the energy landscape of a physical system, equilibrium is reached when the system has settled into a stable statistical configuration. At this point, although individual samples continue to transition between different regions of the parameter space, the net movement between these regions is zero. This balance ensures that the density of samples remains constant over time, allowing the chain to accurately represent the invariant target posterior distribution.
 
 \subsubsection{Metropolis-Hastings Algorithm}
-\begin{table}[htbp]
-    \centering
-    \small
-    \begin{tabular}{>{\raggedright\arraybackslash}p{0.55\textwidth} | >{\raggedright\arraybackslash}p{0.43\textwidth}}
+The \ac{MH} algorithm, named after Metropolis \citeyearpar{Metropolis} and Hastings \citeyearpar{Hastings}, is a widely used \ac{MCMC} method. Table~\ref{tab:comp_mh} connects each computational step with the evolving state of a chain targeting a correlated posterior over two parameters. The early iterations expose individual proposals and rejections, whereas the retained samples after burn-in provide an empirical approximation of $p(\boldsymbol{\theta}\mid\mathcal{D})$.
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.63\textwidth} @{} >{\centering\arraybackslash}p{0.34\textwidth}}
+    \caption[Metropolis-Hastings algorithm and two-parameter inference]{The Metropolis-Hastings (MH) algorithm illustrated for a correlated two-parameter posterior. Contours show the target density, crosses denote rejected proposals, and the first $N_{\mathrm{burn}}=500$ states are discarded.}
+    \label{tab:comp_mh}\\
     \toprule
-    \textbf{MH Algorithm (Random Walk) } & \textbf{Autonomous Rover Mapping} \\ 
+    \textbf{MH algorithm: transition step} & \textbf{Immediate chain states} \\
     \midrule
-    \textbf{1. Initialization} & \textbf{1. Power-On \& Config} \\
-    Set starting point $\boldsymbol{\theta}_{(0)}$.  & The rover starts at GPS coordinate $\boldsymbol{\theta}_{(0)}$.\\Define proposal $q(\boldsymbol{\theta}'|\boldsymbol{\theta})$, which is usually a Gaussian $\mathcal{N}(\boldsymbol{\theta}, \sigma^2)$. & 
-    Set the Jogging Logic ($q$): a random-walk jump distance based on motor constraints. \\
-    \midrule
-    \textbf{2. Iteration Loop} (for each $i$): & \textbf{2. Navigation Duty Cycle}: \\
-    \midrule
-    \textit{(a) Propose a new state:} & \textit{(a) Candidate Path Planning:} \\
-    Generate a candidate $\boldsymbol{\theta}'_{(i)}$ using the proposal distribution $q(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$. & 
-    A phantom coordinate $\boldsymbol{\theta}'_{(i)}$ nearby is calculated. This is a potential move, but the actuators are not yet engaged. \\
-    \midrule
-    \textit{(b) Calculate Transition Probability $T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)})$:} & \textit{(b) Sensor Evaluation based on Data $\mathcal{D}$:} \\
-    \begin{minipage}{0.48\textwidth}
-        \begin{equation}
-        \label{eq:mh_transition}
-            T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)}) = \min\!\left(
-            \begin{array}{l}
-            1,\\[2pt]
-            \dfrac{p(\boldsymbol{\theta}'_{(i)}\mid\mathcal{D})\,q(\boldsymbol{\theta}_{(i-1)}\mid\boldsymbol{\theta}'_{(i)})}{p(\boldsymbol{\theta}_{(i-1)}\mid\mathcal{D})\,q(\boldsymbol{\theta}'_{(i)}\mid\boldsymbol{\theta}_{(i-1)})}
-            \end{array}
-            \right)
-        \end{equation}
+    \begin{minipage}[t]{0.61\textwidth}
+        \vspace{0.4em}
+        \textbf{1. Initialize.} Choose $\boldsymbol{\theta}_{(0)}$ and a proposal
+        $q(\boldsymbol{\theta}'\mid\boldsymbol{\theta})$, commonly a Gaussian
+        random walk.
     \end{minipage}
     &
-    The rover asks: "Based on our sensor history ($\mathcal{D}$), is the ice likely denser at the phantom spot $\boldsymbol{\theta}'$ than my current spot $\boldsymbol{\theta}$?" It also checks for mechanical bias in $q$. \\
+    \begin{minipage}[t]{0.32\textwidth}
+        \centering\textit{(a) Setup and first proposal}\par\smallskip
+        \includegraphics[width=0.91\linewidth]{figures/mh_setup.pdf}
+    \end{minipage} \\
     \midrule
-    \textit{(c) Update via Accept/Reject:} & \textit{(c) Actuator Actuation:} \\
-    \begin{minipage}{0.48\textwidth}
+    \begin{minipage}[t]{0.61\textwidth}
+        \vspace{0.4em}
+        \textbf{2. Iterate.} For $i=1,\ldots,N$:
+        \begin{enumerate}[label=(\alph*),leftmargin=1.6em,itemsep=0.7em,topsep=0.3em]
+        \item Draw a candidate
+        $\boldsymbol{\theta}'_{(i)}\sim
+        q(\boldsymbol{\theta}'\mid\boldsymbol{\theta}_{(i-1)})$.
+        \item Compute the acceptance probability
+        \begin{equation}
+        \label{eq:mh_transition}
+            T(\boldsymbol{\theta}'_{(i)}\mid\boldsymbol{\theta}_{(i-1)})
+            =\min\!\left(1,
+            \frac{p(\boldsymbol{\theta}'_{(i)}\mid\mathcal{D})\,
+            q(\boldsymbol{\theta}_{(i-1)}\mid\boldsymbol{\theta}'_{(i)})}
+            {p(\boldsymbol{\theta}_{(i-1)}\mid\mathcal{D})\,
+            q(\boldsymbol{\theta}'_{(i)}\mid\boldsymbol{\theta}_{(i-1)})}
+            \right)
+        \end{equation}
+        \item Draw $u\sim\mathcal{U}(0,1)$ and update
         \begin{equation}
         \label{eq:mh_update}
         \boldsymbol{\theta}_{(i)} =
         \begin{cases} \boldsymbol{\theta}'_{(i)}, & \text{if } u < T(\boldsymbol{\theta}'_{(i)}|\boldsymbol{\theta}_{(i-1)}) \\ \boldsymbol{\theta}_{(i-1)}, & \text{otherwise} 
         \end{cases}
         \end{equation}
+        \end{enumerate}
     \end{minipage}
-    & 
-    If the spot is "better," the motors drive there. If "worse," it rolls a die: it might still move there to explore, or stay put and record the current spot again. \\
+    &
+    \begin{minipage}[t]{0.32\textwidth}
+        \centering\textit{(b) Early chain: iterations 1--25}\par\smallskip
+        \includegraphics[width=0.91\linewidth]{figures/mh_early_chain.pdf}
+    \end{minipage} \\
     \midrule
-    \textbf{3. Accumulation} & \textbf{3. Mission Duration} \\
-    Run the chain for more than $N_{\mathrm{burn}}$ iterations. The first $N_{\mathrm{burn}}$ samples are treated as burn-in, after which the chain is assumed to have reached its stationary distribution. The retained samples are $\{\boldsymbol{\theta}_{(N_{\mathrm{burn}}+1)}, \ldots, \boldsymbol{\theta}_{(N_{\mathrm{burn}}+B)}\}$. & 
-    The rover first drives long enough to leave its arbitrary starting region and reach a representative exploration pattern. Only after this warm-up period does it write the subsequent $(x,y)$ coordinates into the mission logbook. \\
+    \textbf{MH algorithm: posterior approximation} & \textbf{Burn-in and retained samples} \\
     \midrule
-    \textbf{4. Estimator} & \textbf{4. Resource Density Map} \\
-    \[p(\boldsymbol{\theta}| \mathcal{D}) \approx \frac{1}{B} \sum_{b=1}^{B} \delta_{(N_{\mathrm{burn}}+b)}(\boldsymbol{\theta})\] 
-    $\delta_{(N_{\mathrm{burn}}+b)}(\boldsymbol{\theta})$ denotes a Dirac delta centered at the retained sample $\boldsymbol{\theta}_{(N_{\mathrm{burn}}+b)}$.
-    & 
-    Download the log and plot the coordinates. The resulting point cloud density shows the ice distribution $p(\boldsymbol{\theta}|\mathcal{D})$ across the crater. \\
+    \begin{minipage}[t]{0.61\textwidth}
+        \vspace{0.4em}
+        \textbf{3. Discard burn-in.} Remove the first $N_{\mathrm{burn}}$
+        states and retain the following $B$ samples. The retained chain is
+        $\{\boldsymbol{\theta}_{(N_{\mathrm{burn}}+1)},\ldots,
+        \boldsymbol{\theta}_{(N_{\mathrm{burn}}+B)}\}$.
+    \end{minipage}
+    &
+    \begin{minipage}[t]{0.32\textwidth}
+        \centering\textit{(c) Burn-in: iterations 1--500}\par\smallskip
+        \includegraphics[width=0.91\linewidth]{figures/mh_burn_in.pdf}
+    \end{minipage} \\
+    \midrule
+    \begin{minipage}[t]{0.61\textwidth}
+        \vspace{0.4em}
+        \textbf{4. Approximate the posterior.}
+        \[
+        p(\boldsymbol{\theta}\mid\mathcal{D}) \approx \frac{1}{B}
+        \sum_{b=1}^{B}\delta_{\boldsymbol{\theta}_{(N_{\mathrm{burn}}+b)}}
+        (\boldsymbol{\theta}).
+        \]
+        Here, $\delta_{\boldsymbol{\theta}_{(N_{\mathrm{burn}}+b)}}$
+        denotes a Dirac measure at a retained state. The resulting point cloud
+        is an empirical representation of the target posterior.
+    \end{minipage}
+    &
+    \begin{minipage}[t]{0.32\textwidth}
+        \centering\textit{(d) 2,000 retained samples}\par
+        \textit{Acceptance rate: 63.1\%}\par\smallskip
+        \includegraphics[width=0.91\linewidth]{figures/mh_retained_samples.pdf}
+    \end{minipage} \\
     \bottomrule
-    \end{tabular}
-    \caption[Alignment between MH Algorithm and Autonomous Rover Mapping]{Alignment between the Metropolis-Hastings (MH) algorithm and an autonomous rover mapping.}
-    \label{tab:comp_mh}
-\end{table}
-The \ac{MH} algorithm, which is named after Metropolis \citeyearpar{Metropolis} and Hastings \citeyearpar{Hastings}, is a widely used \ac{MCMC} method. To understand its logic, consider the "Autonomous Rover Mapping" analogy: Imagine an autonomous rover equipped with a noisy sensor is deployed into a dark and unmapped crater. Its task is to create a high-resolution density map of water-ice concentrations across the crater floor. It doesn't have a satellite map; it only knows the signal strength of ice at its current coordinates using a neutron spectrometer. It cannot teleport and thus has to move from point to point in order to take readings. The density map is essentially a confidence map of where the ice is located $(\boldsymbol{\theta})$ given the sensor observations $(\mathcal{D})$. An alignment between the MH algorithm and its analogy is shown in Table~\ref{tab:comp_mh}.
+\end{longtable}
+}
+
 
 Although this procedure allows flexible approximation of complex posterior distributions, it suffers from a slow convergence rate because of its random exploration strategy. Thus, gradient-based \ac{MCMC} methods are proposed to incorporate the structure of the target density, leading to faster sampling.
 
@@ -303,42 +336,7 @@ The optimal hyperparameters $\hat{\varphi}$ are found by maximizing this functio
 The \ac{GPR} is widely used for regression tasks owing to its non-parametric nature and its capacity to quantify uncertainty. However, its computational complexity scales cubically with the number of training points, i.e., $\mathcal{O}(D^3)$ for a $D$-dimensional input. Additionally, calculating Gaussian processes requires storing the entire training dataset, incurring a memory cost of $\mathcal{O}(M^2)$, which grows quadratically with the dataset size $M$. These limitations hinder its scalability to high-dimensional inputs and large datasets. In addition, the expressiveness of \ac{GPR} is constrained by the choice of kernel function and its incapacity to perform hierarchical feature extraction.
 
 \subsubsection{Parameter Identification using GPR}
-\begin{table}[ht]
-    \centering
-    \small
-    \renewcommand{\arraystretch}{1.5}
-    \begin{tabularx}{\textwidth}{@{} p{0.18\textwidth} >{\hsize=0.8\hsize}X >{\hsize=1.2\hsize}X @{}}
-        \toprule
-        \textbf{Feature} & \textbf{Direct Inverse Regression} \citep{li2025gaussianprocessregressioninverse} & \textbf{Surrogate-Based Inference (Forward)} \citep{takhtaganov2018adaptivegaussianprocesssurrogates} \\
-        \midrule
-        \textbf{Core Concept} & 
-        The \ac{GPR} learns the inverse mapping directly from observation space to parameter space, acting as amortized Bayesian inference. & 
-        The \ac{GPR} acts as a surrogate for the physical simulator to approximate the likelihood function, accelerating the simulation process. The posterior distribution of the parameters is obtained by \ac{MCMC}.\\
-        \midrule
-        \textbf{GP Input ($\boldsymbol{x}$)} & 
-        The observed system data $\mathcal{D}$ (or extracted feature vector). & 
-        The system parameter $\boldsymbol{\theta}$. \\
-        \midrule
-        \textbf{GP Output ($\boldsymbol{y}$)} & 
-        The estimated system parameter $\boldsymbol{\theta}$. & 
-        The simulated system response $\hat{\boldsymbol{y}} = \text{Sim}(\boldsymbol{\theta})$.\\
-        \midrule
-        \textbf{Posterior $p(\boldsymbol{\theta} | \mathcal{D})$} & 
-        Obtained immediately from the GP's predictive distribution. & 
-        Obtained via Bayes' rule using the GP as the likelihood term:
-        $p(\boldsymbol{\theta} | \mathcal{D}) \propto p(\mathcal{D} | \boldsymbol{\theta}) p(\boldsymbol{\theta})$. \\
-        \midrule
-        \textbf{Pros \& Cons} & 
-        \textbf{Pros:} Computationally fast at inference time. \newline
-        \textbf{Cons:} Ill-posed if the mapping is non-unique (multiple $\boldsymbol{\theta}$ produce same $\mathcal{D}$). & 
-        \textbf{Pros:} Scientifically rigorous; correctly handles multi-modal distributions and uncertainty. \newline
-        \textbf{Cons:} Requires iterative sampling (MCMC). \\
-        \bottomrule
-    \end{tabularx}
-    \caption[Two Strategies for Parameter Identification Using GPR]{Comparison of Gaussian Process strategies for parameter identification.}
-    \label{tab:comp_gp}
-\end{table}
-In the context of system identification, we aim to estimate the posterior distribution of system parameters given observed system data, denoted as $p(\boldsymbol{\theta} | \mathcal{D})$. There are two primary strategies to achieve this, which are compared in Table~\ref{tab:comp_gp}. 
+In system identification, \ac{GPR} can estimate the posterior $p(\boldsymbol{\theta}\mid\mathcal{D})$ through either direct inverse regression or surrogate-based forward inference. Direct inverse regression learns a mapping from observations or extracted features to the parameters and provides fast, amortized predictions, but it can be ill-posed when several parameter values produce the same response \citep{li2025gaussianprocessregressioninverse}. Alternatively, a forward \ac{GPR} surrogate maps parameters to simulated responses and replaces an expensive physical model within likelihood evaluations \citep{takhtaganov2018adaptivegaussianprocesssurrogates}. The latter retains a Bayesian posterior through sampling and can represent non-unique or multimodal solutions, although it still requires iterative inference such as \ac{MCMC}.
 
 \subsubsection{Deep Gaussian Process}
 To improve expressiveness, \acf{DGP} \citep{damianou2013dgp} is proposed as a multilayer hierarchical generalization of Gaussian processes. The input $\boldsymbol{x}$ is passed through multiple layers of Gaussian processes to obtain the output $\boldsymbol{y}$. For an $L$-layer \ac{DGP}, the model extends the Gaussian process (\ref{eq:simgp}) by:

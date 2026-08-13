@@ -2,52 +2,58 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {II.1}{\ignorespaces Knowledge Map}}{9}{figure.caption.13}%
-\contentsline {figure}{\numberline {II.2}{\ignorespaces MH MALA Comparison}}{14}{figure.caption.24}%
-\contentsline {figure}{\numberline {II.3}{\ignorespaces Variational Autoencoder Architecture}}{23}{figure.caption.40}%
-\contentsline {figure}{\numberline {II.4}{\ignorespaces The Clay Volume Analogy for Change of Variables}}{26}{figure.caption.41}%
-\contentsline {figure}{\numberline {II.5}{\ignorespaces BayesFlow Architecture}}{31}{figure.caption.48}%
-\contentsline {figure}{\numberline {II.6}{\ignorespaces Coupling Flow Architecture}}{32}{figure.caption.49}%
-\contentsline {figure}{\numberline {II.7}{\ignorespaces Illustration of three Flows}}{34}{figure.caption.56}%
-\contentsline {figure}{\numberline {II.8}{\ignorespaces Schematic of the stochastic interpolant framework}}{41}{figure.caption.60}%
-\contentsline {figure}{\numberline {II.9}{\ignorespaces \ac {MPC} and \ac {RL}.}}{48}{figure.caption.72}%
-\contentsline {figure}{\numberline {II.10}{\ignorespaces MPC time dependency}}{49}{figure.caption.73}%
+\contentsline {figure}{\numberline {II.2}{\ignorespaces MH MALA Comparison}}{13}{figure.caption.23}%
+\contentsline {figure}{\numberline {II.3}{\ignorespaces Variational Autoencoder Architecture}}{20}{figure.caption.38}%
+\contentsline {figure}{\numberline {II.4}{\ignorespaces The Clay Volume Analogy for Change of Variables}}{22}{figure.caption.39}%
+\contentsline {figure}{\numberline {II.5}{\ignorespaces BayesFlow Architecture}}{26}{figure.caption.46}%
+\contentsline {figure}{\numberline {II.6}{\ignorespaces Coupling Flow Architecture}}{27}{figure.caption.47}%
+\contentsline {figure}{\numberline {II.7}{\ignorespaces Illustration of three Flows}}{29}{figure.caption.54}%
+\contentsline {figure}{\numberline {II.8}{\ignorespaces Schematic of the stochastic interpolant framework}}{34}{figure.caption.58}%
+\contentsline {figure}{\numberline {II.9}{\ignorespaces \ac {MPC} and \ac {RL}.}}{40}{figure.caption.70}%
+\contentsline {figure}{\numberline {II.10}{\ignorespaces MPC time dependency}}{41}{figure.caption.71}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {IV.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{65}{figure.caption.102}%
-\contentsline {figure}{\numberline {IV.2}{\ignorespaces Mass-Spring-Damper System with Multimodal Parameters}}{66}{figure.caption.105}%
-\contentsline {figure}{\numberline {IV.3}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{68}{figure.caption.117}%
-\contentsline {figure}{\numberline {IV.4}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{70}{figure.caption.118}%
-\contentsline {figure}{\numberline {IV.5}{\ignorespaces Linear Correlation Comparison}}{72}{figure.caption.119}%
-\contentsline {figure}{\numberline {IV.6}{\ignorespaces Multimodal Comparison}}{73}{figure.caption.120}%
-\contentsline {figure}{\numberline {IV.7}{\ignorespaces Convergence Speed \& Sensitivity Analysis}}{77}{figure.caption.123}%
-\contentsline {figure}{\numberline {IV.8}{\ignorespaces Global Sensitivity Analysis of Mass-Spring-Models}}{78}{figure.caption.124}%
-\contentsline {figure}{\numberline {IV.9}{\ignorespaces Comparison of Sensitivity and Identifiability Under Noisy Observations}}{80}{figure.caption.126}%
-\contentsline {figure}{\numberline {IV.10}{\ignorespaces Stress Test of Normalizing Flows under Noise}}{82}{figure.caption.128}%
-\contentsline {figure}{\numberline {IV.11}{\ignorespaces Evaluation of Stress Test under Misspecification and OOD}}{83}{figure.caption.129}%
-\contentsline {figure}{\numberline {IV.12}{\ignorespaces Micro View of Distribution under Misspecification}}{84}{figure.caption.130}%
-\contentsline {figure}{\numberline {IV.13}{\ignorespaces Global Residual Analysis under OOD}}{84}{figure.caption.131}%
-\contentsline {figure}{\numberline {IV.14}{\ignorespaces Combining Normalizing Flow with MCMC}}{85}{figure.caption.134}%
-\contentsline {figure}{\numberline {IV.15}{\ignorespaces SNF Architecture}}{86}{figure.caption.137}%
-\contentsline {figure}{\numberline {IV.16}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{89}{figure.caption.139}%
-\contentsline {figure}{\numberline {IV.17}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{90}{figure.caption.141}%
-\contentsline {figure}{\numberline {IV.18}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{93}{figure.caption.142}%
-\contentsline {figure}{\numberline {IV.19}{\ignorespaces AmortizedSeqFlow Segment-Length Metrics}}{95}{figure.caption.143}%
-\contentsline {figure}{\numberline {IV.20}{\ignorespaces AmortizedSeqFlow Segment-Length Trajectories}}{96}{figure.caption.144}%
-\contentsline {figure}{\numberline {IV.21}{\ignorespaces Architecture of Latent State Space Model Flow.}}{97}{figure.caption.147}%
-\contentsline {figure}{\numberline {IV.22}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Metrics}}{100}{figure.caption.149}%
-\contentsline {figure}{\numberline {IV.23}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Trajectories}}{101}{figure.caption.150}%
-\contentsline {figure}{\numberline {IV.24}{\ignorespaces LatentSSMFlow Full-Horizon Uncertainty Distribution}}{102}{figure.caption.151}%
-\contentsline {figure}{\numberline {IV.25}{\ignorespaces Computational graph of NormFlowSDE}}{105}{figure.caption.157}%
-\contentsline {figure}{\numberline {IV.26}{\ignorespaces Performance of NormFlowSDE}}{111}{figure.caption.158}%
-\contentsline {figure}{\numberline {IV.27}{\ignorespaces Multimodality of NormFlowSDE}}{112}{figure.caption.159}%
-\contentsline {figure}{\numberline {IV.28}{\ignorespaces Trajectory Reconstruction of NormFlowSDE}}{113}{figure.caption.160}%
-\contentsline {figure}{\numberline {IV.29}{\ignorespaces Computational graph of Conditional Stochastic Interpolant}}{114}{figure.caption.161}%
-\contentsline {figure}{\numberline {IV.30}{\ignorespaces Performance of CondStochInterpolant}}{116}{figure.caption.162}%
-\contentsline {figure}{\numberline {IV.31}{\ignorespaces Multimodality of CondStochInterpolant}}{117}{figure.caption.163}%
-\contentsline {figure}{\numberline {IV.32}{\ignorespaces Trajectory Reconstruction of CondStochInterpolant}}{118}{figure.caption.164}%
-\contentsline {figure}{\numberline {IV.33}{\ignorespaces Amortized Sequence Flow for Control}}{122}{figure.caption.173}%
-\contentsline {figure}{\numberline {IV.34}{\ignorespaces LatentSSMFlow for Control}}{124}{figure.caption.175}%
-\contentsline {figure}{\numberline {IV.35}{\ignorespaces NormFlowSDE for MPPI}}{126}{figure.caption.176}%
-\contentsline {figure}{\numberline {IV.36}{\ignorespaces CondStochInterpolant for Control}}{127}{figure.caption.178}%
+\contentsline {figure}{\numberline {IV.1}{\ignorespaces Universal Framework of Using Deep Generative Models for Amortized Bayesian Inference}}{54}{figure.caption.100}%
+\contentsline {figure}{\numberline {IV.2}{\ignorespaces Mass-Spring-Damper System with Multimodal Parameters}}{55}{figure.caption.103}%
+\contentsline {figure}{\numberline {IV.3}{\ignorespaces Detailed Comparison of Deep Bayesian Inference Methods}}{57}{figure.caption.115}%
+\contentsline {figure}{\numberline {IV.4}{\ignorespaces Performance Comparison w.r.t. Sample Efficiency}}{58}{figure.caption.116}%
+\contentsline {figure}{\numberline {IV.5}{\ignorespaces Linear Correlation Comparison}}{60}{figure.caption.117}%
+\contentsline {figure}{\numberline {IV.6}{\ignorespaces Multimodal Comparison}}{61}{figure.caption.118}%
+\contentsline {figure}{\numberline {IV.7}{\ignorespaces Convergence Speed \& Sensitivity Analysis}}{64}{figure.caption.121}%
+\contentsline {figure}{\numberline {IV.8}{\ignorespaces Global Sensitivity Analysis of Mass-Spring-Models}}{65}{figure.caption.122}%
+\contentsline {figure}{\numberline {IV.9}{\ignorespaces Comparison of Sensitivity and Identifiability Under Noisy Observations}}{67}{figure.caption.124}%
+\contentsline {figure}{\numberline {IV.10}{\ignorespaces Stress Test of Normalizing Flows under Noise}}{68}{figure.caption.126}%
+\contentsline {figure}{\numberline {IV.11}{\ignorespaces Evaluation of Stress Test under Misspecification and OOD}}{69}{figure.caption.127}%
+\contentsline {figure}{\numberline {IV.12}{\ignorespaces Micro View of Distribution under Misspecification}}{70}{figure.caption.128}%
+\contentsline {figure}{\numberline {IV.13}{\ignorespaces Global Residual Analysis under OOD}}{70}{figure.caption.129}%
+\contentsline {figure}{\numberline {IV.14}{\ignorespaces Combining Normalizing Flow with MCMC}}{71}{figure.caption.132}%
+\contentsline {figure}{\numberline {IV.15}{\ignorespaces SNF Architecture}}{72}{figure.caption.135}%
+\contentsline {figure}{\numberline {IV.16}{\ignorespaces Multimodal Modeling Comparison between NF and SNF}}{74}{figure.caption.137}%
+\contentsline {figure}{\numberline {IV.17}{\ignorespaces Improved Parameter Identification Under Noisy Observations with SNF}}{75}{figure.caption.139}%
+\contentsline {figure}{\numberline {IV.18}{\ignorespaces Architecture of amortized state estimation with normalizing flows.}}{78}{figure.caption.140}%
+\contentsline {figure}{\numberline {IV.19}{\ignorespaces AmortizedSeqFlow Segment-Length Metrics}}{79}{figure.caption.141}%
+\contentsline {figure}{\numberline {IV.20}{\ignorespaces AmortizedSeqFlow Segment-Length Trajectories}}{80}{figure.caption.142}%
+\contentsline {figure}{\numberline {IV.21}{\ignorespaces Architecture of Latent State Space Model Flow.}}{81}{figure.caption.145}%
+\contentsline {figure}{\numberline {IV.22}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Metrics}}{83}{figure.caption.147}%
+\contentsline {figure}{\numberline {IV.23}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Trajectories}}{84}{figure.caption.148}%
+\contentsline {figure}{\numberline {IV.24}{\ignorespaces LatentSSMFlow Full-Horizon Uncertainty Distribution}}{84}{figure.caption.149}%
+\contentsline {figure}{\numberline {IV.25}{\ignorespaces Computational graph of NormFlowSDE}}{88}{figure.caption.155}%
+\contentsline {figure}{\numberline {IV.26}{\ignorespaces Performance of NormFlowSDE}}{93}{figure.caption.156}%
+\contentsline {figure}{\numberline {IV.27}{\ignorespaces Multimodality of NormFlowSDE}}{94}{figure.caption.157}%
+\contentsline {figure}{\numberline {IV.28}{\ignorespaces Trajectory Reconstruction of NormFlowSDE}}{95}{figure.caption.158}%
+\contentsline {figure}{\numberline {IV.29}{\ignorespaces Computational graph of Conditional Stochastic Interpolant}}{96}{figure.caption.159}%
+\contentsline {figure}{\numberline {IV.30}{\ignorespaces Performance of CondStochInterpolant}}{97}{figure.caption.160}%
+\contentsline {figure}{\numberline {IV.31}{\ignorespaces Multimodality of CondStochInterpolant}}{98}{figure.caption.161}%
+\contentsline {figure}{\numberline {IV.32}{\ignorespaces Trajectory Reconstruction of CondStochInterpolant}}{98}{figure.caption.162}%
+\contentsline {figure}{\numberline {IV.33}{\ignorespaces Amortized Sequence Flow for Control}}{102}{figure.caption.171}%
+\contentsline {figure}{\numberline {IV.34}{\ignorespaces AmortizedSeqFlow vs MPC Trajectories of Lane Tracking}}{103}{figure.caption.172}%
+\contentsline {figure}{\numberline {IV.35}{\ignorespaces AmortizedSeqFlow vs MPC Noise Sweep}}{104}{figure.caption.173}%
+\contentsline {figure}{\numberline {IV.36}{\ignorespaces LatentSSMFlow for Control}}{105}{figure.caption.175}%
+\contentsline {figure}{\numberline {IV.37}{\ignorespaces LatentSSMFlow Open-Loop Reconstruction}}{107}{figure.caption.176}%
+\contentsline {figure}{\numberline {IV.38}{\ignorespaces In-Domain LatentSSMFlow in Stochastic MPC for Obstacle Avoidance}}{108}{figure.caption.177}%
+\contentsline {figure}{\numberline {IV.39}{\ignorespaces Closed-loop Jackal obstacle avoidance under out-of-distribution dynamics.}}{108}{figure.caption.178}%
+\contentsline {figure}{\numberline {IV.40}{\ignorespaces NormFlowSDE for MPPI}}{110}{figure.caption.179}%
+\contentsline {figure}{\numberline {IV.41}{\ignorespaces CondStochInterpolant for Control}}{111}{figure.caption.181}%
+\contentsline {figure}{\numberline {IV.42}{\ignorespaces Behavior-cloning score ablation on the Adroit Door task}}{113}{figure.caption.185}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

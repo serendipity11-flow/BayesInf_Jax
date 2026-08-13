@@ -1,4 +1,4 @@
-\begin{thebibliography}{206}
+\begin{thebibliography}{214}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -245,6 +245,19 @@ Frank~J. Christophersen.
 \newblock \doi{10.1007/978-3-540-72701-9_3}.
 \newblock URL \url{https://doi.org/10.1007/978-3-540-72701-9_3}.
 
+\bibitem[{Clearpath Robotics}(n.d.)]{clearpath_jackal}
+{Clearpath Robotics}.
+\newblock {Jackal UGV}: Small unmanned ground vehicle.
+\newblock \url{https://clearpathrobotics.com/jackal-small-unmanned-ground-vehicle/}, n.d.
+\newblock Accessed: 2026-08-12.
+
+\bibitem[{Clearpath Robotics Documentation}(n.d.)]{clearpath_jackal_manual}
+{Clearpath Robotics Documentation}.
+\newblock \emph{{Jackal User Manual}}.
+\newblock Clearpath Robotics, n.d.
+\newblock URL \url{https://docs.clearpathrobotics.com/docs_robots/legacy/ros1_robots/outdoor_robots/jackal/user_manual_jackal/}.
+\newblock Accessed: 2026-08-12.
+
 \bibitem[Coddington and Levinson(1955)]{coddington1955theory}
 Earl~A Coddington and Norman Levinson.
 \newblock \emph{Theory of ordinary differential equations}.
@@ -254,6 +267,11 @@ Earl~A Coddington and Norman Levinson.
 Andreas~C. Damianou and Neil~D. Lawrence.
 \newblock Deep gaussian processes, 2013.
 \newblock URL \url{https://arxiv.org/abs/1211.0358}.
+
+\bibitem[de~Lazcano et~al.(2024)de~Lazcano, Andreas, Tai, Lee, and Terry]{gymnasium_robotics2023github}
+Rodrigo de~Lazcano, Kallinteris Andreas, Jun~Jet Tai, Seungjae~Ryan Lee, and Jordan Terry.
+\newblock Gymnasium robotics, 2024.
+\newblock URL \url{http://github.com/Farama-Foundation/Gymnasium-Robotics}.
 
 \bibitem[De~Santi et~al.(2024)De~Santi, Razzano, Fidecaro, Muccillo, Papalini, and Patricelli]{De_Santi_2024}
 Federico De~Santi, Massimiliano Razzano, Francesco Fidecaro, Luca Muccillo, Lucia Papalini, and Barbara Patricelli.
@@ -396,6 +414,10 @@ Gideon~Joseph Freund, Elad Sarafian, and Sarit Kraus.
 \newblock A coupled flow approach to imitation learning.
 \newblock In Andreas Krause, Emma Brunskill, Kyunghyun Cho, Barbara Engelhardt, Sivan Sabato, and Jonathan Scarlett, editors, \emph{Proceedings of the 40th International Conference on Machine Learning}, volume 202 of \emph{Proceedings of Machine Learning Research}, pages 10357--10372. PMLR, 23--29 Jul 2023.
 \newblock URL \url{https://proceedings.mlr.press/v202/freund23a.html}.
+
+\bibitem[Fu et~al.(2020)Fu, Kumar, Nachum, Tucker, and Levine]{fu2020d4rl}
+Justin Fu, Aviral Kumar, Ofir Nachum, George Tucker, and Sergey Levine.
+\newblock D4rl: Datasets for deep data-driven reinforcement learning, 2020.
 
 \bibitem[Gabbard et~al.(2022)Gabbard, Messenger, Heng, Tonolini, and Murray-Smith]{Gabbard2022}
 Hunter Gabbard, Chris Messenger, Ik~Siong Heng, Francesco Tonolini, and Roderick Murray-Smith.
@@ -913,6 +935,12 @@ Davide~Martino Raimondo, Daniel Limon, Mircea Lazar, Lalo Magni, and Eduardo~Fer
 \newblock \doi{https://doi.org/10.3166/ejc.15.5-21}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0947358009707034}.
 
+\bibitem[Rajeswaran et~al.(2017)Rajeswaran, Kumar, Gupta, Schulman, Todorov, and Levine]{rajeswaran2018learning}
+Aravind Rajeswaran, Vikash Kumar, Abhishek Gupta, John Schulman, Emanuel Todorov, and Sergey Levine.
+\newblock Learning complex dexterous manipulation with deep reinforcement learning and demonstrations.
+\newblock \emph{ArXiv}, abs/1709.10087, 2017.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:4780901}.
+
 \bibitem[Rasmussen and Williams(2008)]{Rasmussen_Williams_2008}
 Carl~Edward Rasmussen and Christopher K.~I. Williams.
 \newblock \emph{Gaussian processes for machine learning}.
@@ -923,6 +951,11 @@ James Rawlings, David Mayne, and Moritz Diehl.
 \newblock \emph{Model predictive control: theory, computation and design}.
 \newblock Nob Hill Publishing, LLC, Santa Barbara, second edition. edition, 2020.
 \newblock ISBN 9780975937754.
+
+\bibitem[Ren et~al.(2024)Ren, Lidard, Ankile, Simeonov, Agrawal, Majumdar, Burchfiel, Dai, and Simchowitz]{ren2024diffusionpolicypolicyoptimization}
+Allen~Z. Ren, Justin Lidard, Lars~L. Ankile, Anthony Simeonov, Pulkit Agrawal, Anirudha Majumdar, Benjamin Burchfiel, Hongkai Dai, and Max Simchowitz.
+\newblock Diffusion policy policy optimization, 2024.
+\newblock URL \url{https://arxiv.org/abs/2409.00588}.
 
 \bibitem[Rezende and Mohamed(2016)]{rezende2016}
 Danilo~Jimenez Rezende and Shakir Mohamed.
@@ -958,6 +991,16 @@ Reuven~Y. Rubinstein.
 Lars Ruthotto and Eldad Haber.
 \newblock Deep neural networks motivated by partial differential equations, 2018.
 \newblock URL \url{https://arxiv.org/abs/1804.04272}.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and Klimov]{schulman2017proximalpolicyoptimizationalgorithms}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms, 2017.
+\newblock URL \url{https://arxiv.org/abs/1707.06347}.
+
+\bibitem[Schulman et~al.(2018)Schulman, Moritz, Levine, Jordan, and Abbeel]{schulman2018highdimensionalcontinuouscontrolusing}
+John Schulman, Philipp Moritz, Sergey Levine, Michael Jordan, and Pieter Abbeel.
+\newblock High-dimensional continuous control using generalized advantage estimation, 2018.
+\newblock URL \url{https://arxiv.org/abs/1506.02438}.
 
 \bibitem[Schwartz(1954)]{changeofvariables}
 J.~Schwartz.

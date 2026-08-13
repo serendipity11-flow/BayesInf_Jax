@@ -7,7 +7,8 @@
 \usepackage{mathtools}
 \usepackage{makecell}
 \usepackage{float} %H
-\usepackage[total={15cm,21cm},top=4.85cm,includefoot]{geometry}
+% Use consistent 2.5 cm margins on A4 paper, including the footer in the layout.
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm,includefoot]{geometry}
 \usepackage[ddmmyyyy]{datetime}
 \renewcommand{\dateseparator}{.}
 \usepackage[utf8]{inputenc}

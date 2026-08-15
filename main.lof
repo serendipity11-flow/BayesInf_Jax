@@ -38,22 +38,25 @@
 \contentsline {figure}{\numberline {IV.23}{\ignorespaces LatentSSMFlow Full-Horizon Rollout Trajectories}}{84}{figure.caption.148}%
 \contentsline {figure}{\numberline {IV.24}{\ignorespaces LatentSSMFlow Full-Horizon Uncertainty Distribution}}{84}{figure.caption.149}%
 \contentsline {figure}{\numberline {IV.25}{\ignorespaces Computational graph of NormFlowSDE}}{88}{figure.caption.155}%
-\contentsline {figure}{\numberline {IV.26}{\ignorespaces Performance of NormFlowSDE}}{93}{figure.caption.156}%
-\contentsline {figure}{\numberline {IV.27}{\ignorespaces Multimodality of NormFlowSDE}}{94}{figure.caption.157}%
-\contentsline {figure}{\numberline {IV.28}{\ignorespaces Trajectory Reconstruction of NormFlowSDE}}{95}{figure.caption.158}%
+\contentsline {figure}{\numberline {IV.26}{\ignorespaces Performance of NormFlowSDE}}{92}{figure.caption.156}%
+\contentsline {figure}{\numberline {IV.27}{\ignorespaces Multimodality of NormFlowSDE}}{93}{figure.caption.157}%
+\contentsline {figure}{\numberline {IV.28}{\ignorespaces Trajectory Reconstruction of NormFlowSDE}}{93}{figure.caption.158}%
 \contentsline {figure}{\numberline {IV.29}{\ignorespaces Computational graph of Conditional Stochastic Interpolant}}{96}{figure.caption.159}%
-\contentsline {figure}{\numberline {IV.30}{\ignorespaces Performance of CondStochInterpolant}}{97}{figure.caption.160}%
-\contentsline {figure}{\numberline {IV.31}{\ignorespaces Multimodality of CondStochInterpolant}}{98}{figure.caption.161}%
-\contentsline {figure}{\numberline {IV.32}{\ignorespaces Trajectory Reconstruction of CondStochInterpolant}}{98}{figure.caption.162}%
+\contentsline {figure}{\numberline {IV.30}{\ignorespaces Performance of CondStochInt}}{97}{figure.caption.160}%
+\contentsline {figure}{\numberline {IV.31}{\ignorespaces Multimodality of CondStochInt}}{98}{figure.caption.161}%
+\contentsline {figure}{\numberline {IV.32}{\ignorespaces Trajectory Reconstruction of CondStochInt}}{98}{figure.caption.162}%
 \contentsline {figure}{\numberline {IV.33}{\ignorespaces Amortized Sequence Flow for Control}}{102}{figure.caption.171}%
-\contentsline {figure}{\numberline {IV.34}{\ignorespaces AmortizedSeqFlow vs MPC Trajectories of Lane Tracking}}{103}{figure.caption.172}%
-\contentsline {figure}{\numberline {IV.35}{\ignorespaces AmortizedSeqFlow vs MPC Noise Sweep}}{104}{figure.caption.173}%
-\contentsline {figure}{\numberline {IV.36}{\ignorespaces LatentSSMFlow for Control}}{105}{figure.caption.175}%
+\contentsline {figure}{\numberline {IV.34}{\ignorespaces AmortizedSeqFlow vs MPC Trajectories of Lane Tracking}}{104}{figure.caption.172}%
+\contentsline {figure}{\numberline {IV.35}{\ignorespaces AmortizedSeqFlow vs MPC Noise Sweep}}{105}{figure.caption.173}%
+\contentsline {figure}{\numberline {IV.36}{\ignorespaces LatentSSMFlow for Control}}{106}{figure.caption.175}%
 \contentsline {figure}{\numberline {IV.37}{\ignorespaces LatentSSMFlow Open-Loop Reconstruction}}{107}{figure.caption.176}%
 \contentsline {figure}{\numberline {IV.38}{\ignorespaces In-Domain LatentSSMFlow in Stochastic MPC for Obstacle Avoidance}}{108}{figure.caption.177}%
-\contentsline {figure}{\numberline {IV.39}{\ignorespaces Closed-loop Jackal obstacle avoidance under out-of-distribution dynamics.}}{108}{figure.caption.178}%
-\contentsline {figure}{\numberline {IV.40}{\ignorespaces NormFlowSDE for MPPI}}{110}{figure.caption.179}%
-\contentsline {figure}{\numberline {IV.41}{\ignorespaces CondStochInterpolant for Control}}{111}{figure.caption.181}%
-\contentsline {figure}{\numberline {IV.42}{\ignorespaces Behavior-cloning score ablation on the Adroit Door task}}{113}{figure.caption.185}%
+\contentsline {figure}{\numberline {IV.39}{\ignorespaces Closed-loop Jackal obstacle avoidance under out-of-distribution dynamics.}}{109}{figure.caption.178}%
+\contentsline {figure}{\numberline {IV.40}{\ignorespaces NormFlowSDE for MPPI}}{111}{figure.caption.179}%
+\contentsline {figure}{\numberline {IV.41}{\ignorespaces Open-loop NormFlowSDE rollout on a differential-drive trajectory}}{113}{figure.caption.180}%
+\contentsline {figure}{\numberline {IV.42}{\ignorespaces Open-loop state-reconstruction accuracy}}{113}{figure.caption.181}%
+\contentsline {figure}{\numberline {IV.43}{\ignorespaces Closed-loop differential-drive navigation}}{114}{figure.caption.182}%
+\contentsline {figure}{\numberline {IV.44}{\ignorespaces CondStochInt for Control}}{115}{figure.caption.185}%
+\contentsline {figure}{\numberline {IV.45}{\ignorespaces Behavior-cloning score ablation on the Adroit Door task}}{117}{figure.caption.189}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

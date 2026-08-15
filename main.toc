@@ -87,45 +87,47 @@
 \contentsline {subsubsection}{\numberline {IV.2.3.2}Training NormFlowSDE}{87}{subsubsection.4.2.3.2}%
 \contentsline {subsubsection}{\numberline {IV.2.3.3}Optional Theoretical Note: Weak Convergence of NormFlowSDE}{89}{subsubsection.4.2.3.3}%
 \contentsline {subsubsection}{\numberline {IV.2.3.4}Numerical Results}{92}{subsubsection.4.2.3.4}%
-\contentsline {subsection}{\numberline {IV.2.4}Conditional Stochastic Interpolant}{93}{subsection.4.2.4}%
-\contentsline {subsubsection}{\numberline {IV.2.4.1}Conditional Stochastic Interpolant for State Estimation}{93}{subsubsection.4.2.4.1}%
-\contentsline {paragraph}{Target Interpolant}{94}{equation.4.66}%
+\contentsline {subsection}{\numberline {IV.2.4}Conditional Stochastic Interpolant}{94}{subsection.4.2.4}%
+\contentsline {subsubsection}{\numberline {IV.2.4.1}Conditional Stochastic Interpolant for State Estimation}{94}{subsubsection.4.2.4.1}%
+\contentsline {paragraph}{Target Interpolant}{95}{equation.4.66}%
 \contentsline {paragraph}{Learned Interpolant Dynamics}{95}{equation.4.70}%
-\contentsline {subsubsection}{\numberline {IV.2.4.2}Numerical Results}{97}{subsubsection.4.2.4.2}%
+\contentsline {subsubsection}{\numberline {IV.2.4.2}Numerical Results}{96}{subsubsection.4.2.4.2}%
 \contentsline {subsection}{\numberline {IV.2.5}Summary of State Estimation Methods}{99}{subsection.4.2.5}%
-\contentsline {section}{\numberline {IV.3}Optimal Control}{100}{section.4.3}%
+\contentsline {section}{\numberline {IV.3}Optimal Control}{101}{section.4.3}%
 \contentsline {subsection}{\numberline {IV.3.1}AmortizedSeqFlow in MPC}{101}{subsection.4.3.1}%
-\contentsline {paragraph}{Validation with Lane Tracking}{101}{figure.caption.171}%
+\contentsline {paragraph}{Validation with Lane Tracking}{102}{figure.caption.171}%
 \contentsline {subsection}{\numberline {IV.3.2}LatentSSMFlow in Stochastic MPC}{104}{subsection.4.3.2}%
-\contentsline {subsubsection}{\numberline {IV.3.2.1}LatentSSMFlow as a Surrogate Model in Stochastic MPC}{104}{subsubsection.4.3.2.1}%
-\contentsline {subsubsection}{\numberline {IV.3.2.2}Validation with Obstacle Avoidance}{105}{subsubsection.4.3.2.2}%
-\contentsline {paragraph}{Open-Loop Reconstruction}{106}{equation.4.80}%
-\contentsline {paragraph}{Closed-Loop Obstacle Avoidance}{106}{figure.caption.176}%
+\contentsline {subsubsection}{\numberline {IV.3.2.1}LatentSSMFlow as a Surrogate Model in Stochastic MPC}{105}{subsubsection.4.3.2.1}%
+\contentsline {subsubsection}{\numberline {IV.3.2.2}Validation with Obstacle Avoidance}{106}{subsubsection.4.3.2.2}%
+\contentsline {paragraph}{Open-Loop Dynamics Modeling}{107}{equation.4.80}%
+\contentsline {paragraph}{Closed-Loop Optimal Control}{108}{figure.caption.176}%
 \contentsline {subsection}{\numberline {IV.3.3}NormFlowSDE in MPPI}{109}{subsection.4.3.3}%
-\contentsline {subsubsection}{\numberline {IV.3.3.1}NormFlowSDE as a Surrogate Model in MPPI}{109}{subsubsection.4.3.3.1}%
-\contentsline {subsubsection}{\numberline {IV.3.3.2}Model Predictive Path Integral control}{109}{subsubsection.4.3.3.2}%
-\contentsline {subsubsection}{\numberline {IV.3.3.3}Validation with Navigation Task}{110}{subsubsection.4.3.3.3}%
-\contentsline {subsection}{\numberline {IV.3.4}CondStochInterpolant in DPPO}{110}{subsection.4.3.4}%
-\contentsline {subsubsection}{\numberline {IV.3.4.1}CondStochInterpolant Policy}{110}{subsubsection.4.3.4.1}%
-\contentsline {subsubsection}{\numberline {IV.3.4.2}Diffusion Policy Policy Optimization}{111}{subsubsection.4.3.4.2}%
-\contentsline {subsubsection}{\numberline {IV.3.4.3}Validation with Robotic Manipulation Task}{112}{subsubsection.4.3.4.3}%
-\contentsline {paragraph}{Behavior Cloning Pretraining}{113}{subsubsection.4.3.4.3}%
-\contentsline {paragraph}{DPPO Fine-tuning}{114}{figure.caption.185}%
-\contentsline {chapter}{\numberline {V}Experiments and Results}{115}{chapter.5}%
-\contentsline {section}{\numberline {V.1}Overview}{115}{section.5.1}%
-\contentsline {section}{\numberline {V.2}Parameter Identification}{115}{section.5.2}%
-\contentsline {section}{\numberline {V.3}State Estimation}{115}{section.5.3}%
-\contentsline {section}{\numberline {V.4}Optimal Control}{115}{section.5.4}%
-\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{117}{chapter.6}%
-\contentsline {chapter}{Abstract}{119}{chapter.6}%
-\contentsline {chapter}{Zusammenfassung}{121}{chapter.6}%
-\contentsline {chapter}{Bibliography}{122}{section*.186}%
-\contentsline {chapter}{Own Contributions and Publications}{123}{section*.186}%
-\contentsline {section}{Own share in data acquisition and data analysis}{123}{section*.187}%
-\contentsline {paragraph}{Own share in Data Acquisition.}{123}{section*.187}%
-\contentsline {paragraph}{Own share in Data Analysis.}{123}{section*.187}%
-\contentsline {section}{Own Publications}{123}{section*.187}%
-\contentsline {chapter}{Appendix}{143}{section*.187}%
-\contentsline {chapter}{Acknowledgement}{145}{section*.187}%
-\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{147}{section*.187}%
-\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{149}{Item.30}%
+\contentsline {subsubsection}{\numberline {IV.3.3.1}NormFlowSDE as a Surrogate Model in MPPI}{110}{subsubsection.4.3.3.1}%
+\contentsline {subsubsection}{\numberline {IV.3.3.2}Model Predictive Path Integral control}{110}{subsubsection.4.3.3.2}%
+\contentsline {subsubsection}{\numberline {IV.3.3.3}Validation on a Navigation Task}{111}{subsubsection.4.3.3.3}%
+\contentsline {paragraph}{Open-Loop Dynamics Modeling}{112}{equation.4.89}%
+\contentsline {paragraph}{Closed-Loop Optimal Control}{112}{figure.caption.181}%
+\contentsline {subsection}{\numberline {IV.3.4}CondStochInt in DPPO}{114}{subsection.4.3.4}%
+\contentsline {subsubsection}{\numberline {IV.3.4.1}CondStochInt Policy}{114}{subsubsection.4.3.4.1}%
+\contentsline {subsubsection}{\numberline {IV.3.4.2}Diffusion Policy Policy Optimization}{115}{subsubsection.4.3.4.2}%
+\contentsline {subsubsection}{\numberline {IV.3.4.3}Validation with Robotic Manipulation Task}{116}{subsubsection.4.3.4.3}%
+\contentsline {paragraph}{Behavior Cloning Pre-training}{117}{subsubsection.4.3.4.3}%
+\contentsline {paragraph}{DPPO Fine-tuning}{117}{figure.caption.189}%
+\contentsline {chapter}{\numberline {V}Experiments and Results}{119}{chapter.5}%
+\contentsline {section}{\numberline {V.1}Overview}{119}{section.5.1}%
+\contentsline {section}{\numberline {V.2}Parameter Identification}{119}{section.5.2}%
+\contentsline {section}{\numberline {V.3}State Estimation}{119}{section.5.3}%
+\contentsline {section}{\numberline {V.4}Optimal Control}{119}{section.5.4}%
+\contentsline {chapter}{\numberline {VI}Conclusion and Future Work}{121}{chapter.6}%
+\contentsline {chapter}{Abstract}{123}{chapter.6}%
+\contentsline {chapter}{Zusammenfassung}{125}{chapter.6}%
+\contentsline {chapter}{Bibliography}{126}{section*.190}%
+\contentsline {chapter}{Own Contributions and Publications}{127}{section*.190}%
+\contentsline {section}{Own share in data acquisition and data analysis}{127}{section*.191}%
+\contentsline {paragraph}{Own share in Data Acquisition.}{127}{section*.191}%
+\contentsline {paragraph}{Own share in Data Analysis.}{127}{section*.191}%
+\contentsline {section}{Own Publications}{127}{section*.191}%
+\contentsline {chapter}{Appendix}{147}{section*.191}%
+\contentsline {chapter}{Acknowledgement}{149}{section*.191}%
+\contentsline {chapter}{Eidesstattliche Versicherung (Affidavit) in German}{151}{section*.191}%
+\contentsline {chapter}{Angabe zu verwendeten KI-basierter Elektronischer Hilfsmittel}{153}{Item.30}%

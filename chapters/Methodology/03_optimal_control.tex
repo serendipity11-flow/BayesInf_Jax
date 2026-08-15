@@ -8,7 +8,7 @@ The four methods are applied differently in a control framework due to their dif
     \item \textbf{AmortizedSeqFlow} is based on training a desired mapping offline and then directly using the trained model online. Thus, the optimization process of finding the optimal control input is performed implicitly offline by training the posterior of control inputs conditioned on the observed and reference signals. Once trained, the control input can be inferred directly. Thus, it is approprate to use AmortizedSeqFlow to replace the optimization loop in a standard \ac{MPC} framework.
     \item \textbf{LatentSSMFlow} applies a linear state space model in the latent space, which is natural to adapt it to capturing the underlying dynamics of the system. The system states are then modeled stochastically by taking the previous states and inputs as conditions, i.e., $\boldsymbol{x}_t \leftarrow (\boldsymbol{x}_{t-1}, \boldsymbol{u}_{t-1})$. Then, the control input is optimized in a stochastic \ac{MPC} framework.
     \item \textbf{NormFlowSDE}, likewise, can also model the system dynamics and be integrated into a stochastic \ac{MPC} framework, such as \ac{MPPI}.
-    \item \textbf{CondStochInterpolant} is a conditional generative model, which can be used as a control policy or path planner to generate sequential control inputs conditioned on the current system states and observation histories. We compare its performance with \ac{DPPO} \citep{ren2024diffusionpolicypolicyoptimization, black2024trainingdiffusionmodelsreinforcement}.
+    \item \textbf{CondStochInt} is a conditional generative model, which can be used as a control policy or path planner to generate sequential control inputs conditioned on the current system states and observation histories. We compare its performance with \ac{DPPO} \citep{ren2024diffusionpolicypolicyoptimization, black2024trainingdiffusionmodelsreinforcement}.
 \end{enumerate}
 
 Due to the different characteristics and the modeling capabilities of the four methods, they are also validated with different experiments, which are suitable for their respective control frameworks as well.
@@ -62,7 +62,7 @@ AmortizedSeqFlow produces substantially smoother control actions, as indicated b
 \end{figure}
 
 \subsection{LatentSSMFlow in Stochastic MPC}
-A stochastic \ac{MPC} relies heavily on a surrogate dynamics model to project future system behaviors over a prediction horizon $H$. When the underlying physical system is highly non-linear or exhibits multi-modal stochasticity, standard deterministic or Gaussian dynamics models fail. This method resolves this by modeling transitions using a LatentSSMFlow. 
+A stochastic \ac{MPC} relies heavily on a surrogate dynamics model to project future system behaviors over a prediction horizon $H$. When the underlying physical system is highly nonlinear or exhibits multi-modal stochasticity, standard deterministic or Gaussian dynamics models fail. This method resolves this by modeling transitions using a LatentSSMFlow. 
 
 \subsubsection{LatentSSMFlow as a Surrogate Model in Stochastic MPC}
 As shown in Figure~\ref{fig:latentssmflow_smpc}, LatentSSMFlow is trained as a probabilistic, control-conditioned transition model, $p_\varphi\left(\mathbf{x}_{t+1}|\boldsymbol{x}_{t-H+1:t},\boldsymbol{u}_{t-H+1:t}\right)$, using a state-history length of $H$. The model predicts the state increment $\Delta\mathbf{x}_{t+1}=\mathbf{x}_{t+1}-\mathbf{x}_t$ then adds the increment to the current state. The stochastic \ac{MPC} iteratively chooses candidate inputs $\boldsymbol{u}_{0:H-1}$ through the dynamics model to predict next-step states $\hat{\boldsymbol{x}}_{1:H}$ and select the optimal sequence that tracks a reference trajectory $\boldsymbol{y}^r_{1:H}$. 
@@ -72,7 +72,7 @@ For stochastic MPC with LatentSSMFlow, the control objective function can be wri
     J(\boldsymbol{u}_{t:t+H-1};\boldsymbol{x}_t)
     =\mathbb{E}_{\boldsymbol{x}_{t:t+H}\sim
     p_\varphi(\cdot|\boldsymbol{x}_{t-H+1:t},\boldsymbol{u}_{t:t+H-1})}
-    \!\left[
+    \;\left[
     \sum_{h=0}^{H-1}
     \ell(\boldsymbol{x}_{t+h},\boldsymbol{u}_{t+h})
     +\ell_f(\boldsymbol{x}_{t+H})
@@ -107,46 +107,46 @@ where $(p_{x,t},p_{y,t})$ is the position, $\psi_t$ is the heading angle (yaw an
     -1.5\leq\omega_t^{\mathrm{cmd}}\leq1.5\,\mathrm{rad}\,\mathrm{s}^{-1}.
 \end{equation}
 
-The simulation runs at $10\,\mathrm{Hz}$, corresponding to $\Delta t=0.1\,\mathrm{s}$. The robot is approximated by a circular footprint of radius $r_{\mathrm{rob}}=0.27\,\mathrm{m}$, with a pre-defined safety margin of $r_{\mathrm{safe}}=0.18\,\mathrm{m}$. Training trajectories were generated using a higher-fidelity differential-drive simulation, which contains dynamics that are not represented in a nominal model. The simulated effects included motor lag, payload-dependent inertia, one- or two-step command delay, spatially varying terrain traction, asymmetric wheel slip, lateral slip, external longitudinal disturbance, and process noise. The relevant parameters were randomized independently between episodes so that the learned transition represented a distribution of plausible Jackal dynamics.
+The simulation runs at $\Delta t=0.1\,\mathrm{s}$. The robot is approximated by a circular footprint of radius $r_{\mathrm{rob}}=0.27\,\mathrm{m}$, with a pre-defined safety margin of $r_{\mathrm{safe}}=0.18\,\mathrm{m}$. Training trajectories were generated using a higher-fidelity differential-drive simulation, which contains dynamics that are not represented in a nominal model. The simulated effects included motor lag, payload-dependent inertia, one- or two-step command delay, spatially varying terrain traction, asymmetric wheel slip, lateral slip, external longitudinal disturbance, and process noise. The relevant parameters were randomized independently between episodes so that the learned transition represented a distribution of plausible Jackal dynamics.
 
 The training set contained 128 simulated episodes of 100 transitions each. Commands were held constant for 5 simulation steps to produce piecewise-smooth but persistently exciting trajectories. Linear-velocity commands covered approximately the feasible ranges. Each episode began at the origin with a yaw angle sampled uniformly from \([-\pi,\pi]\). Episodes were divided into training, validation, and test subsets using an approximately 80/10/10 split. The LatentSSMFlow was trained with a history length of $H=5$ and a prediction horizon of $H=10$. 
 
-Besides the in-domain evaluation, generalization was also evaluated without retraining on four held-out \ac{OOD} plants. The in-domain plant used parameter values within the training ranges, whereas the OOD cases introduced an excessive command delay, a substantially heavier payload, previously unseen lateral and yaw disturbances, or a simultaneous combination of low traction, severe slip, delay, payload, and external disturbances.
+Besides the in-domain evaluation, generalization was also evaluated without retraining on four \ac{OOD} plants. The in-domain plant used parameter values within the training ranges, whereas the OOD cases introduced an excessive command delay, a substantially heavier payload, previously unseen lateral and yaw disturbances, or a simultaneous combination of low traction, severe slip, delay, payload, and external disturbances.
 
-\paragraph{Open-Loop Reconstruction}
-Figure~\ref{fig:latentssmflow_open_loop_reconstruction} shows an open-loop reconstruction of the trained LatentSSMFlow on different simulation datasets. The reconstruction is evaluated on the in-domain reference plant and four OOD plants and compared with the nomial model. For each condition, 12 trajectories of 80 control intervals were generated. The comparison shows that the LatentSSMFlow can more accurately reconstruct the state trajectories compared with the nomial model under both in-domain and OOD conditions, except for the crosswind case. The computational time is more than 250 times longer than that of the nominal model under same deployment settings.
+\paragraph{Open-Loop Dynamics Modeling}
+Figure~\ref{fig:latentssmflow_open_loop_reconstruction} shows an open-loop reconstruction of the trained LatentSSMFlow on different simulation datasets. The reconstruction is evaluated on the in-domain reference plant and four OOD plants and compared with the nomial model. For each condition, 12 trajectories of 80 control intervals were generated. The comparison shows that the LatentSSMFlow can more accurately reconstruct the state trajectories compared with the nomial model under both in-domain and OOD conditions, except for the crosswind case. The computational time is more than 100 times longer than that of the nominal model under same deployment settings on CPU and improved to 7 times longer on GPU.
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figures/jackal_ood_open_loop_reconstruction.pdf}
-    \caption[LatentSSMFlow Open-Loop Reconstruction]{Open-loop reconstruction of the simulated Jackal dynamics under an in-domain plant and four held-out OOD plant conditions. The OOD cases include long delay, heavy payload, crosswind, and combined extreme disturbances. The position reconstruction errors (RMSE) are compared with the nominal model. The final panel reports the median JIT-compiled deterministic rollout time per transition, measured over batches, horizon, and also repetitions.}
+    \caption[LatentSSMFlow Open-Loop Reconstruction]{Open-loop reconstruction of the simulated Jackal dynamics under an in-domain plant and four OOD plant conditions. The OOD cases include long delay, heavy payload, crosswind, and combined extreme disturbances. The position reconstruction errors (RMSE) are compared with the nominal model. The final panel reports the median JIT-compiled deterministic rollout time per transition, measured over batches, horizon, and also repetitions.}
     \label{fig:latentssmflow_open_loop_reconstruction}
 \end{figure}
 
-\paragraph{Closed-Loop Obstacle Avoidance}
+\paragraph{Closed-Loop Optimal Control}
 The closed-loop task requires the robot to travel from a neighborhood of the origin to the goal $(p_{x,\text{goal}}, p_{y,\text{goal}})=(4.0,0.0)\,\mathrm{m}$. Two circular obstacles are placed at
 \begin{equation}
     \boldsymbol{o}_1=(2.0,0.0),\qquad r_1=0.42\,\mathrm{m},\qquad\boldsymbol{o}_2=(3.0,0.7),\qquad r_2=0.28\,\mathrm{m}.
 \end{equation}
 The first obstacle lies directly between the start and goal and therefore forces the controller to select a path around it. The second obstacle restricts the upper route and makes the choice of avoidance direction sensitive to the initial pose. Collision checking accounts for the robot footprint: a collision occurs when the distance from the robot center to an obstacle boundary is below $0.27\,\mathrm{m}$. A safety violation occurs below the combined robot radius and safety margin, $r_{\mathrm{rob}}+r_{\mathrm{safe}}=0.45\,\mathrm{m}$. The control objective was to track a reference trajectory while avoiding obstacles, with the cost function penalizing deviations from the reference path, control effort, and proximity to obstacles.
 
-Eight closed-loop in-domain episodes were evaluated in Figure~\ref{fig:latentssmflow_cem_comparison_dashboard}. Initial lateral positions alternated between $p_{y}=-0.35\,\mathrm{m}$ and $p_{y}=0.35\,\mathrm{m}$, while the initial yaw varied from $-0.175$ to $0.175\,\mathrm{rad}$. This produced trajectories approaching the obstacle configuration from different initial poses. The trained LatentSSMFlow was compared with a nominal model in a stochastic \ac{MPC} framework using \ac{CEM} for optimization. Both controllers reached the goal in all eight episodes without a collision or safety-margin violation. In terms of computation time, the LatentSSMFlow implementation was approximately 11 times slower than the nominal model.
+Eight closed-loop in-domain episodes were evaluated in Figure~\ref{fig:latentssmflow_cem_comparison_dashboard}. Initial lateral positions alternated between $p_{y}=-0.35\,\mathrm{m}$ and $p_{y}=0.35\,\mathrm{m}$, while the initial yaw varied from $-0.175$ to $0.175\,\mathrm{rad}$. This produced trajectories approaching the obstacle configuration from different initial poses. The trained LatentSSMFlow was compared with a nominal model in a stochastic \ac{MPC} framework using \ac{CEM} for optimization. Both controllers reached the goal in all eight episodes without a collision or safety-margin violation. In terms of computation time, LatentSSMFlow controller requires approximately 11 times more computation time per MPC command and can be improved to 22 times faster than the nominal model controller on CPU.
 
 \begin{figure}[htpb]
 \centering
-\includegraphics[width=0.8\linewidth]{figures/jackal_cem_comparison_dashboard.pdf}
+\includegraphics[width=\linewidth]{figures/jackal_cem_comparison_dashboard.pdf}
 \caption[In-Domain LatentSSMFlow in Stochastic MPC for Obstacle Avoidance]{In-domain closed-loop obstacle avoidance for the simulated Jackal platform. LatentSSMFlow is compared with the nominal model over eight episodes on the same noisy plant. The left panel shows the closed-loop trajectories from initial positions above and below the centerline. Solid red disks represent the physical obstacles, dashed translucent regions indicate the obstacle radii enlarged by the $0.27\,\mathrm{m}$ robot radius and $0.18\,\mathrm{m}$ safety margin, and the green star marks the goal at $(4,0)\,\mathrm{m}$. The upper-right panel reports success, collision-free, and safety-compliant episode fractions. The lower-right panel reports mean computation time per MPC command.}
 \label{fig:latentssmflow_cem_comparison_dashboard}
 \end{figure}
 
-Figure~\ref{fig:jackal_ood_cem_comparison} compares LatentSSMFlow with the nominal model in a stochastic MPC framework using CEM under four OOD plant mismatches. Under the long-delay condition, the LatentSSMFlow controller achieves a success rate of 64\%, compared with 56\% for the nominal-model controller. Neither method collides with an obstacle, although safety-margin violations occur. The heavy-payload and crosswind conditions favor the nominal model, which achieves a 100\% success rate in both cases. In contrast, the LatentSSMFlow controller achieves success rates of 80\% and 96\%, respectively, because some trajectories violate the safety margin. The combined-extreme condition is the most difficult, with both controllers achieving only 50\% success by moving below the obstacles. Nevertheless, the LatentSSMFlow controller produces no collisions or safety-margin violations, whereas nominal-model CEM violates the safety margin in some episodes above the obstacles.
+Figure~\ref{fig:jackal_ood_cem_comparison} compares LatentSSMFlow with the nominal model in a stochastic MPC framework using CEM under four OOD plant mismatches. Each condition comprises 50 episodes initialized above or below the centerline. Under the long-delay condition, the LatentSSMFlow controller achieves a success rate of 64\%, compared with 56\% for the nominal-model controller. Neither method collides with an obstacle, although safety-margin violations occur. The heavy-payload and crosswind conditions favor the nominal model, which achieves a 100\% success rate in both cases. In contrast, the LatentSSMFlow controller achieves success rates of 80\% and 96\%, respectively, because some trajectories violate the safety margin. The combined-extreme condition is the most difficult, with both controllers achieving only 50\% success by moving below the obstacles. Nevertheless, the LatentSSMFlow controller produces no collisions or safety-margin violations, whereas nominal-model CEM violates the safety margin in some episodes above the obstacles.
 
-Across the four conditions, the mean success rates of the two models are comparable: 72.5\% for the LatentSSMFlow controller and 76.5\% for the nominal-model controller. However, computational cost remains an important limitation. Averaged across the four conditions, the LatentSSMFlow controller requires approximately 20 times more computation time per MPC command and twice the compilation time.
+Across the four conditions, the mean success rates of the two models are comparable: 72.5\% for the LatentSSMFlow controller and 76.5\% for the nominal-model controller. However, computational cost remains an important limitation. Averaged across the four conditions, the LatentSSMFlow controller takes more computational time than the nominal model controller, approximately 20 times longer on CPU and 1.5 times longer on GPU.
 
 \begin{figure}[htpb]
 \centering
-\includegraphics[width=0.8\linewidth]{figures/jackal_ood_cem_comparison.pdf}
-\caption[Closed-loop Jackal obstacle avoidance under out-of-distribution dynamics.]{Closed-loop Jackal obstacle avoidance under out-of-distribution dynamics. LatentSSMFlow is compared with the nominal model under four held-out plant conditions: long delay, heavy payload, crosswind, and combined-extreme disturbances. Each condition comprises 50 episodes initialized above or below the centerline. The other settings are the same as the Figure~\ref{fig:latentssmflow_cem_comparison_dashboard}. The lower-middle panel shows mean computation time per MPC command averaged across the four conditions.}
+\includegraphics[width=\linewidth]{figures/jackal_ood_cem_comparison.pdf}
+\caption[Closed-loop Jackal obstacle avoidance under out-of-distribution dynamics.]{Closed-loop Jackal obstacle avoidance under out-of-distribution dynamics. LatentSSMFlow is compared with the nominal model under four plant conditions: long delay, heavy payload, crosswind, and combined-extreme disturbances. The experimental settings are the same as the in-domain. The lower-middle panel shows mean computation time per MPC command averaged across the four conditions.}
 \label{fig:jackal_ood_cem_comparison}
 \end{figure}
 
@@ -174,7 +174,7 @@ $\boldsymbol{U}_t=(\boldsymbol{u}_t,\ldots,\boldsymbol{u}_{t+H-1})$ over a horiz
 $\delta\boldsymbol{U}_t^{(k)}$, commonly from a zero-mean Gaussian distribution with covariance $\boldsymbol{\Sigma}_u$, and forms the candidate inputs
 \begin{equation}
     \boldsymbol{u}_{t+h}^{(k)}
-    =\Pi_{\boldsymbol{U}}\!\left(
+    =\Pi_{\boldsymbol{U}}\;\left(
     \boldsymbol{u}_{t+h}+\delta\boldsymbol{u}_{t+h}^{(k)}\right),
     \qquad h=0,\ldots,H-1,
 \end{equation}
@@ -213,17 +213,119 @@ The integral form of NormFlowSDE is especially useful here. For each candidate c
 
 \begin{figure}
 \centering
-\includegraphics[width=\linewidth]{figures/NormFlowSDE_MPPI.pdf}
+\includegraphics[width=0.95\linewidth]{figures/NormFlowSDE_MPPI.pdf}
 \caption[NormFlowSDE for MPPI]{NormFlowSDE as the probabilistic surrogate model in MPPI. Perturbed candidate control sequences are integrated through the learned controlled SDE to produce stochastic state trajectories. Their path costs determine importance weights, which update the nominal control sequence before the first input is applied in receding-horizon form.}
 \label{fig:normflowsde_mppi}
 \end{figure}
 
-\subsubsection{Validation with Navigation Task}
+\subsubsection{Validation on a Navigation Task}
+We validate NormFlowSDE within an MPPI framework using a simulated differential-drive robot navigating spatially heterogeneous terrain in MuJoCo \citep{todorov2012mujoco}. The robot comprises a rigid base and two independently actuated wheels separated by a fixed track width. The MuJoCo simulation uses a time step of $2\,\mathrm{ms}$, while control commands are updated every $20\,\mathrm{ms}$. Each command specifies the desired forward and angular velocities:
+\begin{equation}
+   \boldsymbol{u}_t=[v_t^{cmd},\omega_t^{cmd}]^\top,\qquad
+   v_t^{cmd}\in[0,2.2]\,\mathrm{m\,s^{-1}},\quad
+   \omega_t^{cmd}\in[-3,3]\,\mathrm{rad\,s^{-1}}.
+\end{equation}
+The terrain is characterized by a spatially varying friction coefficient defined by the deterministic two-dimensional function:
+\begin{equation}
+\begin{aligned}
+    \mu(x,y)=\text{clip}\;\bigl[&0.72+0.16\bigl(
+    0.55\sin(0.72x)\cos(0.51y)+0.30\sin(1.31y+0.37x) \\
+    &{}+0.15\cos(1.73x-0.44y)\bigr),\,0.48,\,1\bigr].
+\end{aligned}
+\end{equation}
+where $\operatorname{clip}(z,a,b)$ restricts $z$ to the interval $[a,b]$.
 
+After each control interval, stochastic perturbations are applied to the forward and yaw velocities. Their magnitudes increase in low-friction regions and during aggressive combinations of translation and rotation, representing unresolved wheel--ground interactions and slip. The observed state vector is
+\begin{equation}
+    \boldsymbol{x}_t=[p_x,p_y,\theta, v_f,v_l,\omega,\dot\phi_L,\dot\phi_R]^\top,
+\end{equation}
+where $(p_x,p_y)$ denotes the planar position, $\theta$ the heading angle, $v_f$ and $v_l$ the body-frame forward and lateral velocities, $\omega$ the yaw rate, and $\dot\phi_L$ and $\dot\phi_R$ the left- and right-wheel angular velocities, respectively.
 
-\subsection{CondStochInterpolant in DPPO}
-\subsubsection{CondStochInterpolant Policy}
-The CondStochInterpolant control policy generates action chunk based on history observations and current state, as shown in Figure~\ref{fig:condstochinterpolant_control}. At the beginning of environment step $t=0$, the agent retrieves the sliding window of historical observations $O_{...:0}$. A condition network $C_\psi$ embeds these temporal observations into a low-dimensional embedding vector $c$, which provides context information for the generative process of the stochastic interpolant. Unlike the CondStochInterpolant proposed for state estimation, where the inferred coarse trajectory in the latent space provides an informative basis for state estimation, they do not necessarily provide a direct mapping to the action chunk. Thus, the latent space $\mathcal{U}_0$ here is chosen to be a standard Gaussian distribution and is transformed into a high-fidelity action chunk $\mathcal{U}_1$ by numerically integrating the \ac{SDE} from $\tau = 0$ to $\tau = 1$:
+The dataset comprises 300 trajectories, each containing 500 transitions and spanning $10\,\mathrm{s}$. The trajectories are split at the episode level into 210 training, 45 validation, and 45 test episodes, ensuring that transitions from a given rollout appear in only one subset. Each episode starts from a position sampled uniformly within the arena, $[-4,4]\times[-3,3]$, and a heading sampled uniformly from $[-\pi,\pi]$. Data are collected using a proportional waypoint-following controller augmented with temporally correlated random excitation to achieve broad coverage of the state--action space.
+
+\paragraph{Open-Loop Dynamics Modeling}
+NormFlowSDE is trained in two stages. First, the deterministic drift network is fitted by minimizing the mean squared error. The drift and diffusion networks are then optimized jointly using \ac{NLL}, a multiple-shooting continuity objective, and a path-level energy-score loss. Training uses 100-step trajectories spanning $2\,\mathrm{s}$, partitioned into five-step multiple-shooting segments.
+
+Figure~\ref{fig:differential_drive_open_loop} shows the open-loop reconstruction of one test episode. The predictive mean captures the curved planar path and closely follows the reference trajectory. The 90\% predictive intervals generally contain the reference states or remain close to them. These intervals are narrow near the initial condition and gradually widen as uncertainty accumulates through recursive prediction without measurement correction. Despite this accumulation, the model captures the principal temporal variations in the rapidly changing states.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/differential_drive_flowsde_rollout_example.pdf}
+    \caption[Open-loop NormFlowSDE rollout on a differential-drive trajectory]{Open-loop NormFlowSDE rollout for differential-drive test episode 258. The model is integrated for 100 steps ($2\,\mathrm{s}$) using the recorded control sequence. The upper-left panel shows the planar trajectory over the spatially varying friction field. Light-blue curves represent 100 sampled NormFlowSDE trajectories, the solid-blue curve their mean, and the dashed-black curve the MuJoCo reference. The remaining panels show the individual state components; shaded regions denote pointwise empirical 5th--95th percentile intervals.}
+    \label{fig:differential_drive_open_loop}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[t]{0.36\textwidth}
+        \vspace{0pt}
+        We compare the reconstruction accuracy of NormFlowSDE with that of a nonlinear physical baseline defined over the same eight-state representation. Figure~\ref{fig:differential_drive_open_loop_nrmse} reports the normalized RMSE for both models over 45 test episodes. NormFlowSDE yields a lower error for seven of the eight states; forward velocity is the sole exception and has the largest error among the states modeled by NormFlowSDE. The largest reductions relative to the baseline occur for lateral velocity, yaw rate, and right-wheel speed.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.6\textwidth}
+        \vspace{0pt}
+        \centering
+        \includegraphics[width=\linewidth]{figures/differential_drive_open_loop_nrmse_comparison_barplot.pdf}
+        \caption[Open-loop state-reconstruction accuracy]{Open-loop state-reconstruction accuracy of NormFlowSDE and the nonlinear physical model on 45 test differential-drive episodes, each spanning 100 steps ($2\,\mathrm{s}$). Bars report the state-wise normalized RMSE, computed as rollout RMSE divided by the standard deviation of the corresponding target state.}
+        \label{fig:differential_drive_open_loop_nrmse}
+    \end{minipage}
+\end{figure}
+
+\paragraph{Closed-Loop Optimal Control}
+The trained NormFlowSDE is subsequently integrated into an MPPI controller. Figure~\ref{fig:differential_drive_closed_loop} presents the resulting trajectories for three closed-loop navigation tasks, each comprising four waypoints. Both controllers use 256 candidates, three MPPI refinement iterations, and a 100-step ($2\,\mathrm{s}$) prediction horizon. The temperature parameter $\lambda$ in Equation~\ref{eq:normflowsde_mppi_weights} is 0.35.
+
+For the NormFlowSDE controller, the perturbations in Equation~\ref{eq:normflowsde_mppi_update} are sampled as
+\begin{equation}
+    \delta\boldsymbol{u}_{t+h}^{(k)}\sim
+    \mathcal{N}\,\left(\boldsymbol{0},\boldsymbol{\Sigma}_{u,\mathrm{NF}}\right),
+    \qquad
+    \boldsymbol{\Sigma}_{u,\mathrm{NF}}=
+    \begin{bmatrix}0.75^2&0\\0&1.4^2\end{bmatrix}.
+\end{equation}
+The physical-model controller applies slightly different control perturbations:
+\begin{equation}
+    \delta\boldsymbol{u}_{t+h}^{(k)}\sim
+    \mathcal{N}\,\left(\boldsymbol{0},\boldsymbol{\Sigma}_{u,\mathrm{physical}}\right),
+    \qquad
+    \boldsymbol{\Sigma}_{u,\mathrm{physical}}=
+    \begin{bmatrix}0.7^2&0\\0&1.5^2\end{bmatrix}.
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[t]{0.4\textwidth}
+        \vspace{0pt}
+        All three trajectories complete their respective waypoint sequences while remaining within the workspace. The paths deviate substantially from the straight lines connecting successive waypoints because the differential-drive robot cannot move laterally and must instead execute broad, smooth turns. The trajectories also traverse regions with markedly different friction. Task~1, for example, passes through the low-friction region near $(-2,-0.5)$, whereas Tasks~0 and~2 cross higher-friction regions near the center and right side of the map. The controller remains stable through these changes in terrain and consistently redirects the robot toward each subsequent waypoint. These results indicate that NormFlowSDE provides sufficiently accurate predictions for MPPI control under spatially heterogeneous traction.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.57\textwidth}
+        \vspace{0pt}
+        \centering
+        \includegraphics[width=\textwidth]{figures/differential_drive_flowsde_closed_loop_navigation.pdf}
+        \caption[Closed-loop differential-drive navigation]{Closed-loop differential-drive navigation using NormFlowSDE-based \ac{MPPI} control on spatially heterogeneous terrain. The three tasks are distinguished by color. The background heatmap represents the local friction coefficient, which ranges approximately from $0.56$ to $0.86$ over the displayed workspace. Stars connected by dashed lines denote the waypoint sequences, circles mark the initial positions, and solid curves show the closed-loop trajectories.}
+        \label{fig:differential_drive_closed_loop}
+    \end{minipage}
+\end{figure}
+
+\begin{table}[htbp]
+    \centering
+    \caption[Closed-loop differential-drive performance]{Mean closed-loop navigation performance over the three differential-drive tasks.}
+    \label{tab:differential_drive_closed_loop_performance}
+    \small
+    \centering
+    \begin{tabular}{lrrrr}
+        \toprule
+        Controller & Mean steps & Nav. time (s) & Final distance (m) & Planning (ms) \\
+        \midrule
+        NormFlowSDE + MPPI     & 3808.0 & 76.16 & 0.348 & 123.04 \\
+        Nonlinear model + MPPI & 3220.7 & 64.41 & 0.347 &  54.33 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Table~\ref{tab:differential_drive_closed_loop_performance} summarizes the closed-loop results averaged over the three tasks. Both controllers complete all four waypoints in each task and terminate at nearly identical distances from the final waypoint. The NormFlowSDE-based controller requires 18.2\% more control steps on average, resulting in a correspondingly longer navigation time. A plausible explanation is that its broader predictive distribution induces more conservative or oscillatory steering near the waypoints; however, the present experiment does not isolate the cause of this behavior. Its mean planning time is 2.3 times that of the nonlinear-model baseline. NormFlowSDE was evaluated on an A30 GPU, whereas the physical model ran on a four-core CPU. The timing result therefore describes these specific implementations and should not be interpreted as an architecture-independent comparison of computational efficiency.
+
+\subsection{CondStochInt in DPPO}
+\subsubsection{CondStochInt Policy}
+The CondStochInt control policy generates action chunk based on history observations and current state, as shown in Figure~\ref{fig:CondStochInt_control}. At the beginning of environment step $t=0$, the agent retrieves the sliding window of historical observations $O_{...:0}$. A condition network $C_\psi$ embeds these temporal observations into a low-dimensional embedding vector $c$, which provides context information for the generative process of the stochastic interpolant. Unlike the CondStochInt proposed for state estimation, where the inferred coarse trajectory in the latent space provides an informative basis for state estimation, they do not necessarily provide a direct mapping to the action chunk. Thus, the latent space $\mathcal{U}_0$ here is chosen to be a standard Gaussian distribution and is transformed into a high-fidelity action chunk $\mathcal{U}_1$ by numerically integrating the \ac{SDE} from $\tau = 0$ to $\tau = 1$:
 \begin{equation}
     d\mathcal{U}_\tau = \left[ v_\varphi(\mathcal{U}_\tau, \tau; c) + g_0^2 S_\phi(\mathcal{U}_\tau, \tau; c) \right] d\tau + g_0 \sqrt{2\sigma_\tau} dW_\tau.
 \end{equation}
@@ -233,16 +335,16 @@ The agent generates an action chunk $a_{0:H-1}$ in closed loop. Taking the actio
 \begin{figure}
 \centering
 \includegraphics[width=\linewidth]{figures/CondStochInterpolant_Control.pdf}
-\caption[CondStochInterpolant for Control]{Closed-loop reinforcement learning agent utilizing a Conditional Stochastic Interpolant policy for action chunk generation. At timestep $t=1$, the policy processes past observation history $O_{...:0}$ and the condition network $C_\psi$ maps these conditions to a context embedding $c$. The policy integrates an \ac{SDE} from an initial state $\mathcal{U}_0$, which samples a standard Gaussian distribution. The \ac{SDE} is driven by a velocity network $v_\varphi$ and a score network $S_\phi$. Both networks are conditioned on the context embedding $c$. At flow time $\tau=1$, the integrated trajectory yields the final, smooth action chunk $a_{1:H}$, which is then executed in the environment.}
-\label{fig:condstochinterpolant_control}
+\caption[CondStochInt for Control]{Closed-loop reinforcement learning agent utilizing a Conditional Stochastic Interpolant policy for action chunk generation. At timestep $t=1$, the policy processes past observation history $O_{...:0}$ and the condition network $C_\psi$ maps these conditions to a context embedding $c$. The policy integrates an \ac{SDE} from an initial state $\mathcal{U}_0$, which samples a standard Gaussian distribution. The \ac{SDE} is driven by a velocity network $v_\varphi$ and a score network $S_\phi$. Both networks are conditioned on the context embedding $c$. At flow time $\tau=1$, the integrated trajectory yields the final, smooth action chunk $a_{1:H}$, which is then executed in the environment.}
+\label{fig:CondStochInt_control}
 \end{figure}
 
 \subsubsection{Diffusion Policy Policy Optimization}
-\ac{DPPO} is an on-policy reinforcement-learning framework for fine-tuning diffusion-based control policies that have been pretrained from expert demonstrations \cite{ren2024diffusionpolicypolicyoptimization}. It combines the expressive action distribution of a diffusion policy with policy-gradient optimization, such as \ac{PPO} \citep{schulman2017proximalpolicyoptimizationalgorithms}. In order to use the \ac{PPO}, the likelihood of an action under the policy needs to be computed. It's easy for a simple Gaussian policy, but a diffusion policy generates actions through a multi-step denoising process, causing the likelihood calculation intractable. Therefore, the iterative denoising process is interpreted as an inner \ac{MDP}, where each step of this reverse-diffusion chain has an explicit Gaussian likelihood and can be used in \ac{PPO},while the interaction between the generated actions and the physical environment constitutes an outer \ac{MDP}. 
+\ac{DPPO} is an on-policy reinforcement-learning framework for fine-tuning diffusion-based control policies that have been pre-trained from expert demonstrations \cite{ren2024diffusionpolicypolicyoptimization}. It combines the expressive action distribution of a diffusion policy with policy-gradient optimization, such as \ac{PPO} \citep{schulman2017proximalpolicyoptimizationalgorithms}. In order to use the \ac{PPO}, the likelihood of an action under the policy needs to be computed. It's easy for a simple Gaussian policy, but a diffusion policy generates actions through a multi-step denoising process, causing the likelihood calculation intractable. Therefore, the iterative denoising process is interpreted as an inner \ac{MDP}, where each step of this reverse-diffusion chain has an explicit Gaussian likelihood and can be used in \ac{PPO},while the interaction between the generated actions and the physical environment constitutes an outer \ac{MDP}. 
 
 The conceptual idea of the \ac{DPPO} is to formulate diffusion-model sampling as a sequential decision-making process and optimizes the denoising transitions using a terminal reward \cite{black2024trainingdiffusionmodelsreinforcement}. Unlike a unimodal Gaussian policy, a diffusion policy can represent complex and multimodal conditional action distributions. This property is useful in contact-rich manipulation because several coordinated action sequences may constitute valid solutions for the same task state. \cite{ren2024diffusionpolicypolicyoptimization}.
 
-Before \ac{RL} training, the diffusion policy is pretrained on expert demonstrations through \ac{BC}. \ac{BC} is a supervised imitation learning approach that learns a policy by mimicking expert demonstrations without interaction with the environment. The objective is to reproduce the conditional distribution of expert action chunks, i.e.,$p_\varphi(a_{0:H-1}| s_{1:H})$. BC provides an important initialization for DPPO. \ac{RL} fine-tuning can then improve the policy further, compensate for imperfections or limited coverage in the demonstrations, and adapt it to states induced by its own closed-loop behavior.
+Before \ac{RL} training, the diffusion policy is pre-trained on expert demonstrations through \ac{BC}. \ac{BC} is a supervised imitation learning approach that learns a policy by mimicking expert demonstrations without interaction with the environment. The objective is to reproduce the conditional distribution of expert action chunks, i.e.,$p_\varphi(a_{0:H-1}| s_{1:H})$. BC provides an important initialization for DPPO. \ac{RL} fine-tuning can then improve the policy further, compensate for imperfections or limited coverage in the demonstrations, and adapt it to states induced by its own closed-loop behavior.
 
 The policy is optimized using \ac{PPO}, which maximizes a clipped surrogate objective that constrains the probability ratio between the updated and previous policy:
 \begin{equation}
@@ -259,30 +361,27 @@ where $\hat{A}$ is an estimate of the advantage function \citep{schulman2018high
 where $k$ is the diffusion step. By reindexing each denoising step as a transition in an inner MDP nested within the outer MDP interacting with the environment, one total update step unrolls into $K$ such inner transitions, yielding a single combined chain.
 
 \subsubsection{Validation with Robotic Manipulation Task}
-Dexterous manipulation tasks are quite suitable to validate the diffusion policies because of the contact-rich and the multi-modal nature of the tasks. We compare the CondStochInterpolant with \ac{DDPM} as diffusion policies in a door-opening task, taking the environment "AdroitHandDoor-v2" from Gymnasium-Robotics \citep{gymnasium_robotics2023github, rajeswaran2018learning}. The environment provides a simulated robotic hand with 24 degrees of freedom, including 20 joint angles for the fingers and 4 for the palm. The state space includes the joint angles, joint velocities, and the position and orientation of the door handle and are in total 39-dimensional. The policies are supposed to control a 28-dimensional continuous action vector. 
+Dexterous manipulation tasks are quite suitable to validate the diffusion policies because of the contact-rich and the multi-modal nature of the tasks. We compare the CondStochInt with \ac{DDPM} as diffusion policies in a door-opening task, taking the environment "AdroitHandDoor-v2" from Gymnasium-Robotics \citep{gymnasium_robotics2023github, rajeswaran2018learning}. The environment provides a simulated robotic hand with 24 degrees of freedom, including 20 joint angles for the fingers and 4 for the palm. The state space includes the joint angles, joint velocities, and the position and orientation of the door handle and are in total 39-dimensional. The policies are supposed to control a 28-dimensional continuous action vector. 
 
 Episodes are limited to 300 primitive environment steps. The dense reward supplied by the environment is used for both policy optimization and evaluation. A rollout is considered successful if the environment’s success entry becomes true at any point during the episode. THe length of generated action chunk is set to $H=4$ steps, taking one-step history because of the Markovian behavior. All four actions are executed before the policy replans, unless the episode terminates earlier. Consequently, one outer policy transition  corresponds to four primitive environment transitions. The rewards obtained from these four transitions are summed to form the reward for one outer-MDP transition.
 
-\paragraph{Behavior Cloning Pretraining}
-Both policies are first pretrained by behavior cloning on the same demonstrations derived from the D4RL "door-expert-v2" dataset \citep{fu2020d4rl}. The prepared dataset contains 100 expert trajectories and 20,000 primitive transitions. We split them into 80\% for training and 20\% for validation. 
+\paragraph{Behavior Cloning Pre-training}
+Both policies are first pre-trained by behavior cloning on the same demonstrations derived from the D4RL "door-expert-v2" dataset \citep{fu2020d4rl}. The prepared dataset contains 100 expert trajectories and 20,000 primitive transitions. We split them into 80\% for training and 20\% for validation. 
 
-Four configurations of the CondStochInterpolant are evaluated: 
+Four policies are evaluated under the same conditions: 
 \begin{enumerate}
-    \item With an analytical score network (CSI-analytic-SDE): the score network (Equation~\ref{eq:conditional_stochastic_interpolant_general},\ref{eq:csi_linear_path}) is derived by \citep{albergo2025si}:
-    \begin{equation}
-        S_\phi(\mathcal{U}_\tau, \tau; c) = -\frac{\dot{\beta}(\tau)\mathcal{U}_\tau-\beta(\tau)v_\varphi(\mathcal{U}_\tau, \tau; c)}{\sigma(\tau)[\dot{\beta}(\tau)\sigma(\tau)-\beta(\tau)\dot{\sigma}_\tau]}.
-    \end{equation}
-    \item Without stochastic term (CSI-analytic-ODE): The stochastic term is removed from the CSI-analytic-SDE without retraining, resulting in a deterministic ODE.
-    \item With a learned score (CSI-learned-SDE): the score network is trained as it in \ac{SBM}, together with a velocity network.
-    \item With a hybrid score (CSI-hybrid-SDE): the score network is a weighted sum of the above analytical score and the learned score with a ratio of $10:1$.
+    \item CSI: both velocity and score networks are learned.
+    \item FM: only velocity network is learned, and there is no stochastic term.
+    \item SBM: the score network is learned, and there is no learned deterministic term.
+    \item DDPM: discrete diffusion model is applied.
 \end{enumerate}
 
-The four configurations are compared with a \ac{DDPM} policy, as shown in Figure~\ref{fig:door_score_ablation}. All methods take $20$ Euler–Maruyama integration steps. Three seeds are used for different network initialization and thus produced different network parameters. Each policy was evaluated for 50 episodes per training seed using the same environment-reset seeds. No stochastic inference is calculated for comparing the pretraining results. CSI-analytic-SDE achieves the highest mean success rate and return, closely matching DDPM and outperforming the ODE sampling. The hybrid configuration produced the lowest success rate and return, which is worse than the fully learned configuration. Besides, the error bars also indicate that applying an analytical score function is more robust than the learned residual formulation.
+The four policies are configurated similarly with approximatedly same number of network parameters. All methods take $20$ Euler–Maruyama integration steps during inference. Three seeds are used for different network initialization and thus produced different network parameters. Each policy was evaluated for 50 episodes per training seed using the same environment-reset seeds. No stochastic inference is calculated for comparing the pre-training results. Figure~\ref{fig:door_score_ablation} shows the success rate and return after \c{BC} pre-training. 
 
 \begin{figure}
 \centering
-\includegraphics[width=0.8\textwidth]{figures/door_score_ablation.pdf}
-\caption[Behavior-cloning score ablation on the Adroit Door task]{Behavior-cloning score ablation on the Adroit Door task. Mean success rate (left) and dense episode return (right) are shown for four CondStochInterpolant configurations and the DDPM baseline. Each bar reports the mean over three independently trained behavior-cloning seeds, and error bars denote one standard deviation across seed-level evaluation means.}
+\includegraphics[width=0.8\textwidth]{figures/door_dppo_csi_ddpm_pretraining_comparison.pdf}
+\caption[Behavior-cloning score ablation on the Adroit Door task]{Behavior-cloning score ablation on the Adroit Door task. Mean success rate (left) and dense episode return (right) are shown for four CondStochInt configurations and the DDPM baseline. Each bar reports the mean over three independently trained behavior-cloning seeds, and error bars denote one standard deviation across seed-level evaluation means.}
 \label{fig:door_score_ablation}
 \end{figure}
 

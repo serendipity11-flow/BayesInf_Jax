@@ -1,4 +1,4 @@
-\begin{thebibliography}{214}
+\begin{thebibliography}{215}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -1121,6 +1121,11 @@ Timur Takhtaganov and Juliane Müller.
 Denis Tarasov, Alexander Nikulin, Ilya Zisman, Albina Klepach, Nikita Lyubaykin, Andrei Polubarov, Alexander Derevyagin, and Vladislav Kurenkov.
 \newblock Nina: Normalizing flows in action. training vla models with normalizing flows, 2025.
 \newblock URL \url{https://arxiv.org/abs/2508.16845}.
+
+\bibitem[Todorov et~al.(2012)Todorov, Erez, and Tassa]{todorov2012mujoco}
+Emanuel Todorov, Tom Erez, and Yuval Tassa.
+\newblock Mujoco: A physics engine for model-based control.
+\newblock In \emph{2012 IEEE/RSJ international conference on intelligent robots and systems}, pages 5026--5033. IEEE, 2012.
 
 \bibitem[Tune et~al.(2025)Tune, Kooiker, Davis, Daniel, and Moussavi-Harami]{TUNE2025179}
 Travis Tune, Kristina~B. Kooiker, Jennifer Davis, Thomas Daniel, and Farid Moussavi-Harami.

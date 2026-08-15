@@ -1,7 +1,0 @@
-{
-  "episodes": 500,
-  "steps": 300,
-  "state_dim": 8,
-  "action_dim": 2,
-  "seed": 0
-}

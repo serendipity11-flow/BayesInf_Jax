@@ -92,6 +92,32 @@ reset-observation-support, reward, or `info["success"]` incompatibilities.
 
 ### Matched Door pipeline
 
+For the four-way, DDPM-controlled comparison requested here, use:
+
+```bash
+bash experiments/cond_stoch_interpolant_dppo/submit_door_matched.sh
+```
+
+This submits FM, learned-score CSI, and SBM pretraining followed by fine-tuning;
+the already completed DDPM runs remain the baseline. All four use the same Door
+data, three seeds, one observation-history step, action horizon 4, 100,000 BC
+updates, and 20 generative integration steps. Fine-tuning uses the baseline
+DPPO settings (301 iterations, 40 environments, 70 rollout chunks, and 10 PPO
+epochs). The model roles are deliberately disjoint:
+
+* FM has an MLP encoder and velocity model, with no score model. Fixed Gaussian
+  transition noise is used only as PPO exploration; deterministic evaluation
+  integrates the velocity ODE.
+* CSI has separate learned velocity and score networks. Its encoder+velocity
+  side has 95,804 parameters and its score side has 117,216 (213,020 total).
+* SBM has one MLP-conditioned score/noise model and no velocity model.
+* DDPM is the 211,904-parameter baseline.
+
+The corresponding FM and SBM counts are 202,428 and 219,312. Thus each total
+is within 5% of DDPM, while the two CSI sides are approximately half of the
+baseline. Every saved checkpoint contains `parameter_count.json`, including
+component counts and the integration-step count.
+
 Submit the complete three-seed comparison as one dependency chain:
 
 ```bash

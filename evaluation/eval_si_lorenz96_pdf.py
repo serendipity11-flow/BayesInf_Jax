@@ -13,6 +13,7 @@ Example:
 """
 
 import argparse
+import csv
 import os
 import sys
 
@@ -103,6 +104,8 @@ def parse_args():
                         help="Output figure extension")
     parser.add_argument("--verbose", action="store_true",
                         help="Print progress messages")
+    parser.add_argument("--metrics_path", type=str, default=None,
+                        help="Optional CSV path for aggregate evaluation metrics")
     parser.add_argument("--obs_noise_type", type=str, default="gmm",
                         choices=("gaussian", "student_t", "gmm"))
     parser.add_argument("--obs_df", type=float, default=5.0,
@@ -329,7 +332,51 @@ def main():
     rmse_all = float(np.mean(np.sqrt(np.mean((x_true - post_mean) ** 2, axis=(1, 2)))))
     rmse_obs = float(np.sqrt(np.mean((x_true[:, :, obs_idx] - post_mean[:, :, obs_idx]) ** 2)))
     rmse_unobs = float(np.sqrt(np.mean((x_true[:, :, unobs_idx] - post_mean[:, :, unobs_idx]) ** 2))) if len(unobs_idx) else float("nan")
+    mae_all = float(np.mean(np.abs(x_true - post_mean)))
     coverage = float(np.mean((x_true >= lo) & (x_true <= hi)))
+    coverage_obs = float(np.mean(
+        (x_true[:, :, obs_idx] >= lo[:, :, obs_idx])
+        & (x_true[:, :, obs_idx] <= hi[:, :, obs_idx])
+    ))
+    coverage_unobs = float(np.mean(
+        (x_true[:, :, unobs_idx] >= lo[:, :, unobs_idx])
+        & (x_true[:, :, unobs_idx] <= hi[:, :, unobs_idx])
+    )) if len(unobs_idx) else float("nan")
+    ci_width = hi - lo
+    mciw = float(np.mean(ci_width))
+    mciw_obs = float(np.mean(ci_width[:, :, obs_idx]))
+    mciw_unobs = float(np.mean(ci_width[:, :, unobs_idx])) if len(unobs_idx) else float("nan")
+
+    if args.metrics_path is not None:
+        metrics_dir = os.path.dirname(os.path.abspath(args.metrics_path))
+        os.makedirs(metrics_dir, exist_ok=True)
+        metrics = {
+            "sigma_0": args.sigma_0,
+            "g0": args.g0,
+            "score_weight": args.score_weight,
+            "seg_len_train": args.seg_len,
+            "seg_len_eval": args.seg_len_eval,
+            "n_eval": n_eval,
+            "n_particles": args.n_particles,
+            "n_steps": args.n_steps,
+            "rmse_all": rmse_all,
+            "rmse_obs": rmse_obs,
+            "rmse_unobs": rmse_unobs,
+            "mae_all": mae_all,
+            "coverage_all": coverage,
+            "coverage_obs": coverage_obs,
+            "coverage_unobs": coverage_unobs,
+            "mciw_all": mciw,
+            "mciw_obs": mciw_obs,
+            "mciw_unobs": mciw_unobs,
+            "checkpoint": os.path.abspath(args.ckpt_path),
+        }
+        with open(args.metrics_path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=metrics.keys())
+            writer.writeheader()
+            writer.writerow(metrics)
+        if args.verbose:
+            print("Saved metrics:", args.metrics_path)
 
     configure_matplotlib(args.font_scale)
     traj_fs = trajectory_font_sizes(args.font_scale)
@@ -470,7 +517,7 @@ def main():
     lo_m, hi_m = np.percentile(np.concatenate([y_data, y_pred]), [0.5, 99.5])
     bins_m = np.linspace(lo_m, hi_m, 70)
     ax.hist(y_data, bins=bins_m, density=True, alpha=0.55, color="steelblue",
-            label="Data $y_{\rm test}$")
+            label=r"Data $y_{\rm test}$")
     ax.hist(y_pred, bins=bins_m, density=True, alpha=0.55, color="darkorange",
             label="Posterior predictive $\hat{y}$")
     ax.set_xlabel("Observation value")

@@ -9,10 +9,19 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams.update({
+    "font.size": 14,
+    "axes.titlesize": 16,
+    "axes.labelsize": 15,
+    "xtick.labelsize": 13,
+    "ytick.labelsize": 13,
+    "legend.fontsize": 13,
+})
+
 
 DISPLAY = {
     "learned_latent_ssm_flow_cem": "LatentSSMFlow CEM",
-    "exact_simulator_cem": "Exact-model CEM",
+    "exact_simulator_cem": "Nominal-model CEM",
 }
 COLORS = {
     "learned_latent_ssm_flow_cem": "#2878B5",
@@ -20,18 +29,19 @@ COLORS = {
 }
 
 
-def run(result_dir: Path, output: Path):
+def run(result_dir: Path, output: Path, cpu_result_dir: Path | None = None):
     summary = json.loads(
         (result_dir / "jackal_cem_comparison.json").read_text()
     )
     trajectories = np.load(result_dir / "jackal_cem_trajectories.npz")
     names = list(summary["closed_loop"])
     figure = plt.figure(figsize=(13.5, 8))
-    grid = figure.add_gridspec(2, 2, width_ratios=(1.45, 1.0),
-                               hspace=0.34, wspace=0.27)
-    trajectory_axis = figure.add_subplot(grid[:, 0])
-    performance_axis = figure.add_subplot(grid[0, 1])
-    runtime_axis = figure.add_subplot(grid[1, 1])
+    grid = figure.add_gridspec(
+        8, 2, width_ratios=(1.45, 1.0), hspace=0.2, wspace=0.2,
+    )
+    trajectory_axis = figure.add_subplot(grid[0:7, 0])
+    performance_axis = figure.add_subplot(grid[0:3, 1])
+    runtime_axis = figure.add_subplot(grid[4:7, 1])
 
     for name in names:
         prefix = f"{name}_episode_"
@@ -69,10 +79,10 @@ def run(result_dir: Path, output: Path):
     )
     trajectory_axis.set_aspect("equal")
     trajectory_axis.grid(alpha=0.25)
-    trajectory_axis.legend(loc="upper left", fontsize=9)
+    trajectory_axis.legend(loc="upper left", fontsize=14)
 
     closed = summary["closed_loop"]
-    metric_names = ["Success", "Collision-free", "Safety-compliant"]
+    metric_names = ["Success", "Collision-\nfree", "Safety-\ncompliant"]
     x_positions = np.arange(len(metric_names))
     width = 0.34
     for index, name in enumerate(names):
@@ -87,42 +97,58 @@ def run(result_dir: Path, output: Path):
         )
         performance_axis.bar_label(
             bars, labels=[f"{100 * value:.0f}%" for value in values],
-            padding=2, fontsize=9,
+            padding=0, fontsize=11, label_type="center", color="white",
+            fontweight="bold",
         )
     performance_axis.set_xticks(x_positions, metric_names)
     performance_axis.set_ylim(0, 1.15)
     performance_axis.set_ylabel("Episode fraction")
-    performance_axis.set_title("Task and safety outcomes (8 episodes)")
+    episodes = closed[names[0]]["episodes"]
+    performance_axis.set_title(f"Task and safety outcomes ({episodes} episodes)")
     performance_axis.grid(axis="y", alpha=0.25)
-    performance_axis.legend(fontsize=9, loc="lower center")
+    performance_axis.legend(fontsize=12, loc="lower center")
 
-    runtimes = [closed[name]["mean_command_time_s"] for name in names]
+    if cpu_result_dir is None:
+        cpu_result_dir = result_dir
+    cpu_summary = json.loads(
+        (cpu_result_dir / "jackal_cem_comparison.json").read_text()
+    )
+    runtimes = [
+        cpu_summary["closed_loop"]["learned_latent_ssm_flow_cem"]["mean_command_time_s"],
+        closed["learned_latent_ssm_flow_cem"]["mean_command_time_s"],
+        cpu_summary["closed_loop"]["exact_simulator_cem"]["mean_command_time_s"],
+    ]
+    runtime_labels = ["LSSMFlow\nCPU", "LSSMFlow\nGPU", "Nominal\nCPU"]
     bars = runtime_axis.bar(
-        [DISPLAY[name] for name in names], runtimes,
-        color=[COLORS[name] for name in names], width=0.6,
+        runtime_labels, runtimes,
+        color=["#6BAED6", "#2878B5", "#F28E2B"], width=0.68,
     )
     runtime_axis.bar_label(
-        bars, labels=[f"{value:.2f} s" for value in runtimes], padding=3
+        bars, labels=[f"{value:.3g} s" for value in runtimes], padding=3,
+        fontsize=14,
     )
-    runtime_axis.set_ylabel("Mean time per MPC command [s]")
-    runtime_axis.set_title("CPU computation cost (lower is better)")
-    runtime_axis.grid(axis="y", alpha=0.25)
-    speed_ratio = runtimes[0] / runtimes[1]
-    runtime_axis.text(
-        0.5, 0.78, f"Learned rollout is {speed_ratio:.1f}× slower",
-        transform=runtime_axis.transAxes, ha="center", fontsize=10,
-        bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-    )
+    runtime_axis.set_ylabel("Time per MPC command [s]")
+    runtime_axis.set_title("CEM computation time (lower is better)")
+    runtime_axis.set_yscale("log")
+    runtime_axis.tick_params(axis="x", labelsize=12)
+    runtime_axis.set_ylim(min(runtimes) * 0.45, max(runtimes) * 2.3)
+    runtime_axis.grid(axis="y", which="both", alpha=0.25)
 
-    learned_open = summary["open_loop"]["learned_latent_ssm_flow"]
-    figure.suptitle(
-        "Jackal obstacle avoidance: LatentSSMFlow vs exact-model stochastic CEM\n"
-        f"Learned open-loop position RMSE {learned_open['position_rmse_m']:.3f} m, "
-        f"yaw RMSE {learned_open['yaw_rmse_rad']:.3f} rad, "
-        f"90% coverage {100 * summary['open_loop']['learned_position_90pct_coverage']:.1f}%",
-        fontsize=13,
-    )
-    figure.subplots_adjust(top=0.87)
+    figure.subplots_adjust(top=0.96)
+    # The equal-aspect trajectory axis is shorter than its nominal grid cell.
+    # Align the two right-hand axes to its final rendered top and bottom edges.
+    figure.canvas.draw()
+    left_box = trajectory_axis.get_position()
+    performance_box = performance_axis.get_position()
+    gap = 0.24 * left_box.height
+    panel_height = (left_box.height - gap) / 2
+    runtime_axis.set_position([
+        performance_box.x0, left_box.y0, performance_box.width, panel_height,
+    ])
+    performance_axis.set_position([
+        performance_box.x0, left_box.y0 + panel_height + gap,
+        performance_box.width, panel_height,
+    ])
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=200, bbox_inches="tight")
     plt.close(figure)
@@ -132,6 +158,7 @@ def parser():
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("result_dir", type=Path)
     result.add_argument("--output", type=Path)
+    result.add_argument("--cpu-result-dir", type=Path)
     return result
 
 
@@ -140,4 +167,4 @@ if __name__ == "__main__":
     destination = arguments.output or (
         arguments.result_dir / "jackal_cem_comparison_dashboard.png"
     )
-    run(arguments.result_dir, destination)
+    run(arguments.result_dir, destination, arguments.cpu_result_dir)

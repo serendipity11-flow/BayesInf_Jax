@@ -139,11 +139,6 @@ parser.add_argument("--kl_weight",        type=float, default=1e-3,
                     help="Deprecated; retained for launch-script compatibility.")
 parser.add_argument("--continuity_loss_weight", type=float, default=0.1,
                     help="Weight for adjacent-segment continuity loss")
-parser.add_argument("--init_loss_weight", type=float, default=1.0,
-                    help="Weight for Gaussian NLL of each segment initial state")
-parser.add_argument("--initial_state_mode", choices=("inferred", "provided"),
-                    default="inferred",
-                    help="Infer segment starts from observations or use known states")
 parser.add_argument("--n_realnvp_layers", type=int, default=2,
                     help="Number of affine RealNVP coupling layers")
 parser.add_argument("--realnvp_alpha", type=float, default=1.0,
@@ -228,8 +223,6 @@ if args.exclude_control_from_diffusion:
 if args.experiment_tag:
     safe_tag = args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
     _robust_tag += f"_{safe_tag}"
-if args.initial_state_mode == "inferred" and args.init_loss_weight != 0.0:
-    _robust_tag += f"_iw{args.init_loss_weight:g}"
 if args.use_multiple_shooting and args.seg_length_start != args.seg_length:
     _robust_tag += f"_sched{args.seg_length_start}to{args.seg_length}"
 model_tag = (
@@ -397,14 +390,13 @@ def scheduled_seg_length(epoch: int, horizon: int) -> int:
 @eqx.filter_jit
 def eval_pathwise(model, x, y, key, seg_length, solver_name, use_custom_solver,
                   rollout_loss_weight, kl_weight, continuity_loss_weight,
-                  init_loss_weight, infer_initial, rollout_num_ensemble,
+                  rollout_num_ensemble,
                   rollout_loss_type, rollout_energy_beta,
                   rollout_uncertainty_weight, rollout_window,
                   transition_loss_weight):
     path_loss = model.nll_pathwise(
         x, y, key, seg_length, solver_name, use_custom_solver,
         kl_weight=kl_weight, continuity_weight=continuity_loss_weight,
-        init_loss_weight=init_loss_weight, infer_initial=infer_initial,
     )
     total_loss = path_loss
     if transition_loss_weight != 0.0:
@@ -425,7 +417,7 @@ def eval_pathwise(model, x, y, key, seg_length, solver_name, use_custom_solver,
     if rollout_loss_weight != 0.0:
         rollout_loss = model.rollout_loss(
             x, y, jr.fold_in(key, 29), solver_name, use_custom_solver,
-            infer_initial, rollout_num_ensemble, rollout_loss_type,
+            rollout_num_ensemble, rollout_loss_type,
             rollout_energy_beta, rollout_uncertainty_weight, rollout_window
         )
         total_loss = total_loss + rollout_loss_weight * rollout_loss
@@ -467,12 +459,7 @@ if args.train:
             f" -> {args.seg_length} over {args.seg_length_schedule_epochs} epochs"
         )
         print(f"  Continuity loss weight: {args.continuity_loss_weight}")
-        print(f"  Initial-state loss weight: {args.init_loss_weight}")
-    infer_initial = args.initial_state_mode == "inferred"
-    if infer_initial:
-        print("  Initial state: z0 ~ N(mu_GRU(y_segment), diag(sigma_GRU(y_segment)^2))")
-    else:
-        print("  Initial state: provided ground-truth segment start (inference network bypassed)")
+    print("  Initial state: provided ground-truth segment start")
     if args.shooting_noise_std > 0:
         print(f"  Segment-start noise std: {args.shooting_noise_std}")
     if args.rollout_loss_weight > 0:
@@ -525,7 +512,6 @@ if args.train:
                     args.solver, args.use_custom_solver,
                     args.shooting_noise_std, rollout_weight_step,
                     args.kl_weight, args.continuity_loss_weight,
-                    args.init_loss_weight, infer_initial,
                     args.rollout_num_ensemble, args.rollout_loss_type,
                     args.rollout_energy_beta, args.rollout_uncertainty_weight,
                     args.rollout_window, args.transition_loss_weight,
@@ -545,8 +531,7 @@ if args.train:
                 model, val_data["x"], val_data["y"], k_val,
                 seg, args.solver, args.use_custom_solver,
                 rollout_weight_eval, args.kl_weight,
-                args.continuity_loss_weight, args.init_loss_weight,
-                infer_initial, args.rollout_num_ensemble,
+                args.continuity_loss_weight, args.rollout_num_ensemble,
                 args.rollout_loss_type, args.rollout_energy_beta,
                 args.rollout_uncertainty_weight, args.rollout_window,
                 args.transition_loss_weight,

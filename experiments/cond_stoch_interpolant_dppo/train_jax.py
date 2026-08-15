@@ -19,11 +19,15 @@ import jax.random as jr
 import numpy as np
 
 from bayesinf.applications.optimal_control import (
+    AnalyticScorePolicy,
     CondStochInterpolantPolicy,
     DPPODiffusionPolicy,
     DPPOConfig,
     RolloutBatch,
+    ScoreBasedPolicy,
     ValueCritic,
+    FlowMatchingPolicy,
+    LearnedScorePolicy,
     bc_update,
     dppo_update,
     generalized_advantage_estimate,
@@ -69,16 +73,32 @@ def create_policy(args, key):
             sampling_std_floor=args.sampling_std,
             logprob_std_floor=args.sampling_std,
         )
-    is_sde_v2 = args.policy == "csi_sde"
-    return CondStochInterpolantPolicy(
+    if args.policy == "sbm":
+        return ScoreBasedPolicy(
+            args.obs_dim, args.action_dim, args.horizon, key,
+            cond_steps=args.cond_steps,
+            denoising_steps=args.integration_steps,
+            sampling_std_floor=args.sampling_std,
+            logprob_std_floor=args.sampling_std,
+            context_width=args.sbm_context_width,
+            context_dim=args.context_dim,
+            hidden_size=args.hidden_size,
+            depth=args.depth,
+        )
+    policy_class = {
+        "flow": FlowMatchingPolicy,
+        "analytic": AnalyticScorePolicy,
+        "learned": LearnedScorePolicy,
+    }[args.score_mode]
+    return policy_class(
         args.obs_dim, args.action_dim, args.horizon, key,
         cond_steps=args.cond_steps,
         integration_steps=args.integration_steps,
-        informative_base=False if is_sde_v2 else not args.gaussian_base,
         sigma_0=args.sigma_0,
         sampling_std=args.sampling_std,
         score_sigma_floor=getattr(args, "score_sigma_floor", .02),
         sde_eta=getattr(args, "sde_eta", .05),
+        sde_eta_schedule=getattr(args, "sde_eta_schedule", "fixed"),
         path_loss_weight=getattr(args, "path_loss_weight", 0.0),
         path_loss_steps=getattr(args, "path_loss_steps", 10),
         hidden_size=args.hidden_size,
@@ -86,10 +106,10 @@ def create_policy(args, key):
         time_dim=args.time_dim,
         context_dim=args.context_dim,
         n_heads=args.n_heads,
-        score_head_width=getattr(args, "score_head_width", 0) if is_sde_v2 else 0,
-        score_loss_weight=getattr(args, "score_loss_weight", 0.0) if is_sde_v2 else 0.0,
-        score_correction_scale=getattr(args, "score_correction_scale", .1),
-        sampler_matched_sde=is_sde_v2,
+        score_head_width=getattr(args, "score_head_width", 0),
+        score_loss_weight=getattr(args, "score_loss_weight", 0.0),
+        sampler_matched_sde=args.score_mode != "flow",
+        encoder_type=args.encoder_type,
     )
 
 
@@ -122,6 +142,27 @@ def save_policy(path: Path, policy, args, critic=None, base_policy=None):
     config = {key: value for key, value in vars(args).items()
               if isinstance(value, (str, int, float, bool)) or value is None}
     (path / "config.json").write_text(json.dumps(config, indent=2) + "\n")
+    count = lambda tree: int(sum(
+        leaf.size for leaf in jax.tree_util.tree_leaves(
+            eqx.filter(tree, eqx.is_array)
+        )
+    ))
+    if isinstance(policy, CondStochInterpolantPolicy):
+        groups = {
+            "encoder": count(policy.encoder),
+            "velocity": count(policy.vel_net),
+            "score": 0 if policy.score_net is None else count(policy.score_net),
+        }
+    else:
+        groups = {"score_or_noise": count(policy.network)}
+    report = {
+        "model_parameters": sum(groups.values()),
+        "groups": groups,
+        "integration_steps": policy.nfe,
+    }
+    (path / "parameter_count.json").write_text(
+        json.dumps(report, indent=2) + "\n"
+    )
 
 
 def load_policy(path: Path, args, key):
@@ -148,6 +189,20 @@ def pretrain(args):
     iterator = iter(())
     start = time.perf_counter()
     previous_log_time = start
+    checkpoint_steps = {
+        int(value) for value in args.pretrain_checkpoint_steps.split(",")
+        if value.strip()
+    }
+    invalid_steps = sorted(
+        step for step in checkpoint_steps
+        if step < 1 or step > args.gradient_steps
+    )
+    if invalid_steps:
+        raise ValueError(
+            "pretraining checkpoint steps must lie in [1, gradient_steps]: "
+            f"{invalid_steps}"
+        )
+    best_validation_loss = float("inf")
     for step in range(1, args.gradient_steps + 1):
         try:
             actions, observations = next(iterator)
@@ -163,10 +218,11 @@ def pretrain(args):
             now = time.perf_counter()
             key, val_key = jr.split(key)
             if isinstance(state.policy, CondStochInterpolantPolicy):
-                val_loss, val_velocity_loss, val_path_loss = (
-                    state.policy.loss_components(val_actions, val_states, val_key)
+                val_loss, val_velocity_loss, val_score_loss, val_path_loss = (
+                    state.policy.loss_components_with_score(
+                        val_actions, val_states, val_key
+                    )
                 )
-                val_score_loss = jnp.asarray(jnp.nan)
             else:
                 val_loss = state.policy.loss(val_actions, val_states, val_key)
                 val_velocity_loss = val_score_loss = jnp.asarray(jnp.nan)
@@ -195,6 +251,24 @@ def pretrain(args):
                 flush=True,
             )
             previous_log_time = now
+            current_validation_loss = float(val_loss)
+            if np.isfinite(current_validation_loss) and (
+                current_validation_loss < best_validation_loss
+            ):
+                best_validation_loss = current_validation_loss
+                save_policy(args.output / "best_checkpoint", state.policy, args)
+                (args.output / "best_checkpoint" / "selection.json").write_text(
+                    json.dumps({
+                        "gradient_step": step,
+                        "validation_loss": current_validation_loss,
+                    }, indent=2) + "\n"
+                )
+        if step in checkpoint_steps:
+            snapshot = args.output / "checkpoints" / f"step_{step:06d}" / "checkpoint"
+            save_policy(snapshot, state.policy, args)
+            (snapshot / "selection.json").write_text(
+                json.dumps({"gradient_step": step}, indent=2) + "\n"
+            )
     save_policy(args.output / "checkpoint", state.policy, args)
 
 
@@ -444,13 +518,53 @@ def evaluate(args):
         import gymnasium_robotics
         gym.register_envs(gymnasium_robotics)
     policy = load_policy(args.checkpoint, args, jr.PRNGKey(args.seed))
+    evaluation_nfe = (
+        policy.nfe if args.inference_steps is None else args.inference_steps
+    )
     normalizer = Normalizer(args.data / "normalization.npz")
     kwargs = {}
     if args.max_episode_steps is not None:
         kwargs["max_episode_steps"] = args.max_episode_steps
     env = gym.make(args.env, **kwargs)
+    # Compile the complete generative sampler once. Calling ``policy.sample``
+    # directly leaves JAX to stage many small operations repeatedly throughout
+    # a long MuJoCo rollout; on CPU this eventually exhausted LLVM compiler
+    # memory when several seed evaluations shared a node.
+    sample_policy = eqx.filter_jit(
+        lambda policy_, states_, key_: policy_.sample(
+            states_, key_, deterministic=not args.stochastic_eval,
+            **(
+                {"inference_steps": args.inference_steps}
+                if isinstance(policy_, CondStochInterpolantPolicy)
+                else {}
+            ),
+        )
+    )
     returns, successes, lengths, latencies = [], [], [], []
-    for episode in range(args.eval_episodes):
+    start_episode = 0
+    episodes_path = args.output / "evaluation_episodes.csv"
+    if args.resume_eval and episodes_path.exists():
+        with episodes_path.open(newline="") as handle:
+            previous = list(csv.DictReader(handle))
+        episode_ids = [int(row["episode"]) for row in previous]
+        if episode_ids != list(range(len(previous))):
+            raise ValueError(
+                "resumed evaluation episodes must be contiguous and start at zero"
+            )
+        if len(previous) > args.eval_episodes:
+            raise ValueError("resumed evaluation has more rows than --eval-episodes")
+        for episode, row in enumerate(previous):
+            expected_seed = args.seed + episode
+            if int(row["seed"]) != expected_seed:
+                raise ValueError(
+                    f"episode {episode} has seed {row['seed']}, expected {expected_seed}"
+                )
+            returns.append(float(row["return"]))
+            successes.append(bool(int(row["success"])))
+            lengths.append(int(row["length"]))
+        start_episode = len(previous)
+        print(f"resuming evaluation at episode {start_episode}", flush=True)
+    for episode in range(start_episode, args.eval_episodes):
         observation, _ = env.reset(seed=args.seed + episode)
         history = [normalizer.observation(observation)] * args.cond_steps
         episode_return, episode_success, episode_length = 0.0, False, 0
@@ -460,9 +574,7 @@ def evaluate(args):
             state = jnp.asarray(np.stack(history)[None])
             eval_key, sample_key = jr.split(eval_key)
             start = time.perf_counter()
-            sample = policy.sample(
-                state, sample_key, deterministic=True
-            )
+            sample = sample_policy(policy, state, sample_key)
             jax.block_until_ready(sample.actions)
             latencies.append(1e3 * (time.perf_counter() - start))
             for action_step in range(args.execution_horizon):
@@ -480,7 +592,7 @@ def evaluate(args):
         append_csv(args.output / "evaluation_episodes.csv", {
             "episode": episode, "return": episode_return,
             "success": int(episode_success), "length": episode_length,
-            "seed": args.seed + episode, "nfe": policy.nfe,
+            "seed": args.seed + episode, "nfe": evaluation_nfe,
         })
     summary = {
         "episodes": args.eval_episodes,
@@ -490,8 +602,9 @@ def evaluate(args):
         "length_mean": float(np.mean(lengths)),
         "latency_ms_mean": float(np.mean(latencies[1:] or latencies)),
         "latency_ms_std": float(np.std(latencies[1:] or latencies)),
-        "nfe": policy.nfe,
-        "deterministic": True,
+        "nfe": evaluation_nfe,
+        "deterministic": not args.stochastic_eval,
+        "resumed_from_episode": start_episode,
     }
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output / "evaluation_summary.json").write_text(
@@ -504,7 +617,10 @@ def evaluate(args):
 def parser():
     p = argparse.ArgumentParser()
     p.add_argument("mode", choices=("pretrain", "finetune", "evaluate"))
-    p.add_argument("--policy", choices=("interpolant", "csi_sde", "dppo"), default="interpolant")
+    p.add_argument(
+        "--policy", choices=("interpolant", "csi_sde", "sbm", "dppo"),
+        default="interpolant",
+    )
     p.add_argument("--data", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--checkpoint", type=Path)
@@ -519,23 +635,32 @@ def parser():
     )
     p.add_argument("--cond-steps", type=int, default=1)
     p.add_argument("--integration-steps", type=int, default=50)
+    p.add_argument(
+        "--inference-steps", type=int,
+        help="Use fewer SI sampling steps at evaluation without changing its BC checkpoint.",
+    )
     p.add_argument("--denoising-steps", type=int, default=20)
     p.add_argument("--ft-denoising-steps", type=int, default=10)
-    p.add_argument("--gaussian-base", action="store_true")
     p.add_argument("--sigma-0", type=float, default=.1)
     p.add_argument("--sampling-std", type=float, default=.1)
     p.add_argument("--score-sigma-floor", type=float, default=.02)
     p.add_argument("--sde-eta", type=float, default=.05)
+    p.add_argument("--sde-eta-schedule", choices=("fixed", "ddpm"), default="fixed")
     p.add_argument("--path-loss-weight", type=float, default=0.0)
     p.add_argument("--path-loss-steps", type=int, default=10)
     p.add_argument("--score-head-width", type=int, default=0)
     p.add_argument("--score-loss-weight", type=float, default=0.0)
-    p.add_argument("--score-correction-scale", type=float, default=.1)
+    p.add_argument(
+        "--score-mode", choices=("flow", "analytic", "learned"),
+        default="flow",
+    )
+    p.add_argument("--encoder-type", choices=("mlp", "transformer"), default="mlp")
     # Fixed-source, velocity-only CSI at width 52 has 144,048 Door parameters.
     p.add_argument("--hidden-size", type=int, default=52)
     p.add_argument("--depth", type=int, default=2)
     p.add_argument("--time-dim", type=int, default=16)
     p.add_argument("--context-dim", type=int, default=32)
+    p.add_argument("--sbm-context-width", type=int, default=128)
     p.add_argument("--n-heads", type=int, default=4)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--gradient-steps", type=int, default=100000)
@@ -543,6 +668,10 @@ def parser():
     p.add_argument("--learning-rate", type=float, default=1e-3)
     p.add_argument("--weight-decay", type=float, default=1e-6)
     p.add_argument("--log-every", type=int, default=1000)
+    p.add_argument(
+        "--pretrain-checkpoint-steps", default="",
+        help="Comma-separated BC gradient steps at which to save snapshots.",
+    )
     p.add_argument("--iterations", type=int, default=301)
     p.add_argument(
         "--checkpoint-every", type=int, default=10,
@@ -570,6 +699,14 @@ def parser():
         help="Scale environment rewards before GAE/value targets.",
     )
     p.add_argument("--eval-episodes", type=int, default=50)
+    p.add_argument(
+        "--stochastic-eval", action="store_true",
+        help="Use the policy's stochastic sampler instead of deterministic ODE/DDIM evaluation.",
+    )
+    p.add_argument(
+        "--resume-eval", action="store_true",
+        help="Resume from a contiguous evaluation_episodes.csv in --output.",
+    )
     return p
 
 

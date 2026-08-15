@@ -9,13 +9,13 @@ Default interpolant (linear path):
     β(s) = s,     β'(s) =  1
     σ̇(s) = σ_0 · (1 - 2s)
 
-Source z_0 (per particle, per time-step):
-    q_η(y_{1:T}) = N(μ_η(y, c), diag(σ_η(y, c)^2))
-    z_0 = μ_η + σ_η · ε_0
+Source z_0 (per particle, per time-step), selected by ``source_type``:
+    inferred: q_η(y_{1:T}) = N(μ_η(y), diag(σ_η(y)^2))
+    gaussian: z_0 ~ N(base_mean, base_std² I)
 
-Velocity and score networks both condition on μ_η and c explicitly, so the
-transport and score fields see both the inference-network mean and observation
-context used to define the source distribution.
+For an inferred source, velocity and score condition on (μ_η, c). For a
+fixed Gaussian source there is no inference network and both fields condition
+only on the encoded observation context c.
 
 Refinement SDE (flow time s ∈ [0, 1]):
     dz_s = [v_θ(z_s, μ_η, c, s) + g₀² · score_ψ(z_s, μ_η, c, s)] ds
@@ -47,6 +47,27 @@ import equinox as eqx
 from bayesinf.applications.state_estimation.flow_sde import (
     SinusoidalEmb,
 )
+
+
+def linear_interpolant_coefficients(s, sigma_0):
+    """Return coefficients and derivatives for the shared linear SI path."""
+    alpha = 1.0 - s
+    beta = s
+    sigma = sigma_0 * s * (1.0 - s)
+    return (
+        alpha, beta, sigma, -jnp.ones_like(s), jnp.ones_like(s),
+        sigma_0 * (1.0 - 2.0 * s),
+    )
+
+
+def unscale_interpolant_score(scaled_score, sigma, sigma_floor):
+    """Convert a stable ``-epsilon`` prediction into an actual score."""
+    return scaled_score / jnp.maximum(sigma, sigma_floor)
+
+
+def refinement_sde_coefficients(sigma, g0_squared):
+    """Return score-drift weight and diffusion for the refinement SDE."""
+    return g0_squared, jnp.sqrt(2.0 * g0_squared * sigma + 1e-8)
 
 
 # ---------------------------------------------------------------------------
@@ -89,7 +110,7 @@ class ObsTransformerEncoder(eqx.Module):
 
 
 # ---------------------------------------------------------------------------
-# Inference network:  (T, d_y) + (T, d_c) → (T, d_x), (T, d_x)
+# Inference network:  (T, d_y) → (T, d_x), (T, d_x)
 # ---------------------------------------------------------------------------
 
 class StateInferenceMLP(eqx.Module):
@@ -104,24 +125,23 @@ class StateInferenceMLP(eqx.Module):
     mu_head: eqx.nn.Linear
     log_sigma_head: eqx.nn.Linear
 
-    def __init__(self, d_y: int, d_x: int, d_c: int, d_hidden: int, key: jr.PRNGKey):
+    def __init__(self, d_y: int, d_x: int, d_hidden: int, key: jr.PRNGKey):
         k1, k2, k_mu, k_sig = jr.split(key, 4)
-        self.fc1 = eqx.nn.Linear(d_y + d_c, d_hidden, key=k1)
+        self.fc1 = eqx.nn.Linear(d_y, d_hidden, key=k1)
         self.fc2 = eqx.nn.Linear(d_hidden,  d_hidden,  key=k2)
         self.mu_head = eqx.nn.Linear(d_hidden, d_x, key=k_mu)
         self.log_sigma_head = eqx.nn.Linear(d_hidden, d_x, key=k_sig)
 
-    def _step(self, y_t: jnp.ndarray, c_t: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
-        x = jnp.concatenate([y_t, c_t], axis=-1)
-        x = jax.nn.gelu(self.fc1(x))
+    def _step(self, y_t: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
+        x = jax.nn.gelu(self.fc1(y_t))
         x = jax.nn.gelu(self.fc2(x))
         mu = self.mu_head(x)
         log_sigma = jnp.clip(self.log_sigma_head(x), -8.0, 4.0)
         return mu, log_sigma
 
-    def __call__(self, y: jnp.ndarray, c: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
-        """y: (L, d_y)  c: (L, d_c) → mu, log_sigma: (L, d_x)."""
-        return jax.vmap(self._step)(y, c)
+    def __call__(self, y: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
+        """y: (L, d_y) → mu, log_sigma: (L, d_x)."""
+        return jax.vmap(self._step)(y)
 
 
 # ---------------------------------------------------------------------------
@@ -166,11 +186,14 @@ class SITransformerNet(eqx.Module):
     input_proj:  eqx.nn.Linear
     layers:      list
     output_proj: eqx.nn.Linear
+    condition_on_mu: bool = eqx.field(static=True)
 
     def __init__(self, d_x: int, d_c: int, d_model: int, n_heads: int,
-                 depth: int, time_emb_dim: int, key: jr.PRNGKey):
+                 depth: int, time_emb_dim: int, condition_on_mu: bool,
+                 key: jr.PRNGKey):
         k_t, k_p, k_in, k_out, *k_layers = jr.split(key, depth + 4)
-        in_size = 2 * d_x + d_c + 2 * time_emb_dim
+        self.condition_on_mu = condition_on_mu
+        in_size = d_x + d_c + 2 * time_emb_dim + (d_x if condition_on_mu else 0)
         self.time_emb    = SinusoidalEmb(time_emb_dim)
         self.step_emb    = SinusoidalEmb(time_emb_dim)
         self.input_proj  = eqx.nn.Linear(in_size, d_model, key=k_in)
@@ -178,9 +201,9 @@ class SITransformerNet(eqx.Module):
                             for i in range(depth)]
         self.output_proj = eqx.nn.Linear(d_model, d_x, key=k_out)
 
-    def __call__(self, z_s: jnp.ndarray, mu: jnp.ndarray,
-                 c: jnp.ndarray, s: jnp.ndarray) -> jnp.ndarray:
-        """z_s: (L, d_x)  mu: (L, d_x)  c: (L, d_c)  s: scalar → (L, d_x)."""
+    def __call__(self, z_s: jnp.ndarray, c: jnp.ndarray, s: jnp.ndarray,
+                 mu: jnp.ndarray = None) -> jnp.ndarray:
+        """Evaluate the field, optionally conditioned on the inferred mean."""
         L     = z_s.shape[0]
         t_emb = self.time_emb(s)
         t_seq = jnp.broadcast_to(t_emb, (L, t_emb.shape[0]))
@@ -188,14 +211,20 @@ class SITransformerNet(eqx.Module):
         step_norm = jnp.arange(L, dtype=jnp.float32) / jnp.maximum(L - 1, 1)
         p_seq = jax.vmap(self.step_emb)(step_norm)
 
-        x = jnp.concatenate([z_s, mu, c, t_seq, p_seq], axis=-1)
+        parts = [z_s]
+        if self.condition_on_mu:
+            if mu is None:
+                raise ValueError("mu is required when condition_on_mu=True")
+            parts.append(mu)
+        parts.extend([c, t_seq, p_seq])
+        x = jnp.concatenate(parts, axis=-1)
         x = jax.vmap(self.input_proj)(x)
         for layer in self.layers:
             x = layer(x)
         return jax.vmap(self.output_proj)(x)
 
-    def traj(self, z_s, mu, c, s):
-        return self(z_s, mu, c, s)
+    def traj(self, z_s, c, s, mu=None):
+        return self(z_s, c, s, mu)
 
 
 # ---------------------------------------------------------------------------
@@ -211,7 +240,7 @@ class StochasticInterpolantSE(eqx.Module):
     is applied to the source state.
     """
     encoder:            ObsTransformerEncoder
-    inference_net:      StateInferenceMLP
+    inference_net:      StateInferenceMLP | None
     vel_net:            SITransformerNet
     score_net:          SITransformerNet
     d_x:                int   = eqx.field(static=True)
@@ -225,6 +254,9 @@ class StochasticInterpolantSE(eqx.Module):
     score_sigma_floor:  float = eqx.field(static=True)
     s_min:              float = eqx.field(static=True)
     interpolant_type:   str   = eqx.field(static=True)
+    source_type:        str   = eqx.field(static=True)
+    base_mean:          float = eqx.field(static=True)
+    base_std:           float = eqx.field(static=True)
 
     def __init__(
         self,
@@ -243,10 +275,17 @@ class StochasticInterpolantSE(eqx.Module):
         score_sigma_floor:  float = 0.05,
         s_min:              float = 0.02,
         interpolant_type:   str   = "linear",
+        source_type:        str   = "inferred",
+        base_mean:          float = 0.0,
+        base_std:           float = 1.0,
         key:                jr.PRNGKey = jr.PRNGKey(0),
     ):
         if interpolant_type not in ("cosine", "linear"):
             raise ValueError(f"interpolant_type must be 'cosine' or 'linear', got {interpolant_type}")
+        if source_type not in ("inferred", "gaussian"):
+            raise ValueError(f"source_type must be 'inferred' or 'gaussian', got {source_type}")
+        if base_std <= 0:
+            raise ValueError("base_std must be positive")
         self.d_x            = d_x
         self.d_y            = d_y
         self.d_c            = d_c
@@ -258,12 +297,18 @@ class StochasticInterpolantSE(eqx.Module):
         self.score_sigma_floor  = score_sigma_floor
         self.s_min          = s_min
         self.interpolant_type = interpolant_type
+        self.source_type = source_type
+        self.base_mean = base_mean
+        self.base_std = base_std
 
         k_enc, k_inf, k_vel, k_score = jr.split(key, 4)
         self.encoder   = ObsTransformerEncoder(d_y, d_c, d_hidden, n_heads, depth, time_emb_dim, k_enc)
-        self.inference_net = StateInferenceMLP(d_y, d_x, d_c, d_hidden, k_inf)
-        self.vel_net   = SITransformerNet(d_x, d_c, d_hidden, n_heads, depth, time_emb_dim, k_vel)
-        self.score_net = SITransformerNet(d_x, d_c, d_hidden, n_heads, depth, time_emb_dim, k_score)
+        inferred = source_type == "inferred"
+        self.inference_net = StateInferenceMLP(d_y, d_x, d_hidden, k_inf) if inferred else None
+        self.vel_net = SITransformerNet(d_x, d_c, d_hidden, n_heads, depth,
+                                        time_emb_dim, inferred, k_vel)
+        self.score_net = SITransformerNet(d_x, d_c, d_hidden, n_heads, depth,
+                                          time_emb_dim, inferred, k_score)
 
     # ------------------------------------------------------------------
     # σ schedule
@@ -292,24 +337,24 @@ class StochasticInterpolantSE(eqx.Module):
 
     # Linear interpolant coefficients
     def _alpha_linear(self, s):
-        return 1.0 - s
+        return linear_interpolant_coefficients(s, self.sigma_0)[0]
 
     def _beta_linear(self, s):
-        return s
+        return linear_interpolant_coefficients(s, self.sigma_0)[1]
 
     def _alpha_dot_linear(self, s):
-        return -jnp.ones_like(s)
+        return linear_interpolant_coefficients(s, self.sigma_0)[3]
 
     def _beta_dot_linear(self, s):
-        return jnp.ones_like(s)
+        return linear_interpolant_coefficients(s, self.sigma_0)[4]
 
     def _sigma_linear(self, s):
         # σ_0 · (1-s) · s = σ_0 · s(1-s) — zero at both endpoints
-        return self.sigma_0 * (1.0 - s) * s
+        return linear_interpolant_coefficients(s, self.sigma_0)[2]
 
     def _sigma_dot_linear(self, s):
         # d/ds [σ_0 · s(1-s)] = σ_0 · (1 - 2s)
-        return self.sigma_0 * (1.0 - 2.0 * s)
+        return linear_interpolant_coefficients(s, self.sigma_0)[5]
 
     # Unified interface based on interpolant_type
     def _alpha(self, s):
@@ -350,8 +395,9 @@ class StochasticInterpolantSE(eqx.Module):
 
     def _unscale_score(self, scaled_score: jnp.ndarray, s: jnp.ndarray) -> jnp.ndarray:
         """Convert the sigma-scaled score target (-eps) into an actual score."""
-        sig = jnp.maximum(self._sigma(s), self.score_sigma_floor)
-        return scaled_score / sig
+        return unscale_interpolant_score(
+            scaled_score, self._sigma(s), self.score_sigma_floor
+        )
 
     # ------------------------------------------------------------------
     # Inference-network source: all state coordinates from q_eta
@@ -370,6 +416,21 @@ class StochasticInterpolantSE(eqx.Module):
         """Diagonal Gaussian NLL up to an additive constant."""
         inv_sigma = jnp.exp(-log_sigma)
         return jnp.mean(0.5 * ((x - mu) * inv_sigma) ** 2 + log_sigma)
+
+    def _source_params(self, y: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
+        """Return source parameters without leaking encoder context into q_eta."""
+        if self.source_type == "inferred":
+            return self.inference_net(y)
+        shape = (y.shape[0], self.d_x)
+        return (
+            jnp.full(shape, self.base_mean, dtype=y.dtype),
+            jnp.full(shape, jnp.log(self.base_std), dtype=y.dtype),
+        )
+
+    def _field(self, net, z, c, s, mu):
+        if self.source_type == "inferred":
+            return net.traj(z, c, s, mu=mu)
+        return net.traj(z, c, s)
 
     # ------------------------------------------------------------------
     # Core SDE simulation primitive  (one particle, one segment)
@@ -395,13 +456,15 @@ class StochasticInterpolantSE(eqx.Module):
 
         def em_step(z, inputs):
             s_i, noise_k = inputs
-            v         = self.vel_net.traj(z, mu_seg, c_seg, s_i)
+            v         = self._field(self.vel_net, z, c_seg, s_i, mu_seg)
             score     = self._unscale_score(
-                self.score_net.traj(z, mu_seg, c_seg, s_i),
+                self._field(self.score_net, z, c_seg, s_i, mu_seg),
                 s_i,
             )
-            drift     = v + g0 ** 2 * score
-            diff_coef = g0 * jnp.sqrt(2.0 * self._sigma(s_i) + 1e-8)
+            score_weight, diff_coef = refinement_sde_coefficients(
+                self._sigma(s_i), g0 ** 2
+            )
+            drift     = v + score_weight * score
             noise     = diff_coef * jr.normal(noise_k, z.shape) * jnp.sqrt(ds)
             return z + drift * ds + noise, None
 
@@ -437,13 +500,14 @@ class StochasticInterpolantSE(eqx.Module):
         z_s    = self._alpha(s) * z0_seg + self._beta(s) * x_seg + sig_s * eps
 
         v_target   = self._alpha_dot(s) * z0_seg + self._beta_dot(s) * x_seg + self._sigma_dot(s) * eps
-        v_pred     = self.vel_net.traj(z_s, mu_seg, c_seg, s)
+        v_pred     = self._field(self.vel_net, z_s, c_seg, s, mu_seg)
         l_flow     = jnp.mean((v_pred - v_target) ** 2)
 
-        score_pred = self.score_net.traj(z_s, mu_seg, c_seg, s)
+        score_pred = self._field(self.score_net, z_s, c_seg, s, mu_seg)
         l_score    = jnp.mean((score_pred + eps) ** 2)
 
-        l_source = self._source_nll(x_seg, mu_seg, log_sigma_seg)
+        l_source = (self._source_nll(x_seg, mu_seg, log_sigma_seg)
+                    if self.source_type == "inferred" else jnp.array(0.0))
 
         total = l_flow + self.score_weight * l_score + self.lifter_loss_weight * l_source
         return total, l_flow, l_score, l_source
@@ -465,13 +529,13 @@ class StochasticInterpolantSE(eqx.Module):
     def loss_single(self, x, y, key):
         """Full-trajectory loss for one (x, y) pair."""
         c = self.encoder(y)
-        mu, log_sigma = self.inference_net(y, c)
+        mu, log_sigma = self._source_params(y)
         return self._loss_seg(x, mu, log_sigma, c, key)
 
     def loss_single_components(self, x, y, key):
         """Full-trajectory loss components for one (x, y) pair."""
         c = self.encoder(y)
-        mu, log_sigma = self.inference_net(y, c)
+        mu, log_sigma = self._source_params(y)
         return self._loss_seg_components(x, mu, log_sigma, c, key)
 
     def loss(self, x, y, key):
@@ -505,7 +569,7 @@ class StochasticInterpolantSE(eqx.Module):
         L      = seg_len + 1
 
         c_full = self.encoder(y)
-        mu_full, log_sigma_full = self.inference_net(y, c_full)
+        mu_full, log_sigma_full = self._source_params(y)
 
         seg_starts = (jnp.arange(n_segs) * stride).astype(jnp.int32)
 
@@ -532,7 +596,7 @@ class StochasticInterpolantSE(eqx.Module):
         L      = seg_len + 1
 
         c_full = self.encoder(y)
-        mu_full, log_sigma_full = self.inference_net(y, c_full)
+        mu_full, log_sigma_full = self._source_params(y)
 
         seg_starts = (jnp.arange(n_segs) * stride).astype(jnp.int32)
 
@@ -584,7 +648,7 @@ class StochasticInterpolantSE(eqx.Module):
         Returns (n_particles, T, d_x).
         """
         c = self.encoder(y)
-        mu, log_sigma = self.inference_net(y, c)
+        mu, log_sigma = self._source_params(y)
         g0 = self.g0 if g0_override is None else g0_override
 
         def simulate_one(pk):
@@ -612,13 +676,13 @@ class StochasticInterpolantSE(eqx.Module):
         """
         ds     = 1.0 / n_steps
         c = self.encoder(y)
-        mu, log_sigma = self.inference_net(y, c)
+        mu, log_sigma = self._source_params(y)
         s_vals = jnp.linspace(0.0, 1.0 - ds, n_steps)
 
         def simulate_one(pk):
             z0 = self._make_source(mu, log_sigma, pk)
             def euler_step(z, s_i):
-                v = self.vel_net.traj(z, mu, c, s_i)
+                v = self._field(self.vel_net, z, c, s_i, mu)
                 return z + v * ds, None
             z1, _ = jax.lax.scan(euler_step, z0, s_vals)
             return z1
@@ -654,7 +718,7 @@ class StochasticInterpolantSE(eqx.Module):
         g0     = self.g0 if g0_override is None else g0_override
 
         c_full = self.encoder(y)
-        mu_full, log_sigma_full = self.inference_net(y, c_full)
+        mu_full, log_sigma_full = self._source_params(y)
 
         def process_segment(boundary, k):
             """
@@ -697,6 +761,123 @@ class StochasticInterpolantSE(eqx.Module):
         rest = jnp.swapaxes(rest, 0, 1)                 # (n_p, n_segs-1, seg_len, d_x)
         rest = rest.reshape(n_particles, (n_segs - 1) * seg_len, self.d_x)
         return jnp.concatenate([seg0, rest], axis=1)    # (n_p, n_segs*seg_len+1, d_x)
+
+    def sample_posterior_segmented_parallel(
+        self,
+        y:           jnp.ndarray,
+        key:         jr.PRNGKey,
+        n_particles: int   = 100,
+        n_steps:     int   = 100,
+        seg_len:     int   = 20,
+        g0_override: float = None,
+    ) -> jnp.ndarray:
+        """Infer all trajectory segments and particles in parallel.
+
+        Unlike :meth:`sample_posterior_segmented`, this sampler does not carry
+        a refined boundary from segment ``k`` into segment ``k+1``. Each
+        segment draws its complete Gaussian source independently, which makes
+        the segment axis eligible for ``vmap`` and removes the outer sequential
+        scan. Overlapping boundary states are stitched by retaining the first
+        segment's complete output and dropping the first state of later ones.
+        """
+        T = y.shape[0]
+        n_segs = (T - 1) // seg_len
+        L = seg_len + 1
+        g0 = self.g0 if g0_override is None else g0_override
+
+        c_full = self.encoder(y)
+        mu_full, log_sigma_full = self._source_params(y)
+        starts = (jnp.arange(n_segs) * seg_len).astype(jnp.int32)
+        c_segs = jax.vmap(
+            lambda s: jax.lax.dynamic_slice(c_full, (s, 0), (L, self.d_c))
+        )(starts)
+        mu_segs = jax.vmap(
+            lambda s: jax.lax.dynamic_slice(mu_full, (s, 0), (L, self.d_x))
+        )(starts)
+        log_sigma_segs = jax.vmap(
+            lambda s: jax.lax.dynamic_slice(
+                log_sigma_full, (s, 0), (L, self.d_x)
+            )
+        )(starts)
+        segment_keys = jr.split(key, n_segs)
+
+        def sample_segment(mu_seg, log_sigma_seg, c_seg, segment_key):
+            def sample_particle(particle_key):
+                source_key, sde_key = jr.split(particle_key)
+                z0 = self._make_source(mu_seg, log_sigma_seg, source_key)
+                return self._simulate_sde_segment(
+                    z0, mu_seg, c_seg, sde_key, n_steps, g0
+                )
+
+            return jax.vmap(sample_particle)(
+                jr.split(segment_key, n_particles)
+            )
+
+        segments = jax.vmap(sample_segment)(
+            mu_segs, log_sigma_segs, c_segs, segment_keys
+        )  # (n_segs, n_particles, L, d_x)
+        first = segments[0]
+        rest = jnp.swapaxes(segments[1:, :, 1:, :], 0, 1)
+        rest = rest.reshape(
+            n_particles, (n_segs - 1) * seg_len, self.d_x
+        )
+        return jnp.concatenate([first, rest], axis=1)
+
+    def sample_posterior_ode_segmented_parallel(
+        self,
+        y:           jnp.ndarray,
+        key:         jr.PRNGKey,
+        n_particles: int = 100,
+        n_steps:     int = 100,
+        seg_len:     int = 20,
+    ) -> jnp.ndarray:
+        """Velocity-only ODE sampling with independent parallel segments."""
+        T = y.shape[0]
+        n_segs = (T - 1) // seg_len
+        L = seg_len + 1
+        c_full = self.encoder(y)
+        mu_full, log_sigma_full = self._source_params(y)
+        starts = (jnp.arange(n_segs) * seg_len).astype(jnp.int32)
+        c_segs = jax.vmap(
+            lambda s: jax.lax.dynamic_slice(c_full, (s, 0), (L, self.d_c))
+        )(starts)
+        mu_segs = jax.vmap(
+            lambda s: jax.lax.dynamic_slice(mu_full, (s, 0), (L, self.d_x))
+        )(starts)
+        log_sigma_segs = jax.vmap(
+            lambda s: jax.lax.dynamic_slice(
+                log_sigma_full, (s, 0), (L, self.d_x)
+            )
+        )(starts)
+        segment_keys = jr.split(key, n_segs)
+        ds = 1.0 / n_steps
+        s_values = jnp.linspace(0.0, 1.0 - ds, n_steps)
+
+        def sample_segment(mu_seg, log_sigma_seg, c_seg, segment_key):
+            def sample_particle(particle_key):
+                z0 = self._make_source(mu_seg, log_sigma_seg, particle_key)
+
+                def step(z, s):
+                    return z + ds * self._field(
+                        self.vel_net, z, c_seg, s, mu_seg
+                    ), None
+
+                final, _ = jax.lax.scan(step, z0, s_values)
+                return final
+
+            return jax.vmap(sample_particle)(
+                jr.split(segment_key, n_particles)
+            )
+
+        segments = jax.vmap(sample_segment)(
+            mu_segs, log_sigma_segs, c_segs, segment_keys
+        )
+        first = segments[0]
+        rest = jnp.swapaxes(segments[1:, :, 1:, :], 0, 1)
+        rest = rest.reshape(
+            n_particles, (n_segs - 1) * seg_len, self.d_x
+        )
+        return jnp.concatenate([first, rest], axis=1)
 
     # ------------------------------------------------------------------
     # Batch wrappers

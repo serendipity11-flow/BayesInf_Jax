@@ -26,7 +26,7 @@ python3 -m experiments.lorenz96_state_estimation.train_stochastic_interpolant --
     --sampler segmented --seg_len_eval 20
 """
 
-import sys, os, argparse
+import sys, os, argparse, json
 if not os.environ.get("CUDA_VISIBLE_DEVICES"):
     os.environ.setdefault("JAX_PLATFORMS", "cpu")
 import numpy as np
@@ -118,13 +118,14 @@ class CalibratedStochasticInterpolantSE(StochasticInterpolantSE):
             + self._beta_dot(s) * x_seg
             + self._sigma_dot(s) * eps
         )
-        v_pred = self.vel_net.traj(z_s, mu_seg, c_seg, s)
+        v_pred = self._field(self.vel_net, z_s, c_seg, s, mu_seg)
         l_flow = self._weighted_mean((v_pred - v_target) ** 2)
 
-        score_pred = self.score_net.traj(z_s, mu_seg, c_seg, s)
+        score_pred = self._field(self.score_net, z_s, c_seg, s, mu_seg)
         l_score = self._weighted_mean((score_pred + eps) ** 2)
 
-        l_source = self._source_nll(x_seg, mu_seg, log_sigma_seg)
+        l_source = (self._source_nll(x_seg, mu_seg, log_sigma_seg)
+                    if self.source_type == "inferred" else jnp.array(0.0))
 
         total = l_flow + self.score_weight * l_score + self.lifter_loss_weight * l_source
         return total, l_flow, l_score, l_source
@@ -144,9 +145,9 @@ class CalibratedStochasticInterpolantSE(StochasticInterpolantSE):
 
         def em_step(z, inputs):
             s_i, noise_k = inputs
-            v = self.vel_net.traj(z, mu_seg, c_seg, s_i)
+            v = self._field(self.vel_net, z, c_seg, s_i, mu_seg)
             score = self._unscale_score(
-                self.score_net.traj(z, mu_seg, c_seg, s_i),
+                self._field(self.score_net, z, c_seg, s_i, mu_seg),
                 s_i,
             )
             drift = v + g0 ** 2 * score
@@ -201,6 +202,12 @@ parser.add_argument("--s_min",               type=float, default=0.02)
 parser.add_argument("--interpolant_type",    type=str,   default="linear",
                     choices=("linear", "cosine"),
                     help="Interpolation path between source and target.")
+parser.add_argument("--source_type", type=str, default="inferred",
+                    choices=("inferred", "gaussian"))
+parser.add_argument("--base_mean", type=float, default=0.0,
+                    help="Mean of the fixed Gaussian source in normalized state space.")
+parser.add_argument("--base_std", type=float, default=1.0,
+                    help="Standard deviation of the fixed Gaussian source.")
 # Legacy calibration controls kept for CLI compatibility. The current SI source
 # is sampled from q_eta for every state coordinate, without masking.
 parser.add_argument("--obs_loss_weight",     type=float, default=1.0,
@@ -245,6 +252,8 @@ parser.add_argument("--seg_len_eval",   type=int,   default=20,
 parser.add_argument("--results_dir",    type=str, default=None)
 parser.add_argument("--plot_eval",      action="store_true")
 parser.add_argument("--eval_chunk_size", type=int, default=32)
+parser.add_argument("--skip_post_train_eval", action="store_true",
+                    help="Save the trained checkpoint without the built-in test pass.")
 args = parser.parse_args()
 
 
@@ -334,6 +343,10 @@ model_tag = f"SI_{data_tag}_dc{args.d_c}_dh{args.d_hidden}_{_train_tag}"
 if args.experiment_tag:
     model_tag += "_" + args.experiment_tag.strip().replace(" ", "_").replace("/", "_")
 save_path = os.path.join(results_dir, f"{model_tag}.pt")
+config_path = save_path.replace(".pt", "_config.json")
+with open(config_path, "w", encoding="utf-8") as f:
+    json.dump(vars(args), f, indent=2, sort_keys=True)
+print(f"Configuration saved to {config_path}")
 
 n_train    = train_data["x"].shape[0]
 n_val      = val_data["x"].shape[0]
@@ -407,6 +420,9 @@ model = CalibratedStochasticInterpolantSE(
     score_sigma_floor  = args.score_sigma_floor,
     s_min        = args.s_min,
     interpolant_type = args.interpolant_type,
+    source_type  = args.source_type,
+    base_mean    = args.base_mean,
+    base_std     = args.base_std,
     obs_loss_weight = args.obs_loss_weight,
     unobs_loss_weight = args.unobs_loss_weight,
     obs_source_noise_std = args.obs_source_noise_std,
@@ -421,8 +437,10 @@ print(
     f"  sigma_0={args.sigma_0}  g0={args.g0}  score_weight={args.score_weight}\n"
     f"  source_nll_weight={args.lifter_loss_weight}  score_sigma_floor={args.score_sigma_floor}\n"
     f"  s_min={args.s_min}  interpolant_type={args.interpolant_type}\n"
-    f"  source: q_eta(y,c)=N(mu_eta, sigma_eta^2), unmasked\n"
-    f"  conditioning: velocity/score see mu_eta and c"
+    f"  source_type={args.source_type}  base=N({args.base_mean}, {args.base_std}^2)\n"
+    f"  conditioning: "
+    + ("q_eta(y); velocity/score see mu_eta and c" if args.source_type == "inferred"
+       else "no q_eta; velocity/score see c only")
 )
 
 
@@ -577,7 +595,7 @@ else:
 # Test evaluation
 # ---------------------------------------------------------------------------
 
-if args.test or args.train:
+if args.test or (args.train and not args.skip_post_train_eval):
     print(f"\nEvaluating on test set (sampler={args.sampler}) ...")
     inf_model = eqx.nn.inference_mode(model)
 

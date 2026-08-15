@@ -14,7 +14,7 @@ python3 -m experiments.lorenz96_state_estimation.evaluate_stochastic_interpolant
     --seg_len 5 --sampler segmented
 """
 
-import sys, os, argparse, time, subprocess
+import sys, os, argparse, csv, time, subprocess
 if not os.environ.get("CUDA_VISIBLE_DEVICES"):
     os.environ.setdefault("JAX_PLATFORMS", "cpu")
 import numpy as np
@@ -27,7 +27,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 current_dir  = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+project_root = os.path.dirname(os.path.dirname(current_dir))
 sys.path.insert(0, project_root)
 
 from bayesinf.applications.state_estimation.stochastic_interpolant import StochasticInterpolantSE
@@ -75,6 +75,10 @@ parser.add_argument("--s_min",              type=float, default=0.02)
 parser.add_argument("--interpolant_type",   type=str,   default="linear",
                     choices=("linear", "cosine"),
                     help="Interpolation path used by the checkpoint.")
+parser.add_argument("--source_type", type=str, default="inferred",
+                    choices=("inferred", "gaussian"))
+parser.add_argument("--base_mean", type=float, default=0.0)
+parser.add_argument("--base_std", type=float, default=1.0)
 # Training tag — must match what was used (--ms + --seg_len)
 parser.add_argument("--ms",            action="store_true",
                     help="Was multiple-shooting used during training?")
@@ -88,7 +92,8 @@ parser.add_argument("--n_particles",   type=int,   default=200)
 parser.add_argument("--n_steps",       type=int,   default=100)
 parser.add_argument("--ci",            type=float, default=90.0)
 parser.add_argument("--sampler",       type=str,   default="segmented",
-                    choices=("sde", "ode", "segmented"))
+                    choices=("sde", "ode", "segmented", "segmented_parallel",
+                             "ode_segmented_parallel"))
 parser.add_argument("--seg_len_eval",  type=int,   default=None,
                     help="Segment length for segmented inference; defaults to --seg_len")
 parser.add_argument("--g0_override",   type=float, default=None,
@@ -103,13 +108,21 @@ parser.add_argument("--legacy_lifter", action="store_true",
                     help="Load legacy lifter-based SI checkpoints from before q_eta log-sigma heads.")
 parser.add_argument("--output_dir",    type=str,   default=None,
                     help="Optional directory for saved figures; defaults to results directory.")
+parser.add_argument("--metrics_path", type=str, default=None,
+                    help="Optional CSV path for aggregate evaluation metrics.")
 parser.add_argument("--file_ext",      type=str,   default="png",
                     choices=("png", "pdf"),
                     help="Figure file extension.")
 parser.add_argument("--no_title",      action="store_true",
                     help="Suppress figure and axes titles.")
+parser.add_argument("--no_suptitle", action="store_true",
+                    help="Suppress only figure-level titles; retain subplot subtitles.")
+parser.add_argument("--trajectory_panel_label", default="Seq",
+                    help="Prefix for trajectory subplot subtitles, e.g. Seq or Seg.")
 parser.add_argument("--font_scale",    type=float, default=1.0,
                     help="Scale Matplotlib font sizes for saved figures.")
+parser.add_argument("--eval_chunk_size", type=int, default=20,
+                    help="Number of test sequences in each compiled sampling batch.")
 args = parser.parse_args()
 
 if args.seg_len_eval is None:
@@ -122,7 +135,8 @@ if args.seg_len_eval is None:
 
 results_dir = os.path.join(project_root, "results", "results_state_estimation")
 d_x = args.N
-d_y = args.N // args.obs_interval
+d_y_obs = args.N // args.obs_interval
+d_y = d_y_obs + 1  # observation channels plus the Lorenz forcing/control channel
 
 def _parse_tuple(s):
     return tuple(float(x) for x in s.split(","))
@@ -226,7 +240,10 @@ y_std  = ns["y_std"]
 print(f"Norm stats loaded: x mean≈{x_mean.mean():.2f} std≈{x_std.mean():.2f}")
 
 x_test = jnp.array((x_test_raw - x_mean) / x_std)
-y_test = jnp.array((y_test_raw - y_mean) / y_std)
+y_test = jnp.concatenate([
+    jnp.array((y_test_raw - y_mean) / y_std),
+    jnp.array(test_data["u"]),
+], axis=-1)
 
 
 # ---------------------------------------------------------------------------
@@ -237,7 +254,7 @@ print(f"Loading checkpoint: {ckpt_path}")
 ModelClass = StochasticInterpolantSE
 if args.legacy_lifter:
     legacy_src = subprocess.check_output(
-        ["git", "show", "5443df1:bayesinf/applications/state_estimation/stochastic_interpolant.py"],
+        ["git", "show", "5443df1f:bayesinf/applications/state_estimation/stochastic_interpolant.py"],
         cwd=project_root,
         text=True,
     )
@@ -260,6 +277,9 @@ model = ModelClass(
     score_sigma_floor  = args.score_sigma_floor,
     s_min        = args.s_min,
     interpolant_type = args.interpolant_type,
+    source_type  = args.source_type,
+    base_mean    = args.base_mean,
+    base_std     = args.base_std,
     key          = jr.PRNGKey(42),
 )
 
@@ -317,7 +337,16 @@ _n_p        = args.n_particles
 def _sample_chunk(model, y_chunk, key):
     B    = y_chunk.shape[0]
     keys = jr.split(key, B)
-    if _sampler == "segmented":
+    if _sampler == "ode_segmented_parallel":
+        fn = lambda yi, ki: model.sample_posterior_ode_segmented_parallel(
+            yi, ki, _n_p, _n_steps, _seg_eval,
+        )
+    elif _sampler == "segmented_parallel":
+        fn = lambda yi, ki: model.sample_posterior_segmented_parallel(
+            yi, ki, _n_p, _n_steps, _seg_eval,
+            g0_override=_g0_ov,
+        )
+    elif _sampler == "segmented":
         fn = lambda yi, ki: model.sample_posterior_segmented(
             yi, ki, _n_p, _n_steps, _seg_eval,
             g0_override=_g0_ov,
@@ -331,12 +360,12 @@ def _sample_chunk(model, y_chunk, key):
     return jax.vmap(fn)(y_chunk, keys)   # (B, n_p, T', d_x)
 
 
-chunk     = 20
+chunk     = args.eval_chunk_size
 k_eval    = jr.PRNGKey(999)
 all_samps = []
 
 # Segmented sampler may cover fewer time steps than T
-if _sampler == "segmented":
+if _sampler in ("segmented", "segmented_parallel", "ode_segmented_parallel"):
     n_segs_ev = (T - 1) // _seg_eval
     T_eval    = n_segs_ev * _seg_eval + 1
     print(
@@ -351,15 +380,22 @@ print(
     f"(sampler={args.sampler}  n_steps={args.n_steps}) …"
 )
 t_sample0 = time.perf_counter()
+chunk_seconds = []
 for start in range(0, n_eval, chunk):
     end  = min(start + chunk, n_eval)
     yb   = y_test[start:end]
     k_c  = jr.fold_in(k_eval, start)
     t0   = time.perf_counter()
     s    = np.array(_sample_chunk(model, yb, k_c))   # (B, n_p, T', d_x) norm
-    print(f"  chunk {start:4d}:{end:<4d} sampled in {time.perf_counter() - t0:.1f}s")
+    elapsed = time.perf_counter() - t0
+    chunk_seconds.append(elapsed)
+    print(f"  chunk {start:4d}:{end:<4d} sampled in {elapsed:.1f}s")
     all_samps.append(s)
-print(f"Sampling wall time: {time.perf_counter() - t_sample0:.1f}s")
+sampling_wall_seconds = time.perf_counter() - t_sample0
+compile_and_first_chunk_seconds = chunk_seconds[0]
+steady_sampling_seconds = sum(chunk_seconds[1:])
+steady_sequences = max(n_eval - min(chunk, n_eval), 0)
+print(f"Sampling wall time: {sampling_wall_seconds:.1f}s")
 
 all_samps = np.concatenate(all_samps, axis=0)                              # (n_eval, n_p, T', d_x) norm
 all_samps = all_samps * x_std[None, None, None] + x_mean[None, None, None]  # denormalise
@@ -385,6 +421,39 @@ mae_all    = float(np.mean(np.abs(x_true - post_mean)))
 
 cov_per_dim = np.mean((x_true >= lo) & (x_true <= hi), axis=(0, 1))   # (d_x,)
 coverage    = float(cov_per_dim.mean())
+coverage_obs = float(cov_per_dim[obs_idx].mean())
+coverage_unobs = float(cov_per_dim[unobs_idx].mean()) if len(unobs_idx) else float("nan")
+ci_width = hi - lo
+mciw = float(ci_width.mean())
+mciw_obs = float(ci_width[:, :, obs_idx].mean())
+mciw_unobs = float(ci_width[:, :, unobs_idx].mean()) if len(unobs_idx) else float("nan")
+
+if args.metrics_path is not None:
+    metrics_dir = os.path.dirname(os.path.abspath(args.metrics_path))
+    os.makedirs(metrics_dir, exist_ok=True)
+    metrics = {
+        "sigma_0": args.sigma_0, "g0": args.g0,
+        "seg_len_train": args.seg_len, "seg_len_eval": args.seg_len_eval,
+        "n_eval": n_eval, "n_particles": args.n_particles, "n_steps": args.n_steps,
+        "sampling_wall_seconds": sampling_wall_seconds,
+        "compile_and_first_chunk_seconds": compile_and_first_chunk_seconds,
+        "steady_sampling_seconds": steady_sampling_seconds,
+        "steady_seconds_per_sequence": (
+            steady_sampling_seconds / steady_sequences
+            if steady_sequences else float("nan")
+        ),
+        "seconds_per_sequence": sampling_wall_seconds / n_eval,
+        "seconds_per_particle_sequence": sampling_wall_seconds / (n_eval * args.n_particles),
+        "rmse_all": rmse_all, "rmse_obs": rmse_obs, "rmse_unobs": rmse_unobs,
+        "mae_all": mae_all, "coverage_all": coverage,
+        "coverage_obs": coverage_obs, "coverage_unobs": coverage_unobs,
+        "mciw_all": mciw, "mciw_obs": mciw_obs, "mciw_unobs": mciw_unobs,
+        "checkpoint": os.path.abspath(ckpt_path),
+    }
+    with open(args.metrics_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=metrics.keys())
+        writer.writeheader(); writer.writerow(metrics)
+    print(f"Metrics saved: {args.metrics_path}")
 
 print(f"\n── Evaluation  ({n_eval} seqs, {args.n_particles} particles) ──")
 print(f"  RMSE posterior mean (all):        {rmse_all:.4f}")
@@ -410,8 +479,8 @@ plt.rcParams.update({
 t_axis_eval = np.arange(T_eval) * args.dt
 n_cols  = 2
 n_rows  = (n_plot + 1) // n_cols
-fig1, axes1 = plt.subplots(n_rows, n_cols, figsize=(14, 3.8 * n_rows), sharex=False)
-if not args.no_title:
+fig1, axes1 = plt.subplots(n_rows, n_cols, figsize=(14, 4.5 * n_rows), sharex=False)
+if not args.no_title and not args.no_suptitle:
     fig1.suptitle(
         f"StochasticInterpolantSE  –  Lorenz-96 N={d_x}  –  noise={args.obs_noise_type}  "
         f"–  {args.ci:.0f}% CI\n"
@@ -442,7 +511,10 @@ for wi, ax in enumerate(np.array(axes1).flat):
         ax.plot(t_axis_eval, post_mean[wi, :, dim], color=c, lw=1.5, ls="--")
         ax.plot(t_axis_eval, x_true[wi, :, dim],    color=c, lw=1.2, ls="-")
     if not args.no_title:
-        ax.set_title(f"Seq {wi}", fontsize=9 * args.font_scale)
+        ax.set_title(
+            f"{args.trajectory_panel_label} {wi}",
+            fontsize=9 * args.font_scale,
+        )
     ax.set_xlim(t_axis_eval[0], t_axis_eval[-1])
     ax.margins(x=0)
     ax.set_xlabel("Time", fontsize=9 * args.font_scale)
@@ -458,8 +530,8 @@ legend_elems = [
     Patch(facecolor="grey", alpha=0.3, label=f"{args.ci:.0f}% CI"),
 ]
 fig1.legend(handles=legend_elems, loc="lower center", ncol=3, fontsize=8 * args.font_scale,
-            bbox_to_anchor=(0.5, -0.02))
-fig1.tight_layout(rect=[0, 0.05, 1, 1])
+            bbox_to_anchor=(0.5, -0.01))
+fig1.tight_layout(rect=[0, 0.18, 1, 1])
 
 
 # ---------------------------------------------------------------------------
@@ -467,7 +539,7 @@ fig1.tight_layout(rect=[0, 0.05, 1, 1])
 # ---------------------------------------------------------------------------
 
 fig2, axes2 = plt.subplots(1, 3, figsize=(15, 4))
-if not args.no_title:
+if not args.no_title and not args.no_suptitle:
     fig2.suptitle(
         f"StochasticInterpolantSE diagnostics — {model_tag}\n"
         f"n_eval={n_eval}  n_particles={args.n_particles}  sampler={args.sampler}",
@@ -536,7 +608,7 @@ t_idx = int(round(args.t_hist * (T_eval - 1)))
 t_val = t_idx * args.dt
 
 fig3, axes3 = plt.subplots(1, 3, figsize=(15, 4.5))
-if not args.no_title:
+if not args.no_title and not args.no_suptitle:
     fig3.suptitle(
         f"StochasticInterpolantSE — Multi-modal analysis\n"
         f"noise={args.obs_noise_type}  obs_std={args.obs_std}  "

@@ -51,3 +51,46 @@ class TimeSeriesEncoder(eqx.Module):
         h = jax.nn.elu(h)
         h = jax.vmap(self.l2)(h)
         return h
+
+
+class StackedBidirectionalLSTMEncoder(eqx.Module):
+    """Two-direction stacked LSTM summary encoder for BayesFlow compatibility."""
+    forward_cells: tuple
+    backward_cells: tuple
+    projection1: eqx.nn.Linear
+    projection2: eqx.nn.Linear
+    hidden_size: int = eqx.field(static=True)
+
+    def __init__(self, in_size, hidden_size, out_size, key, n_layers=2):
+        keys = jr.split(key, 2 * n_layers + 2)
+        forward, backward = [], []
+        layer_in = in_size
+        for layer in range(n_layers):
+            forward.append(eqx.nn.LSTMCell(layer_in, hidden_size, key=keys[2 * layer]))
+            backward.append(eqx.nn.LSTMCell(layer_in, hidden_size, key=keys[2 * layer + 1]))
+            layer_in = 2 * hidden_size
+        self.forward_cells, self.backward_cells = tuple(forward), tuple(backward)
+        self.projection1 = eqx.nn.Linear(2 * hidden_size, out_size, key=keys[-2])
+        self.projection2 = eqx.nn.Linear(out_size, out_size, key=keys[-1])
+        self.hidden_size = hidden_size
+
+    def _direction(self, cell, sequence):
+        initial = (jnp.zeros(self.hidden_size), jnp.zeros(self.hidden_size))
+        def step(carry, value):
+            carry = cell(value, carry)
+            return carry, carry[0]
+        final, outputs = jax.lax.scan(step, initial, sequence)
+        return final[0], outputs
+
+    def _encode_one(self, sequence):
+        values = sequence
+        final_forward = final_backward = None
+        for forward, backward in zip(self.forward_cells, self.backward_cells):
+            final_forward, out_forward = self._direction(forward, values)
+            final_backward, out_backward_reversed = self._direction(backward, values[::-1])
+            values = jnp.concatenate((out_forward, out_backward_reversed[::-1]), axis=-1)
+        summary = jnp.concatenate((final_forward, final_backward), axis=-1)
+        return self.projection2(jax.nn.elu(self.projection1(summary)))
+
+    def __call__(self, x):
+        return jax.vmap(self._encode_one)(x)

@@ -1,2 +1,0 @@
-method,device,batch_size,particles_per_case,horizon,median_batch_ms,median_ms_per_case,median_ms_per_particle_trajectory,particle_trajectories_per_second,repeats
-controlled_flow_sde,TFRT_CPU_0,8,100,100,516.1311328411102,64.51639160513878,0.6451639160513878,1549.9936917122147,5

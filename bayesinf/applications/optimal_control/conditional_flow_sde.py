@@ -47,11 +47,11 @@ class ConditionalRealNVP(eqx.Module):
     layers: tuple
     dim: int = eqx.field(static=True)
 
-    def __init__(self, dim, condition_dim, n_layers, key, width=256):
+    def __init__(self, dim, condition_dim, n_layers, key, width=256, scale_limit=2.0):
         keys = jr.split(key, n_layers)
         indices = jnp.arange(dim)
         self.layers = tuple(ConditionalCoupling(
-            dim, condition_dim, (indices + layer) % 2 == 0, keys[layer], width
+            dim, condition_dim, (indices + layer) % 2 == 0, keys[layer], width, scale_limit
         ) for layer in range(n_layers))
         self.dim = dim
 
@@ -78,12 +78,14 @@ class FlowSDE(eqx.Module):
     dt: float = eqx.field(static=True)
 
     def __init__(self, input_dim, action_dim, state_dim, key, dt=0.02,
-                 width=256, depth=3, condition_dim=128, flow_layers=4):
+                 width=256, depth=3, condition_dim=128, flow_layers=4,
+                 flow_scale_limit=2.0):
         kd, kc, kf = jr.split(key, 3)
         joint = input_dim + action_dim
         self.drift = make_mlp(joint, state_dim, width, depth, kd)
         self.conditioner = make_mlp(joint, condition_dim, width, 2, kc)
-        self.flow = ConditionalRealNVP(state_dim, condition_dim, flow_layers, kf, width)
+        self.flow = ConditionalRealNVP(state_dim, condition_dim, flow_layers, kf, width,
+                                       flow_scale_limit)
         self.input_dim, self.action_dim, self.state_dim = input_dim, action_dim, state_dim
         self.dt = float(dt)
 

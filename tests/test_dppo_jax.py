@@ -80,7 +80,7 @@ def test_bc_and_dppo_compiled_updates_are_finite():
 def test_interpolant_analytic_score_and_ode_sde_are_finite():
     policy = CondStochInterpolantPolicy(
         6, 3, 4, jr.PRNGKey(39), integration_steps=3,
-        informative_base=False, hidden_size=16, depth=1, time_dim=8,
+        hidden_size=16, depth=1, time_dim=8,
     )
     states = jr.normal(jr.PRNGKey(40), (4, 1, 6))
     actions = jr.normal(jr.PRNGKey(41), (4, 4, 3))
@@ -111,7 +111,7 @@ def test_interpolant_analytic_score_and_ode_sde_are_finite():
 def test_interpolant_energy_path_loss_and_heun_samplers():
     policy = CondStochInterpolantPolicy(
         6, 3, 4, jr.PRNGKey(46), integration_steps=3,
-        informative_base=False, hidden_size=16, depth=1, time_dim=8,
+        hidden_size=16, depth=1, time_dim=8,
         path_loss_weight=0.1, path_loss_steps=2,
     )
     states = jr.normal(jr.PRNGKey(47), (2, 1, 6))
@@ -162,6 +162,20 @@ def test_diffusion_ddim_supports_strided_inference_grid():
     assert jnp.all(jnp.isfinite(sample.actions))
 
 
+def test_diffusion_bc_sampler_has_noise_free_final_transition():
+    policy = DPPODiffusionPolicy(
+        6, 3, 4, jr.PRNGKey(36), denoising_steps=5,
+        sampling_std_floor=0.1,
+    )
+    states = jnp.zeros((2, 1, 6))
+    sample = policy.sample_bc(states, jr.PRNGKey(37), clip=None)
+    final_mean, _ = jax.vmap(policy._mean_log_variance)(
+        sample.chain[:, -2], jnp.zeros(2, dtype=jnp.int32), states
+    )
+    assert jnp.allclose(sample.chain[:, -1], final_mean)
+    assert jnp.allclose(sample.actions, final_mean)
+
+
 def test_dppo_freezes_source_and_updates_velocity():
     policy, critic = models()
     states = jr.normal(jr.PRNGKey(10), (4, 1, 6))
@@ -178,7 +192,6 @@ def test_dppo_freezes_source_and_updates_velocity():
         state, actor_optimizer, critic_optimizer, batch, DPPOConfig()
     )
     assert eqx.tree_equal(state.policy.encoder, updated.policy.encoder)
-    assert eqx.tree_equal(state.policy.inference_net, updated.policy.inference_net)
     old_velocity = jax.tree_util.tree_leaves(eqx.filter(state.policy.vel_net, eqx.is_array))
     new_velocity = jax.tree_util.tree_leaves(eqx.filter(updated.policy.vel_net, eqx.is_array))
     assert any(not jnp.allclose(old, new) for old, new in zip(old_velocity, new_velocity))

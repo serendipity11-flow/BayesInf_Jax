@@ -13,7 +13,11 @@ import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
-from bayesinf.applications.state_estimation.filtering_baselines import bootstrap_particle_filter, extended_kalman_filter
+from bayesinf.applications.state_estimation.filtering_baselines import (
+    bootstrap_particle_filter,
+    extended_kalman_filter,
+    unscented_kalman_filter,
+)
 from .utils.dataset import generate_lorenz96_dataset, rk4_step, train_val_test_split
 
 
@@ -32,6 +36,8 @@ def _tuple(text):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--use-case", choices=USE_CASES, required=True)
+    p.add_argument("--method", choices=("ekf", "ukf", "particle_filter"),
+                   help="Override the baseline selected by --use-case")
     p.add_argument("--N", type=int, default=12)
     p.add_argument("--horizon", type=int, default=100)
     p.add_argument("--obs-interval", type=int, default=2)
@@ -59,10 +65,11 @@ def main():
     p.add_argument("--out", default="results/results_state_estimation/filter_benchmark")
     args = p.parse_args()
 
-    method, default_noise = USE_CASES[args.use_case]
+    default_method, default_noise = USE_CASES[args.use_case]
+    method = args.method or default_method
     noise = args.noise_type or default_noise
-    if method == "ekf" and noise != "gaussian":
-        p.error("The EKF benchmark requires Gaussian observation noise")
+    if method in ("ekf", "ukf") and noise != "gaussian":
+        p.error("The EKF and UKF benchmarks require Gaussian observation noise")
 
     key = jr.PRNGKey(args.seed)
     data = generate_lorenz96_dataset(
@@ -80,8 +87,9 @@ def main():
     y, x0, truth = test["y"][:count], test["x0"][:count], test["x"][:count]
     transition = lambda state: rk4_step(state, args.dt, args.F)
 
-    if method == "ekf":
-        result = extended_kalman_filter(
+    if method in ("ekf", "ukf"):
+        filter_fn = extended_kalman_filter if method == "ekf" else unscented_kalman_filter
+        result = filter_fn(
             y, x0, test["H"], transition,
             obs_std=args.obs_std, process_std=args.process_std,
             initial_std=args.initial_std,
@@ -129,8 +137,12 @@ def main():
     n_win = min(args.n_windows, count)
     n_rows = (n_win + 1) // 2
     fig, axes = plt.subplots(n_rows, 2, figsize=(14, 3.5 * n_rows), squeeze=False)
-    display_method = "Extended Kalman Filter" if method == "ekf" else "Particle Filter"
-    short_method = "EKF" if method == "ekf" else "PF"
+    display_method = {
+        "ekf": "Extended Kalman Filter",
+        "ukf": "Unscented Kalman Filter",
+        "particle_filter": "Particle Filter",
+    }[method]
+    short_method = {"ekf": "EKF", "ukf": "UKF", "particle_filter": "PF"}[method]
     fig.suptitle(
         f"{display_method}  –  Lorenz-96 N={args.N}  –  {noise} noise  –  {args.ci:.0f}% CI\n"
         f"RMSE all={metrics['rmse_all']:.3f}  obs={metrics['rmse_observed']:.3f}  "

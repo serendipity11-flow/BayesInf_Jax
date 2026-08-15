@@ -16,11 +16,13 @@ diffrax==0.7.2
 dill==0.4.1
 docopt==0.6.2
 equinox==0.13.7
+einops==0.8.2
 executing==2.2.1
 fastjsonschema==2.21.2
 fonttools==4.62.1
 gitdb==4.0.12
 GitPython==3.1.48
+h5py==3.16.0
 idna==3.13
 ipython==8.12.3
 jax==0.10.0
@@ -103,6 +105,7 @@ stack-data==0.6.3
 threadpoolctl==3.6.0
 tinycss2==1.4.0
 tornado==6.5.5
+torch==2.13.0
 tqdm==4.67.3
 traitlets==5.14.3
 typing-inspection==0.4.2

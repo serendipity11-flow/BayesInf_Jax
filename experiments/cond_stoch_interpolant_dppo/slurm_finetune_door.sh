@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #SBATCH --account=Mitarbeiter
 #SBATCH --job-name=door_ft
-#SBATCH --partition=a30
-#SBATCH --qos=a30-gpu
-#SBATCH --gres=gpu:a30:1
-#SBATCH --array=0-5%2
+#SBATCH --partition=l40s
+#SBATCH --qos=l40s-gpu
+#SBATCH --gres=gpu:l40s:1
+#SBATCH --array=0-2%2
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=32G
 #SBATCH --time=36:00:00
@@ -23,14 +23,17 @@ SEED=$((SLURM_ARRAY_TASK_ID % SEEDS))
 
 case "$METHOD_INDEX" in
     0)
-        POLICY=interpolant
-        METHOD_DIR=si_analytic_dppo_v4
-        CHECKPOINT="$PROJECT_ROOT/results/results_optimal_control/door/si_analytic_dppo_v4/seed$SEED/pretrain/checkpoint"
-        POLICY_ARGS=(--integration-steps 50 --gaussian-base
+        POLICY=csi_sde
+        METHOD_DIR=csi_sde_v2
+        CHECKPOINT="$PROJECT_ROOT/results/results_optimal_control/door/csi_sde_v2/seed$SEED/pretrain/checkpoint"
+        POLICY_ARGS=(--integration-steps 20
                      --sigma-0 0.1 --sampling-std 0.1
-                     --score-sigma-floor 0.02 --sde-eta 0.05
-                     --hidden-size 52 --depth 2
-                     --time-dim 16 --context-dim 32 --n-heads 4)
+                     --score-sigma-floor 0.02 --sde-eta 0.005
+                     --path-loss-weight 0.2 --path-loss-steps 20
+                     --score-head-width 16 --score-loss-weight 0.05
+                     --score-correction-scale 0.1
+                     --hidden-size 52 --depth 3
+                     --time-dim 16 --context-dim 64 --n-heads 4)
         ;;
     1)
         POLICY=dppo
@@ -96,14 +99,15 @@ PY
     --obs-dim 39 \
     --action-dim 28 \
     --horizon 4 \
+    --execution-horizon 4 \
     --cond-steps 1 \
     --seed "$SEED" \
     --iterations 75 \
     --checkpoint-every 5 \
     --n-envs 40 \
     --rollout-steps 70 \
-    --update-epochs 10 \
-    --actor-learning-rate 1e-4 \
+    --update-epochs 2 \
+    --actor-learning-rate 1e-5 \
     --critic-learning-rate 1e-3 \
     --critic-hidden-size 256 \
     --critic-depth 3 \
@@ -114,5 +118,8 @@ PY
     --clip-base 0.01 \
     --clip-rate 3 \
     --vf-coef 0.5 \
-    --target-kl 1 \
+    --target-kl 5e-5 \
+    --bc-reference-coef 0.05 \
+    --reward-scale 0.01 \
+    --max-grad-norm 1.0 \
     "${POLICY_ARGS[@]}"

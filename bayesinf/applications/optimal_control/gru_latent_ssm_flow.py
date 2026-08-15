@@ -57,12 +57,14 @@ class GRULatentSSMFlow(eqx.Module):
     d_out: int = eqx.field(static=True)
     predict_delta: bool = eqx.field(static=True)
     max_rho: float = eqx.field(static=True)
+    history_control_conditioned: bool = eqx.field(static=True)
 
     def __init__(
         self, state_dim: int, control_dim: int, history_len: int = 1,
         d_out: int = 64, key=jr.PRNGKey(0), *, predict_delta: bool = True,
         n_coupling: int = 4, hidden_size: int = 64, n_hidden: int = 2,
         flow_type: str = "realnvp", num_bins: int = 8, max_rho: float = 0.9,
+        history_control_conditioned: bool = True,
         **_,
     ):
         if min(state_dim, control_dim, history_len, d_out) < 1:
@@ -70,8 +72,10 @@ class GRULatentSSMFlow(eqx.Module):
         self.state_dim, self.control_dim = state_dim, control_dim
         self.history_len, self.d_out = history_len, d_out
         self.predict_delta, self.max_rho = predict_delta, max_rho
+        self.history_control_conditioned = history_control_conditioned
         k_gru, k_flow, k_ssm = jr.split(key, 3)
-        self.gru = eqx.nn.GRUCell(state_dim + control_dim, d_out, key=k_gru)
+        gru_input_dim = state_dim + (control_dim if history_control_conditioned else 0)
+        self.gru = eqx.nn.GRUCell(gru_input_dim, d_out, key=k_gru)
         self.transforms = build_flow_transforms(
             input_dim=state_dim, cond_dim=d_out + control_dim,
             n_blocks=n_coupling, hidden_size=hidden_size, n_hidden=n_hidden,
@@ -101,7 +105,11 @@ class GRULatentSSMFlow(eqx.Module):
         ], axis=0)
         hidden = jnp.zeros((self.d_out,))
         for state, action in zip(states, padded_controls):
-            hidden = self.gru(jnp.concatenate([state, action]), hidden)
+            gru_input = (
+                jnp.concatenate([state, action])
+                if self.history_control_conditioned else state
+            )
+            hidden = self.gru(gru_input, hidden)
         return hidden
 
     def condition(self, state_history, action, control_history=None):

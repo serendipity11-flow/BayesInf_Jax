@@ -1,0 +1,30 @@
+<mujoco model="differential_drive">
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="RK4"/>
+  <default>
+    <geom condim="6" solref="0.005 1" friction="0.8 0.01 0.001"/>
+    <joint damping="0.02" armature="0.002"/>
+  </default>
+  <worldbody>
+    <light pos="0 0 5"/>
+    <geom name="terrain_floor" type="box" pos="0 0 -0.05" size="20 12 0.05" friction=".72 .01 .001" rgba=".33 .38 .29 1"/>
+    <body name="base" pos="0 0 0.15">
+      <joint name="base_x" type="slide" axis="1 0 0" damping="0"/>
+      <joint name="base_y" type="slide" axis="0 1 0" damping="0"/>
+      <joint name="base_yaw" type="hinge" axis="0 0 1" damping="0"/>
+      <geom type="box" size="0.22 0.18 0.06" mass="2.5" rgba=".15 .3 .65 1"/>
+      <body pos="0 .21 -.08" euler="90 0 0">
+        <joint name="left_wheel" type="hinge" axis="0 0 1"/>
+        <geom name="left_tire" type="cylinder" size=".075 .025" mass=".15" friction="1.2 .001 .0001"/>
+      </body>
+      <body pos="0 -.21 -.08" euler="90 0 0">
+        <joint name="right_wheel" type="hinge" axis="0 0 1"/>
+        <geom name="right_tire" type="cylinder" size=".075 .025" mass=".15" friction="1.2 .001 .0001"/>
+      </body>
+      <geom type="sphere" pos="-.17 0 -.12" size=".035" mass=".03" friction=".05 .005 .001"/>
+    </body>
+  </worldbody>
+  <actuator>
+    <velocity joint="left_wheel" kv="20" ctrlrange="-30 30" ctrllimited="true"/>
+    <velocity joint="right_wheel" kv="20" ctrlrange="-30 30" ctrllimited="true"/>
+  </actuator>
+</mujoco>

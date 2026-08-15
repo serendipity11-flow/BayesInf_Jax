@@ -13,6 +13,10 @@ import importlib
 import json
 from pathlib import Path
 import re
+import os
+import pickle
+import struct
+import subprocess
 import time
 from types import SimpleNamespace
 from typing import Any
@@ -122,6 +126,71 @@ def load_checkpoint(checkpoint: Checkpoint, method: dict | None = None):
 
 
 def make_environment(task: dict, record: bool):
+    if task.get("environment_backend") == "legacy_d4rl_kitchen":
+        if record:
+            raise ValueError("legacy D4RL worker does not support video recording")
+
+        class LegacyD4RLKitchenEnvironment:
+            """Proxy the exact Python 3.10 D4RL simulator to this JAX process."""
+
+            def __init__(self):
+                root = Path(task.get("legacy_root", ".")).resolve()
+                python = Path(task["legacy_python"])
+                if not python.is_absolute():
+                    python = root / python
+                worker = Path(__file__).with_name("legacy_d4rl_kitchen_worker.py")
+                environment = os.environ.copy()
+                environment.update({
+                    "D4RL_DATASET_DIR": str(root / "data" / "d4rl_cache"),
+                    "D4RL_SUPPRESS_IMPORT_ERROR": "1",
+                    "MUJOCO_GL": environment.get("MUJOCO_GL", "egl"),
+                    "PYTHONPATH": str(root / "third_party" / "d4rl_legacy"),
+                })
+                self.process = subprocess.Popen(
+                    [str(python), str(worker)], stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE, env=environment,
+                )
+
+            def _request(self, command, payload=None):
+                if self.process.poll() is not None:
+                    raise RuntimeError(
+                        f"legacy D4RL worker exited with {self.process.returncode}"
+                    )
+                message = pickle.dumps((command, payload), protocol=pickle.HIGHEST_PROTOCOL)
+                self.process.stdin.write(struct.pack("!Q", len(message)))
+                self.process.stdin.write(message)
+                self.process.stdin.flush()
+                size_bytes = self.process.stdout.read(8)
+                if len(size_bytes) != 8:
+                    raise RuntimeError("legacy D4RL worker closed its output pipe")
+                size = struct.unpack("!Q", size_bytes)[0]
+                response = self.process.stdout.read(size)
+                if len(response) != size:
+                    raise RuntimeError("truncated legacy D4RL worker response")
+                return pickle.loads(response)
+
+            def reset(self, seed=None, **_kwargs):
+                return self._request("reset", 0 if seed is None else seed)
+
+            def step(self, action):
+                # A plain list avoids NumPy 1.x/2.x pickle module-name skew
+                # between the legacy simulator and current inference process.
+                return self._request(
+                    "step", np.asarray(action, dtype=np.float32).tolist()
+                )
+
+            def render(self):
+                return None
+
+            def close(self):
+                if self.process.poll() is None:
+                    try:
+                        self._request("close")
+                    finally:
+                        self.process.wait(timeout=10)
+
+        return LegacyD4RLKitchenEnvironment()
+
     import gymnasium as gym
     for module_name in task.get("registration_modules", []):
         module = importlib.import_module(module_name)
@@ -130,7 +199,60 @@ def make_environment(task: dict, record: bool):
     kwargs = dict(task.get("env_kwargs", {}))
     if record:
         kwargs["render_mode"] = "rgb_array"
-    return gym.make(task["env_id"], **kwargs)
+    env = gym.make(task["env_id"], **kwargs)
+    if task.get("observation_adapter") == "d4rl_kitchen_v0":
+        class D4RLKitchenObservation(gym.Wrapper):
+            """Expose the legacy D4RL 60-D qpos+goal Kitchen observation."""
+
+            indices = {
+                "bottom burner": np.array([11, 12]),
+                "top burner": np.array([15, 16]),
+                "light switch": np.array([17, 18]),
+                "slide cabinet": np.array([19]),
+                "hinge cabinet": np.array([20, 21]),
+                "microwave": np.array([22]),
+                "kettle": np.array([23, 24, 25, 26, 27, 28, 29]),
+            }
+
+            def __init__(self, wrapped):
+                super().__init__(wrapped)
+                self.observation_space = gym.spaces.Box(
+                    -np.inf, np.inf, shape=(60,), dtype=np.float64
+                )
+
+            def _legacy_observation(self):
+                base = self.env.unwrapped
+                goal = np.zeros(30, dtype=np.float64)
+                for name, value in base.goal.items():
+                    goal[self.indices[name]] = value
+                return np.concatenate((base.data.qpos[:30].copy(), goal))
+
+            @staticmethod
+            def _legacy_info(info):
+                completed = set(info.get("episode_task_completions", ()))
+                info = dict(info)
+                info["completed_tasks"] = {
+                    "microwave": "microwave" in completed,
+                    "kettle": "kettle" in completed,
+                    "light_switch": "light switch" in completed,
+                    "slide_cabinet": "slide cabinet" in completed,
+                }
+                info["success"] = len(completed) == 4
+                return info
+
+            def reset(self, **reset_kwargs):
+                _, info = self.env.reset(**reset_kwargs)
+                return self._legacy_observation(), self._legacy_info(info)
+
+            def step(self, action):
+                _, reward, terminated, truncated, info = self.env.step(action)
+                return (
+                    self._legacy_observation(), reward, terminated, truncated,
+                    self._legacy_info(info),
+                )
+
+        env = D4RLKitchenObservation(env)
+    return env
 
 
 def info_value(info: dict, dotted_key: str, default=False):
@@ -149,8 +271,6 @@ def evaluate_checkpoint(
     output: Path,
     record_episodes: int,
 ) -> tuple[list[dict], dict]:
-    import imageio.v2 as imageio
-
     policy, base_policy, config = load_checkpoint(checkpoint, method)
     normalizer = Normalizer(Path(task["normalization"]))
     deterministic = bool(
@@ -176,7 +296,16 @@ def evaluate_checkpoint(
     sampler = method.get("sampler")
     if sampler == "sde":
         deterministic = False
-    if sampler == "ddim":
+    if sampler == "ddpm_bc":
+        if config.get("policy") != "dppo":
+            raise ValueError("DDPM BC sampler requires a diffusion checkpoint")
+        # Sampler-controlled comparison: use the same ancestral DDPM kernel
+        # for pretrained and fine-tuned parameters. In particular, the final
+        # action-producing transition is noise-free, as in BC evaluation.
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_bc(states_, key_)
+        )
+    elif sampler == "ddim":
         if config.get("policy") != "dppo":
             raise ValueError("DDIM sampler requires a diffusion checkpoint")
         sample_policy = eqx.filter_jit(
@@ -208,6 +337,14 @@ def evaluate_checkpoint(
         deterministic = False
         sample_policy = eqx.filter_jit(
             lambda policy_, states_, key_: policy_.sample_sde_heun(states_, key_)
+        )
+    elif checkpoint.stage == "pretrain" and config.get("policy") == "dppo":
+        # Match the official pretrained DDPM sampler. DPPO's 0.1 transition
+        # floor belongs only to online fine-tuning and corrupts BC evaluation.
+        sample_policy = eqx.filter_jit(
+            lambda policy_, states_, key_: policy_.sample_bc(
+                states_, key_
+            )
         )
     elif base_policy is not None and config.get("policy") == "dppo":
         sample_policy = eqx.filter_jit(
@@ -308,6 +445,8 @@ def evaluate_checkpoint(
                     for name, value in subtask_success.items()})
         rows.append(row)
         if frames:
+            import imageio.v2 as imageio
+
             video_dir = output / "recordings" / checkpoint.task / checkpoint.method
             video_dir.mkdir(parents=True, exist_ok=True)
             imageio.mimsave(
@@ -403,9 +542,8 @@ def aggregate_final(
 def plot_learning_curves(summaries: list[dict], output: Path) -> None:
     import matplotlib.pyplot as plt
     for task in sorted(set(row["task"] for row in summaries)):
-        task_rows = [row for row in summaries
-                     if row["task"] == task and row["stage"] == "finetune"]
-        if not task_rows:
+        task_rows = [row for row in summaries if row["task"] == task]
+        if not any(row["stage"] == "finetune" for row in task_rows):
             continue
         for metric, label, suffix in (
             ("success_rate_mean", "Success rate", "success"),
@@ -414,18 +552,29 @@ def plot_learning_curves(summaries: list[dict], output: Path) -> None:
             figure, axis = plt.subplots(figsize=(6, 4))
             for method in sorted(set(row["method"] for row in task_rows)):
                 method_rows = [row for row in task_rows if row["method"] == method]
+                finetune_rows = [row for row in method_rows
+                                 if row["stage"] == "finetune"]
+                if not finetune_rows:
+                    continue
                 x_key = (
                     "environment_steps"
-                    if any(row["environment_steps"] for row in method_rows)
+                    if any(row["environment_steps"] for row in finetune_rows)
                     else "iteration"
                 )
-                x_values = sorted(set(row[x_key] for row in method_rows))
+                x_values = sorted(set(row[x_key] for row in finetune_rows))
                 means, stds = [], []
                 for x_value in x_values:
-                    values = [row[metric] for row in method_rows
+                    values = [row[metric] for row in finetune_rows
                               if row[x_key] == x_value]
                     mean, std = mean_std(values)
                     means.append(mean); stds.append(std)
+                pretrain_values = [row[metric] for row in method_rows
+                                   if row["stage"] == "pretrain"]
+                if pretrain_values:
+                    pretrain_mean, pretrain_std = mean_std(pretrain_values)
+                    x_values.insert(0, 0)
+                    means.insert(0, pretrain_mean)
+                    stds.insert(0, pretrain_std)
                 x, y, band = map(np.asarray, (x_values, means, stds))
                 axis.plot(x, y, marker="o", label=method)
                 axis.fill_between(x, y - band, y + band, alpha=.2)

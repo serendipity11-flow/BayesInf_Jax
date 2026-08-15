@@ -14,6 +14,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams.update({
+    "font.size": 14,
+    "axes.titlesize": 16,
+    "axes.labelsize": 15,
+    "xtick.labelsize": 13,
+    "ytick.labelsize": 13,
+    "legend.fontsize": 13,
+})
+
 from .evaluate import angle_error, load_model
 from .model import (
     ExactJackalModel, HighFidelityJackalConfig, delayed_high_fidelity_step,
@@ -47,6 +56,14 @@ def scenarios():
     }
 
 
+def reconstruction_scenarios():
+    """In-domain reference followed by the four held-out OOD plants."""
+    return {
+        "in_domain": HighFidelityJackalConfig(),
+        **scenarios(),
+    }
+
+
 def scenario_rollout(config, actions, initial_state, key):
     state = initial_state
     queue = jnp.zeros((max(1, config.command_delay_steps), 2))
@@ -62,12 +79,16 @@ def scenario_rollout(config, actions, initial_state, key):
 def open_loop(model, args):
     nominal = ExactJackalModel(process_noise=0.0)
     rows = {}
-    for scenario_index, (name, config) in enumerate(scenarios().items()):
+    ood_indices = {name: index for index, name in enumerate(scenarios())}
+    for name, config in reconstruction_scenarios().items():
+        # Preserve the established OOD random seeds when adding reference cases.
+        scenario_seed = (
+            args.evaluation_seed + 10 * ood_indices[name]
+            if name in ood_indices else args.evaluation_seed + 10_000
+        )
         learned_values, nominal_values, targets, particles = [], [], [], []
         for episode in range(args.open_loop_episodes):
-            key = jr.fold_in(
-                jr.PRNGKey(args.evaluation_seed + 10 * scenario_index), episode
-            )
+            key = jr.fold_in(jr.PRNGKey(scenario_seed), episode)
             command_key, plant_key, particle_key = jr.split(key, 3)
             raw = jr.uniform(command_key, (args.open_loop_steps, 2),
                              minval=-1.0, maxval=1.0)
@@ -351,40 +372,39 @@ def plot(summary, trajectory_store, output, obstacles, goal):
         axis.scatter(*goal, marker="*", s=110, color="green")
         axis.set_title(scenario_name.replace("_", " "))
         axis.set_aspect("equal"); axis.grid(alpha=0.25)
-    axes.flat[0].legend(fontsize=8)
+    axes.flat[0].legend(fontsize=13)
     timing_axis = axes.flat[4]
-    controller_names = list(colors)
+    cpu_summary = summary.get("cpu_reference", summary)
+    gpu_summary = summary.get("gpu_reference", summary)
     mean_command_ms = [
         1000 * np.mean([
-            summary["closed_loop"][scenario][controller]["mean_command_time_s"]
+            cpu_summary["closed_loop"][scenario]["latent_ssm_flow_cem"]["mean_command_time_s"]
             for scenario in scenario_names
-        ])
-        for controller in controller_names
+        ]),
+        1000 * np.mean([
+            gpu_summary["closed_loop"][scenario]["latent_ssm_flow_cem"]["mean_command_time_s"]
+            for scenario in scenario_names
+        ]),
+        1000 * np.mean([
+            cpu_summary["closed_loop"][scenario]["nominal_unicycle_cem"]["mean_command_time_s"]
+            for scenario in scenario_names
+        ]),
     ]
     timing_bars = timing_axis.bar(
-        ["LatentSSMFlow", "Nominal model"], mean_command_ms,
-        color=[colors[name] for name in controller_names],
+        ["LSSMFlow\nCPU", "LSSMFlow\nGPU", "Nominal\nCPU"],
+        mean_command_ms, color=["#6BAED6", "#2878B5", "#F28E2B"],
     )
     timing_axis.bar_label(
         timing_bars,
-        labels=[f"{value:.1f} ms" for value in mean_command_ms],
-        padding=3,
+        labels=[f"{value:.3g} ms" for value in mean_command_ms],
+        padding=4, fontsize=14,
     )
     timing_axis.set_ylabel("Mean time per MPC command [ms]")
-    timing_axis.set_title("Closed-loop computation time")
-    timing_axis.set_ylim(0, 1.28 * max(mean_command_ms))
-    timing_axis.grid(axis="y", alpha=0.25)
-    compile_times = summary.get("jit_compile_time_s", {})
-    if all(name in compile_times for name in controller_names):
-        timing_axis.text(
-            0.5, 0.96,
-            "JIT compile: " + ", ".join(
-                f"{label} {compile_times[name]:.2f} s"
-                for label, name in zip(("flow", "nominal"), controller_names)
-            ),
-            transform=timing_axis.transAxes, ha="center", va="top", fontsize=8,
-            bbox={"facecolor": "white", "alpha": 0.75, "edgecolor": "none"},
-        )
+    timing_axis.set_title("Closed-loop CEM computation time")
+    timing_axis.set_yscale("log")
+    timing_axis.tick_params(axis="x", labelsize=12)
+    timing_axis.set_ylim(min(mean_command_ms) * 0.45, max(mean_command_ms) * 2.3)
+    timing_axis.grid(axis="y", which="both", alpha=0.25)
     summary_axis = axes.flat[5]
     learned = [
         summary["closed_loop"][name]["latent_ssm_flow_cem"]["success_rate"]
@@ -399,14 +419,14 @@ def plot(summary, trajectory_store, output, obstacles, goal):
     summary_axis.bar(positions + 0.18, nominal, 0.36, label="Nominal model")
     summary_axis.set_xticks(
         positions, [name.replace("_", "\n") for name in scenario_names],
-        fontsize=8,
+        fontsize=13,
     )
     summary_axis.set_ylim(0, 1.1); summary_axis.set_ylabel("Success rate")
     summary_axis.set_title("OOD closed-loop success")
     summary_axis.legend(); summary_axis.grid(axis="y", alpha=0.25)
     figure.suptitle(
         "Jackal CEM under unseen friction, delay, payload and disturbance",
-        fontsize=14,
+        fontsize=20,
     )
     figure.tight_layout()
     figure.savefig(output, dpi=190, bbox_inches="tight")
@@ -414,7 +434,10 @@ def plot(summary, trajectory_store, output, obstacles, goal):
 
 
 def plot_open_loop(summary, output):
-    scenario_names = list(scenarios())
+    scenario_names = [
+        name for name in reconstruction_scenarios()
+        if name in summary["open_loop"]
+    ]
     figure, axes = plt.subplots(2, 3, figsize=(14, 8))
     for axis, scenario_name in zip(axes.flat[:-1], scenario_names):
         curves = summary["open_loop"][scenario_name]["horizon_position_rmse_m"]
@@ -428,22 +451,32 @@ def plot_open_loop(summary, output):
     axes.flat[0].legend()
     timing_axis = axes.flat[5]
     timing = summary["dynamics_computation_time"]["deterministic_rollout"]
-    names = ["latent_ssm_flow", "nominal_unicycle"]
-    values = [timing[name]["microseconds_per_transition"] for name in names]
+    cpu_dynamics = summary.get("cpu_reference", summary)[
+        "dynamics_computation_time"
+    ]
+    # Older CPU result bundles stored deterministic timing directly, before
+    # deterministic and particle benchmarks were grouped separately.
+    cpu_timing = cpu_dynamics.get("deterministic_rollout", cpu_dynamics)
+    values = [
+        cpu_timing["latent_ssm_flow"]["microseconds_per_transition"],
+        timing["latent_ssm_flow"]["microseconds_per_transition"],
+        cpu_timing["nominal_unicycle"]["microseconds_per_transition"],
+    ]
     bars = timing_axis.bar(
-        ["LatentSSMFlow", "Nominal model"], values,
-        color=["tab:blue", "tab:orange"],
+        ["LSSMFlow\nCPU", "LSSMFlow\nGPU", "Nominal\nCPU"],
+        values, color=["#6BAED6", "#2878B5", "#F28E2B"],
     )
     timing_axis.bar_label(
-        bars, labels=[f"{value:.1f} µs" for value in values], padding=3
+        bars, labels=[f"{value:.3g} µs" for value in values], padding=3,
+        fontsize=14,
     )
     timing_axis.set_ylabel("JIT rollout time [µs/transition]")
-    timing_axis.set_title(
-        f"Matched rollout throughput\n"
-        f"ratio = {timing['latent_to_nominal_time_ratio']:.1f}×"
-    )
-    timing_axis.grid(axis="y", alpha=0.25)
-    figure.suptitle("Open-loop reconstruction under held-out plant mismatch")
+    timing_axis.set_title("Open-loop computation time")
+    timing_axis.set_yscale("log")
+    timing_axis.tick_params(axis="x", labelsize=12)
+    timing_axis.set_ylim(min(values) * 0.45, max(values) * 2.3)
+    timing_axis.grid(axis="y", which="both", alpha=0.25)
+    figure.suptitle("Open-loop reconstruction under in-domain and held-out plant dynamics")
     figure.tight_layout()
     figure.savefig(output, dpi=190, bbox_inches="tight")
     plt.close(figure)
@@ -451,7 +484,9 @@ def plot_open_loop(summary, output):
 
 def run(args):
     args.output.mkdir(parents=True, exist_ok=True)
-    model = load_model(args.checkpoint, args)
+    model = load_model(
+        args.checkpoint, args, history_control_conditioned=True
+    )
     if args.open_loop_only and args.skip_open_loop:
         raise ValueError("--open-loop-only cannot be combined with --skip-open-loop")
     skip_open_loop = args.skip_open_loop or args.closed_loop_only
@@ -542,6 +577,10 @@ def run(args):
         "closed_loop": closed_results,
         "dynamics_computation_time": dynamics_computation_time,
         "jit_compile_time_s": compile_times,
+        "compute_device": {
+            "platform": jax.default_backend(),
+            "devices": [str(device) for device in jax.devices()],
+        },
         "settings": {
             "closed_loop_episodes": args.closed_loop_episodes,
             "horizon": args.horizon, "candidates": args.candidates,

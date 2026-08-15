@@ -17,8 +17,7 @@ Model:
 
 Training:
     Exact change-of-variables transition NLL. The custom solver path uses
-    stochastic segment starts z0 ~ N(mu_psi(y_segment), diag(sigma_psi^2))
-    from a GRU inference network, plus optional adjacent-segment continuity loss.
+    provided segment starts, plus optional adjacent-segment continuity loss.
 
 Inference — Euler-Maruyama (or diffrax Heun) particle simulation conditioned
 on the BiGRU encoding of y_{1:T}.
@@ -161,47 +160,6 @@ class BiGRUEncoder(eqx.Module):
 
         h_bi = jnp.concatenate([h_fwd, h_bwd], axis=-1)    # (T, 2*d_h)
         return jax.vmap(self.proj)(h_bi)                    # (T, d_out)
-
-
-class GRUInitialInference(eqx.Module):
-    """
-    Diagonal-Gaussian segment encoder h_psi(y_segment) -> (mu_0, sigma_0).
-
-    A unidirectional GRU reads one observation segment and parameterises the
-    stochastic initial state used to start the RealNVP SDE integration.
-    """
-    cell:           eqx.nn.GRUCell
-    mu_head:        eqx.nn.Linear
-    raw_sigma_head: eqx.nn.Linear
-    d_hidden:       int = eqx.field(static=True)
-    min_sigma:      float = eqx.field(static=True)
-
-    def __init__(
-        self,
-        d_y: int,
-        d_hidden: int,
-        d_x: int,
-        key: jr.PRNGKey,
-        min_sigma: float = 1e-3,
-    ):
-        k_cell, k_mu, k_sigma = jr.split(key, 3)
-        self.cell = eqx.nn.GRUCell(d_y, d_hidden, key=k_cell)
-        self.mu_head = eqx.nn.Linear(d_hidden, d_x, key=k_mu)
-        self.raw_sigma_head = eqx.nn.Linear(d_hidden, d_x, key=k_sigma)
-        self.d_hidden = d_hidden
-        self.min_sigma = min_sigma
-
-    def __call__(self, y_seg: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
-        h0 = jnp.zeros(self.d_hidden)
-
-        def step(h, y_t):
-            h_new = self.cell(y_t, h)
-            return h_new, h_new
-
-        h_last, _ = jax.lax.scan(step, h0, y_seg)
-        mu = self.mu_head(h_last)
-        sigma = jax.nn.softplus(self.raw_sigma_head(h_last)) + self.min_sigma
-        return mu, sigma
 
 
 # ---------------------------------------------------------------------------
@@ -626,7 +584,6 @@ class RealNVPFlowSDE(eqx.Module):
     "midpoint"        — Stochastic midpoint
     """
     encoder:    BiGRUEncoder
-    init_net:   GRUInitialInference
     drift:      SDEDriftNet
     diffusion:  RealNVPDiffusionNet | NICEDiffusionNet
     d_x:        int    = eqx.field(static=True)
@@ -674,9 +631,8 @@ class RealNVPFlowSDE(eqx.Module):
             raise ValueError("time_step must be positive.")
         self.observation_stride = observation_stride
         self.time_step = float(time_step)
-        k_enc, k_init, k_drift, k_diff = jr.split(key, 4)
+        k_enc, k_drift, k_diff = jr.split(key, 3)
         self.encoder   = BiGRUEncoder(d_y, d_hidden_enc, d_c, k_enc)
-        self.init_net  = GRUInitialInference(d_y, d_hidden_enc, d_x, k_init)
         self.drift     = SDEDriftNet(d_x, d_c, d_hidden, depth, time_emb_dim, k_drift)
         if self.flow_type == "realnvp":
             self.diffusion = RealNVPDiffusionNet(
@@ -710,29 +666,6 @@ class RealNVPFlowSDE(eqx.Module):
         if self.exclude_control_from_diffusion and self.d_u:
             y = y.at[..., -self.d_u:].set(0.0)
         return self.encode_observation_stride(y, stride)
-
-    def infer_z0(
-        self,
-        y_seg: jnp.ndarray,
-        key:   jr.PRNGKey,
-    ) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray]:
-        """Sample z0 with the reparameterisation trick and return its parameters."""
-        mu, sigma = self.init_net(y_seg)
-        eps = jr.normal(key, mu.shape)
-        z0 = mu + sigma * eps
-        return z0, mu, sigma, jnp.array(0.0, dtype=mu.dtype)
-
-    @staticmethod
-    def initial_state_nll(
-        x0: jnp.ndarray,
-        mu: jnp.ndarray,
-        sigma: jnp.ndarray,
-    ) -> jnp.ndarray:
-        """Mean negative log likelihood of x0 under a diagonal Gaussian."""
-        standardized = (x0 - mu) / sigma
-        return jnp.mean(
-            0.5 * standardized**2 + jnp.log(sigma) + 0.5 * jnp.log(2.0 * jnp.pi)
-        )
 
     def transition_nll(self, x_seg, c_drift_seg, c_diffusion_seg, t_start, dt):
         times = t_start + jnp.arange(x_seg.shape[0] - 1) * dt
@@ -813,14 +746,11 @@ class RealNVPFlowSDE(eqx.Module):
         shooting_noise_std: float = 0.0,
         kl_weight:        float = 1e-3,
         continuity_weight: float = 0.0,
-        init_loss_weight: float = 1.0,
-        infer_initial:    bool = True,
     ) -> jnp.ndarray:
         """
         Path-wise multiple-shooting reconstruction loss for one trajectory.
 
-        Each segment starts from either a sampled GRU-inferred state or its
-        provided ground-truth state, as selected by ``infer_initial``.
+        Each segment starts from its provided ground-truth state.
         A fresh noise key is drawn per segment; G_φ shapes standard Gaussian eps.
         Gradients flow back through the solver via the adjoint method.
         
@@ -832,7 +762,7 @@ class RealNVPFlowSDE(eqx.Module):
         if use_custom_solver:
             return self._nll_pathwise_single_custom(
                 x, y, key, seg_length, solver_name, shooting_noise_std,
-                kl_weight, continuity_weight, init_loss_weight, infer_initial
+                kl_weight, continuity_weight
             )
         else:
             raise ValueError(
@@ -850,8 +780,6 @@ class RealNVPFlowSDE(eqx.Module):
         shooting_noise_std: float = 0.0,
         kl_weight: float = 1e-3,
         continuity_weight: float = 0.0,
-        init_loss_weight: float = 1.0,
-        infer_initial: bool = True,
     ) -> jnp.ndarray:
         """Path-wise loss using diffrax solvers."""
         import diffrax
@@ -867,7 +795,6 @@ class RealNVPFlowSDE(eqx.Module):
         total_recon = jnp.array(0.0)
         total_kl    = jnp.array(0.0)
         total_cont  = jnp.array(0.0)
-        total_init  = jnp.array(0.0)
         prev_end    = None
         for k in range(n_segs):
             s      = k * seg_length
@@ -875,11 +802,7 @@ class RealNVPFlowSDE(eqx.Module):
             t0_seg = (s + 1) * dt0
             t1_seg = e * dt0
             ts_seg = jnp.linspace(t0_seg, t1_seg, seg_length + 1)
-            if infer_initial:
-                z0, mu0, sigma0, kl = self.infer_z0(y[s:e], init_keys[k])
-                total_init = total_init + self.initial_state_nll(x[s], mu0, sigma0)
-            else:
-                z0, mu0, kl = x[s], x[s], jnp.array(0.0)
+            z0, mu0, kl = x[s], x[s], jnp.array(0.0)
             z0 = z0 + shooting_noise_std * jr.normal(jr.fold_in(init_keys[k], 101), z0.shape)
 
             pred = self._integrate_segment(
@@ -896,14 +819,12 @@ class RealNVPFlowSDE(eqx.Module):
         recon = total_recon / n_segs
         kl = total_kl / n_segs
         cont = total_cont / denom_cont
-        init = total_init / n_segs
-        return recon + kl_weight * kl + continuity_weight * cont + init_loss_weight * init
+        return recon + kl_weight * kl + continuity_weight * cont
 
     def _nll_pathwise_single_custom(
             self, x, y, key, seg_length, solver_name="heun",
             shooting_noise_std=0.0, kl_weight=1e-3,
-            continuity_weight=0.0, init_loss_weight=1.0,
-            infer_initial=True):
+            continuity_weight=0.0):
         T   = x.shape[0]
         dt0 = self.time_step
         c   = self.encode_observation_stride(y, self.observation_stride)
@@ -915,7 +836,6 @@ class RealNVPFlowSDE(eqx.Module):
         init_keys = jr.split(k_init_root, n_segs)
 
         total_recon = jnp.array(0.0)
-        total_init  = jnp.array(0.0)
         total_cont  = jnp.array(0.0)
         prev_end    = None
 
@@ -926,11 +846,7 @@ class RealNVPFlowSDE(eqx.Module):
             t1_seg = (e - 1) * dt0
             ts_seg = jnp.linspace(t0_seg, t1_seg, seg_length + 1)
 
-            if infer_initial:
-                z0, mu0, sigma0, _ = self.infer_z0(y[s:e], init_keys[k])
-                total_init = total_init + self.initial_state_nll(x[s], mu0, sigma0)
-            else:
-                z0, mu0 = x[s], x[s]
+            z0, mu0 = x[s], x[s]
 
             if shooting_noise_std > 0.0 and k > 0:
                 z0 = z0 + shooting_noise_std * jr.normal(jr.fold_in(init_keys[k], 101), z0.shape)
@@ -948,9 +864,7 @@ class RealNVPFlowSDE(eqx.Module):
 
         n = n_segs
         denom_cont = jnp.maximum(n - 1, 1)
-        return (total_recon / n
-                + init_loss_weight * total_init / n
-                + continuity_weight * total_cont / denom_cont)
+        return total_recon / n + continuity_weight * total_cont / denom_cont
 
     def _context_at(self, c: jnp.ndarray, t: jnp.ndarray) -> jnp.ndarray:
         """Nearest-neighbour context lookup on the physical-time grid."""
@@ -1036,8 +950,6 @@ class RealNVPFlowSDE(eqx.Module):
         shooting_noise_std: float = 0.0,
         kl_weight:        float = 1e-3,
         continuity_weight: float = 0.0,
-        init_loss_weight: float = 1.0,
-        infer_initial:    bool = True,
     ) -> jnp.ndarray:
         """Batch path-wise reconstruction loss. x: (B,T,d_x)  y: (B,T,d_y)."""
         B    = x.shape[0]
@@ -1045,8 +957,7 @@ class RealNVPFlowSDE(eqx.Module):
         return jnp.mean(jax.vmap(
             lambda xi, yi, ki: self.nll_pathwise_single(
                 xi, yi, ki, seg_length, solver_name, use_custom_solver,
-                shooting_noise_std, kl_weight, continuity_weight, init_loss_weight,
-                infer_initial
+                shooting_noise_std, kl_weight, continuity_weight
             )
         )(x, y, keys))
 
@@ -1057,7 +968,6 @@ class RealNVPFlowSDE(eqx.Module):
         key:              jr.PRNGKey,
         solver_name:      str = "heun",
         use_custom_solver: bool = False,
-        infer_initial: bool = True,
         num_ensemble: int = 20,
         loss_type: str = "gaussian_nll",
         energy_beta: float = 1.0,
@@ -1075,12 +985,9 @@ class RealNVPFlowSDE(eqx.Module):
         c = self.encode_observation_stride(y, self.observation_stride)
         c_diffusion = self.encode_diffusion_stride(y, self.observation_stride)
 
-        init_key, sde_key = jr.split(key)
+        sde_key = key
         if loss_type == "mse":
-            if infer_initial:
-                z0, _, _, _ = self.infer_z0(y, init_key)
-            else:
-                z0 = x[0]
+            z0 = x[0]
             if not use_custom_solver:
                 raise ValueError(
                     "RealNVP rollout loss requires --use_custom_solver; "
@@ -1097,11 +1004,7 @@ class RealNVPFlowSDE(eqx.Module):
                 "Diffrax ControlTerm cannot represent nonlinear flow noise."
             )
 
-        if infer_initial:
-            init_keys = jr.split(init_key, num_ensemble)
-            z0s = jax.vmap(lambda k: self.infer_z0(y, k)[0])(init_keys)
-        else:
-            z0s = jnp.broadcast_to(x[0], (num_ensemble, self.d_x))
+        z0s = jnp.broadcast_to(x[0], (num_ensemble, self.d_x))
 
         sde_keys = jr.split(sde_key, num_ensemble)
 
@@ -1132,7 +1035,6 @@ class RealNVPFlowSDE(eqx.Module):
         key:              jr.PRNGKey,
         solver_name:      str = "heun",
         use_custom_solver: bool = False,
-        infer_initial: bool = True,
         num_ensemble: int = 20,
         loss_type: str = "energy_score",
         energy_beta: float = 1.0,
@@ -1149,7 +1051,7 @@ class RealNVPFlowSDE(eqx.Module):
         keys = jr.split(key, B)
         return jnp.mean(jax.vmap(
             lambda xi, yi, ki: self.rollout_loss_single(
-                xi, yi, ki, solver_name, use_custom_solver, infer_initial,
+                xi, yi, ki, solver_name, use_custom_solver,
                 num_ensemble, loss_type, energy_beta, energy_uncertainty_weight
             )
         )(x, y, keys))
@@ -1167,14 +1069,11 @@ class RealNVPFlowSDE(eqx.Module):
         solver_name:    str   = "heun",
         dt_factor:      float | None = None,
         diffusion_temp: float = 1.0,
-        infer_initial:  bool  = False,
     ) -> jnp.ndarray:
         """
         Sample p(x_{1:T} | y_{1:T}) via the RealNVP SDE.
 
-        By default every particle starts at the supplied ``x0``. Set
-        ``infer_initial=True`` to instead sample each particle's initial state
-        from the learned diagonal Gaussian conditioned on ``y``.
+        Every particle starts at the supplied ``x0``.
         G_φ(z_t, c_t, t) shapes standard Gaussian eps into structured diffusion.
         Returns (n_particles, T, d_x).
         """
@@ -1191,11 +1090,8 @@ class RealNVPFlowSDE(eqx.Module):
         saveat            = diffrax.SaveAt(ts=ts)
 
         def simulate_one(k):
-            k_init, k_sde = jr.split(k)
-            if infer_initial:
-                z0, _, _, _ = self.infer_z0(y, k_init)
-            else:
-                z0 = x0
+            k_sde = k
+            z0 = x0
             bm = diffrax.VirtualBrownianTree(
                 t0=0.0, t1=duration + dt0, tol=dt0 * 0.5,
                 shape=(self.d_x,), key=k_sde,
@@ -1221,7 +1117,6 @@ class RealNVPFlowSDE(eqx.Module):
         solver_name:    str   = "heun",
         dt_factor:      float | None = None,
         diffusion_temp: float = 1.0,
-        infer_initial:  bool  = False,
         observation_stride: int | None = None,
     ) -> jnp.ndarray:
         """
@@ -1245,8 +1140,6 @@ class RealNVPFlowSDE(eqx.Module):
             dt_factor: Optional total duration override. By default, physical
                 time is determined by ``T * self.time_step``.
             diffusion_temp: Temperature scaling for diffusion
-            infer_initial: Sample the initial state from the learned inference
-                network instead of using the supplied x0. Defaults to False.
         
         Returns:
             Samples (n_particles, T, d_x)
@@ -1262,11 +1155,8 @@ class RealNVPFlowSDE(eqx.Module):
         ts  = jnp.linspace(0.0, duration, T + 1)
         
         def simulate_one(particle_key):
-            k_init, k_sde = jr.split(particle_key)
-            if infer_initial:
-                z0, _, _, _ = self.infer_z0(y, k_init)
-            else:
-                z0 = x0
+            k_sde = particle_key
+            z0 = x0
             path = self._integrate_custom(
                 z0, ts, c, k_sde, solver_name, diffusion_temp,
                 c_diffusion=c_diffusion,
@@ -1312,8 +1202,6 @@ def make_step_realnvp_pathwise(
     rollout_loss_weight: float = 0.0,
     kl_weight: float = 1e-3,
     continuity_weight: float = 0.0,
-    init_loss_weight: float = 1.0,
-    infer_initial: bool = True,
     rollout_num_ensemble: int = 20,
     rollout_loss_type: str = "energy_score",
     rollout_energy_beta: float = 1.0,
@@ -1336,8 +1224,7 @@ def make_step_realnvp_pathwise(
     def loss_fn(m):
         path_loss = m.nll_pathwise(
             x_batch, y_batch, key, seg_length, solver_name, use_custom_solver,
-            shooting_noise_std, kl_weight, continuity_weight, init_loss_weight,
-            infer_initial
+            shooting_noise_std, kl_weight, continuity_weight
         )
         total_loss = path_loss
         if transition_loss_weight != 0.0:
@@ -1360,7 +1247,7 @@ def make_step_realnvp_pathwise(
         if rollout_loss_weight != 0.0:
             rollout_loss = m.rollout_loss(
                 x_batch, y_batch, jr.fold_in(key, 29), solver_name,
-                use_custom_solver, infer_initial, rollout_num_ensemble,
+                use_custom_solver, rollout_num_ensemble,
                 rollout_loss_type, rollout_energy_beta,
                 rollout_uncertainty_weight, rollout_window
             )

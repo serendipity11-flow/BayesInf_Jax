@@ -28,11 +28,12 @@ from .model import (
 from bayesinf.applications.optimal_control.sampling_mpc import CEMStochasticMPC, SamplingMPCConfig
 
 
-def load_model(checkpoint, args):
+def load_model(checkpoint, args, *, history_control_conditioned=False):
     template = GRULatentSSMFlow(
         6, 2, args.history, args.hidden_dim, jr.PRNGKey(1),
         predict_delta=True, n_coupling=args.blocks, hidden_size=args.width,
         n_hidden=args.hidden_layers, max_rho=args.max_rho,
+        history_control_conditioned=history_control_conditioned,
     )
     return eqx.tree_deserialise_leaves(checkpoint, template)
 
@@ -185,7 +186,20 @@ def run(args):
             *bounds, cost, mpc_config,
         ),
     }
-    open_loop = open_loop_evaluation(model, args)
+    open_loop = None if args.skip_open_loop else open_loop_evaluation(model, args)
+    # Exclude one-time JIT compilation from the per-command runtime reported
+    # below.  This is especially important when comparing accelerator runs.
+    warm_history = jnp.repeat(state_from_pose(0, 0, 0)[None], args.history, 0)
+    warm_actions = jnp.zeros((args.history - 1, 2))
+    compile_times = {}
+    for name, controller in controllers.items():
+        started = time.perf_counter()
+        command, _ = controller.command(
+            warm_history, warm_actions, jr.PRNGKey(999)
+        )
+        command.block_until_ready()
+        compile_times[name] = time.perf_counter() - started
+        controller.reset()
     all_rows, trajectories, controls = [], {}, {}
     for name, controller in controllers.items():
         rows, model_trajectories, model_controls = [], [], []
@@ -207,6 +221,11 @@ def run(args):
         "closed_loop": {
             name: aggregate([row for row in all_rows if row["model"] == name])
             for name in controllers
+        },
+        "jit_compile_time_s": compile_times,
+        "compute_device": {
+            "platform": jax.default_backend(),
+            "devices": [str(device) for device in jax.devices()],
         },
         "settings": {
             "horizon": args.horizon, "candidates": args.candidates,
@@ -263,6 +282,7 @@ def parser():
     result.add_argument("--open-loop-episodes", type=int, default=32)
     result.add_argument("--open-loop-steps", type=int, default=100)
     result.add_argument("--open-loop-particles", type=int, default=64)
+    result.add_argument("--skip-open-loop", action="store_true")
     result.add_argument("--closed-loop-episodes", type=int, default=10)
     result.add_argument("--closed-loop-steps", type=int, default=100)
     result.add_argument("--goal-tolerance", type=float, default=0.3)

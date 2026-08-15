@@ -13,9 +13,11 @@
   "methods": {
     "CSI-SDE-v2": {"sampler":"sde", "checkpoint_globs":[
       "results/results_optimal_control/{task}/csi_sde_v2/seed*/pretrain/checkpoint",
+      "results/results_optimal_control/{task}/csi_sde_v2/seed*/finetune/checkpoints/iteration_*/checkpoint",
       "results/results_optimal_control/{task}/csi_sde_v2/seed*/finetune/checkpoint"]},
-    "DDPM": {"checkpoint_globs":[
+    "DDPM": {"deterministic":false, "checkpoint_globs":[
       "results/results_optimal_control/{task}/diffusion_dppo_v2/seed*/pretrain/checkpoint",
+      "results/results_optimal_control/{task}/diffusion_dppo_v2/seed*/finetune/checkpoints/iteration_*/checkpoint",
       "results/results_optimal_control/{task}/diffusion_dppo_v2/seed*/finetune/checkpoint"]}
   }
 }

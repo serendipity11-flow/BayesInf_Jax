@@ -570,21 +570,20 @@ def plot_uncertainty_distribution(args, results):
         noise_label = "obs noise Gaussian"
         noise_std = args.obs_std
 
-    fig = plt.figure(figsize=(12.0, 8.8 * len(seg_rows)), constrained_layout=False)
+    fig = plt.figure(figsize=(15.0, 4.4 * len(seg_rows)), constrained_layout=False)
     gs = fig.add_gridspec(
-        2 * len(seg_rows),
-        2,
-        height_ratios=[ratio for _ in seg_rows for ratio in (1.0, 1.35)],
-        hspace=0.50,
-        wspace=0.25,
+        len(seg_rows),
+        3,
+        width_ratios=(1.0, 1.0, 0.72),
+        hspace=0.38,
+        wspace=0.30,
     )
 
     rng = np.random.default_rng(0)
     for row_i, seg_len in enumerate(seg_rows):
-        grid_row = 2 * row_i
-        ax_dist = fig.add_subplot(gs[grid_row, 0])
-        ax_scale = fig.add_subplot(gs[grid_row, 1])
-        ax_cov = fig.add_subplot(gs[grid_row + 1, :])
+        ax_dist = fig.add_subplot(gs[row_i, 0])
+        ax_scale = fig.add_subplot(gs[row_i, 1])
+        ax_cov = fig.add_subplot(gs[row_i, 2])
 
         ax_dist.plot(x_pdf, noise_pdf, color="black", lw=2.4, label=noise_label)
         for r in by_seg[seg_len]:
@@ -698,7 +697,7 @@ def plot_uncertainty_distribution(args, results):
                         f"{100.0 * value:.0f}",
                         ha="center",
                         va="bottom",
-                        fontsize=14,
+                        fontsize=10,
                     )
         ax_cov.axhline(
             args.ci,
@@ -706,13 +705,13 @@ def plot_uncertainty_distribution(args, results):
             ls="--",
             lw=1.8,
         )
-        ax_cov.set_title("CI coverage per state", fontsize=22)
+        ax_cov.set_title("CI coverage per state", fontsize=20)
         ax_cov.set_xticks(dims)
-        ax_cov.set_xlabel("State dimension", fontsize=20)
+        ax_cov.set_xlabel("State dimension", fontsize=17)
         ax_cov.set_ylim(0.0, 105.0)
-        ax_cov.set_ylabel("Coverage (%)", fontsize=20)
+        ax_cov.set_ylabel("Coverage (%)", fontsize=17)
         ax_cov.grid(axis="y", alpha=0.22)
-        ax_cov.tick_params(axis="both", labelsize=18)
+        ax_cov.tick_params(axis="both", labelsize=11)
         legend_handles = [
             Patch(color="steelblue", label="Observed"),
             Patch(color="darkorange", label="Unobserved"),
@@ -725,12 +724,12 @@ def plot_uncertainty_distribution(args, results):
             )
         ax_cov.legend(
             handles=legend_handles,
-            fontsize=16,
+            fontsize=13,
             loc="upper right",
-            ncol=2,
+            ncol=1,
         )
 
-    fig.subplots_adjust(left=0.085, right=0.985, top=0.95, bottom=0.085)
+    fig.subplots_adjust(left=0.065, right=0.985, top=0.91, bottom=0.17)
     for ext in args.plot_formats:
         path = args.out_prefix + f"_uncertainty_distribution.{ext}"
         fig.savefig(path, dpi=180, bbox_inches="tight")

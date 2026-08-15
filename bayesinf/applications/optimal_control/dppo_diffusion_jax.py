@@ -87,6 +87,58 @@ class DPPODiffusionMLP(eqx.Module):
         return self.output_layer(x).reshape(self.horizon, self.action_dim)
 
 
+class ScoreOnlyMLP(eqx.Module):
+    """MLP observation encoder plus a score-only action network."""
+
+    context_first: eqx.nn.Linear
+    context_second: eqx.nn.Linear
+    input_layer: eqx.nn.Linear
+    hidden_layers: list
+    output_layer: eqx.nn.Linear
+    horizon: int = eqx.field(static=True)
+    action_dim: int = eqx.field(static=True)
+    denoising_steps: int = eqx.field(static=True)
+
+    def __init__(self, state_size, horizon, action_dim, denoising_steps, key,
+                 *, context_width=128, context_dim=64, hidden_size=256,
+                 depth=2):
+        keys = jr.split(key, depth + 4)
+        self.context_first = eqx.nn.Linear(
+            state_size, context_width, key=keys[0]
+        )
+        self.context_second = eqx.nn.Linear(
+            context_width, context_dim, key=keys[1]
+        )
+        size = horizon * action_dim
+        self.input_layer = eqx.nn.Linear(
+            size + context_dim + 1, hidden_size, key=keys[2]
+        )
+        self.hidden_layers = [
+            eqx.nn.Linear(hidden_size, hidden_size, key=keys[3 + i])
+            for i in range(depth)
+        ]
+        self.output_layer = eqx.nn.Linear(
+            hidden_size, size, key=keys[-1]
+        )
+        self.horizon, self.action_dim = horizon, action_dim
+        self.denoising_steps = denoising_steps
+
+    def __call__(self, noisy_action, t, state):
+        context = self.context_second(
+            jax.nn.mish(self.context_first(state.reshape(-1)))
+        )
+        continuous_time = jnp.asarray(t).reshape(1) / max(
+            self.denoising_steps - 1, 1
+        )
+        value = jnp.concatenate(
+            [noisy_action.reshape(-1), context, continuous_time]
+        )
+        value = jax.nn.mish(self.input_layer(value))
+        for layer in self.hidden_layers:
+            value = jax.nn.mish(layer(value))
+        return self.output_layer(value).reshape(self.horizon, self.action_dim)
+
+
 class DPPODiffusionPolicy(eqx.Module):
     """Official DPPO DDPM parameterization with a JAX training interface."""
 
@@ -223,6 +275,43 @@ class DPPODiffusionPolicy(eqx.Module):
         actions = final if clip is None else jnp.clip(final, -clip, clip)
         return DiffusionSample(actions, chain)
 
+    def sample_bc(self, states, key, *, clip=1.0):
+        """Sample a pretrained policy with the official DDPM noise rule.
+
+        Behavior-cloning inference uses the analytical posterior variance,
+        floors it at 1e-3 only for non-final transitions, and adds exactly no
+        noise at t=0. The 0.1 floors stored on this class are DPPO transition
+        controls and must not be applied to pretrained-policy evaluation.
+        """
+        self._check_states(states)
+        batch = len(states)
+        key, initial_key = jr.split(key)
+        initial = jr.normal(
+            initial_key, (batch, self.horizon, self.action_dim)
+        )
+        keys = jr.split(key, self.denoising_steps)
+        times = jnp.arange(self.denoising_steps - 1, -1, -1)
+
+        def step(x, inputs):
+            time, noise_key = inputs
+            time_batch = jnp.full((batch,), time)
+            mean, log_variance = jax.vmap(self._mean_log_variance)(
+                x, time_batch, states
+            )
+            posterior_std = jnp.exp(.5 * log_variance)[:, None, None]
+            std = jnp.where(
+                time == 0, 0.0, jnp.maximum(posterior_std, 1e-3)
+            )
+            following = mean + std * jr.normal(noise_key, x.shape)
+            return following, following
+
+        final, generated = jax.lax.scan(step, initial, (times, keys))
+        chain = jnp.concatenate(
+            [initial[:, None], jnp.swapaxes(generated, 0, 1)], axis=1
+        )
+        actions = final if clip is None else jnp.clip(final, -clip, clip)
+        return DiffusionSample(actions, chain)
+
     def sample_ddim(self, states, key, *, inference_steps=None, clip=1.0):
         """Deterministic DDIM sampling on a strided subset of the trained grid.
 
@@ -343,3 +432,30 @@ class DPPODiffusionPolicy(eqx.Module):
                 )
             return jax.vmap(transition)(prevs, nexts, times)
         return jax.vmap(batch_log_prob)(previous, following, states)
+
+
+class ScoreBasedPolicy(DPPODiffusionPolicy):
+    """Score-based diffusion policy with no velocity network.
+
+    It uses the baseline VP noise schedule and reverse integration count, but
+    replaces the DDPM residual actor by an explicit MLP encoder and a single
+    score/noise network. This keeps the experimental controls fixed while
+    making the SBM ablation architectural rather than a sampler relabeling.
+    """
+
+    def __init__(
+        self, obs_dim, action_dim, horizon, key, *, cond_steps=1,
+        denoising_steps=20, sampling_std_floor=.1, logprob_std_floor=.1,
+        context_width=128, context_dim=64, hidden_size=256, depth=2,
+    ):
+        super().__init__(
+            obs_dim, action_dim, horizon, key,
+            cond_steps=cond_steps, denoising_steps=denoising_steps,
+            sampling_std_floor=sampling_std_floor,
+            logprob_std_floor=logprob_std_floor,
+        )
+        self.network = ScoreOnlyMLP(
+            obs_dim * cond_steps, horizon, action_dim, denoising_steps, key,
+            context_width=context_width, context_dim=context_dim,
+            hidden_size=hidden_size, depth=depth,
+        )

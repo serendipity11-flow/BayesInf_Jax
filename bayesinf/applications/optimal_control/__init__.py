@@ -7,10 +7,13 @@ from .sampling_mpc import (
 from .gradient_based_mpc import BraxGradientMPC, GradientMPC, GradientMPCConfig
 from .conditional_flow_sde import ConditionalRealNVP, FlowSDE, GaussianSDE
 from .cond_stoch_interpolant import (
+    AnalyticScorePolicy,
     CondStochInterpolantPolicy,
-    ConditionalGaussianBase,
     ConditionalVelocity,
+    FlowMatchingPolicy,
     InterpolantSample,
+    LearnedScorePolicy,
+    MLPContextEncoder,
 )
 from .dppo_jax import (
     BCTrainState,
@@ -30,6 +33,7 @@ from .dppo_diffusion_jax import (
     DPPODiffusionMLP,
     DPPODiffusionPolicy,
     DiffusionSample,
+    ScoreBasedPolicy,
     cosine_beta_schedule,
 )
 
@@ -50,11 +54,12 @@ __all__ = [
     "SamplingMPCConfig", "GradientMPC", "GradientMPCConfig", "BraxGradientMPC",
     "ConditionalRealNVP", "FlowSDE", "GaussianSDE",
     "GRULatentSSMFlow",
-    "CondStochInterpolantPolicy", "ConditionalGaussianBase",
-    "ConditionalVelocity", "InterpolantSample",
+    "CondStochInterpolantPolicy", "FlowMatchingPolicy", "AnalyticScorePolicy",
+    "LearnedScorePolicy", "MLPContextEncoder", "ConditionalVelocity",
+    "InterpolantSample",
     "BCTrainState", "DPPOConfig", "DPPOMetrics", "DPPOTrainState",
     "RolloutBatch", "ValueCritic", "bc_update", "dppo_loss", "dppo_update",
     "generalized_advantage_estimate", "make_bc_state", "make_dppo_state",
     "DPPODiffusionMLP", "DPPODiffusionPolicy", "DiffusionSample",
-    "cosine_beta_schedule",
+    "ScoreBasedPolicy", "cosine_beta_schedule",
 ]

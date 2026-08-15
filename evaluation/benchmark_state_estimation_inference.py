@@ -87,6 +87,10 @@ def parse_args():
     p.add_argument("--repeats", type=int, default=5)
     p.add_argument("--particles", type=int, default=100,
                    help="Posterior samples materialized by every method, including EKF")
+    p.add_argument("--pf-noise-type", choices=("gaussian", "student_t", "gmm"),
+                   default="gmm", help="Observation likelihood used by the particle filter")
+    p.add_argument("--pf-obs-df", type=float, default=5.0,
+                   help="Degrees of freedom for the particle filter's Student-t likelihood")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--output", type=Path,
                    default=Path("evaluation/state_estimation_inference_times_detailed.csv"))
@@ -208,7 +212,7 @@ def load_interpolant_class(path):
     project_root = Path(__file__).resolve().parents[1]
     try:
         source = subprocess.check_output(
-            ["git", "show", "5443df1:bayesinf/applications/state_estimation/stochastic_interpolant.py"],
+            ["git", "show", "5443df1f:bayesinf/applications/state_estimation/stochastic_interpolant.py"],
             cwd=project_root, text=True,
         )
     except subprocess.CalledProcessError as exc:
@@ -291,7 +295,8 @@ def main():
             samples = a.particles
         elif method == "pf":
             run = jax.jit(lambda k: bootstrap_particle_filter(
-                y, x0, H, k, transition, num_particles=a.particles, noise_type="gmm"
+                y, x0, H, k, transition, num_particles=a.particles,
+                noise_type=a.pf_noise_type, obs_df=a.pf_obs_df,
             ).particles)
             samples = a.particles
         elif method == "amortized":
@@ -362,10 +367,14 @@ def main():
                 or (int(match.group(1)) if match else 20)
             )
             ModelClass, legacy = load_interpolant_class(path)
+            # Lorenz-96 state-estimation checkpoints concatenate the dataset's
+            # all-zero control channel to the physical observations.
+            interpolant_y = jnp.concatenate([y, u], axis=-1)
+            interpolant_d_y = d_y + 1
             print(f"Interpolant template: {'legacy lifter' if legacy else 'q_eta source'}, "
-                  f"segment_length={interpolant_segment_length}")
+                  f"segment_length={interpolant_segment_length}, d_y={interpolant_d_y}")
             model = ModelClass(
-                a.state_dim, d_y, d_c=a.interpolant_d_c,
+                a.state_dim, interpolant_d_y, d_c=a.interpolant_d_c,
                 d_hidden=a.interpolant_d_hidden, depth=a.interpolant_depth,
                 obs_interval=a.obs_interval, interpolant_type="linear", key=jr.PRNGKey(1),
             )
@@ -376,14 +385,15 @@ def main():
             @eqx.filter_jit
             def run(k):
                 return model.sample_posterior_batch(
-                    y, k, a.particles, a.interpolant_steps,
+                    interpolant_y, k, a.particles, a.interpolant_steps,
                     stochastic=a.interpolant_sampler != "ode",
                     segmented=a.interpolant_sampler == "segmented",
                     seg_len=interpolant_segment_length,
                 )
             samples = a.particles
 
-        row = benchmark(method, run, a.batch_size, a.warmups, a.repeats, samples)
+        benchmark_name = f"pf_{a.pf_noise_type}" if method == "pf" else method
+        row = benchmark(benchmark_name, run, a.batch_size, a.warmups, a.repeats, samples)
         rows.append(row)
         print(f"{method:12s} {row['median_ms_per_trajectory']:10.3f} ms/trajectory  "
               f"{row['trajectories_per_second']:10.2f} trajectories/s")

@@ -24,7 +24,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 current_dir  = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+project_root = os.path.dirname(os.path.dirname(current_dir))
 sys.path.insert(0, project_root)
 
 from bayesinf.applications.state_estimation.flow_sde import RealNVPFlowSDE
@@ -103,11 +103,6 @@ parser.add_argument("--kl_weight",      type=float, default=1e-3,
                     help="Deprecated; retained for launch-script compatibility.")
 parser.add_argument("--continuity_loss_weight", type=float, default=0.1,
                     help="Training-time continuity loss weight, for checkpoint lookup")
-parser.add_argument("--init_loss_weight", type=float, default=1.0,
-                    help="Training-time initial-state Gaussian NLL weight, for checkpoint lookup")
-parser.add_argument("--initial_state_mode", choices=("inferred", "provided"),
-                    default="provided",
-                    help="Use learned diagonal-Gaussian z0 inference or provided x0 during sampling")
 parser.add_argument("--t_hist",         type=float, default=0.5,
                     help="Normalised time ∈ (0,1) for per-particle histogram")
 parser.add_argument("--diffusion_temp", type=float, default=1.0,
@@ -207,8 +202,6 @@ if args.rollout_loss_weight != 0.0:
         _robust_tag += f"_rwnd{args.rollout_window}"
 if args.continuity_loss_weight != 0.0:
     _robust_tag += f"_cw{args.continuity_loss_weight:g}"
-if args.initial_state_mode == "inferred" and args.init_loss_weight != 0.0:
-    _robust_tag += f"_iw{args.init_loss_weight:g}"
 if args.use_multiple_shooting and args.seg_length_start != args.seg_length:
     _robust_tag += f"_sched{args.seg_length_start}to{args.seg_length}"
 model_tag = (
@@ -338,14 +331,13 @@ print("Checkpoint loaded.")
 
 @eqx.filter_jit
 def _sample_chunk(model, y_chunk, x0_chunk, key, n_particles, solver_name,
-                  diffusion_temp, observation_stride, infer_initial):
+                  diffusion_temp, observation_stride):
     B    = y_chunk.shape[0]
     keys = jr.split(key, B)
     return jax.vmap(
         lambda yi, x0i, ki: model.sample_posterior_custom_solver(
             yi, x0i, ki, n_particles, solver_name,
             diffusion_temp=diffusion_temp,
-            infer_initial=infer_initial,
             observation_stride=observation_stride,
         )
     )(y_chunk, x0_chunk, keys)
@@ -354,12 +346,9 @@ def _sample_chunk(model, y_chunk, x0_chunk, key, n_particles, solver_name,
 chunk   = 20
 k_eval  = jr.PRNGKey(999)
 all_samps = []
-infer_initial = args.initial_state_mode == "inferred"
-
 print(
     f"Drawing {args.n_particles} posterior samples for {n_eval} sequences "
-    f"(continuous solver={args.solver}, observation_stride={args.observation_stride}, "
-    f"initial_state_mode={args.initial_state_mode}) …"
+    f"(continuous solver={args.solver}, observation_stride={args.observation_stride}) …"
 )
 for start in range(0, n_eval, chunk):
     end  = min(start + chunk, n_eval)
@@ -367,7 +356,7 @@ for start in range(0, n_eval, chunk):
     k_c  = jr.fold_in(k_eval, start)
     s    = np.array(_sample_chunk(
         model, yb, x0_test[start:end], k_c, args.n_particles, args.solver,
-        args.diffusion_temp, args.observation_stride, infer_initial,
+        args.diffusion_temp, args.observation_stride,
     ))
     all_samps.append(s)
 
@@ -392,6 +381,10 @@ mae_all    = float(np.mean(np.abs(x_true - post_mean)))
 
 cov_per_dim = np.mean((x_true >= lo) & (x_true <= hi), axis=(0, 1))  # (d_x,)
 coverage    = float(cov_per_dim.mean())
+ci_width    = hi - lo
+mciw_all    = float(np.mean(ci_width))
+mciw_obs    = float(np.mean(ci_width[:, :, obs_idx]))
+mciw_unobs  = float(np.mean(ci_width[:, :, unobs_idx])) if len(unobs_idx) else float("nan")
 
 print(f"\n── Evaluation  ({n_eval} seqs, {args.n_particles} particles) ──")
 print(f"  RMSE posterior mean (all):       {rmse_all:.4f}")
@@ -399,6 +392,7 @@ print(f"  RMSE posterior mean (observed):  {rmse_obs:.4f}")
 print(f"  RMSE posterior mean (unobserved):{rmse_unobs:.4f}")
 print(f"  MAE  posterior mean:             {mae_all:.4f}")
 print(f"  Coverage @ {args.ci:.0f}% CI:           {coverage * 100:.1f}%")
+print(f"  Mean CI width (all/obs/unobs):   {mciw_all:.4f} / {mciw_obs:.4f} / {mciw_unobs:.4f}")
 
 
 # ---------------------------------------------------------------------------
@@ -650,6 +644,9 @@ np.savez(
     rmse_unobs=rmse_unobs,
     mae_all=mae_all,
     coverage=coverage,
+    mciw_all=mciw_all,
+    mciw_obs=mciw_obs,
+    mciw_unobs=mciw_unobs,
     rmse_per_dim=rmse_per_dim,
     coverage_per_dim=cov_per_dim,
 )

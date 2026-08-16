@@ -38,8 +38,8 @@ cd "$PROJECT_ROOT"
 
 "$PYTHON_BIN" -m experiments.differential_drive_flowsde.evaluate_nonlinear_physical_mppi \
     --output "$OUTPUT" --extended-model "$MODEL" --task-set complex --tasks 3 \
-    --max-steps 6000 --horizon 100 --samples 256 --iterations 3 \
-    --temperature .35 --sigma-v .7 --sigma-omega 1.5 --goal-tolerance .35 \
+    --max-steps 6000 --horizon 100 --samples 64 --stochastic-samples 64 --iterations 3 \
+    --temperature .35 --sigma-v .75 --sigma-omega 1.4 --goal-tolerance .35 \
     --report-every 50 --save-samples --seed 47
 
 "$PYTHON_BIN" -m experiments.differential_drive_flowsde.plot_closed_loop_comparison \

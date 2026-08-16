@@ -30,14 +30,19 @@ def feature_library(state, action):
 
 
 class ExtendedPhysicalModel:
-    def __init__(self, coefficients, feature_mean, feature_std, lower, upper, dt=.02):
+    def __init__(self, coefficients, feature_mean, feature_std, lower, upper, dt=.02,
+                 process_cholesky=None):
         self.coefficients = coefficients; self.feature_mean = feature_mean
         self.feature_std = feature_std; self.lower = lower; self.upper = upper; self.dt = dt
+        self.process_cholesky = (np.zeros((len(DYNAMIC), len(DYNAMIC)))
+                                 if process_cholesky is None else process_cholesky)
 
-    def step(self, state, action):
+    def step(self, state, action, process_noise=None):
         state = np.asarray(state); features = feature_library(state, action)
         normalized = (features - self.feature_mean) / self.feature_std
         delta = normalized @ self.coefficients
+        if process_noise is not None:
+            delta = delta + np.asarray(process_noise) @ self.process_cholesky.T
         nxt = state.copy(); nxt[..., DYNAMIC] += delta
         nxt[..., DYNAMIC] = np.clip(nxt[..., DYNAMIC], self.lower, self.upper)
         vf = .5 * (state[..., 3] + nxt[..., 3]); vl = .5 * (state[..., 4] + nxt[..., 4])
@@ -52,13 +57,15 @@ class ExtendedPhysicalModel:
         path.parent.mkdir(parents=True, exist_ok=True)
         np.savez(path, coefficients=self.coefficients, feature_mean=self.feature_mean,
                  feature_std=self.feature_std, lower=self.lower, upper=self.upper, dt=self.dt,
-                 state_order=np.asarray(STATE_ORDER))
+                 process_cholesky=self.process_cholesky, state_order=np.asarray(STATE_ORDER))
 
     @classmethod
     def load(cls, path: Path):
         values = np.load(path)
+        process_cholesky = (values["process_cholesky"] if "process_cholesky" in values
+                            else None)
         return cls(values["coefficients"], values["feature_mean"], values["feature_std"],
-                   values["lower"], values["upper"], float(values["dt"]))
+                   values["lower"], values["upper"], float(values["dt"]), process_cholesky)
 
 
 def fit(data: Path, output: Path, ridge=1e-3):
@@ -71,8 +78,11 @@ def fit(data: Path, output: Path, ridge=1e-3):
     gram = design.T @ design + ridge * np.eye(design.shape[1])
     coefficients = np.linalg.solve(gram, design.T @ targets)
     values = state[train][:, DYNAMIC]; margin = .1 * np.maximum(np.ptp(values, axis=0), 1e-3)
+    residuals = targets - design @ coefficients
+    covariance = np.cov(residuals, rowvar=False) + 1e-10 * np.eye(len(DYNAMIC))
+    process_cholesky = np.linalg.cholesky(covariance)
     model = ExtendedPhysicalModel(coefficients, mean, std, values.min(0) - margin,
-                                  values.max(0) + margin, dt)
+                                  values.max(0) + margin, dt, process_cholesky)
     model.save(output); return model
 
 

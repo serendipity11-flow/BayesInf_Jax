@@ -20,7 +20,8 @@ export MPLCONFIGDIR="/tmp/matplotlib-dd-nonlinear-postfix-${SLURM_JOB_ID}"
 mkdir -p "$OUTPUT" "$MPLCONFIGDIR"
 cd "$PROJECT_ROOT"
 "$PYTHON_BIN" -m experiments.differential_drive_flowsde.evaluate_nonlinear_physical_mppi \
-  --output "$OUTPUT" --tasks 3 --max-steps 2000 --horizon 100 --samples 512 \
-  --iterations 3 --temperature .35 --sigma-v .7 --sigma-omega 1.5 \
+  --output "$OUTPUT" --tasks 3 --max-steps 2000 --horizon 100 --samples 64 \
+  --stochastic-samples 64 \
+  --iterations 3 --temperature .35 --sigma-v .75 --sigma-omega 1.4 \
   --goal-tolerance .35 --report-every 25 --gain-v .225 --gain-omega .36 \
   --save-samples --seed 31

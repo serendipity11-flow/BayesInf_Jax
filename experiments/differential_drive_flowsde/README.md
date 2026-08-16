@@ -47,3 +47,24 @@ recorded-command rollouts. `evaluate_closed_loop.py` uses the learned drift insi
 receding-horizon CEM-MPC controller on three diagonal waypoint tasks. It reports success
 rate and final goal error and plots trajectories over the traction field. The SLURM
 script `slurm_train_differential_drive_run_b.sh` runs all four stages from fresh data.
+
+## Matched nonlinear-physics and FlowSDE closed-loop comparison
+
+The state-matched physical baseline uses
+`[p_x, p_y, theta, v_forward, v_lateral, omega, wheel_left, wheel_right]`.  Its dynamic
+update is a ridge-identified nonlinear model of the five velocity/wheel states.  The
+feature library contains linear actuator and state terms, quadratic drag, body coupling,
+wheel sum/difference, position-dependent traction, and traction-command interactions.
+Pose is not independently regressed: midpoint body velocities and yaw rate are integrated
+through the exact planar rigid-body kinematics.  State increments are clipped to the
+training range plus a ten-percent margin.  Gaussian process noise is estimated as the
+full covariance of the training residuals and added only to the five modeled dynamic
+increments before pose integration.
+
+The matched MPPI settings use 64 sampled input sequences and 64 stochastic rollouts for
+each input sequence.  FlowSDE uncertainty is generated solely by its learned conditional
+flow: standard-normal latent samples are transformed by the flow and are not an extra
+Gaussian state perturbation.  The physical baseline instead transforms standard-normal
+samples with its fitted residual Cholesky factor.  Both controllers minimize the same
+expected cost: mean waypoint distance plus 2.5 times terminal distance, 0.015 times mean
+weighted action effort, and 0.02 times mean action roughness.

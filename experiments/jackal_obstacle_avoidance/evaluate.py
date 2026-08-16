@@ -163,7 +163,9 @@ def aggregate(rows):
 
 def run(args):
     args.output.mkdir(parents=True, exist_ok=True)
-    model = load_model(args.checkpoint, args)
+    # Current controlled LatentSSMFlow checkpoints encode both state and prior
+    # action histories, matching the training default in train.py.
+    model = load_model(args.checkpoint, args, history_control_conditioned=True)
     config = JackalConfig()
     goal = jnp.asarray([4.0, 0.0])
     obstacles = jnp.asarray([[2.0, 0.0, 0.42], [3.0, 0.7, 0.28]])

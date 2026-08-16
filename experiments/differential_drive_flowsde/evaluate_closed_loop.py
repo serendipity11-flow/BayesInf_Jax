@@ -1,4 +1,4 @@
-"""Closed-loop waypoint navigation with FlowSDE deterministic CEM-MPC."""
+"""Closed-loop waypoint navigation with stochastic FlowSDE MPC."""
 import argparse, json, time
 from pathlib import Path
 
@@ -9,6 +9,7 @@ import numpy as np
 
 from .env import DifferentialDriveConfig, DifferentialDriveEnv
 from .evaluate import load_model
+from .control_objective import trajectory_cost_jax
 
 
 DIRECT_TASKS = [((-3.5, -2.4, .2), [(3.4, 2.3)]),
@@ -109,11 +110,18 @@ def run(args):
 
     @jax.jit
     def score_candidates(state_history, previous_actions, actions, noises, goal):
-        paths = predict_paths(state_history, previous_actions, actions, noises)
-        distance = jnp.linalg.norm(paths[..., :2] - goal, axis=-1)
-        effort = .015 * jnp.mean(actions[..., 0] ** 2 + .2 * actions[..., 1] ** 2, axis=-1)
-        smooth = .02 * jnp.mean(jnp.diff(actions, axis=1) ** 2, axis=(1, 2))
-        return jnp.mean(distance, axis=-1) + 2.5 * distance[:, -1] + effort + smooth
+        # One candidate action sequence is evaluated under independent samples
+        # from the FlowSDE's learned conditional transition distribution.
+        candidate_count, stochastic_samples = noises.shape[:2]
+        repeated_actions = jnp.repeat(actions[:, None], stochastic_samples, axis=1)
+        flat_paths = predict_paths(
+            state_history, previous_actions,
+            repeated_actions.reshape((-1, args.mpc_horizon, 2)),
+            noises.reshape((-1, args.mpc_horizon, len(dynamic_indices))))
+        paths = flat_paths.reshape((candidate_count, stochastic_samples,
+                                    args.mpc_horizon, state_dim))
+        costs = trajectory_cost_jax(paths, repeated_actions, goal)
+        return jnp.mean(costs, axis=1)
 
     @jax.jit
     def plan_mppi(state_history, previous_actions, mean, std, goal, key):
@@ -125,14 +133,16 @@ def run(args):
                 control_key, (args.candidates, args.mpc_horizon, 2)) * std
             candidates = jnp.clip(current_mean[None] + control_noise,
                                   jnp.asarray((0., -3.)), jnp.asarray((2.2, 3.)))
-            process_noise = jax.random.normal(
-                process_key, (args.candidates, args.mpc_horizon, len(dynamic_indices)))
-            values = score_candidates(state_history, previous_actions, candidates, process_noise, goal)
+            model_noise = jax.random.normal(
+                process_key, (args.candidates, args.stochastic_samples,
+                              args.mpc_horizon, len(dynamic_indices)))
+            values = score_candidates(state_history, previous_actions, candidates, model_noise, goal)
             weights = jax.nn.softmax(-(values - jnp.min(values)) / args.temperature)
             updated_mean = jnp.sum(weights[:, None, None] * candidates, axis=0)
-            return updated_mean, current_key, candidates, process_noise, values
+            return updated_mean, current_key, candidates, model_noise, values
         empty_candidates = jnp.zeros((args.candidates, args.mpc_horizon, 2))
-        empty_process = jnp.zeros((args.candidates, args.mpc_horizon, len(dynamic_indices)))
+        empty_process = jnp.zeros((args.candidates, args.stochastic_samples,
+                                   args.mpc_horizon, len(dynamic_indices)))
         empty_values = jnp.zeros((args.candidates,))
         return jax.lax.fori_loop(0, args.cem_iterations, iteration,
                                  (mean, key, empty_candidates, empty_process, empty_values))
@@ -169,7 +179,8 @@ def run(args):
                 control_noise = rng.normal(size=(args.candidates, args.mpc_horizon, 2)) * std
                 candidates = mean[None] + control_noise
                 candidates = np.clip(candidates, (0., -3.), (2.2, 3.))
-                process_noise = rng.normal(size=(args.candidates, args.mpc_horizon, len(dynamic_indices)))
+                process_noise = rng.normal(size=(args.candidates, args.stochastic_samples,
+                                                 args.mpc_horizon, len(dynamic_indices)))
                 values = np.asarray(score_candidates(jnp.asarray(state_history),
                     jnp.asarray(previous_actions), jnp.asarray(candidates), jnp.asarray(process_noise),
                     jnp.asarray(goal)))
@@ -190,9 +201,14 @@ def run(args):
                                   "waypoint": waypoint_index, "distance_m": distance,
                                   "planning_ms": 1000 * latencies[-1]}), flush=True)
             if args.save_samples and (step == 0 or (step + 1) % args.report_every == 0):
-                paths = np.asarray(predict_paths(jnp.asarray(planning_state_history),
-                                                 jnp.asarray(planning_previous_actions),
-                                                 jnp.asarray(candidates), jnp.asarray(process_noise)))
+                repeated = np.repeat(candidates[:, None], args.stochastic_samples, axis=1)
+                paths = np.asarray(predict_paths(
+                    jnp.asarray(planning_state_history), jnp.asarray(planning_previous_actions),
+                    jnp.asarray(repeated.reshape((-1, args.mpc_horizon, 2))),
+                    jnp.asarray(process_noise.reshape((-1, args.mpc_horizon,
+                                                       len(dynamic_indices))))))
+                paths = paths.reshape((args.candidates, args.stochastic_samples,
+                                       args.mpc_horizon, state_dim))
                 sample_clouds.append((step + 1, paths[..., :2], values.copy(), candidates.copy()))
             if distance <= args.goal_tolerance:
                 reached_steps.append(step + 1); waypoint_index += 1
@@ -219,6 +235,7 @@ def run(args):
 
     metrics = {"controller": f"FlowSDE stochastic Heun {args.optimizer.upper()}-MPC", "tasks": len(records),
                "task_set": args.task_set, "candidates": args.candidates,
+               "stochastic_samples_per_candidate": args.stochastic_samples,
                "horizon": args.mpc_horizon,
                "success_rate": float(np.mean([r["success"] for r in records])),
                "goal_tolerance_m": args.goal_tolerance,
@@ -252,7 +269,9 @@ def parser():
     p.add_argument("--output", type=Path, default=Path("results/results_optimal_control/differential_drive/smooth_terrain_seed0/evaluation"))
     p.add_argument("--tasks", type=int, default=3); p.add_argument("--max-steps", type=int, default=350)
     p.add_argument("--task-set", choices=("direct", "complex"), default="direct")
-    p.add_argument("--mpc-horizon", type=int, default=30); p.add_argument("--candidates", type=int, default=256)
+    p.add_argument("--mpc-horizon", type=int, default=100); p.add_argument("--candidates", type=int, default=64)
+    p.add_argument("--stochastic-samples", type=int, default=64,
+                   help="Independent learned FlowSDE rollouts per input candidate")
     p.add_argument("--elites", type=int, default=32); p.add_argument("--cem-iterations", type=int, default=3)
     p.add_argument("--optimizer", choices=("cem", "mppi"), default="cem")
     p.add_argument("--temperature", type=float, default=.35)

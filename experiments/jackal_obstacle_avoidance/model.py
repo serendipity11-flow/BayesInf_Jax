@@ -209,21 +209,100 @@ def sample_training_plant(key):
     )
 
 
-def generate_high_fidelity_identification_data(key, episodes=256, steps=120):
+def sample_robust_training_plant(key):
+    """Broad identification distribution spanning the deployment envelope."""
+    values = jr.uniform(key, (13,))
+    return HighFidelityJackalConfig(
+        motor_time_constant=float(0.25 + 0.15 * values[0]),
+        payload_factor=float(0.05 + 1.20 * values[1]),
+        command_delay_steps=int(1 + jnp.floor(4 * values[2])),
+        base_traction=float(0.45 + 0.50 * values[3]),
+        terrain_amplitude=float(0.03 + 0.19 * values[4]),
+        terrain_frequency=float(0.7 + 1.4 * values[5]),
+        terrain_phase=float(2 * jnp.pi * values[6]),
+        left_wheel_slip=float(0.01 + 0.20 * values[7]),
+        right_wheel_slip=float(0.01 + 0.20 * values[8]),
+        lateral_slip=float(0.01 + 0.13 * values[9]),
+        disturbance_x=float(0.06 * (values[10] - 0.5)),
+        disturbance_y=float(0.24 * (values[11] - 0.5)),
+        disturbance_yaw=float(0.10 * (values[12] - 0.5)),
+        process_noise=0.012,
+    )
+
+
+def generate_high_fidelity_identification_data(
+        key, episodes=256, steps=120, *, robust=False):
     """Generate randomized plant data; parameters change between episodes."""
     states, actions = [], []
     for episode_index, episode_key in enumerate(jr.split(key, episodes)):
         plant_key, command_key, initial_key, rollout_key = jr.split(episode_key, 4)
-        config = sample_training_plant(plant_key)
+        config = (
+            sample_robust_training_plant(plant_key)
+            if robust else sample_training_plant(plant_key)
+        )
         # Piecewise-smoothed excitation is closer to commands sent to a robot
         # than independent white noise while retaining persistent excitation.
-        knots = max(2, (steps + 4) // 5)
+        # Mix stepwise and held commands. MPC proposes both smooth sequences
+        # and abrupt candidate changes, so identification must cover both.
+        hold_steps = (1, 2, 5)[episode_index % 3] if robust else 5
+        knots = max(2, (steps + hold_steps - 1) // hold_steps)
         raw = jr.uniform(command_key, (knots, 2), minval=-1.0, maxval=1.0)
         raw = raw.at[:, 0].set(0.05 + 0.9 * (raw[:, 0] + 1.0) / 2.0)
         raw = raw.at[:, 1].multiply(1.35)
-        episode_actions = jnp.repeat(raw, 5, axis=0)[:steps]
+        episode_actions = jnp.repeat(raw, hold_steps, axis=0)[:steps]
         initial = state_from_pose(
             0.0, 0.0, jr.uniform(initial_key, (), minval=-jnp.pi, maxval=jnp.pi)
+        )
+        queue = jnp.zeros((max(1, config.command_delay_steps), 2))
+        episode_states = [initial]
+        state = initial
+        for action, step_key in zip(
+                episode_actions, jr.split(rollout_key, steps)):
+            state, queue = delayed_high_fidelity_step(
+                state, queue, action, step_key, config
+            )
+            episode_states.append(state)
+        states.append(jnp.stack(episode_states))
+        actions.append(episode_actions)
+    return jnp.stack(states), jnp.stack(actions)
+
+
+def generate_control_task_identification_data(key, episodes=256, steps=120):
+    """Balanced identification data for the five evaluated plant families."""
+    configs = (
+        HighFidelityJackalConfig(),
+        HighFidelityJackalConfig(
+            command_delay_steps=4, base_traction=0.82,
+            terrain_amplitude=0.10, terrain_phase=2.2,
+        ),
+        HighFidelityJackalConfig(
+            payload_factor=1.15, motor_time_constant=0.38,
+            base_traction=0.80, terrain_phase=0.4,
+        ),
+        HighFidelityJackalConfig(
+            disturbance_y=0.11, disturbance_yaw=0.045,
+            base_traction=0.82, terrain_phase=2.8,
+        ),
+        HighFidelityJackalConfig(
+            payload_factor=0.95, command_delay_steps=3,
+            base_traction=0.48, terrain_amplitude=0.20,
+            left_wheel_slip=0.19, right_wheel_slip=0.11,
+            lateral_slip=0.12, disturbance_y=-0.08,
+            disturbance_yaw=-0.035, terrain_phase=1.7,
+        ),
+    )
+    states, actions = [], []
+    for episode_index, episode_key in enumerate(jr.split(key, episodes)):
+        command_key, initial_key, rollout_key = jr.split(episode_key, 3)
+        config = configs[episode_index % len(configs)]
+        raw = jr.uniform(command_key, (steps, 2), minval=-1.0, maxval=1.0)
+        episode_actions = raw.at[:, 0].set(
+            0.05 + 0.9 * (raw[:, 0] + 1.0) / 2.0
+        )
+        episode_actions = episode_actions.at[:, 1].multiply(1.35)
+        initial = state_from_pose(
+            0.0, 0.0,
+            jr.uniform(initial_key, (), minval=-0.8, maxval=0.8),
         )
         queue = jnp.zeros((max(1, config.command_delay_steps), 2))
         episode_states = [initial]

@@ -87,7 +87,7 @@ def plot_pretraining(rows: list[dict], baseline_root: Path, output: Path) -> Non
                 "return_mean": float(summary["return_mean"]),
             })
     methods = ("CSI-DPPO", "DDPM-DPPO", "FM", "SBM")
-    figure, axes = plt.subplots(1, 2, figsize=(11.8, 5.1))
+    figure, axes = plt.subplots(1, 2, figsize=(11.8, 4.2))
     for metric, ylabel, axis in (
         ("success_rate_mean", "Success rate", axes[0]),
         ("return_mean", "Episode return", axes[1]),

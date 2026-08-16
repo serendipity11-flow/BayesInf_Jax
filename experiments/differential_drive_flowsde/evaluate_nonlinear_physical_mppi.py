@@ -10,18 +10,13 @@ import numpy as np
 from .env import DifferentialDriveConfig, DifferentialDriveEnv
 from .extended_physical_model import ExtendedPhysicalModel
 from .control_objective import trajectory_cost_numpy
+from .navigation_tasks import (COMPLEX_TASKS, DENSE_COMPLEX_TASKS, advance_path_index,
+                               path_lookahead_target)
 
 
 DIRECT_TASKS = [((-3.5, -2.4, .2), [(3.4, 2.3)]),
                 ((-3.2, 2.5, -.4), [(3.5, -2.2)]),
                 ((3.4, -2.5, 2.7), [(-3.4, 2.2)])]
-COMPLEX_TASKS = [
-    ((-3.5, -2.5, .2), [(-2.0, 1.8), (0.0, -1.8), (2.0, 1.8), (3.5, -2.5)]),
-    ((-3.8, 0.0, 0.0), [(-2.2, 2.3), (-.5, -2.2), (1.4, 2.2), (3.7, -.5)]),
-    ((-3.0, -2.2, 0.0), [(3.0, -2.2), (3.0, 2.2), (-3.0, 2.2), (-3.0, -1.5)]),
-]
-
-
 def friction_at(x, y):
     variation = (.55 * np.sin(.72 * x) * np.cos(.51 * y)
                  + .30 * np.sin(1.31 * y + .37 * x)
@@ -33,21 +28,21 @@ def rollout_costs(initial, controls, goal, args, process_noise=None, return_path
     """Roll out every candidate simultaneously through a nonlinear 5D model."""
     if args.extended_model is not None:
         state = np.broadcast_to(initial, (len(controls), len(initial))).copy()
-        paths = np.empty((len(controls), controls.shape[1] + 1, 2), np.float32)
-        paths[:, 0] = state[:, :2]
+        paths = np.empty((len(controls), controls.shape[1] + 1, 3), np.float32)
+        paths[:, 0] = state[:, :3]
         for k in range(controls.shape[1]):
             action = controls[:, k]
             noise = None if process_noise is None else process_noise[:, k]
             state = args._extended_model.step(state, action, noise)
-            paths[:, k + 1] = state[:, :2]
-        total = trajectory_cost_numpy(paths[:, 1:], controls, goal)
+            paths[:, k + 1] = state[:, :3]
+        total = trajectory_cost_numpy(paths[:, 1:], controls, goal, args.heading_weight)
         return (total, paths) if return_paths else total
     count = len(controls)
     x = np.full(count, initial[0]); y = np.full(count, initial[1])
     theta = np.full(count, initial[2]); v = np.full(count, initial[3])
     omega = np.full(count, initial[4])
-    paths = np.empty((count, controls.shape[1] + 1, 2), np.float32)
-    paths[:, 0] = np.column_stack((x, y))
+    paths = np.empty((count, controls.shape[1] + 1, 3), np.float32)
+    paths[:, 0] = np.column_stack((x, y, theta))
     for k in range(controls.shape[1]):
         action = controls[:, k]; v_cmd, omega_cmd = action[:, 0], action[:, 1]
         traction = friction_at(x, y) / .72
@@ -65,9 +60,9 @@ def rollout_costs(initial, controls, goal, args, process_noise=None, return_path
         x += args.dt * v_mid * np.cos(theta_mid)
         y += args.dt * v_mid * np.sin(theta_mid)
         theta += args.dt * omega_mid
-        paths[:, k + 1] = np.column_stack((x, y))
+        paths[:, k + 1] = np.column_stack((x, y, theta))
         v, omega = v_next, omega_next
-    total = trajectory_cost_numpy(paths[:, 1:], controls, goal)
+    total = trajectory_cost_numpy(paths[:, 1:], controls, goal, args.heading_weight)
     return (total, paths) if return_paths else total
 
 
@@ -82,17 +77,27 @@ def write_partial(output, records, active=None):
 def run(args):
     args.output.mkdir(parents=True, exist_ok=True); rng = np.random.default_rng(args.seed)
     if args.extended_model is not None: args._extended_model = ExtendedPhysicalModel.load(args.extended_model)
-    tasks = COMPLEX_TASKS if args.task_set == "complex" else DIRECT_TASKS
+    tasks = (DENSE_COMPLEX_TASKS if args.task_set == "complex_dense" else
+             COMPLEX_TASKS if args.task_set == "complex" else DIRECT_TASKS)
     records = []
     all_latencies = []
     for task_id, (start, waypoint_tuples) in enumerate(tasks[:args.tasks]):
-        waypoints = np.asarray(waypoint_tuples); waypoint_index = 0; goal = waypoints[0]
+        waypoints = np.asarray(waypoint_tuples); waypoint_index = 0
         plant = DifferentialDriveEnv(DifferentialDriveConfig(extended_state=args.extended_model is not None),
                                      seed=args.seed + task_id)
         state = plant.reset(start); mean = np.zeros((args.horizon, 2))
+        goal = np.asarray(path_lookahead_target(state[:2], waypoints, waypoint_index,
+                                                args.path_lookahead)
+                          if args.path_lookahead > 0 else waypoints[0])
         states, actions, sample_clouds, latencies, reached_steps = [state.copy()], [], [], [], []
         initial = float(np.linalg.norm(state[:2] - goal))
-        for step in range(args.max_steps):
+        compensation_steps = []
+        planner_updates = 0
+        queued_plan = np.zeros((args.horizon, 2), np.float64)
+        queue_index = 0
+        step = 0
+        while step < args.max_steps and waypoint_index < len(waypoints):
+            planned_waypoint = waypoint_index
             planning_started = time.perf_counter()
             for _ in range(args.iterations):
                 noise = rng.normal(size=(args.samples, args.horizon, 2))
@@ -107,23 +112,60 @@ def run(args):
                 weights = np.exp(-(costs - costs.min()) / args.temperature)
                 weights /= np.maximum(weights.sum(), 1e-12)
                 mean = np.sum(weights[:, None, None] * candidates, axis=0)
-            latencies.append(time.perf_counter() - planning_started)
-            action = mean[0].copy(); state = plant.step(action, stochastic=True)
-            states.append(state.copy()); actions.append(action)
-            mean = np.concatenate((mean[1:], mean[-1:]))
-            distance = float(np.linalg.norm(state[:2] - goal))
-            if step == 0 or (step + 1) % args.report_every == 0:
+            latency = time.perf_counter() - planning_started
+            latencies.append(latency); planner_updates += 1
+            if args.async_control:
+                elapsed_steps = max(1, int(np.ceil(latency / args.command_dt)))
+                compensation_steps.append(elapsed_steps)
+                actions_now = [queued_plan[min(queue_index + k, args.horizon - 1)].copy()
+                               for k in range(elapsed_steps)]
+                queue_index += elapsed_steps
+            else:
+                elapsed_steps = 1
+                actions_now = [mean[0].copy()]
+
+            for action in actions_now:
+                if step >= args.max_steps or waypoint_index == len(waypoints): break
+                state = plant.step(action, stochastic=True)
+                states.append(state.copy()); actions.append(action); step += 1
+                distance = float(np.linalg.norm(state[:2] - goal))
+                checkpoint_tolerance = (args.path_tolerance if args.path_lookahead > 0
+                                        else args.goal_tolerance)
+                next_index = (advance_path_index(state[:2], waypoints, waypoint_index,
+                                                 checkpoint_tolerance)
+                              if args.path_lookahead > 0 else
+                              waypoint_index + int(np.linalg.norm(
+                                  state[:2] - waypoints[waypoint_index]) <= checkpoint_tolerance))
+                if next_index > waypoint_index:
+                    reached_steps.extend([step] * (next_index - waypoint_index))
+                    waypoint_index = next_index
+                    if waypoint_index < len(waypoints):
+                        goal = np.asarray(path_lookahead_target(
+                            state[:2], waypoints, waypoint_index, args.path_lookahead)
+                            if args.path_lookahead > 0 else waypoints[waypoint_index])
+
+            if args.async_control:
+                if planned_waypoint == waypoint_index and waypoint_index < len(waypoints):
+                    queued_plan = mean.copy()
+                    queue_index = min(elapsed_steps, args.horizon - 1)
+                    shift = min(2 * elapsed_steps, args.horizon - 1)
+                    mean = np.concatenate((mean[shift:], np.repeat(mean[-1:], shift, axis=0)))
+                else:
+                    queued_plan.fill(0.0); queue_index = 0; mean.fill(0.0)
+            else:
+                mean = np.concatenate((mean[1:], mean[-1:]))
+
+            if planner_updates == 1 or step % args.report_every < elapsed_steps:
                 sampled_costs, sampled_paths = rollout_costs(
-                    states[-2], flat_controls, goal, args, process_noise, return_paths=True)
+                    states[max(0, len(states) - 2)], flat_controls,
+                    goal if waypoint_index < len(waypoints) else waypoints[-1],
+                    args, process_noise, return_paths=True)
                 if args.save_samples:
-                    sample_clouds.append((step + 1, sampled_paths, sampled_costs, candidates.copy()))
-                active = {"task": task_id, "step": step + 1, "distance_m": distance,
-                          "command": action.tolist(), "best_predicted_cost": float(costs.min())}
+                    sample_clouds.append((step, sampled_paths, sampled_costs, candidates.copy()))
+                active = {"task": task_id, "step": step, "distance_m": distance,
+                          "command": actions[-1].tolist(), "best_predicted_cost": float(costs.min()),
+                          "latency_compensation_steps": (elapsed_steps if args.async_control else 0)}
                 write_partial(args.output, records, active); print(json.dumps(active), flush=True)
-            if distance <= args.goal_tolerance:
-                reached_steps.append(step + 1); waypoint_index += 1
-                if waypoint_index == len(waypoints): break
-                goal = waypoints[waypoint_index]; mean.fill(0.0)
         states, actions = np.asarray(states), np.asarray(actions)
         final_goal = waypoints[-1]; final = float(np.linalg.norm(states[-1, :2] - final_goal))
         success = waypoint_index == len(waypoints)
@@ -132,6 +174,9 @@ def run(args):
                   "actions": actions, "initial_distance_m": initial, "final_distance_m": final,
                   "completed_waypoints": waypoint_index, "waypoint_reached_steps": reached_steps,
                   "steps": len(actions), "success": success,
+                  "planner_updates": planner_updates,
+                  "mean_latency_compensation_steps": (float(np.mean(compensation_steps))
+                                                       if compensation_steps else 0.0),
                   "mean_v_command": float(actions[:, 0].mean()),
                   "mean_abs_omega_command": float(np.abs(actions[:, 1]).mean()),
                   "mean_planning_ms": 1000 * float(np.mean(latencies)),
@@ -158,12 +203,23 @@ def run(args):
                "tasks": len(records), "samples": args.samples, "horizon": args.horizon,
                "stochastic_samples_per_candidate": args.stochastic_samples,
                "task_set": args.task_set,
+               "path_lookahead_m": args.path_lookahead,
+               "path_tolerance_m": args.path_tolerance,
+               "heading_weight": args.heading_weight,
                "success_rate": float(np.mean([r["success"] for r in records])),
                "goal_tolerance_m": args.goal_tolerance,
                "mean_final_distance_m": float(np.mean([r["final_distance_m"] for r in records])),
                "mean_planning_ms": 1000 * float(np.mean(all_latencies)),
                "p95_planning_ms": 1000 * float(np.quantile(all_latencies, .95)),
-               "control_frequency_hz": float(1 / np.mean(all_latencies)),
+               "planner_frequency_hz": float(1 / np.mean(all_latencies)),
+               "command_frequency_hz": (float(1 / args.command_dt) if args.async_control
+                                        else float(1 / np.mean(all_latencies))),
+               "control_frequency_hz": (float(1 / args.command_dt) if args.async_control
+                                        else float(1 / np.mean(all_latencies))),
+               "asynchronous_control": args.async_control,
+               "mean_latency_compensation_steps": (float(np.mean([
+                   e["mean_latency_compensation_steps"] for e in records]))
+                   if args.async_control else 0.0),
                "model": model_info,
                "episodes": [{k: v for k, v in r.items() if k not in ("states", "actions")}
                             for r in records]}
@@ -194,7 +250,7 @@ def parser():
     p = argparse.ArgumentParser(); p.add_argument("--output", type=Path, default=Path(
         "results/results_optimal_control/differential_drive/nonlinear_physical_mppi"))
     p.add_argument("--tasks", type=int, default=3); p.add_argument("--max-steps", type=int, default=2000)
-    p.add_argument("--task-set", choices=("direct", "complex"), default="direct")
+    p.add_argument("--task-set", choices=("direct", "complex", "complex_dense"), default="direct")
     p.add_argument("--save-samples", action="store_true",
                    help="Save every candidate at reporting checkpoints (large output)")
     p.add_argument("--horizon", type=int, default=100); p.add_argument("--samples", type=int, default=64,
@@ -209,6 +265,15 @@ def parser():
     p.add_argument("--tau-v", type=float, default=.25); p.add_argument("--tau-omega", type=float, default=.18)
     p.add_argument("--drag-v", type=float, default=.08); p.add_argument("--drag-omega", type=float, default=.04)
     p.add_argument("--turn-drag", type=float, default=.08)
+    p.add_argument("--async-control", action="store_true",
+                   help="Emulate a 50 Hz action queue with latency-compensated plan publication")
+    p.add_argument("--command-dt", type=float, default=.02)
+    p.add_argument("--path-lookahead", type=float, default=0.0,
+                   help="Track this far ahead on a precomputed dense reference path")
+    p.add_argument("--path-tolerance", type=float, default=.55,
+                   help="Corridor radius for advancing dense reference checkpoints")
+    p.add_argument("--heading-weight", type=float, default=0.0,
+                   help="Short-horizon penalty for pointing away from the local target")
     p.add_argument("--process-std-v", type=float, default=.001,
                    help="Per-step velocity increment noise for the fallback 5D model")
     p.add_argument("--process-std-omega", type=float, default=.001,

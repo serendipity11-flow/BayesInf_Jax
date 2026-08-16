@@ -33,7 +33,8 @@ cd "$PROJECT_ROOT"
     --epochs 30 --batch-size 128 --lr 3e-4 \
     --hidden-dim 64 --width 64 --hidden-layers 2 --blocks 4 \
     --max-rho .9 --synthetic-episodes 128 --synthetic-steps 100 \
-    --plant high_fidelity --seed 0
+    --plant high_fidelity --seed 0 \
+    --rollout-loss-weight 10 --rollout-discount .98
 
 "$PYTHON_BIN" -m experiments.jackal_obstacle_avoidance.evaluate \
     --checkpoint "$TRAIN/jackal_latent_ssm_flow.eqx" \

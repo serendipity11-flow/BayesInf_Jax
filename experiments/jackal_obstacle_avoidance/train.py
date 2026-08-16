@@ -22,8 +22,9 @@ import optax
 
 from bayesinf.applications.optimal_control.gru_latent_ssm_flow import GRULatentSSMFlow
 from .model import (
-    generate_high_fidelity_identification_data, generate_identification_data,
-    transition_windows,
+    generate_control_task_identification_data,
+    generate_high_fidelity_identification_data,
+    generate_identification_data, transition_windows,
 )
 
 
@@ -49,13 +50,21 @@ def run(args):
         states = np.asarray(bundle["states"], dtype=np.float32)
         actions = np.asarray(bundle["actions"], dtype=np.float32)
     else:
-        generator = (
-            generate_high_fidelity_identification_data
-            if args.plant == "high_fidelity" else generate_identification_data
-        )
-        states, actions = generator(
-            jr.PRNGKey(args.seed), args.synthetic_episodes, args.synthetic_steps
-        )
+        if args.plant == "control_tasks":
+            states, actions = generate_control_task_identification_data(
+                jr.PRNGKey(args.seed), args.synthetic_episodes,
+                args.synthetic_steps,
+            )
+        elif args.plant in ("high_fidelity", "robust"):
+            states, actions = generate_high_fidelity_identification_data(
+                jr.PRNGKey(args.seed), args.synthetic_episodes,
+                args.synthetic_steps, robust=args.plant == "robust",
+            )
+        else:
+            states, actions = generate_identification_data(
+                jr.PRNGKey(args.seed), args.synthetic_episodes,
+                args.synthetic_steps,
+            )
     if states.ndim != 3 or states.shape[-1] != 6:
         raise ValueError("states must have shape (episodes,T+1,6)")
     if actions.ndim != 3 or actions.shape[-1] != 2:
@@ -86,35 +95,69 @@ def run(args):
     )
     opt_state = optimizer.init(eqx.filter(model, eqx.is_inexact_array))
 
+    # Position, heading embedding, and velocity live on different natural
+    # scales.  Scaling the squared rollout residual keeps the recursive loss
+    # from being dominated by whichever channel has the largest variance.
+    rollout_scale = jnp.asarray(args.rollout_scale, dtype=jnp.float32)
+
+    def rollout_mse(candidate, x, u):
+        def example(states, controls):
+            predicted = candidate.rollout_deterministic_history(
+                states[:args.history], controls[:args.history - 1],
+                controls[args.history - 1:],
+            )
+            target = states[args.history:]
+            residual = (predicted - target) / rollout_scale
+            # Later predictions are the difficult part of a recursive model;
+            # discount <= 1 can be used when early MPC accuracy is preferred.
+            weights = args.rollout_discount ** jnp.arange(residual.shape[0])
+            per_step = jnp.mean(jnp.square(residual), axis=-1)
+            return jnp.sum(weights * per_step) / jnp.sum(weights)
+        return jnp.mean(jax.vmap(example)(x, u))
+
+    def objective(candidate, x, u):
+        nll = candidate.nll_loss(x, u)
+        recursive = rollout_mse(candidate, x, u)
+        return nll + args.rollout_loss_weight * recursive, (nll, recursive)
+
     @eqx.filter_jit
     def update(current_model, current_state, x, u):
-        loss, gradients = eqx.filter_value_and_grad(
-            lambda candidate: candidate.nll_loss(x, u)
-        )(current_model)
+        (loss, components), gradients = eqx.filter_value_and_grad(
+            objective, has_aux=True
+        )(current_model, x, u)
         updates, next_state = optimizer.update(
             gradients, current_state,
             eqx.filter(current_model, eqx.is_inexact_array),
         )
-        return eqx.apply_updates(current_model, updates), next_state, loss
+        return (eqx.apply_updates(current_model, updates), next_state, loss,
+                components)
 
     best, best_validation = model, float("inf")
+    best_validation_nll = float("inf")
     for epoch in range(args.epochs):
         order = np.asarray(jr.permutation(
             jr.PRNGKey(args.seed + epoch + 10), len(train_x)
         ))
-        losses = []
+        losses, nlls, recursive_losses = [], [], []
         for start in range(0, len(order), args.batch_size):
             batch = order[start:start + args.batch_size]
-            model, opt_state, loss = update(
+            model, opt_state, loss, components = update(
                 model, opt_state, train_x[batch], train_u[batch]
             )
             losses.append(float(loss))
-        validation = float(model.nll_loss(val_x, val_u))
+            nlls.append(float(components[0]))
+            recursive_losses.append(float(components[1]))
+        validation_nll = float(model.nll_loss(val_x, val_u))
+        validation = float(rollout_mse(model, val_x, val_u))
         if validation < best_validation:
             best, best_validation = model, validation
+            best_validation_nll = validation_nll
         print(
-            f"epoch={epoch + 1:03d} train_nll={np.mean(losses):.5f} "
-            f"validation_nll={validation:.5f}", flush=True
+            f"epoch={epoch + 1:03d} loss={np.mean(losses):.5f} "
+            f"train_nll={np.mean(nlls):.5f} "
+            f"train_rollout_mse={np.mean(recursive_losses):.5f} "
+            f"validation_nll={validation_nll:.5f} "
+            f"validation_rollout_mse={validation:.5f}", flush=True
         )
 
     args.output.mkdir(parents=True, exist_ok=True)
@@ -124,8 +167,13 @@ def run(args):
         "history": args.history,
         "rollout_steps": args.rollout_steps,
         "train_windows": len(train_x),
-        "validation_nll": best_validation,
+        "validation_nll": best_validation_nll,
+        "validation_rollout_mse": best_validation,
         "test_nll": float(best.nll_loss(test_x, test_u)),
+        "test_rollout_mse": float(rollout_mse(best, test_x, test_u)),
+        "rollout_loss_weight": args.rollout_loss_weight,
+        "rollout_discount": args.rollout_discount,
+        "rollout_scale": args.rollout_scale,
         "state_order": ["x", "y", "sin_yaw", "cos_yaw", "v", "omega"],
         "action_order": ["v_command", "omega_command"],
         "training_plant": "recorded" if args.data else args.plant,
@@ -150,10 +198,18 @@ def parser():
     result.add_argument("--hidden-layers", type=int, default=2)
     result.add_argument("--blocks", type=int, default=4)
     result.add_argument("--max-rho", type=float, default=0.9)
+    result.add_argument("--rollout-loss-weight", type=float, default=10.0)
+    result.add_argument("--rollout-discount", type=float, default=0.98)
+    result.add_argument(
+        "--rollout-scale", type=float, nargs=6,
+        default=[1.0, 1.0, 0.5, 0.5, 0.5, 1.0],
+        metavar=("X", "Y", "SIN_YAW", "COS_YAW", "V", "OMEGA"),
+    )
     result.add_argument("--synthetic-episodes", type=int, default=128)
     result.add_argument("--synthetic-steps", type=int, default=100)
     result.add_argument(
-        "--plant", choices=("high_fidelity", "nominal"),
+        "--plant",
+        choices=("high_fidelity", "robust", "control_tasks", "nominal"),
         default="high_fidelity",
         help="Synthetic data source when --data is not supplied.",
     )

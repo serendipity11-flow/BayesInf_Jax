@@ -2,28 +2,38 @@ import jax
 import jax.numpy as jnp
 import equinox as eqx
 import jax.random as jr
-from typing import List
+from typing import List, NamedTuple
+
+from bayesinf.models.networks import BatchNorm1d
+
+
+class PELSState(NamedTuple):
+    encoder_means: tuple
+    encoder_variances: tuple
+    regressor_means: tuple
+    regressor_variances: tuple
 
 # linear block pattern: Linear -> BN -> ReLU -> Dropout
 class LinearBlock(eqx.Module):
     linear: eqx.nn.Linear
-    bn: eqx.nn.BatchNorm
+    bn: BatchNorm1d
     dropout: eqx.nn.Dropout
     use_dropout: bool
 
     def __init__(self, in_features, out_features, dropout_rate, key):
         self.linear = eqx.nn.Linear(in_features, out_features, key=key)
-        self.bn = eqx.nn.BatchNorm(out_features, axis_name='batch')
+        self.bn = BatchNorm1d(out_features)
         self.dropout = eqx.nn.Dropout(p=dropout_rate)
         self.use_dropout = dropout_rate > 0
 
-    def __call__(self, x, state, key=None, inference=False):
-        x = self.linear(x)
-        x, state = self.bn(x, state, inference=inference)
+    def __call__(self, x, mean, variance, key=None, inference=False):
+        x = jax.vmap(self.linear)(x)
+        x, mean, variance = self.bn(
+            x, mean, variance, inference=inference)
         x = jax.nn.relu(x)
         if self.use_dropout and key is not None:
             x = self.dropout(x, key=key, inference=inference)
-        return x, state
+        return x, mean, variance
 
 class Encoder(eqx.Module):
     lstm_cell: eqx.nn.LSTMCell
@@ -66,21 +76,20 @@ class Encoder(eqx.Module):
         self.latent_dim_z = latent_dim_z
         self.dropout_rate = dropout
 
-    def __call__(self, x, state, theta=None, key=None, inference=False):
-        # x shape: (seq_len, n_time_series)
+    def __call__(self, x, means, variances, theta=None, key=None, inference=False):
+        # x shape: (batch, seq_len, n_time_series)
         
         # LSTM Scan
-        def scan_fn(carry, input_t):
-            h, c = carry
-            h_new, c_new = self.lstm_cell(input_t, (h, c))
-            return (h_new, c_new), h_new
-
         # Initial hidden state (zeros)
-        h0 = jnp.zeros((self.lstm_cell.hidden_size,))
-        c0 = jnp.zeros((self.lstm_cell.hidden_size,))
+        h0 = jnp.zeros((x.shape[0], self.lstm_cell.hidden_size))
+        c0 = jnp.zeros((x.shape[0], self.lstm_cell.hidden_size))
         
         # Run LSTM
-        (h_final, _), _ = jax.lax.scan(scan_fn, (h0, c0), x)
+        def batch_scan(carry, input_t):
+            h_new, c_new = jax.vmap(self.lstm_cell)(input_t, carry)
+            return (h_new, c_new), h_new
+        (h_final, _), _ = jax.lax.scan(
+            batch_scan, (h0, c0), jnp.swapaxes(x, 0, 1))
         
         eh1 = h_final # Take last hidden state
         
@@ -91,14 +100,19 @@ class Encoder(eqx.Module):
         out = eh1
         keys = jr.split(key, len(self.linear_layers)) if key is not None else [None] * len(self.linear_layers)
         
-        for layer, k in zip(self.linear_layers, keys):
-            out, state = layer(out, state, key=k, inference=inference)
+        new_means, new_variances = [], []
+        for layer, mean, variance, k in zip(
+                self.linear_layers, means, variances, keys):
+            out, mean, variance = layer(
+                out, mean, variance, key=k, inference=inference)
+            new_means.append(mean)
+            new_variances.append(variance)
             
-        eh2 = self.final_linear(out)
-        mu = self.linear_mu(eh2)
-        logvar = self.linear_std(eh2)
+        eh2 = jax.vmap(self.final_linear)(out)
+        mu = jax.vmap(self.linear_mu)(eh2)
+        logvar = jax.vmap(self.linear_std)(eh2)
         
-        return mu, logvar, state
+        return mu, logvar, tuple(new_means), tuple(new_variances)
 
 class Regressor(eqx.Module):
     linear_layers: List[LinearBlock]
@@ -129,17 +143,22 @@ class Regressor(eqx.Module):
         self.linear_mu = eqx.nn.Linear(latent_dim_z * 2, latent_dim_z, key=keys[-2])
         self.linear_std = eqx.nn.Linear(latent_dim_z * 2, latent_dim_z, key=keys[-1])
 
-    def __call__(self, theta, state, key=None, inference=False):
+    def __call__(self, theta, means, variances, key=None, inference=False):
         out = theta
         keys = jr.split(key, len(self.linear_layers)) if key is not None else [None] * len(self.linear_layers)
         
-        for layer, k in zip(self.linear_layers, keys):
-            out, state = layer(out, state, key=k, inference=inference)
+        new_means, new_variances = [], []
+        for layer, mean, variance, k in zip(
+                self.linear_layers, means, variances, keys):
+            out, mean, variance = layer(
+                out, mean, variance, key=k, inference=inference)
+            new_means.append(mean)
+            new_variances.append(variance)
             
-        out = self.final_linear(out)
-        mu = self.linear_mu(out)
-        logvar = self.linear_std(out)
-        return mu, logvar, state
+        out = jax.vmap(self.final_linear)(out)
+        mu = jax.vmap(self.linear_mu)(out)
+        logvar = jax.vmap(self.linear_std)(out)
+        return mu, logvar, tuple(new_means), tuple(new_variances)
 
 class Decoder(eqx.Module):
     latent_expand: eqx.nn.Linear
@@ -162,7 +181,7 @@ class Decoder(eqx.Module):
         self.latent_dim_z = latent_dim_z
         self.seq_len = seq_len
 
-    def __call__(self, z, theta=None):
+    def _one(self, z, theta=None):
         if self.theta_dim > 0 and theta is not None:
             z = jnp.concatenate([z, theta], axis=-1)
         
@@ -190,6 +209,11 @@ class Decoder(eqx.Module):
         
         return xhat
 
+    def __call__(self, z, theta=None):
+        if theta is None:
+            return jax.vmap(self._one)(z)
+        return jax.vmap(self._one)(z, theta)
+
 class PELS_VAE(eqx.Module):
     encoder: Encoder
     regressor: Regressor
@@ -200,8 +224,11 @@ class PELS_VAE(eqx.Module):
         super().__init__()
         k_enc, k_reg, k_dec = jr.split(key, 3)
         
-        self.encoder = Encoder(latent_dim_z, n_time_series, lstm_hidden_dim, linear_hidden_dim,
-                               n_lstm_layers, n_linear_layers, theta_dim, dropout, key=k_enc)
+        self.encoder = Encoder(
+            latent_dim_z, n_time_series, lstm_hidden_dim, linear_hidden_dim,
+            n_linear_layers=n_linear_layers, theta_dim=theta_dim,
+            dropout=dropout, key=k_enc,
+        )
         self.regressor = Regressor(latent_dim_z, theta_dim, linear_hidden_dim,
                                    n_linear_layers, dropout, key=k_reg)
         self.decoder = Decoder(latent_dim_z, seq_len, n_time_series, lstm_hidden_dim, n_lstm_layers,
@@ -212,15 +239,30 @@ class PELS_VAE(eqx.Module):
         eps = jr.normal(key, mu.shape)
         return mu + eps * std
 
+    def initial_state(self):
+        encoder_widths = tuple(layer.linear.out_features for layer in self.encoder.linear_layers)
+        regressor_widths = tuple(layer.linear.out_features for layer in self.regressor.linear_layers)
+        return PELSState(
+            tuple(jnp.zeros(width) for width in encoder_widths),
+            tuple(jnp.ones(width) for width in encoder_widths),
+            tuple(jnp.zeros(width) for width in regressor_widths),
+            tuple(jnp.ones(width) for width in regressor_widths),
+        )
+
     def __call__(self, x, state, theta=None, key=None, inference=False):
         """
-        Forward pass for a SINGLE sample. 
-        Use jax.vmap(model, axis_name='batch')(x_batch, state, theta_batch, keys) for batch processing.
+        Forward a completed batch so BatchNorm sees the full leading axis.
         """
         k_enc, k_reg, k_sample = jr.split(key, 3)
         
-        mu, logvar, state = self.encoder(x, state, theta=theta, key=k_enc, inference=inference)
-        muhat, logvarhat, state = self.regressor(theta, state, key=k_reg, inference=inference)
+        mu, logvar, encoder_means, encoder_variances = self.encoder(
+            x, state.encoder_means, state.encoder_variances,
+            theta=theta, key=k_enc, inference=inference)
+        muhat, logvarhat, regressor_means, regressor_variances = self.regressor(
+            theta, state.regressor_means, state.regressor_variances,
+            key=k_reg, inference=inference)
+        state = PELSState(encoder_means, encoder_variances,
+                          regressor_means, regressor_variances)
         
         z = self.reparameterize(mu, logvar, k_sample)
         xhat = self.decoder(z, theta=theta)
@@ -231,7 +273,9 @@ class PELS_VAE(eqx.Module):
         """
         Predict xhat from theta.
         """
-        muhat, logvarhat, state = self.regressor(theta, state, key=key, inference=True)
+        muhat, logvarhat, _, _ = self.regressor(
+            theta, state.regressor_means, state.regressor_variances,
+            key=key, inference=True)
         
         def single_pass(k):
             z = self.reparameterize(muhat, logvarhat, k)

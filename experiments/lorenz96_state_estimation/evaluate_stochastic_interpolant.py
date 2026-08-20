@@ -696,8 +696,7 @@ ax.set_xlabel("Time", fontsize=9 * args.font_scale)
 ax.set_ylabel(f"State dim {dim_show}", fontsize=9 * args.font_scale)
 if not args.no_title:
     ax.set_title(f"Particle trajectories (seq 0, dim {dim_show})\n"
-                 f"{n_show_traj} of {args.n_particles} particles shown",
-                 fontsize=9 * args.font_scale)
+                 f"{n_show_traj} of {args.n_particles} particles shown")
 ax.tick_params(labelsize=9 * args.font_scale)
 ax.legend(fontsize=8 * args.font_scale)
 

@@ -56,7 +56,7 @@ def trajectory_figure():
         ((0.5, -0.2), r"Moderate recovery: $e_y=+0.5$ m, $e_\psi=-0.2$ rad"),
         ((-1.0, -0.2), r"Challenging recovery: $e_y=-1.0$ m, $e_\psi=-0.2$ rad"),
     ]
-    fig, axes = plt.subplots(3, 1, figsize=(12.5, 10.5), sharex=True,
+    fig, axes = plt.subplots(3, 1, figsize=(12.5, 8.0), sharex=True,
                              constrained_layout=True)
     time = np.arange(300) * cfg.dt
     for axis, (initial, title) in zip(axes, cases):

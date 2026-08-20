@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+PARAM_NAMES = (r"$D_L$", r"$f_0$", r"$m$", r"$d_{off}$", r"$p_1$", r"$p_2$")
+
+
 def plot_parameter_regression(
     samples: np.ndarray,
     truth: np.ndarray,
@@ -42,15 +45,16 @@ def plot_parameter_regression(
         ax.errorbar(x, y, yerr=np.vstack((y - lo, hi - y)), fmt="o", markersize=3.8,
                     linewidth=0.8, capsize=1.8, alpha=0.72, color="#2563eb",
                     ecolor="#93c5fd", label="Posterior mean ± 90% CI")
-        ax.set(xlabel=f"Ground-truth $\\theta_{parameter + 1}$",
-               ylabel=f"Estimated $\\theta_{parameter + 1}$",
-               title=f"MEMS parameter $\\theta_{parameter + 1}$", xlim=limit, ylim=limit)
+        parameter_name = PARAM_NAMES[parameter]
+        ax.set(xlabel=f"Ground truth {parameter_name}",
+               ylabel=f"Estimated {parameter_name}",
+               title=parameter_name, xlim=limit, ylim=limit)
         ax.set_aspect("equal", adjustable="box")
         ax.grid(alpha=0.22)
         if parameter == 0:
             ax.legend(fontsize=8, loc="best")
 
-    fig.suptitle(f"{model_name.upper()}: MEMS parameter regression on 50 held-out signals",
+    fig.suptitle(f"{model_name.upper()}: posterior regression on 50 held-out signals",
                  fontsize=15)
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)

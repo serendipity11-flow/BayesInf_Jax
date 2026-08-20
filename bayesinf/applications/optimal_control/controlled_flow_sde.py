@@ -327,8 +327,16 @@ class ControlledRealNVPFlowSDE(eqx.Module):
             )
         return context
 
-    def transition_nll(self, x0, u0, x1, time, state_history=None):
-        """Mean exact Euler transition NLL for arrays ending in state_dim."""
+    def transition_log_prob(self, x1, x0, u0, time, state_history=None):
+        """Exact normalized-coordinate Euler transition log density."""
+        x0, x1 = jnp.asarray(x0), jnp.asarray(x1)
+        if x0.shape != x1.shape or x0.shape[-1:] != (self.state_dim,):
+            raise ValueError("x0 and x1 must have matching final state dimensions")
+        batch_shape = x0.shape[:-1]
+        u0 = jnp.broadcast_to(
+            jnp.asarray(u0, dtype=x0.dtype), batch_shape + (self.control_dim,)
+        )
+        time = jnp.broadcast_to(jnp.asarray(time, dtype=x0.dtype), batch_shape or ())
         dt = jnp.asarray(self.dt, dtype=x0.dtype)
         if state_history is None:
             history_steps = max(1, self.object_history_steps)
@@ -351,8 +359,8 @@ class ControlledRealNVPFlowSDE(eqx.Module):
             base = 0.5 * jnp.sum(epsilon ** 2)
             base += 0.5 * self.state_dim * jnp.log(2.0 * jnp.pi)
             # p(x1|x0,u) includes both the flow and sqrt(dt) Jacobians.
-            return (base + forward_log_det
-                    + 0.5 * self.state_dim * jnp.log(dt)) / self.state_dim
+            return -(base + forward_log_det
+                     + 0.5 * self.state_dim * jnp.log(dt))
 
         flat_shape = (-1, self.state_dim)
         values = jax.vmap(one)(
@@ -360,7 +368,13 @@ class ControlledRealNVPFlowSDE(eqx.Module):
             x1.reshape(flat_shape), time.reshape((-1,)),
             state_history.reshape((-1, state_history.shape[-2], self.state_dim)),
         )
-        return jnp.mean(values)
+        return values.reshape(batch_shape) if batch_shape else values[0]
+
+    def transition_nll(self, x0, u0, x1, time, state_history=None):
+        """Mean per-state-dimension exact Euler transition NLL."""
+        return -jnp.mean(
+            self.transition_log_prob(x1, x0, u0, time, state_history)
+        ) / self.state_dim
 
     def noisy_transition_nll(self, x0, u0, x1, time, key,
                              state_noise_std=0.0, control_noise_std=0.0,

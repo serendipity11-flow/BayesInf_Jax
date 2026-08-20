@@ -10,6 +10,8 @@ __pycache__/
 # Experiment tracking
 wandb/
 
+docs/
+
 # template scripts
 scripts/
 

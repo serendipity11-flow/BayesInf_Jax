@@ -68,6 +68,7 @@ nvidia-nvjitlink-cu12==12.9.86
 nvidia-nvshmem-cu12==3.6.5
 opt_einsum==3.4.0
 optax==0.2.8
+pytest==8.4.2
 optimistix==0.1.0
 packaging==26.2
 pandas==3.0.2

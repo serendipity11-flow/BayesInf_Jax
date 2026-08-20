@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "project_redistribution_status": "private-not-approved",
+  "generated_on": "2026-08-17",
+  "scope": "direct NSF runtime and development dependencies",
+  "dependencies": [
+    {"name": "Python", "version": "3.12", "usage": "runtime", "spdx": "PSF-2.0", "source": "https://docs.python.org/3/license.html"},
+    {"name": "jax", "version": "0.10.0", "usage": "runtime", "spdx": "Apache-2.0", "source": "https://github.com/jax-ml/jax/blob/main/LICENSE"},
+    {"name": "jaxlib", "version": "0.10.0", "usage": "runtime", "spdx": "Apache-2.0", "source": "https://github.com/jax-ml/jax/blob/main/LICENSE"},
+    {"name": "equinox", "version": "0.13.7", "usage": "runtime", "spdx": "Apache-2.0", "source": "https://github.com/patrick-kidger/equinox/blob/main/LICENSE"},
+    {"name": "optax", "version": "0.2.8", "usage": "runtime", "spdx": "Apache-2.0", "source": "https://github.com/google-deepmind/optax/blob/main/LICENSE"},
+    {"name": "jaxtyping", "version": "0.3.9", "usage": "runtime-optional", "spdx": "MIT", "source": "https://github.com/patrick-kidger/jaxtyping/blob/main/LICENSE"},
+    {"name": "numpy", "version": "2.4.4", "usage": "runtime-transitive-and-interoperability", "spdx": "BSD-3-Clause", "source": "https://numpy.org/doc/stable/license.html"},
+    {"name": "pytest", "version": "unconstrained", "usage": "development", "spdx": "MIT", "source": "https://docs.pytest.org/en/stable/license.html"}
+  ],
+  "release_blockers": [
+    "resolve exact development dependency versions",
+    "inventory transitive dependencies",
+    "verify license texts from installed release artifacts",
+    "perform human compatibility review"
+  ]
+}

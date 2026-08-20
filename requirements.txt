@@ -8,6 +8,7 @@ mujoco==3.10.0
 numba==0.65.1
 numpy==2.4.4
 optax==0.2.8
+pytest==8.4.2
 pyarrow==23.0.1
 SALib==1.5.2
 scikit_learn==1.8.0

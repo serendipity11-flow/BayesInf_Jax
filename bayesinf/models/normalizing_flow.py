@@ -11,9 +11,14 @@ import jax.numpy as jnp
 import jax.random as jr
 import equinox as eqx
 import optax
-from typing import Any, List, Tuple, Optional
+from typing import Any, List, Tuple, Optional, Sequence
 from functools import partial
-from bayesinf.models.networks import TimeSeriesEncoder
+from bayesinf.models.networks import (
+    BatchNormBidirectionalLSTMEncoder,
+    TimeSeriesEncoder,
+    TransformerTimeSeriesEncoder,
+    VectorizedBidirectionalLSTMEncoder,
+)
 from bayesinf.models.MCMC_Flow import MALALayer, RMALALayer, MCMCLayer, BMCMCLayer
 STOCHASTIC_LAYERS = (MALALayer, RMALALayer, MCMCLayer, BMCMCLayer)
 
@@ -41,7 +46,7 @@ class ActNorm(eqx.Module):
         std = jnp.std(x, axis=0) + self.eps
         
         new_bias = -mean
-        new_logs = jnp.log(1.0 / (std + self.eps)) / self.logscale_factor
+        new_logs = -jnp.log(std) / self.logscale_factor
         
         # Return a copy of self with updated fields
         return eqx.tree_at(
@@ -56,16 +61,18 @@ class ActNorm(eqx.Module):
         # inside the forward pass easily if JIT compiling. 
         # The user should call .initialize() explicitly before training.
         
-        logs = self.logs * self.logscale_factor
+        # The notebook treats data-dependent ActNorm statistics as fixed.
+        bias = jax.lax.stop_gradient(self.bias)
+        logs = jax.lax.stop_gradient(self.logs) * self.logscale_factor
         
         if not reverse:
-            z = (x + self.bias) * jnp.exp(logs)
+            z = (x + bias) * jnp.exp(logs)
             # ldj = sum(logs) for each batch element
             ldj_val = jnp.sum(logs)
             ldj = jnp.full(x.shape[:-1], ldj_val)
             return z, ldj
         else:
-            z = x * jnp.exp(-logs) - self.bias
+            z = x * jnp.exp(-logs) - bias
             ldj_val = -jnp.sum(logs)
             ldj = jnp.full(x.shape[:-1], ldj_val)
             return z, ldj
@@ -86,7 +93,7 @@ class RandomPermutation(eqx.Module):
             return x[..., self.perm], jnp.zeros(x.shape[:-1])
         else:
             return x[..., self.inv_perm], jnp.zeros(x.shape[:-1])
- 
+
 
 class AffineCoupling(eqx.Module):
     dim: int = eqx.field(static=True)
@@ -94,6 +101,7 @@ class AffineCoupling(eqx.Module):
     idx_a: Any = eqx.field(static=True)
     idx_b: Any = eqx.field(static=True)
     net: eqx.nn.MLP
+    dropout_rate: float = eqx.field(static=True)
 
     def __init__(
         self, 
@@ -101,10 +109,12 @@ class AffineCoupling(eqx.Module):
         hidden_sizes: List[int], 
         cond_dim: int, 
         mask: jnp.ndarray, 
-        key: jax.Array
+        key: jax.Array,
+        dropout_rate: float = 0.0,
     ):
         self.dim = input_dim
         self.cond_dim = cond_dim
+        self.dropout_rate = dropout_rate
 
         self.idx_a = np.array(jnp.where(mask)[0])  # numpy for static field (hashable)
         self.idx_b = np.array(jnp.where(1 - mask)[0])
@@ -141,13 +151,21 @@ class AffineCoupling(eqx.Module):
             new_final
         )
 
-    def __call__(self, x: jnp.ndarray, cond: jnp.ndarray, reverse: bool = False):
+    def __call__(self, x: jnp.ndarray, cond: jnp.ndarray, reverse: bool = False,
+                 key: jax.Array | None = None, inference: bool = True):
         # x: (batch, dim), cond: (batch, cond_dim)
 
         # Function to process a single batch element
-        def _step(x_i, c_i):
+        keys = jr.split(key if key is not None else jr.PRNGKey(0), len(x))
+
+        def _step(x_i, c_i, key_i):
             x_a_flat = x_i[..., self.idx_a]
             inp = jnp.concatenate([x_a_flat, c_i], axis=-1)
+            if self.dropout_rate and not inference:
+                if key is None:
+                    raise ValueError("Training with coupling dropout requires a PRNG key")
+                keep = jr.bernoulli(key_i, 1.0 - self.dropout_rate, inp.shape)
+                inp = jnp.where(keep, inp / (1.0 - self.dropout_rate), 0.0)
             st = self.net(inp)
             s, t = jnp.split(st, 2, axis=-1)
             s = jnp.tanh(s)
@@ -170,7 +188,103 @@ class AffineCoupling(eqx.Module):
                 ldj = -jnp.sum(s)
                 return z, ldj
 
-        return jax.vmap(_step)(x, cond)
+        return jax.vmap(_step)(x, cond, keys)
+
+
+class CouplingNet(eqx.Module):
+    """Configurable Xavier-initialized MLP supporting arbitrary batch axes."""
+    layers: tuple
+    activation: Any = eqx.field(static=True)
+
+    def __init__(self, in_size, out_size, hidden_dims, key,
+                 activation=jnp.tanh, bias=0.001):
+        hidden_dims = tuple(hidden_dims)
+        sizes = (in_size, *hidden_dims, out_size)
+        keys = jr.split(key, len(sizes) - 1)
+        layers = []
+        for fan_in, fan_out, layer_key in zip(sizes[:-1], sizes[1:], keys):
+            layer = eqx.nn.Linear(fan_in, fan_out, key=layer_key)
+            # Exact JAX equivalent of torch.nn.init.xavier_uniform_(weight).
+            limit = jnp.sqrt(6.0 / (fan_in + fan_out))
+            weight = jr.uniform(layer_key, layer.weight.shape, minval=-limit, maxval=limit)
+            layer = eqx.tree_at(
+                lambda item: (item.weight, item.bias), layer,
+                (weight, jnp.full_like(layer.bias, bias)),
+            )
+            layers.append(layer)
+        self.layers = tuple(layers)
+        self.activation = activation
+
+    def __call__(self, value):
+        leading_shape = value.shape[:-1]
+        value = value.reshape((-1, value.shape[-1]))
+        for layer in self.layers[:-1]:
+            value = jax.vmap(layer)(value)
+            value = self.activation(value)
+        value = jax.vmap(self.layers[-1])(value)
+        return value.reshape((*leading_shape, value.shape[-1]))
+
+
+class DoubleRealNVPCoupling(eqx.Module):
+    """Two consecutive affine updates that transform both halves of a vector."""
+    dim: int = eqx.field(static=True)
+    split: int = eqx.field(static=True)
+    subnet_s1: CouplingNet
+    subnet_t1: CouplingNet
+    subnet_s2: CouplingNet
+    subnet_t2: CouplingNet
+    clamp: float = eqx.field(static=True)
+    clamp_activation: str = eqx.field(static=True)
+
+    def __init__(self, dim, cond_dim, hidden_dims, key, activation=jnp.tanh,
+                 clamp=2.0, clamp_activation="TANH"):
+        self.dim = dim
+        self.split = round(dim * 0.5)
+        self.clamp = clamp
+        self.clamp_activation = clamp_activation.upper()
+        if self.clamp_activation not in {"TANH", "ATAN", "SIGMOID", "I"}:
+            raise ValueError("clamp_activation must be TANH, ATAN, SIGMOID, or I")
+        first, second = self.split, dim - self.split
+        keys = jr.split(key, 4)
+        self.subnet_s1 = CouplingNet(first + cond_dim, second, hidden_dims, keys[0], activation)
+        self.subnet_t1 = CouplingNet(first + cond_dim, second, hidden_dims, keys[1], activation)
+        self.subnet_s2 = CouplingNet(second + cond_dim, first, hidden_dims, keys[2], activation)
+        self.subnet_t2 = CouplingNet(second + cond_dim, first, hidden_dims, keys[3], activation)
+
+    def _bounded_log_scale(self, raw_scale):
+        if self.clamp_activation == "TANH":
+            activated = jnp.tanh(raw_scale)
+        elif self.clamp_activation == "ATAN":
+            activated = 0.636 * jnp.arctan(raw_scale)
+        elif self.clamp_activation == "SIGMOID":
+            activated = 2.0 * (jax.nn.sigmoid(raw_scale) - 0.5)
+        else:
+            activated = raw_scale
+        return self.clamp * activated
+
+    def __call__(self, value, cond, reverse=False):
+        first, second = value[..., :self.split], value[..., self.split:]
+        if not reverse:
+            second_cond = jnp.concatenate((second, cond), axis=-1)
+            scale_first = self._bounded_log_scale(self.subnet_s2(second_cond))
+            shift_first = self.subnet_t2(second_cond)
+            out_first = jnp.exp(scale_first) * first + shift_first
+            first_cond = jnp.concatenate((out_first, cond), axis=-1)
+            scale_second = self._bounded_log_scale(self.subnet_s1(first_cond))
+            shift_second = self.subnet_t1(first_cond)
+            out_second = jnp.exp(scale_second) * second + shift_second
+            logdet = jnp.sum(scale_first, axis=-1) + jnp.sum(scale_second, axis=-1)
+        else:
+            first_cond = jnp.concatenate((first, cond), axis=-1)
+            scale_second = self._bounded_log_scale(self.subnet_s1(first_cond))
+            shift_second = self.subnet_t1(first_cond)
+            out_second = (second - shift_second) * jnp.exp(-scale_second)
+            second_cond = jnp.concatenate((out_second, cond), axis=-1)
+            scale_first = self._bounded_log_scale(self.subnet_s2(second_cond))
+            shift_first = self.subnet_t2(second_cond)
+            out_first = (first - shift_first) * jnp.exp(-scale_first)
+            logdet = -jnp.sum(scale_first, axis=-1) - jnp.sum(scale_second, axis=-1)
+        return jnp.concatenate((out_first, out_second), axis=-1), logdet
 
 class MaskedLinear(eqx.nn.Linear):
     mask: jnp.ndarray
@@ -531,14 +645,125 @@ class SplineCoupling(eqx.Module):
         return z, ldj
 
 
+class BNNormFlow(eqx.Module):
+    """Double RealNVP with an explicitly stateful BatchNorm conditioner."""
+    dim: int = eqx.field(static=True)
+    conditioner: eqx.Module
+    transforms: tuple
+    dropout_rate: float = eqx.field(static=True)
+
+    def __init__(self, dim, cond_dim, key, *,
+                 n_coupling=4, hidden_dims=(64,) * 4, encoded_dim=64,
+                 encoder_hidden_size=64, encoder_layers=2, sequence_length=96,
+                 transformer_heads=4, activation=jnp.tanh, clamp=1.0,
+                 clamp_activation="I", dropout_rate=0.0):
+        self.dim = dim
+        self.dropout_rate = dropout_rate
+        keys = jr.split(key, n_coupling + 1)
+        del sequence_length, transformer_heads
+        self.conditioner = BatchNormBidirectionalLSTMEncoder(
+            cond_dim, encoder_hidden_size, encoded_dim, keys[0],
+            n_layers=encoder_layers)
+        transforms = [ActNorm(dim)]
+        for index in range(n_coupling):
+            coupling_key, permutation_key = jr.split(keys[index + 1])
+            transforms.extend((
+                DoubleRealNVPCoupling(
+                    dim, encoded_dim, hidden_dims, coupling_key,
+                    activation=activation, clamp=clamp,
+                    clamp_activation=clamp_activation),
+                RandomPermutation(dim, permutation_key),
+                ActNorm(dim),
+            ))
+        self.transforms = tuple(transforms)
+
+    def initial_batchnorm_state(self):
+        return self.conditioner.initial_state()
+
+    def _encode(self, signals, state=None, *, inference=True):
+        if state is None:
+            state = self.conditioner.initial_state()
+        return self.conditioner(signals, state, inference=inference)
+
+    def _flow(self, value, condition, reverse=False):
+        logdet = jnp.zeros(value.shape[:-1])
+        transforms = self.transforms if not reverse else reversed(self.transforms)
+        for transform in transforms:
+            if isinstance(transform, DoubleRealNVPCoupling):
+                value, increment = transform(value, condition, reverse=reverse)
+            else:
+                value, increment = transform(value, reverse=reverse)
+            logdet = logdet + increment
+        return value, logdet
+
+    def _drop_condition(self, condition, key, inference):
+        if not self.dropout_rate or inference:
+            return condition
+        if key is None:
+            raise ValueError("Training with flow dropout requires a PRNG key")
+        keep = jr.bernoulli(key, 1.0 - self.dropout_rate, condition.shape)
+        return jnp.where(keep, condition / (1.0 - self.dropout_rate), 0.0)
+
+    def initialize_actnorm(self, parameters, signals, state=None):
+        condition, _ = self._encode(signals, state, inference=False)
+        value, initialized = parameters, []
+        for transform in self.transforms:
+            if isinstance(transform, ActNorm):
+                transform = transform.initialize(value)
+                value, _ = transform(value)
+            elif isinstance(transform, DoubleRealNVPCoupling):
+                value, _ = transform(value, condition)
+            else:
+                value, _ = transform(value)
+            initialized.append(transform)
+        return eqx.tree_at(lambda item: item.transforms, self, tuple(initialized))
+
+    def forward_with_state(self, parameters, signals, state=None, *, key=None,
+                           inference=True):
+        condition, new_state = self._encode(signals, state, inference=inference)
+        condition = self._drop_condition(condition, key, inference)
+        latent, logdet = self._flow(parameters, condition)
+        return latent, logdet, new_state
+
+    def __call__(self, parameters, signals, key=None, inference=True):
+        del key
+        latent, logdet, _ = self.forward_with_state(
+            parameters, signals, inference=inference)
+        return latent, logdet
+
+    def log_prob_with_state(self, parameters, signals, state=None, *, inference=True):
+        latent, logdet, new_state = self.forward_with_state(
+            parameters, signals, state, inference=inference)
+        base = -0.5 * (jnp.sum(latent ** 2, axis=-1) + self.dim * jnp.log(2 * jnp.pi))
+        return base + logdet, new_state
+
+    def log_prob(self, parameters, signals, key=None, inference=True):
+        del key
+        return self.log_prob_with_state(parameters, signals, inference=inference)[0]
+
+    def inverse(self, latent, signals, state=None):
+        condition, _ = self._encode(signals, state, inference=True)
+        return self._flow(latent, condition, reverse=True)
+
+    def sample(self, signals, key, num_samples, state=None):
+        condition, _ = self._encode(signals, state, inference=True)
+        # Preserve sample and observation axes throughout the flow. CouplingNet
+        # handles arbitrary leading axes, so flatten/repeat is unnecessary.
+        latent = jr.normal(key, (num_samples, signals.shape[0], self.dim))
+        condition = jnp.broadcast_to(condition, (num_samples, *condition.shape))
+        return self._flow(latent, condition, reverse=True)[0]
+
+
 class CondNormFlow(eqx.Module):
     dim: int = eqx.field(static=True)
     cond_dim: int = eqx.field(static=True)
-    encoder: TimeSeriesEncoder
+    flow_type: str = eqx.field(static=True)
+    encoder: eqx.Module
     transforms: List[eqx.Module]
     prior_mean: jnp.ndarray
     prior_cov: jnp.ndarray
-    refinement: Optional[eqx.Module] 
+    refinement: Optional[eqx.Module]
+    dropout_rate: float = eqx.field(static=True)
 
     def __init__(
         self, 
@@ -552,21 +777,66 @@ class CondNormFlow(eqx.Module):
         hidden_rnn: int = 128,
         rnn_type: str = "lstm",
         flow_type: str = 'realnvp',
+        encoder_type: str = "rnn",
+        encoder_layers: int = 2,
+        sequence_length: int = 96,
+        transformer_heads: int = 4,
+        transformer_ff_dim: Optional[int] = None,
+        double_hidden_dims: Optional[Sequence[int]] = None,
+        clamp: float = 1.0,
+        clamp_activation: str = "I",
+        dropout_rate: float = 0.0,
+        use_actnorm: bool = True,
         log_posterior_fn=None,
         mcmc_type='MALA', num_mh_steps: int = 1, mcmc_step_size: float = 1e-3, noise_std=0.01
     ):
         self.dim = dim
         self.cond_dim = cond_dim
+        self.flow_type = flow_type.lower()
+        self.dropout_rate = dropout_rate
         self.prior_mean = jnp.zeros(dim)
         self.prior_cov = jnp.eye(dim)
         
         k_enc, k_flow = jax.random.split(key)
-        self.encoder = TimeSeriesEncoder(cond_dim, hidden_rnn, encoded_latent_dim, k_enc, rnn=rnn_type)
+        encoder_type = encoder_type.lower()
+        if encoder_type == "lstm":
+            self.encoder = VectorizedBidirectionalLSTMEncoder(
+                cond_dim, hidden_rnn, encoded_latent_dim, k_enc,
+                n_layers=encoder_layers)
+        elif encoder_type == "transformer":
+            self.encoder = TransformerTimeSeriesEncoder(
+                cond_dim, hidden_rnn, encoded_latent_dim, k_enc,
+                sequence_length=sequence_length, n_layers=encoder_layers,
+                num_heads=transformer_heads, ff_dim=transformer_ff_dim)
+        elif encoder_type == "rnn":
+            self.encoder = TimeSeriesEncoder(
+                cond_dim, hidden_rnn, encoded_latent_dim, k_enc, rnn=rnn_type)
+        else:
+            raise ValueError("encoder_type must be 'rnn', 'lstm', or 'transformer'")
         
         self.transforms = []
         keys = jax.random.split(k_flow, n_coupling + 2) # +2 for ActNorms
 
-        flow_type = flow_type.lower()
+        flow_type = self.flow_type
+
+        if flow_type == "double_realnvp":
+            hidden_dims = (tuple(double_hidden_dims) if double_hidden_dims is not None
+                           else (hidden_nf,) * num_hidden_nf)
+            double_keys = jr.split(k_flow, n_coupling)
+            self.transforms = [ActNorm(dim)] if use_actnorm else []
+            for index, layer_key in enumerate(double_keys):
+                coupling_key, permutation_key = jr.split(layer_key)
+                self.transforms.extend((
+                    DoubleRealNVPCoupling(
+                        dim, encoded_latent_dim, hidden_dims, coupling_key,
+                        clamp=clamp, clamp_activation=clamp_activation),
+                    RandomPermutation(dim, permutation_key),
+                ))
+                if use_actnorm:
+                    self.transforms.append(ActNorm(dim))
+            self.transforms = tuple(self.transforms)
+            self.refinement = None
+            return
         
         def get_mask(parity):
             return jnp.array([(i + parity) % 2 for i in range(dim)], dtype=jnp.float32)
@@ -575,7 +845,8 @@ class CondNormFlow(eqx.Module):
             k_layer1, k_layer2, k_perm = jax.random.split(keys[i], 3)
             
             # ActNorm
-            self.transforms.append(ActNorm(dim))
+            if use_actnorm:
+                self.transforms.append(ActNorm(dim))
             
             # Permutation
             self.transforms.append(RandomPermutation(dim, key=k_perm))
@@ -598,15 +869,16 @@ class CondNormFlow(eqx.Module):
                 # RealNVP
                 self.transforms.append(
                     AffineCoupling(dim, [hidden_nf]*num_hidden_nf, encoded_latent_dim,
-                    get_mask(i % 2), key=k_layer1)
+                    get_mask(i % 2), key=k_layer1, dropout_rate=dropout_rate)
                 )
                 self.transforms.append(
                     AffineCoupling(dim, [hidden_nf]*num_hidden_nf, encoded_latent_dim,
-                    get_mask((i + 1) % 2), key=k_layer2)
+                    get_mask((i + 1) % 2), key=k_layer2, dropout_rate=dropout_rate)
                 )
 
         # Final ActNorm
-        self.transforms.append(ActNorm(dim))
+        if use_actnorm:
+            self.transforms.append(ActNorm(dim))
         
         if log_posterior_fn is not None:
             if mcmc_type.upper() == 'MALA':
@@ -632,41 +904,90 @@ class CondNormFlow(eqx.Module):
         else:
             self.refinement = None
 
-    def __flow_call__(self, z: jnp.ndarray, cond_emb:jnp.ndarray, reverse=False) -> Tuple[jnp.ndarray, jnp.ndarray]:
+    def initial_batchnorm_state(self):
+        """Stateless conditioners expose the same training protocol as BNNormFlow."""
+        return None
+
+    def _encode(self, signals, state=None, *, inference=True):
+        del state, inference
+        return self.encoder(signals), None
+
+    def initialize_actnorm(self, parameters, signals, state=None):
+        condition, _ = self._encode(signals, state, inference=False)
+        value, initialized = parameters, []
+        for transform in self.transforms:
+            if isinstance(transform, ActNorm):
+                transform = transform.initialize(value)
+                value, _ = transform(value)
+            elif isinstance(transform, (RandomPermutation,)):
+                value, _ = transform(value)
+            elif isinstance(transform, AffineCoupling):
+                value, _ = transform(value, condition, inference=True)
+            else:
+                value, _ = transform(value, condition)
+            initialized.append(transform)
+        return eqx.tree_at(lambda item: item.transforms, self, type(self.transforms)(initialized))
+
+    def forward_with_state(self, parameters, signals, state=None, *, key=None,
+                           inference=True):
+        condition, _ = self._encode(signals, state, inference=inference)
+        if self.flow_type == "double_realnvp" and self.dropout_rate and not inference:
+            if key is None:
+                raise ValueError("Training with flow dropout requires a PRNG key")
+            keep = jr.bernoulli(key, 1.0 - self.dropout_rate, condition.shape)
+            condition = jnp.where(
+                keep, condition / (1.0 - self.dropout_rate), 0.0)
+        latent, logdet = self.__flow_call__(
+            parameters, condition, inference=inference)
+        return latent, logdet, None
+
+    def __flow_call__(self, z: jnp.ndarray, cond_emb:jnp.ndarray, reverse=False,
+                      key=None, inference=True) -> Tuple[jnp.ndarray, jnp.ndarray]:
         logdet = jnp.zeros(z.shape[:-1])
         x = z
 
         flow_list = self.transforms if not reverse else reversed(self.transforms)
-        for t in flow_list:
+        flow_list = list(flow_list)
+        keys = jr.split(key, len(flow_list)) if key is not None else [None] * len(flow_list)
+        for t, layer_key in zip(flow_list, keys):
             if isinstance(t, (ActNorm, RandomPermutation)):
                 x, ldj = t(x, reverse=reverse)
+            elif isinstance(t, AffineCoupling):
+                x, ldj = t(x, cond_emb, reverse=reverse, key=layer_key, inference=inference)
             else:
                 x, ldj = t(x, cond_emb, reverse=reverse)
             logdet = logdet + ldj
 
         return x, logdet
 
-    def __call__(self, x: jnp.ndarray, cond: jnp.ndarray) -> Tuple[jnp.ndarray, jnp.ndarray]:
+    def __call__(self, x: jnp.ndarray, cond: jnp.ndarray, key=None,
+                 inference=True) -> Tuple[jnp.ndarray, jnp.ndarray]:
         # cond: raw time series (Batch, T, C)
         # Encode condition
-        cond_emb = self.encoder(cond)
-        z, logdet = self.__flow_call__(x, cond_emb, reverse=False)
+        cond_emb, _ = self._encode(cond, inference=inference)
+        z, logdet = self.__flow_call__(x, cond_emb, reverse=False, key=key, inference=inference)
         return z, logdet   
 
     def inverse(self, z: jnp.ndarray, cond: jnp.ndarray) -> Tuple[jnp.ndarray, jnp.ndarray]:
-        cond_emb = self.encoder(cond)
+        cond_emb, _ = self._encode(cond, inference=True)
         x, logdet = self.__flow_call__(z, cond_emb, reverse=True)
         return x, logdet
 
-    def log_prob(self, x: jnp.ndarray, cond: jnp.ndarray) -> jnp.ndarray:
-        z, logdet = self(x, cond)
+    def log_prob(self, x: jnp.ndarray, cond: jnp.ndarray, key=None,
+                 inference=True) -> jnp.ndarray:
+        z, logdet = self(x, cond, key=key, inference=inference)
         # Prior log prob (Gaussian)
         # -0.5 * (z^T z + D * log(2pi))
         log_prob_z = -0.5 * (jnp.sum(z**2, axis=-1) + self.dim * jnp.log(2 * jnp.pi))
         return log_prob_z + logdet
 
-    def sample(self, cond: jnp.ndarray, key: jax.Array, num_samples: int) -> jnp.ndarray:
-        cond_emb = self.encoder(cond)
+    def sample(self, cond: jnp.ndarray, key: jax.Array, num_samples: int,
+               state=None) -> jnp.ndarray:
+        cond_emb, _ = self._encode(cond, state, inference=True)
+        if self.flow_type == "double_realnvp":
+            latent = jr.normal(key, (num_samples, cond.shape[0], self.dim))
+            condition = jnp.broadcast_to(cond_emb, (num_samples, *cond_emb.shape))
+            return self.__flow_call__(latent, condition, reverse=True)[0]
         batch_size = cond.shape[0]
         total_num = num_samples * batch_size
         cond_rep = jnp.repeat(cond_emb, num_samples, axis=0)
@@ -694,10 +1015,9 @@ class CondNormFlow(eqx.Module):
         return samples
 
 
-def cnf_loss(model, y: jnp.ndarray, true_params: jnp.ndarray):
-    ml_loss = model.log_prob(true_params, y)
-    loss = - ml_loss.mean()
-    return loss
+def cnf_loss(model, y: jnp.ndarray, true_params: jnp.ndarray, key=None):
+    z, logdet = model(true_params, y, key=key, inference=key is None)
+    return jnp.mean(0.5 * jnp.sum(z ** 2, axis=-1) - logdet)
 
 
 @eqx.filter_jit
@@ -706,13 +1026,13 @@ def make_step(model, y: jnp.ndarray, true_params: jnp.ndarray, key, opt_state: A
         diff_model, static_model = eqx.partition(model, filter_fn)
         def loss_fn(diff_m):
             full_model = eqx.combine(diff_m, static_model)
-            return cnf_loss(full_model, y, true_params)
+            return cnf_loss(full_model, y, true_params, key)
         loss, grads = eqx.filter_value_and_grad(loss_fn)(diff_model)
         updates, opt_state = optimizer.update(grads, opt_state, diff_model)
         diff_model = eqx.apply_updates(diff_model, updates)
         model = eqx.combine(diff_model, static_model)
     else:
-        loss_fn = lambda m: cnf_loss(m, y, true_params)
+        loss_fn = lambda m: cnf_loss(m, y, true_params, key)
         loss, grads = eqx.filter_value_and_grad(loss_fn)(model)
         updates, opt_state = optimizer.update(grads, opt_state, model)
         model = eqx.apply_updates(model, updates)

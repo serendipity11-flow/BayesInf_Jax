@@ -538,7 +538,7 @@ def main():
     ax.margins(x=0)
     ax.set_xlabel("Time", fontsize=traj_fs["label"])
     ax.set_ylabel(f"State dim {dim_show}", fontsize=traj_fs["label"])
-    ax.set_title(f"Particle trajectories (seq 0, dim {dim_show})", fontsize=traj_fs["title"])
+    ax.set_title(f"Particle trajectories (seq 0, dim {dim_show})")
     ax.tick_params(labelsize=traj_fs["tick"])
     ax.legend(fontsize=12 * args.font_scale)
     fig3.tight_layout(rect=[0, 0.03, 1, 0.95])

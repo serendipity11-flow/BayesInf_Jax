@@ -62,11 +62,14 @@ def test_rollout_preserves_history_and_masks_chunk_tail_after_done():
     history = np.repeat(observations[:, None], 3, axis=1)
     args = SimpleNamespace(
         n_envs=2, rollout_steps=1, horizon=4, cond_steps=3,
-        gamma=.99, gae_lambda=.95,
+        execution_horizon=4, reward_scale=1.0, gamma=.99, gae_lambda=.95,
     )
     batch, following_history, _, mean_reward = collect_rollout(
         DummyPolicy(), DummyCritic(), vector, history, IdentityNormalizer(),
         args, jr.PRNGKey(0),
+        lambda policy, states, key: policy.sample(states, key),
+        lambda policy, states, chain: policy.transition_log_prob(states, chain),
+        lambda critic, states: critic.batch(states),
     )
     assert batch.states.shape == (2, 3, 1)
     # Environment zero terminates on the first action and must not receive the

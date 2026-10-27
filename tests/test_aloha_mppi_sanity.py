@@ -1,5 +1,11 @@
 import jax.numpy as jnp
 import jax.random as jr
+import pytest
+
+pytest.importorskip(
+    "experiments.aloha_mppi_sanity",
+    reason="This regression exercises an optional plant prototype absent from the public snapshot",
+)
 
 from bayesinf.applications.optimal_control.controlled_flow_sde import ControlledRealNVPFlowSDE
 from experiments.aloha_mppi_sanity.dynamics_adapters import (

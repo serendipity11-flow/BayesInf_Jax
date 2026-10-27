@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 import jax.random as jr
+import pytest
 
 from bayesinf.applications.optimal_control.gradient_based_mpc import (
     BraxGradientMPC,
@@ -8,6 +9,7 @@ from bayesinf.applications.optimal_control.gradient_based_mpc import (
 
 
 def test_brax_gradient_mpc_differentiates_environment_rollout():
+    pytest.importorskip("brax", reason="Brax is an optional simulator dependency")
     from brax import envs
 
     env = envs.get_environment("inverted_pendulum", backend="generalized")

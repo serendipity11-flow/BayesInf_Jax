@@ -1,12 +1,17 @@
 import json
 from pathlib import Path
 import numpy as np
+import pytest
+
+pytest.importorskip("torch", reason="The external DPPO dataset loader uses optional PyTorch")
 
 from experiments.cond_stoch_interpolant_dppo.pretrain import Chunks
 from experiments.cond_stoch_interpolant_dppo.validate_data import validate
 
 
 def check_prepared(root: Path, obs_dim: int, action_dim: int):
+    if not root.exists():
+        pytest.skip("External DPPO datasets are not bundled; prepare the dataset before this integration test")
     report = validate(root, obs_dim, action_dim, horizon=4)
     manifest = json.loads((root / "manifest.json").read_text())
     assert set(manifest["train_episode_ids"]).isdisjoint(manifest["validation_episode_ids"])

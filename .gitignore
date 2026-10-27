@@ -1,42 +1,65 @@
-# Python
+# Local research inputs, evaluation, and deployment tools.
+/data/
+/evaluation/
+/scripts/
+/visualization/
+/results/
+/artifacts/
+/checkpoints/
+/logs/
+
+# Private playgrounds are developed independently of the public repository.
+/VisionFlow_world_model/
+/TSFM_flow_control/
+
+# Assistant/editor state and local plugins.
+/.agents/
+/.codex
+/.vscode/
+/.idea/
+/plugins/
+
+# Python, virtual environments, test and tool caches.
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
 *.egg-info/
 .eggs/
+.Python
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+build/
+dist/
 
-# Experiment tracking
+# Generated data, model weights and experiment logs.
 wandb/
-
-docs/
-
-# template scripts
-scripts/
-
-# Generated datasets and experiment outputs
-data/**
-!data/**/
-!data/**/README.md
-!data/**/provenance.yaml
-results/
-
-# Checkpoints and logs
 *.eqx
 *.npz
+*.npy
+*.h5
+*.hdf5
 *.parquet
+*.pkl
+*.pickle
 *.pt
 *.pth
+*.ckpt
 *.out
 *.err
+*.log
+MUJOCO_LOG.TXT
 
-# This repository intentionally versions the curated dataset snapshots.
-!data/**
-
-
-# Generated off-road dataset arrays. Keep metadata and scripts in Git, but
-# regenerate or store these binary artifacts outside the repository history.
-data/**/*.h5
-data/**/*.hdf5
-data/**/*.npz
+# Local credentials and environment files.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store

@@ -20,10 +20,28 @@ from .data import (
     normalization,
     split_episode_indices,
 )
-from experiments.mujoco_pusher_optimal_control.geometry import pusher_contact_features
 
 ARM_INDICES = jnp.asarray([0, 1, 2, 6, 7, 8])
 OBJECT_INDICES = jnp.asarray([3, 4, 5, 9, 10, 11])
+
+
+def contact_geometry_feature_fn(enabled):
+    """Load optional prototype geometry only when the feature is requested."""
+    if not enabled:
+        return None
+    try:
+        from experiments.mujoco_pusher_optimal_control.geometry import pusher_contact_features
+    except ModuleNotFoundError as error:
+        if error.name not in {
+            "experiments.mujoco_pusher_optimal_control",
+            "experiments.mujoco_pusher_optimal_control.geometry",
+        }:
+            raise
+        raise RuntimeError(
+            "--use-contact-geometry requires the optional pusher geometry prototype, "
+            "which is not included in this public snapshot; run without that option"
+        ) from error
+    return pusher_contact_features
 
 
 def contact_temporal_weights(forces, scale, post_contact_steps=0):
@@ -118,7 +136,9 @@ def build_model(args, state_dim, control_dim):
         contact_gated_object_drift=getattr(
             args, "contact_gated_object_drift", False
         ),
-        geometry_feature_fn=pusher_contact_features,
+        geometry_feature_fn=contact_geometry_feature_fn(
+            getattr(args, "use_contact_geometry", False)
+        ),
         geometry_temperature=getattr(args, "geometry_temperature", 0.02),
         state_mean=getattr(args, "model_state_mean", None),
         state_std=getattr(args, "model_state_std", None),
@@ -128,6 +148,7 @@ def build_model(args, state_dim, control_dim):
 
 
 def run(args):
+    geometry_feature_fn = contact_geometry_feature_fn(getattr(args, "use_contact_geometry", False))
     args.output.mkdir(parents=True, exist_ok=True)
     if not hasattr(args, "object_trajectory_supervision_weight"):
         args.object_trajectory_supervision_weight = 0.0
@@ -230,7 +251,7 @@ def run(args):
     if args.use_contact_geometry:
         train_states = np.concatenate([episodes[i] for i in train_i])
         geometry = np.asarray(jax.vmap(
-            lambda state: pusher_contact_features(
+            lambda state: geometry_feature_fn(
                 state, temperature=args.geometry_temperature
             )[:args.geometry_feature_dim]
         )(jnp.asarray(train_states)))

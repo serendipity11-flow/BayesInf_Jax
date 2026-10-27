@@ -103,8 +103,8 @@ def test_interpolant_analytic_score_and_ode_sde_are_finite():
     assert log_prob.shape == (4, policy.integration_steps, 4, 3)
     assert jnp.all(jnp.isfinite(log_prob))
 
-    context, mean, _ = policy._features(states[0])
-    score = policy._actual_score(actions[0], mean, context, jnp.asarray(0.0))
+    context = policy._features(states[0])
+    score = policy._actual_score(actions[0], context, jnp.asarray(0.0))
     assert jnp.allclose(score, -actions[0], atol=1e-5)
 
 

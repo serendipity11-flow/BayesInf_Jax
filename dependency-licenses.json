@@ -1,22 +1,331 @@
 {
-  "schema_version": 1,
-  "project_redistribution_status": "private-not-approved",
-  "generated_on": "2026-08-17",
-  "scope": "direct NSF runtime and development dependencies",
-  "dependencies": [
-    {"name": "Python", "version": "3.12", "usage": "runtime", "spdx": "PSF-2.0", "source": "https://docs.python.org/3/license.html"},
-    {"name": "jax", "version": "0.10.0", "usage": "runtime", "spdx": "Apache-2.0", "source": "https://github.com/jax-ml/jax/blob/main/LICENSE"},
-    {"name": "jaxlib", "version": "0.10.0", "usage": "runtime", "spdx": "Apache-2.0", "source": "https://github.com/jax-ml/jax/blob/main/LICENSE"},
-    {"name": "equinox", "version": "0.13.7", "usage": "runtime", "spdx": "Apache-2.0", "source": "https://github.com/patrick-kidger/equinox/blob/main/LICENSE"},
-    {"name": "optax", "version": "0.2.8", "usage": "runtime", "spdx": "Apache-2.0", "source": "https://github.com/google-deepmind/optax/blob/main/LICENSE"},
-    {"name": "jaxtyping", "version": "0.3.9", "usage": "runtime-optional", "spdx": "MIT", "source": "https://github.com/patrick-kidger/jaxtyping/blob/main/LICENSE"},
-    {"name": "numpy", "version": "2.4.4", "usage": "runtime-transitive-and-interoperability", "spdx": "BSD-3-Clause", "source": "https://numpy.org/doc/stable/license.html"},
-    {"name": "pytest", "version": "unconstrained", "usage": "development", "spdx": "MIT", "source": "https://docs.pytest.org/en/stable/license.html"}
+  "schema_version": 2,
+  "reviewed_on": "2026-10-27",
+  "project_license": "MIT",
+  "project_license_scope": "Original project source and documentation; third-party notices and licenses remain applicable",
+  "owner_license_selection": "MIT selected by repository owner for the public repository cleanup on 2026-10-27",
+  "scope": "Source-only publication: every direct pin in requirements.txt, Python, jaxlib, vendored FrEIA, and optional Git submodule references",
+  "distribution_exclusions": [
+    "No installed Python packages, wheels, native libraries, CUDA/NVIDIA binaries, datasets, or model weights are redistributed as part of this source inventory",
+    "requirements_myenv_312.txt is a historical environment freeze, not a complete third-party license audit or a portable binary distribution manifest",
+    "Optional experiment requirements and the full transitive dependency closure require their own resolved environment inventory before redistributing a binary/container/environment"
   ],
-  "release_blockers": [
-    "resolve exact development dependency versions",
-    "inventory transitive dependencies",
-    "verify license texts from installed release artifacts",
-    "perform human compatibility review"
+  "dependencies": [
+    {
+      "name": "diffrax",
+      "version": "0.7.2",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "Apache-2.0",
+      "source_license": "https://github.com/patrick-kidger/diffrax/blob/v0.7.2/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "diffrax-0.7.2.dist-info/licenses/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      }
+    },
+    {
+      "name": "equinox",
+      "version": "0.13.7",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "Apache-2.0",
+      "source_license": "https://github.com/patrick-kidger/equinox/blob/v0.13.7/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "equinox-0.13.7.dist-info/licenses/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      }
+    },
+    {
+      "name": "jax",
+      "version": "0.10.0",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "Apache-2.0",
+      "source_license": "https://github.com/jax-ml/jax/blob/jax-v0.10.0/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "jax-0.10.0.dist-info/licenses/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      }
+    },
+    {
+      "name": "jaxtyping",
+      "version": "0.3.9",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "MIT",
+      "source_license": "https://github.com/patrick-kidger/jaxtyping/blob/v0.3.9/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "jaxtyping-0.3.9.dist-info/licenses/LICENSE": "2ef67751f7ae1fa8d1765c494d591767fa68dc1e12ab043dd0fbbfbc1ffda5bc"
+      }
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.10.9",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "LicenseRef-Matplotlib",
+      "source_license": "https://github.com/matplotlib/matplotlib/blob/v3.10.9/LICENSE/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "matplotlib-3.10.9.dist-info/LICENSE": "dbb9ad7495a83b0f2f48c94b06e23020587d82f8d1492dcb717fb1ebc2f86c18"
+      }
+    },
+    {
+      "name": "h5py",
+      "version": "3.16.0",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "BSD-3-Clause",
+      "source_license": "https://github.com/h5py/h5py/blob/3.16.0/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": "BSD-3-Clause",
+      "installed_license_files_sha256": {
+        "h5py-3.16.0.dist-info/licenses/LICENSE": "e574b296655cfb0ca5180ec6eee3c95d122b0906736d3ca7e3ce19e0f297f0c9",
+        "h5py-3.16.0.dist-info/licenses/licenses/license.txt": "facf43e03193cf4cf8d8bcdd67ce04fc61ef6948dd06672a4e5da579e64a3948",
+        "h5py-3.16.0.dist-info/licenses/lzf/LICENSE.txt": "a8f8c54abc00d1acd157401557b3ec6f500ac76a5efd17a0eaa644e2d32e6beb"
+      }
+    },
+    {
+      "name": "mujoco",
+      "version": "3.10.0",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "Apache-2.0",
+      "source_license": "https://github.com/google-deepmind/mujoco/blob/3.10.0/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": "Apache-2.0",
+      "installed_license_files_sha256": {
+        "mujoco-3.10.0.dist-info/licenses/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "mujoco-3.10.0.dist-info/licenses/LICENSES_THIRD_PARTY.md": "aec5167579b94d6926340175b4f764b5159f4933657556d89bbfb8238d3b3eb8"
+      }
+    },
+    {
+      "name": "numba",
+      "version": "0.65.1",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "BSD-2-Clause",
+      "source_license": "https://github.com/numba/numba/blob/0.65.1/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "numba-0.65.1.dist-info/licenses/LICENSE": "3a70e0a21cad03147246f6363d07bf76fae216c72779707f4ae5db06bcacf067",
+        "numba-0.65.1.dist-info/licenses/LICENSES.third-party": "fdc60ca21d827beb3835ffc6b7a99bda14a5cfcb379d0c82c05e3c1ff4a482f2"
+      }
+    },
+    {
+      "name": "numpy",
+      "version": "2.4.4",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "BSD-3-Clause",
+      "source_license": "https://github.com/numpy/numpy/blob/v2.4.4/LICENSE.txt",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+      "installed_license_files_sha256": {
+        "numpy-2.4.4.dist-info/licenses/LICENSE.txt": "4860083caa0de2ac3292ca98bd074bd8f45d8b32624e37b1e70a240bff61e488",
+        "numpy-2.4.4.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt": "fbc539f47d0cf83bc61378080fb873d5c14630126cacbfe754035c3926daa5ec",
+        "numpy-2.4.4.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING": "3f2c1ffa76383a55ae0aac01c9737cd70050dff63e1f026694fbe9d662573c98",
+        "numpy-2.4.4.dist-info/licenses/numpy/_core/src/highway/LICENSE": "e340270d4f64384569a91d546acb5b094d69ce47f0c015db77abb74dc6f815af",
+        "numpy-2.4.4.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt": "f7b14309e5f54e5022b26448eefd419988ada2aec01d3c1162d84a0ea8f21f2c",
+        "numpy-2.4.4.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md": "211e7d737d6179a08f791ebb0a99897ce7cd2457410c542876d125576edfe910",
+        "numpy-2.4.4.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE": "c17011467b4fe6e20fbfbeda4df09e58c2bca5480a063e55735a4000a379aad9",
+        "numpy-2.4.4.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md": "a85ca13fdf90160b64a0698215868c13b74d835ad0a4e2ba44713b8c5058a056",
+        "numpy-2.4.4.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt": "a14cc25e10d40a3aa705b7de2fb764a6535d8ee9b2db4e1724900585457dfd55",
+        "numpy-2.4.4.dist-info/licenses/numpy/ma/LICENSE": "05f3b88351988ecfad10abe92c0c50e5875c6452d5009a0084cc291551ffcca6",
+        "numpy-2.4.4.dist-info/licenses/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f",
+        "numpy-2.4.4.dist-info/licenses/numpy/random/src/distributions/LICENSE.md": "469778be8f33d54e1bcaab28c281cc472916d2d273f835e55bc487d30503face",
+        "numpy-2.4.4.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md": "0e111337b25494a773106695f0e799f642b8567aaacca4f116a74a8177179156",
+        "numpy-2.4.4.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md": "e7d4f4fb20358f314210a892ae17351e04993813646f697ec387385ca2a36918",
+        "numpy-2.4.4.dist-info/licenses/numpy/random/src/philox/LICENSE.md": "6f5828a57223d4cc7f8ea505a2623e7b978b242752c1515e355f46ba2cec1800",
+        "numpy-2.4.4.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md": "9d4098846018319cd68e228ee6220361787f73bccbf00237a85e4fc9621b998f",
+        "numpy-2.4.4.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md": "268b0ca06759d31ea3ca68dd35f20e877916e927b1c2a835e4592a3c4354b1f9"
+      }
+    },
+    {
+      "name": "optax",
+      "version": "0.2.8",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "Apache-2.0",
+      "source_license": "https://github.com/google-deepmind/optax/blob/v0.2.8/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "optax-0.2.8.dist-info/licenses/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      }
+    },
+    {
+      "name": "pytest",
+      "version": "8.4.2",
+      "usage": "development/test",
+      "top_level_source_spdx": "MIT",
+      "source_license": "https://github.com/pytest-dev/pytest/blob/8.4.2/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "pytest-8.4.2.dist-info/licenses/LICENSE": "ca836a5f9ecca3b2f350230faa20a48fb8b145653b5568d784862df864706b9b"
+      }
+    },
+    {
+      "name": "pyarrow",
+      "version": "23.0.1",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "Apache-2.0",
+      "source_license": "https://github.com/apache/arrow/blob/apache-arrow-23.0.1/LICENSE.txt",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": "Apache-2.0",
+      "installed_license_files_sha256": {
+        "pyarrow-23.0.1.dist-info/licenses/LICENSE.txt": "23fc45dce1769d9ddf4aac4d6cdaf3f7f0d14fcc4d930dd0d4afbefa2ea3322a"
+      }
+    },
+    {
+      "name": "SALib",
+      "version": "1.5.2",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "MIT",
+      "source_license": "https://github.com/SALib/SALib/blob/v1.5.2/LICENSE.md",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": "MIT",
+      "installed_license_files_sha256": {
+        "salib-1.5.2.dist-info/licenses/LICENSE.md": "954fea77d90439a34c285a0989b31350c6f9c3e32bd44ad373fbe235995e56d1"
+      }
+    },
+    {
+      "name": "scikit_learn",
+      "version": "1.8.0",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "BSD-3-Clause",
+      "source_license": "https://github.com/scikit-learn/scikit-learn/blob/1.8.0/COPYING",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": "BSD-3-Clause",
+      "installed_license_files_sha256": {
+        "scikit_learn-1.8.0.dist-info/licenses/COPYING": "fde6cdc0a86c65a845af17086f964f7a38d934467b7f36203894af30ecee7640"
+      }
+    },
+    {
+      "name": "scipy",
+      "version": "1.17.1",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "BSD-3-Clause",
+      "source_license": "https://github.com/scipy/scipy/blob/v1.17.1/LICENSE.txt",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "scipy-1.17.1.dist-info/LICENSE.txt": "4daf14e37432e7026165979ecb7a39930707a3e89bef4876cfaf9dad36ed364a"
+      }
+    },
+    {
+      "name": "seaborn",
+      "version": "0.13.2",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "BSD-3-Clause",
+      "source_license": "https://github.com/mwaskom/seaborn/blob/v0.13.2/LICENSE.md",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "seaborn-0.13.2.dist-info/LICENSE.md": "357ad276e086fab501163d4e9a0ae13c2fd0647eb08d2305fbc0ca3813892601"
+      }
+    },
+    {
+      "name": "tqdm",
+      "version": "4.67.3",
+      "usage": "runtime/experiment",
+      "top_level_source_spdx": "MPL-2.0 AND MIT",
+      "source_license": "https://github.com/tqdm/tqdm/blob/v4.67.3/LICENCE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "tqdm-4.67.3.dist-info/licenses/LICENCE": "fcff87c3a47ce8028a8512aa182d4fcf0ad1c90544ee75cf9b343684cac194de"
+      }
+    },
+    {
+      "name": "jaxlib",
+      "version": "0.10.0",
+      "usage": "transitive JAX runtime",
+      "top_level_source_spdx": "Apache-2.0",
+      "source_license": "https://github.com/jax-ml/jax/blob/jax-v0.10.0/LICENSE",
+      "bundled_in_this_repository": false,
+      "verification": "Installed distribution version, metadata, and license files inspected on 2026-10-27",
+      "installed_license_expression": null,
+      "installed_license_files_sha256": {
+        "jaxlib-0.10.0.dist-info/licenses/LICENSE.txt": "e3d8688a2c75d4e33641cc88046a8a1593ee79822411fa45a7bd32e37f847d29"
+      }
+    },
+    {
+      "name": "Python",
+      "version": "3.12",
+      "usage": "interpreter",
+      "top_level_source_spdx": "PSF-2.0",
+      "source_license": "https://docs.python.org/3.12/license.html",
+      "bundled_in_this_repository": false,
+      "verification": "Official Python license documentation; interpreter not redistributed"
+    }
+  ],
+  "third_party_components": [
+    {
+      "name": "FrEIA",
+      "path": "third_party/FrEIA",
+      "distribution": "vendored source",
+      "recorded_upstream_commit": "421249652c478b3f240f124f69eb5777b6a76bf2",
+      "version": "0.2",
+      "spdx": "MIT",
+      "copyright": "Copyright (c) 2018 Lynton Ardizzone",
+      "source_license": "https://github.com/vislearn/FrEIA/blob/master/LICENSE",
+      "retained_license": "third_party/FrEIA/LICENSE",
+      "retained_license_sha256": "97bd8386addc4a4ff3b063a206e574ecab2570e82791d7357c4e2f2b48f99fef"
+    },
+    {
+      "name": "D4RL",
+      "path": "third_party/d4rl_legacy",
+      "distribution": "optional Git submodule reference",
+      "commit": "89141a689b0353b0dac3da5cba60da4b1b16254d",
+      "code_spdx": "Apache-2.0",
+      "source_license": "https://github.com/Farama-Foundation/D4RL/blob/master/LICENSE",
+      "dataset_license": "Dataset-specific; upstream default CC-BY-4.0 unless otherwise noted; no datasets bundled"
+    },
+    {
+      "name": "DPPO",
+      "path": "third_party/dppo",
+      "distribution": "optional Git submodule reference",
+      "commit": "cc7234ad7ff39a8f32de3af903606723a16f0648",
+      "code_spdx": "MIT",
+      "copyright": "Copyright (c) 2024 Intelligent Robot Motion Lab",
+      "source_license": "https://github.com/irom-princeton/dppo/blob/cc7234ad7ff39a8f32de3af903606723a16f0648/LICENSE"
+    },
+    {
+      "name": "MuJoCo Menagerie",
+      "path": "third_party/mujoco_menagerie",
+      "distribution": "optional Git submodule reference",
+      "commit": "71f066ad0be9cd271f7ed58c030243ef157af9f4",
+      "license_scope": "Per-model licenses; the ALOHA subtree used by these experiments is BSD-3-Clause, not a license assertion for every Menagerie asset",
+      "aloha_spdx": "BSD-3-Clause",
+      "aloha_copyright": "Copyright (c) 2023, Trossen Robotics",
+      "source_license": "https://github.com/google-deepmind/mujoco_menagerie/blob/main/aloha/LICENSE"
+    }
+  ],
+  "license_references": {
+    "LicenseRef-Matplotlib": {
+      "name": "Matplotlib license agreement for versions 1.3.0 and later; based on PSF license",
+      "text_url": "https://matplotlib.org/3.10.9/project/license.html"
+    }
+  },
+  "interpretation": [
+    "Top-level source license identifiers do not replace bundled-component notices in upstream distributions. NumPy installed metadata records a composite expression; SciPy wheels carry additional native-library license notices.",
+    "tqdm contains MPL-2.0 and MIT portions; it is an external unmodified dependency, not project code relicensed under MIT.",
+    "This is an evidence record for the described source snapshot, not a claim that every transitive wheel, optional environment, historical commit, or original contribution has undergone complete legal/human review."
   ]
 }

@@ -1,4 +1,7 @@
+from pathlib import Path
+
 import numpy as np
+import pytest
 
 from experiments.aloha_mujoco_flow.generate_simulator_data import (
     nominal_actions, smooth_random_actions,
@@ -10,7 +13,12 @@ from experiments.aloha_mujoco_flow.mujoco_aloha import (
     aloha_disturbance_modes,
 )
 
+requires_aloha_assets = pytest.mark.skipif(
+    not (Path(__file__).resolve().parents[1] / "third_party/mujoco_menagerie/aloha/scene.xml").is_file(),
+    reason="Initialize the optional MuJoCo Menagerie submodule before simulator integration tests",
+)
 
+@requires_aloha_assets
 def test_menagerie_aloha_mapping_and_step_are_finite():
     plant = MujocoAlohaPlant(control_dt=0.02)
     state = plant.reset()
@@ -21,6 +29,7 @@ def test_menagerie_aloha_mapping_and_step_are_finite():
     assert np.isfinite(next_state).all()
 
 
+@requires_aloha_assets
 def test_generated_action_families_respect_actuator_ranges():
     plant = MujocoAlohaPlant(control_dt=0.02)
     rng = np.random.default_rng(0)
@@ -58,6 +67,7 @@ def test_contact_intensity_scales_same_disturbance_realization_by_three():
     np.testing.assert_allclose(contact.sample(1.0), 3.0 * free.sample(0.0), rtol=1e-6)
 
 
+@requires_aloha_assets
 def test_joint_torque_disturbance_changes_only_during_physics_step():
     plant = MujocoAlohaPlant(control_dt=0.02)
     initial = plant.reset()

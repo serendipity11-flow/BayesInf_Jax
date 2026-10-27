@@ -1,4 +1,6 @@
-import torch
+import pytest
+
+torch = pytest.importorskip("torch", reason="PyTorch SI baselines are optional")
 
 from experiments.cond_stoch_interpolant_dppo.policies import (
     CondStochInterpolant,

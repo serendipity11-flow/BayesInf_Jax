@@ -90,7 +90,7 @@ def test_learned_csi_uses_state_estimation_scaled_score_and_sde_schedule():
 
 def test_flow_policy_rejects_sde_sampling():
     states, _ = batch()
-    with pytest.raises(ValueError, match="no score"):
+    with pytest.raises(ValueError, match="does not define an SDE score"):
         small_policy().sample_sde(states, jr.PRNGKey(5))
 
 

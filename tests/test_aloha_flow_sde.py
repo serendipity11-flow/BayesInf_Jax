@@ -1,13 +1,19 @@
 import jax
 import jax.numpy as jnp
 import jax.random as jr
+import pytest
 
 from bayesinf.applications.optimal_control.controlled_flow_sde import (
     ControlledRealNVPFlowSDE,
 )
-from experiments.mujoco_pusher_optimal_control.geometry import (
-    pusher_contact_features,
-)
+
+@pytest.fixture
+def pusher_contact_features():
+    geometry = pytest.importorskip(
+        "experiments.mujoco_pusher_optimal_control.geometry",
+        reason="The optional pusher geometry prototype is not included in the public snapshot",
+    )
+    return geometry.pusher_contact_features
 
 
 def small_model():
@@ -84,7 +90,7 @@ def test_object_drift_has_no_direct_control_path():
     assert jnp.allclose(drift_zero[obj], drift_one[obj])
 
 
-def test_pusher_geometry_distance_and_proximity_are_hand_checked():
+def test_pusher_geometry_distance_and_proximity_are_hand_checked(pusher_contact_features):
     # Straight arm tip is at x=-0.72+0.34+0.30+0.22=0.14.  With an object
     # centred at x=0.50, its left face is x=0.41, hence surface gap
     # 0.41-0.14-0.055=0.215 m.
@@ -103,7 +109,7 @@ def test_pusher_geometry_distance_and_proximity_are_hand_checked():
     assert jnp.all(jnp.isfinite(jax.jacrev(pusher_contact_features)(overlap)))
 
 
-def test_extended_geometry_and_contact_experts_support_yaw_dynamics():
+def test_extended_geometry_and_contact_experts_support_yaw_dynamics(pusher_contact_features):
     model = ControlledRealNVPFlowSDE(
         12, 3, jr.PRNGKey(38), hidden_size=8, depth=1,
         diffusion_hidden=8, flow_layers=2, time_emb_dim=4,
@@ -121,7 +127,7 @@ def test_extended_geometry_and_contact_experts_support_yaw_dynamics():
     assert jnp.all(jnp.isfinite(drift))
 
 
-def test_split_heads_and_geometry_support_drift_and_diffusion_rollout():
+def test_split_heads_and_geometry_support_drift_and_diffusion_rollout(pusher_contact_features):
     model = ControlledRealNVPFlowSDE(
         12, 3, jr.PRNGKey(40), hidden_size=8, depth=1,
         diffusion_hidden=8, flow_layers=2, time_emb_dim=4,
